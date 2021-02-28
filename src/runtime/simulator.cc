@@ -25,20 +25,6 @@ int ParallelConfig::num_parts() const
   return nparts;
 }
 
-bool ParallelConfig::is_data_parallel() const
-{
-  int nparts = 1;
-  for (int i = 0; i < nDims; i++) {
-    nparts *= dim[i];
-    if ((i < nDims-1) && (dim[i] > 1))
-      return false;
-  }
-  for (int i = 0; i < nparts; i++)
-    if (device_ids[i] != i)
-      return false;
-  return true;
-}
-
 Device::Device(Device::DeviceType _type, int _node_id, int _gpu_id)
 : node_id(_node_id), gpu_id(_gpu_id), bandwidth(0.0f), type(_type)
 {
@@ -77,6 +63,47 @@ std::string SimTask::get_type_str() const {
   }
 }
 
+std::string get_device_str(Device const *d) {
+  std::ostringstream s;
+  switch (d->type) {
+    s << "[" << d->node_id << "] ";
+    case Device::DEVICE_GPU:
+      s << "GPU-" << d->gpu_id;
+      break;
+    case Device::DEVICE_CPU:
+      s << "CPU";
+      break;
+    case Device::DEVICE_COMM:
+      s << "COMM(" << d->bandwidth << ")";
+      break;
+    default:
+      assert(false && "Unknown device type");
+  }
+  return s.str();
+}
+
+std::string get_domain_str(Domain const &d) {
+  std::ostringstream s;
+  s << "(";
+  for (int i = 0; i < d.dim; i++) {
+    s <<  d.rect_data[i];
+    if (i+1 != d.dim) {
+      s << ", ";
+    }
+  }
+  s << ")";
+  s << " to ";
+  s << "(";
+  for (int i = 0; i < d.dim; i++) {
+    s <<  d.rect_data[Domain::MAX_RECT_DIM+i];
+    if (i+1 != d.dim) {
+      s << ", ";
+    }
+  }
+  s << ")";
+  return s.str();
+}
+
 TaskManager::TaskManager(size_t _max_num_tasks)
 : max_num_tasks(_max_num_tasks)
 {
@@ -103,6 +130,8 @@ SimTask* TaskManager::new_task()
   task->counter = 0;
   task->device = NULL;
   task->op_name = NULL;
+  task->src = NULL;
+  task->dst = NULL;
   return task;
 }
 
@@ -233,6 +262,8 @@ Device* Simulator::get_inter_node_comm_device_by_ids(int src_id,
 
 void Simulator::add_task_dependencies_with_xfer(SimTask* src_task,
                                                 SimTask* dst_task,
+                                                Domain const &src_domain,
+                                                Domain const &dst_domain,
                                                 size_t intersect)
 {
   if (src_task->device == dst_task->device) {
@@ -240,23 +271,32 @@ void Simulator::add_task_dependencies_with_xfer(SimTask* src_task,
   } else if (src_task->device->node_id == dst_task->device->node_id) {
     // Intra-node communication
     SimTask* task = task_manager->new_comm_task();
+    task->src = src_task->device;
+    task->dst = dst_task->device;
+    task->src_domain = src_domain;
+    task->dst_domain = dst_domain;
     task->device = get_inter_gpu_comm_device_by_ids(src_task->device->gpu_id,
                                                     dst_task->device->gpu_id);
     task->run_time = (float)intersect * sizeof(float) / task->device->bandwidth;
-    //printf("Comm task: run_time(%.4lf) size(%zu) bandwidth(%.4lf)\n",
-    //       task->run_time, intersect * sizeof(float), task->device->bandwidth);
+    /* char const *src_name = (src_task->op_name == NULL) ? "???" : src_task->op_name; */
+    /* char const *dst_name = (dst_task->op_name == NULL) ? "???" : dst_task->op_name; */
+    /* printf("Comm task: src(%s) dst(%s) run_time(%.4lf) size(%zu) bandwidth(%.4lf)\n", */
+    /*        src_name, dst_name, task->run_time, intersect * sizeof(float), task->device->bandwidth); */
     src_task->add_next_task(task);
     task->add_next_task(dst_task);
   } else {
     // Inter-node communication
     SimTask* gpu_to_dram = task_manager->new_comm_task();
+    gpu_to_dram->op_name = "gpu2dram";
     gpu_to_dram->device = get_gpu_to_dram_comm_device_by_id(src_task->device->gpu_id);
     gpu_to_dram->run_time = (float)intersect * sizeof(float) / gpu_to_dram->device->bandwidth;
     SimTask* dram_to_dram = task_manager->new_comm_task();
+    dram_to_dram->op_name = "dram2dram";
     dram_to_dram->device = get_inter_node_comm_device_by_ids(src_task->device->node_id,
                                                              dst_task->device->node_id);
     dram_to_dram->run_time = (float)intersect * sizeof(float) / dram_to_dram->device->bandwidth;
     SimTask* dram_to_gpu = task_manager->new_comm_task();
+    dram_to_gpu->op_name = "dram2gpu";
     dram_to_gpu->device = get_dram_to_gpu_comm_device_by_id(dst_task->device->gpu_id);
     dram_to_gpu->run_time = (float)intersect * sizeof(float) / dram_to_gpu->device->bandwidth;
     src_task->add_next_task(gpu_to_dram);
@@ -264,15 +304,6 @@ void Simulator::add_task_dependencies_with_xfer(SimTask* src_task,
     dram_to_dram->add_next_task(dram_to_gpu);
     dram_to_gpu->add_next_task(dst_task);
   }
-}
-
-[[noreturn]] void handle_measure_compute_time_unimplemented(Op const *op) {
-    std::cerr << "measure_compute_time not implemented for op "
-              << op->name
-              << " (type " << op->op_type << ")"
-              << ". Please report this issue to the FlexFlow developers."
-              << std::endl;
-    std::abort();
 }
 
 float Simulator::measure_op_forward_time(Op* op, const ParallelConfig& config)
@@ -284,10 +315,7 @@ float Simulator::measure_op_forward_time(Op* op, const ParallelConfig& config)
     hash = hash * 31 + std::hash<int>()(config.dim[i]);
   if (hash_to_op_forward_time.find(hash) == hash_to_op_forward_time.end()) {
     float forward_time, backward_time;
-    bool is_implemented = op->measure_compute_time(this, config, forward_time, backward_time);
-    if (! is_implemented) {
-      handle_measure_compute_time_unimplemented(op);
-    }
+    op->measure_compute_time(this, config, forward_time, backward_time);
     hash_to_op_forward_time[hash] = forward_time;
     // Check consistency betwek forward and backward
     assert(hash_to_op_backward_time.find(hash) == hash_to_op_backward_time.end());
@@ -307,10 +335,8 @@ float Simulator::measure_op_backward_time(Op* op, const ParallelConfig& config)
     hash = hash * 31 + std::hash<int>()(config.dim[i]);
   if (hash_to_op_backward_time.find(hash) == hash_to_op_backward_time.end()) {
     float forward_time, backward_time;
-    bool is_implemented = op->measure_compute_time(this, config, forward_time, backward_time);
-    if (! is_implemented) {
-      handle_measure_compute_time_unimplemented(op);
-    }
+    op->measure_compute_time(this, config, forward_time, backward_time);
+    // Check consistency betwek forward and backward
     assert(hash_to_op_forward_time.find(hash) == hash_to_op_forward_time.end());
     hash_to_op_forward_time[hash] = forward_time;
     hash_to_op_backward_time[hash] = backward_time;
@@ -366,13 +392,13 @@ float Simulator::simulate_runtime(const FFModel* model,
             {
               SimTask* dstT = task_manager->get_forward_task(op, dstId);
               SimTask* srcT = task_manager->get_forward_task(pre_op, srcId);
-              add_task_dependencies_with_xfer(srcT, dstT, dstR.intersection(srcR).get_volume());
+              add_task_dependencies_with_xfer(srcT, dstT, srcR, dstR, dstR.intersection(srcR).get_volume());
             }
             // Backward dependency
             {
               SimTask* dstT = task_manager->get_backward_task(op, dstId);
               SimTask* srcT = task_manager->get_backward_task(pre_op, srcId);
-              add_task_dependencies_with_xfer(dstT, srcT, dstR.intersection(srcR).get_volume());
+              add_task_dependencies_with_xfer(dstT, srcT, srcR, dstR, dstR.intersection(srcR).get_volume());
             }
           }
         }
@@ -401,14 +427,13 @@ float Simulator::simulate_runtime(const FFModel* model,
         std::set<int> synched;
         for (int firstId = 0; firstId < pc.num_parts(); firstId++)
           if (synched.find(firstId) == synched.end()) {
-            synched.insert(firstId);
             Domain firstR = op->get_weight_tensor_shape(pc, j, firstId);
             // Add a compute task for parameter update
             SimTask* updateT = task_manager->new_update_task();
             updateT->device = get_compute_device_by_id(pc.device_ids[firstId]);
             // TODO add parameter synchronization time
             updateT->run_time = 0.0f; // Assume update task takes no time
-            for (int nextId = firstId+1; nextId < pc.num_parts(); nextId++) {
+            for (int nextId = firstId; nextId < pc.num_parts(); nextId++) {
               Domain nextR = op->get_weight_tensor_shape(pc, j, nextId);
               if (firstR.intersection(nextR).get_volume() > 0) {
                 // Assert all or nothing:
@@ -418,10 +443,10 @@ float Simulator::simulate_runtime(const FFModel* model,
                 synched.insert(nextId);
                 // Add comm. tasks from backT to updateT
                 SimTask* backT = task_manager->get_backward_task(op, nextId);
-                add_task_dependencies_with_xfer(backT, updateT, firstR.get_volume());
+                add_task_dependencies_with_xfer(backT, updateT, firstR, nextR, firstR.get_volume());
                 // Add comm. tasks from updateT to finalT
                 SimTask* finalT = finals[backT->device->gpu_id];
-                add_task_dependencies_with_xfer(updateT, finalT, firstR.get_volume());
+                add_task_dependencies_with_xfer(updateT, finalT, firstR, nextR, firstR.get_volume());
               }
             }
           }
@@ -450,9 +475,8 @@ float Simulator::simulate_runtime(const FFModel* model,
       ParallelConfig pc = global.find(op)->second;
       for (int j = 0; j < op->numWeights; j++) {
         std::set<int> synched;
-        for (int firstId = 0; firstId < pc.num_parts(); firstId++)
+        for (int firstId = 0; firstId < pc.num_parts(); firstId++) {
           if (synched.find(firstId) == synched.end()) {
-            synched.insert(firstId);
             Domain firstR = op->get_weight_tensor_shape(pc, j, firstId);
             // Add a compute task for parameter update
             SimTask* updateT = task_manager->new_update_task();
@@ -471,13 +495,14 @@ float Simulator::simulate_runtime(const FFModel* model,
                 assert(backT->device->gpu_id == pc.device_ids[nextId]);
                 SimTask* barrierT = barriers[backT->device->gpu_id];
                 // Add comm. tasks from barrierT to updateT
-                add_task_dependencies_with_xfer(barrierT, updateT, firstR.get_volume());
+                add_task_dependencies_with_xfer(barrierT, updateT, firstR, nextR, firstR.get_volume());
                 // Add comm. tasks from updateT to finalT
                 SimTask* finalT = finals[backT->device->gpu_id];
-                add_task_dependencies_with_xfer(updateT, finalT, firstR.get_volume());
+                add_task_dependencies_with_xfer(updateT, finalT, firstR, nextR, firstR.get_volume());
               }
             }
           }
+        }
       }
     }
   }
@@ -515,6 +540,14 @@ float Simulator::simulate_runtime(const FFModel* model,
         label << t->op_name << " | ";
       }
       label << t->get_type_str() << " | ";
+      label << get_device_str(t->device) << " | ";
+      if (t->src != NULL && t->dst != NULL) {
+        label << "{ " << get_device_str(t->src) << " | " << get_device_str(t->dst) << " }" << " | ";
+        label << "{ " << get_domain_str(t->src_domain)
+              << " | " << get_domain_str(t->dst_domain)
+              << " | " << get_domain_str(t->src_domain.intersection(t->dst_domain))
+              << " }" << " | ";
+      }
       label << "{ " << start_time << " | " << end_time << " }";
       label << " }\"";
       nodeAttrs["label"] = label.str();
@@ -548,7 +581,7 @@ float Simulator::simulate_runtime(const FFModel* model,
     Op* op = model->layers[l];
     ParallelConfig pc = global.find(op)->second;
     // Since all NCCL calls are blocking, we can add the NCCL cost
-    // sequentially 
+    // sequentially
     for (int j = 0; j < op->numWeights; j++) {
       std::set<int> synched;
       for (int firstId = 0; firstId < pc.num_parts(); firstId++)

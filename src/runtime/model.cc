@@ -132,14 +132,17 @@ bool Tensor::get_input_sub_tensor(const ParallelConfig& pc,
   //TODO: consider reduction dim for conv2d and linear
   switch (type) {
     case OP_FLAT:
+    case OP_RESHAPE:
       {
-        assert (pc.nDims == 2 && "Invalid dimension for parallel config of OP_FLAT");
+        /* assert (pc.nDims == 2 && "Invalid dimension for parallel config of OP_FLAT"); */
         int nonBatchDim = pc.dim[0];
         tensor.numDim = numDim;
         assert (nonBatchDim == 1 && "I'm not sure this is correct otherwise");
         if (adim[numDim - 1] % nonBatchDim != 0) {
           printf("Could not get input subtensor because the dimension is not divisiable: %d %% %d != 0\n", adim[numDim - 1], nonBatchDim);
+          return false;
         }
+        tensor.adim[this->numDim - 1] = this->adim[this->numDim - 1] / pc.dim[pc.nDims - 1];
         for (int i = numDim - 2; i >= 0; i--) {
           tensor.adim[i] = adim[i];
         }
@@ -457,6 +460,40 @@ ParallelConfig Op::get_data_parallel_config(const FFModel& ff) const
   return pc;
 }
 
+std::vector<ParallelConfig> Op::get_all_parallel_configs(FFModel const &ff) const {
+  std::set<int> candidates;
+  int batch_size = outputs[0].adim[outputs[0].numDim-1];
+  for (int i = 1; i <= ff.config.workersPerNode; i++)
+    if (ff.config.workersPerNode % i == 0) {
+      if (batch_size % i != 0)
+        continue;
+      candidates.insert(i);
+    }
+  for (int i = 1; i <= ff.config.numNodes; i++)
+    if (ff.config.numNodes % i == 0) {
+      if (batch_size % (i * ff.config.workersPerNode) != 0)
+        continue;
+      candidates.insert(i * ff.config.workersPerNode);
+    }
+  assert(candidates.size() > 0);
+
+  std::vector<ParallelConfig> configs;
+  for (int const &num_parts : candidates) {
+    ParallelConfig pc;
+    pc.device_type = ParallelConfig::GPU;
+    pc.nDims = outputs[0].numDim;
+    for (int i = 0; i < pc.nDims; i++) {
+      pc.dim[i] = i == pc.nDims - 1 ? num_parts : 1;
+    }
+    for (int i = 0; i < num_parts; i++) {
+      pc.device_ids[i] = i;
+    }
+    configs.push_back(pc);
+  }
+
+  return configs;
+}
+
 ParallelConfig Op::get_random_parallel_config(const FFModel& ff) const
 {
   std::vector<int> candidates;
@@ -558,7 +595,7 @@ Domain Op::get_weight_tensor_shape(const ParallelConfig& pc,
   return d;
 }
 
-#ifdef FF_ENABLE_NCCL  
+#ifdef FF_ENABLE_NCCL
 void Op::get_nccl_unique_id()
 {
   // Init NCCL id
@@ -580,6 +617,7 @@ OpMeta::OpMeta(FFHandler _handle)
 void OpMeta::init_nccl_communicator(const Task* task,
                                     ncclUniqueId ncclId)
 {
+  printf("Using NCCL\n");
   // Must be an index space launch
   assert(task->is_index_space);
   int allRanks = task->index_domain.get_volume();
@@ -1228,8 +1266,14 @@ IndexSpace FFModel::get_or_create_task_is(ParallelConfig pc)
     default:
       assert(false);
   }
-  printf("ndim(%d) dims[%d %d %d %d]\n",
-      pc.nDims, pc.dim[0], pc.dim[1], pc.dim[2], pc.dim[3]);
+  printf("ndim(%d) dims[", pc.nDims);
+  for (int i = 0; i < pc.nDims; i++) {
+    if (i != 0) {
+      printf(" ");
+    }
+    printf("%d", pc.dim[i]);
+  }
+  printf("]\n");
   taskIs[pc] = task_is;
   return task_is;
 }
@@ -1601,7 +1645,7 @@ void FFModel::optimize(Simulator* simulator,
   for (size_t iter = 0; iter < budget; iter++) {
     rewrite(current, next);
     float next_runtime = simulator->simulate_runtime(this, next);
-    if (iter % 100 == 0) {
+    if (iter % 1000 == 0) {
       printf("iter(%zu) cur(%.2lf) next(%.2lf) best(%.2lf)\n", iter,
              current_runtime, next_runtime, best_runtime);
     }
@@ -1639,6 +1683,48 @@ void FFModel::optimize(Simulator* simulator,
     printf("]\n");
   }
   printf("============= MCMC Search Finished ============\n\n");
+}
+
+void FFModel::export_search_problem(Simulator *simulator, std::string const &filename) const {
+  std::ofstream oss(filename);
+  this->export_search_problem(simulator, oss);
+}
+
+void FFModel::export_search_problem(Simulator *simulator, std::ostream &oss) const {
+  oss << "nodes: " << this->config.numNodes << std::endl
+      << "workersPerNode: " << this->config.workersPerNode << std::endl
+      << "interGPUBandwidth: " << simulator->inter_gpu_bandwidth << std::endl
+      << "gpuToDRAMBandwidth: " << simulator->gpu_dram_bandwidth << std::endl
+      << "interNodeBandwidth: " << simulator->inter_node_bandwidth << std::endl;
+  for (Op *layer : this->layers) {
+    oss << "node \"" << layer->name << "\"" << std::endl;
+    for (ParallelConfig const &pc : layer->get_all_parallel_configs(*this)) {
+      float fwd_time = simulator->measure_op_forward_time(layer, pc);
+      float bwd_time = simulator->measure_op_backward_time(layer, pc);
+      oss << "profile node: \"" << layer->name
+          << "\" n: " << pc.num_parts()
+          << " fwd: " << fwd_time
+          << " bwd: " << bwd_time
+          << std::endl;
+    }
+
+    for (int i = 0; i < layer->numWeights; i++) {
+      oss << "weight node: \"" << layer->name
+          << "\" idx: " << i
+          << " size: " << layer->weights[i].get_volume()
+          << std::endl;
+    }
+  }
+  for (Op *layer : this->layers) {
+    for (int j = 0; j < layer->numInputs; j++) {
+      Tensor t = layer->inputs[j];
+      Op const *pre_op = t.owner_op;
+      if (pre_op == NULL) {
+        continue;
+      }
+      oss << "edge src: \"" << pre_op->name << "\" dst: \"" << layer->name << "\" size: " << t.get_volume() * 4 <<  std::endl;
+    }
+  }
 }
 
 void FFModel::zero_gradients(void)
@@ -1851,6 +1937,7 @@ struct DefaultConfig {
   const static bool enableSampleParallel = true;
   const static bool enableParameterParallel = false;
   const static bool enableAttributeParallel = false;
+  const static int interGpuBandwidth = 20;
 };
 
 FFConfig::FFConfig()
@@ -1872,6 +1959,7 @@ FFConfig::FFConfig()
   enable_sample_parallel = DefaultConfig::enableSampleParallel;
   enable_parameter_parallel = DefaultConfig::enableParameterParallel;
   enable_attribute_parallel = DefaultConfig::enableAttributeParallel;
+  inter_gpu_bandwidth = DefaultConfig::interGpuBandwidth;
 
   import_strategy_file = "";
   export_strategy_file = "";
@@ -1929,6 +2017,10 @@ void FFConfig::parse_args(char **argv, int argc)
       export_strategy_file = std::string(argv[++i]);
       continue;
     }
+    if (!strcmp(argv[i], "--search-problem")) {
+      export_search_problem_file = std::string(argv[++i]);
+      continue;
+    }
     if ((!strcmp(argv[i], "--enable-parameter-parallel"))) {
       enable_parameter_parallel = true;
       continue;
@@ -1969,6 +2061,10 @@ void FFConfig::parse_args(char **argv, int argc)
     }
     if (!strcmp(argv[i], "--taskgraph")) {
       export_strategy_task_graph_file = std::string(argv[++i]);
+      continue;
+    }
+    if (!strcmp(argv[i], "--bandwidth")) {
+      inter_gpu_bandwidth = atoi(argv[++i]);
       continue;
     }
   }

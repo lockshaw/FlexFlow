@@ -347,7 +347,7 @@ void Pool2D::backward_task(const Task *task,
     checkCUDA(cudaEventElapsedTime(&elapsed, t_start, t_end));
     cudaEventDestroy(t_start);
     cudaEventDestroy(t_end);
-    printf("Pool2D backward time = %.2fms\n", elapsed);
+    printf("%s [Pool2D] backward time = %.2fms\n", pool->name, elapsed);
   }
 }
 

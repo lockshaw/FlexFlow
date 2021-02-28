@@ -66,8 +66,10 @@ public:
   Device* device;
   int counter;
   std::vector<SimTask*> next_tasks;
-  char *op_name;
+  char const *op_name;
   std::string get_type_str() const;
+  Device *src, *dst;
+  Domain src_domain, dst_domain;
 };
 
 template <typename T>
@@ -163,7 +165,7 @@ public:
   Device* get_gpu_to_dram_comm_device_by_id(int gpu_id);
   Device* get_dram_to_gpu_comm_device_by_id(int gpu_id);
   void add_task_dependencies_with_xfer(
-      SimTask* src_task, SimTask* dst_task, size_t intersect);
+      SimTask* src_task, SimTask* dst_task, Domain const &src_domain, Domain const &dst_domain, size_t intersect);
   float measure_op_forward_time(Op* op, const ParallelConfig& config);
   float measure_op_backward_time(Op* op, const ParallelConfig& config);
   float simulate_runtime(const FFModel* model,
@@ -183,6 +185,7 @@ public:
   off_t offset;
   int warmup_times, repeat_times;
   int num_nodes, gpus_per_node, total_num_gpus;
+  float inter_gpu_bandwidth, inter_node_bandwidth, gpu_dram_bandwidth;
   TaskManager* task_manager;
   cudaEvent_t start_event, end_event;
   std::map<int, Device*> id_to_compute_device;

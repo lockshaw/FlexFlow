@@ -6,27 +6,25 @@ import numpy as np
 from accuracy import ModelAccuracy
 from PIL import Image
 
-MODEL_DIRECTORY = "/home/groups/aaiken/unger/models/alexnet"
+MODEL_DIRECTORY = "/home/groups/aaiken/unger/models/inception"
 
 def top_level_task():
   ffconfig = FFConfig()
-  alexnetconfig = NetConfig()
-  print(alexnetconfig.dataset_path)
+  inceptionconfig = NetConfig()
+  print(inceptionconfig.dataset_path)
   ffconfig.parse_args()
   print("Python API batchSize(%d) workersPerNodes(%d) numNodes(%d)" %(ffconfig.get_batch_size(), ffconfig.get_workers_per_node(), ffconfig.get_num_nodes()))
   ffmodel = FFModel(ffconfig)
 
-  dims_input = [ffconfig.get_batch_size(), 3, 224, 224]
+  dims_input = [ffconfig.get_batch_size(), 3, 299, 299]
   input = ffmodel.create_tensor(dims_input, DataType.DT_FLOAT)
 
-  onnx_model = ONNXModel(f"{MODEL_DIRECTORY}/alexnet_{ffconfig.get_batch_size()}_optimized_n10.onnx")
+  onnx_model = ONNXModel(f"{MODEL_DIRECTORY}/inception_16_optimized.onnx")
   t = onnx_model.apply(ffmodel, {"data": input})
-  t = ffmodel.dense(t, 4096, name='HEYA4')
-  t = ffmodel.relu(t, name='HEYA45')
-  t = ffmodel.dense(t, 4096, name='HEYA5')
-  t = ffmodel.relu(t, name='HEYA56')
-  t = ffmodel.dense(t, 1000, name='HEYA6')
-  t = ffmodel.softmax(t, name='HEYA7')
+  t = ffmodel.pool2d(t, 8, 8, 1, 1, 0, 0, PoolType.POOL_AVG)
+  t = ffmodel.flat(t)
+  t = ffmodel.dense(t, 10)
+  t = ffmodel.softmax(t)
 
   ffoptimizer = SGDOptimizer(ffmodel, 0.01)
   ffmodel.set_sgd_optimizer(ffoptimizer)
@@ -37,16 +35,16 @@ def top_level_task():
 
   #(x_train, y_train), (x_test, y_test) = cifar10.load_data(num_samples)
 
-  full_input_np = np.empty((num_samples, 3, 224, 224), dtype=np.float32)
+  full_input_np = np.empty((num_samples, 3, 299, 299), dtype=np.float32)
 
   for i in range(0, num_samples):
     # image = x_train[i, :, :, :]
     # image = image.transpose(1, 2, 0)
     # pil_image = Image.fromarray(image)
-    # pil_image = pil_image.resize((224,224), Image.NEAREST)
+    # pil_image = pil_image.resize((299,299), Image.NEAREST)
     # image = np.array(pil_image, dtype=np.float32)
     # image = image.transpose(2, 0, 1)
-    full_input_np[i, :, :, :] = np.random.rand(3, 224, 224)
+    full_input_np[i, :, :, :] = np.random.rand(3, 299, 299)
     #full_input_np[i, :, :, :] = image
 
   full_input_np /= 255
@@ -56,7 +54,7 @@ def top_level_task():
   y_train = np.random.randint(1000, size=(num_samples, 1))
   full_label_np = y_train
 
-  dims_full_input = [num_samples, 3, 224, 224]
+  dims_full_input = [num_samples, 3, 299, 299]
   full_input = ffmodel.create_tensor(dims_full_input, DataType.DT_FLOAT)
 
   dims_full_label = [num_samples, 1]
@@ -92,5 +90,5 @@ def top_level_task():
     #assert 0, 'Check Accuracy'
 
 if __name__ == "__main__":
-  print("alexnet onnx")
+  print("inception onnx")
   top_level_task()

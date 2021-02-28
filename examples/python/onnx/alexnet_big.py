@@ -2,11 +2,12 @@ from flexflow.core import *
 from flexflow.keras.datasets import cifar10
 from flexflow.onnx.model import ONNXModel
 import numpy as np
+import os
 
 from accuracy import ModelAccuracy
 from PIL import Image
 
-MODEL_DIRECTORY = "/home/groups/aaiken/unger/models/alexnet"
+MODEL_DIRECTORY = "/home/groups/aaiken/unger/models/alexnet-big"
 
 def top_level_task():
   ffconfig = FFConfig()
@@ -19,13 +20,17 @@ def top_level_task():
   dims_input = [ffconfig.get_batch_size(), 3, 224, 224]
   input = ffmodel.create_tensor(dims_input, DataType.DT_FLOAT)
 
-  onnx_model = ONNXModel(f"{MODEL_DIRECTORY}/alexnet_{ffconfig.get_batch_size()}_optimized_n10.onnx")
+  model_tag = os.getenv("MODEL_TAG")
+  use_optimized = bool(int(os.getenv("OPTIMIZED")))
+  print(os.getenv("OPTIMIZED"), use_optimized)
+  optimized_suffix = 'optimized' if use_optimized else 'unoptimized'
+  onnx_model = ONNXModel(f"{MODEL_DIRECTORY}/alexnet{model_tag}_{ffconfig.get_batch_size()}_{optimized_suffix}_n10_alpha1.5.onnx")
   t = onnx_model.apply(ffmodel, {"data": input})
-  t = ffmodel.dense(t, 4096, name='HEYA4')
-  t = ffmodel.relu(t, name='HEYA45')
-  t = ffmodel.dense(t, 4096, name='HEYA5')
-  t = ffmodel.relu(t, name='HEYA56')
-  t = ffmodel.dense(t, 1000, name='HEYA6')
+  # t = ffmodel.dense(t, 4096 * 4, name='HEYA4')
+  # t = ffmodel.relu(t, name='HEYA45')
+  # t = ffmodel.dense(t, 4096 * 4, name='HEYA5')
+  # t = ffmodel.relu(t, name='HEYA56')
+  # t = ffmodel.dense(t, 1000, name='HEYA6')
   t = ffmodel.softmax(t, name='HEYA7')
 
   ffoptimizer = SGDOptimizer(ffmodel, 0.01)

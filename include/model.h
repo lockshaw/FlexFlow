@@ -202,6 +202,7 @@ public:
   virtual bool measure_compute_time(Simulator* sim,
       const ParallelConfig& pc, float& forward, float& backward) = 0;
   // Other virtual functions that can be optionally overwritten
+  virtual std::vector<ParallelConfig> get_all_parallel_configs(FFModel const &ff) const;
   virtual ParallelConfig get_random_parallel_config(const FFModel& ff) const;
   virtual ParallelConfig get_data_parallel_config(const FFModel& ff) const;
   virtual Domain get_input_tensor_shape(const ParallelConfig& pc, int input_idx, int part_idx);
@@ -311,7 +312,8 @@ public:
                     const char* name = NULL);
   // Add a batch_matmul layer
   Tensor batch_matmul(const Tensor& A,
-                      const Tensor& B);
+                      const Tensor& B,
+                      const char *name = NULL);
   // Add a dense layer
   Tensor dense(const Tensor& input,
                int outDim,
@@ -421,6 +423,8 @@ public:
   void optimize(Simulator* simulator,
                 std::map<Op*, ParallelConfig>& best,
                 size_t budget, float alpha) const;
+  void export_search_problem(Simulator *simulator, std::ostream &oss) const;
+  void export_search_problem(Simulator *simulator, std::string const &filename) const;
   void rewrite(const std::map<Op*, ParallelConfig>& current,
                std::map<Op*, ParallelConfig>& next) const;
   void zero_gradients();
@@ -442,7 +446,7 @@ public:
   Metrics* metrics_op;
   Tensor label_tensor;
   //std::vector<Tensor> input_tensors;
-  
+
   std::vector<Op*> layers;
   std::vector<Parameter> parameters;
   FFHandler handlers[MAX_NUM_WORKERS];
@@ -911,7 +915,8 @@ class BatchMatmul : public Op {
 public:
   BatchMatmul(FFModel& model,
               const Tensor& A,
-              const Tensor& B);
+              const Tensor& B,
+              const char *name);
   void init(const FFModel&);
   void forward(const FFModel&);
   void backward(const FFModel&);

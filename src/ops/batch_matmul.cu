@@ -17,9 +17,10 @@
 #include "cuda_helper.h"
 
 Tensor FFModel::batch_matmul(const Tensor& A,
-                             const Tensor& B)
+                             const Tensor& B,
+                             const char *name)
 {
-  BatchMatmul* bmm = new BatchMatmul(*this, A, B);
+  BatchMatmul* bmm = new BatchMatmul(*this, A, B, name);
   layers.push_back(bmm);
   return bmm->outputs[0];
 }
@@ -27,8 +28,9 @@ Tensor FFModel::batch_matmul(const Tensor& A,
 // return A*B
 BatchMatmul::BatchMatmul(FFModel& model,
                          const Tensor& A,
-                         const Tensor& B)
-: Op(model, OP_BATCHMATMUL, "BatchMatmul_", A, B)
+                         const Tensor& B,
+                         const char *name)
+: Op(model, OP_BATCHMATMUL, name, A, B)
 {
   assert(A.numDim == B.numDim);
   for (int i = A.numDim-1; i >= 2; i--)

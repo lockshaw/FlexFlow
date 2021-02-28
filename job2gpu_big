@@ -1,0 +1,125 @@
+#!/bin/bash -eu
+#SBATCH --partition=aaiken
+#SBATCH -t 0:20:00
+#SBATCH -N 2
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=2
+#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks=2
+#SBATCH --mem-per-cpu=50000
+source "$HOME/FlexFlow/env.sh"
+# set -euo pipefail
+set -u
+cd "$HOME/FlexFlow/examples/python/onnx/"
+#export NORMAL_CELLS=5
+export STRATEGY_DIR="$HOME/FlexFlow/data/strategies/"
+export OUTPUT_DIR="$HOME/FlexFlow/data/outputs/"
+export TASKGRAPH_DIR="$HOME/FlexFlow/data/taskgraphs/"
+export SEARCH_PROBLEM_DIR="$HOME/FlexFlow/data/search-problems/"
+export RESULTS_DIR="$HOME/FlexFlow/data/results/"
+for d in "$STRATEGY_DIR" "$OUTPUT_DIR" "$TASKGRAPH_DIR" "$SEARCH_PROBLEM_DIR" "$RESULTS_DIR"; do
+  mkdir -p "$d";
+done
+
+export OPTIMIZED=1
+export BATCH_SIZE=16
+export NUM_GPUS=4
+export BUDGET=100000
+export BANDWIDTH=1
+export MODEL_TAG="-10x10"
+export ALPHA="1.0"
+export MODEL_NUM_GPUS="$NUM_GPUS"
+if [[ $OPTIMIZED == 1 ]]; then
+  OPTSTRING="opt"
+else
+  OPTSTRING="unopt"
+fi
+export BASENAME="nasnet-n5${MODEL_TAG}_${OPTSTRING}_g${NUM_GPUS}_b${BATCH_SIZE}_bw${BANDWIDTH}_bu${BUDGET}_alpha${ALPHA//\./p}"
+echo "$BASENAME"
+
+"$HOME/FlexFlow/python/flexflow_python" \
+  "$HOME/FlexFlow/examples/python/onnx/nasnet_a.py" \
+    -ll:py 1 \
+    -ll:gpu "$NUM_GPUS" \
+    -ll:csize 40000 \
+    -ll:zsize 16384 \
+    -ll:fsize 14000 \
+    -ll:streams 1 \
+    --batch-size "$BATCH_SIZE" \
+    --budget "$BUDGET" \
+    --epochs 1 \
+    --overlap \
+    --nodes 1 \
+    --taskgraph "$TASKGRAPH_DIR/${BASENAME}_found.dot" \
+    --export-strategy "$STRATEGY_DIR/${BASENAME}_found.strategy" \
+    --search-alpha "$ALPHA" \
+    --search-problem "$SEARCH_PROBLEM_DIR/${BASENAME}.problem" \
+    --bandwidth "$BANDWIDTH" \
+    -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_found.txt"
+export OPTIMIZED="old"
+"$HOME/FlexFlow/python/flexflow_python" \
+  "$HOME/FlexFlow/examples/python/onnx/nasnet_a.py" \
+    -ll:py 1 \
+    -ll:gpu "$NUM_GPUS" \
+    -ll:csize 40000 \
+    -ll:zsize 16384 \
+    -ll:fsize 14000 \
+    -ll:streams 1 \
+    --batch-size "$BATCH_SIZE" \
+    --budget "$BUDGET" \
+    --epochs 1 \
+    --overlap \
+    --nodes 1 \
+    --taskgraph "$TASKGRAPH_DIR/${BASENAME}_old.dot" \
+    --export-strategy "$STRATEGY_DIR/${BASENAME}_old.strategy" \
+    --search-alpha "$ALPHA" \
+    --search-problem "$SEARCH_PROBLEM_DIR/${BASENAME}_old.problem" \
+    --bandwidth "$BANDWIDTH" \
+    -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_old.txt"
+
+RESULTS_FILE="$RESULTS_DIR/${BASENAME}.txt"
+echo "" > "$RESULTS_FILE"
+cat "$OUTPUT_DIR/${BASENAME}_found.txt" | grep 'iter(0)' >> "$RESULTS_FILE"
+cat "$OUTPUT_DIR/${BASENAME}_found.txt" | grep -B 1 'Best' | head -n 1 >> "$RESULTS_FILE"
+cat "$OUTPUT_DIR/${BASENAME}_old.txt" | grep -B 1 'Best' | head -n 1 >> "$RESULTS_FILE"
+echo ""
+echo "RESULTS:"
+cat "$RESULTS_FILE"
+
+
+
+
+    # --import-strategy /home/users/unger/FlexFlow/data/strategies/resnext50-2-12x10000_opt_g4_b32_bw1_bu100000_alpha1p0_found_the_96_one.strategy \
+# "$HOME/FlexFlow/python/flexflow_python" \
+#   "$HOME/FlexFlow/examples/python/onnx/bert.py" \
+#     -ll:py 1 \
+#     -ll:gpu "$NUM_GPUS" \
+#     -ll:csize 40000 \
+#     -ll:zsize 16384 \
+#     -ll:fsize 14000 \
+#     -ll:streams 1 \
+#     --batch-size "$BATCH_SIZE" \
+#     --budget 1 \
+#     --epochs 1 \
+#     --overlap \
+#     --nodes 1 \
+#     --taskgraph "$TASKGRAPH_DIR/${BASENAME}_dp.dot" \
+#     --export-strategy "$STRATEGY_DIR/${BASENAME}_dp.strategy" \
+#     -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_dp.txt"
+    #--import-strategy "$HOME/FlexFlow/data/strategies/nasrnn_opt_4gpu_singlegpu.strategy" \
+    #--import-strategy "$HOME/FlexFlow/data/strategies/alexnetopt_big2.strategy" \
+    #--taskgraph "$HOME/FlexFlow/data/taskgraphs/alexnetopt_big_found_zhihao2.dot" \
+    #-lg:prof 1 -lg:prof_logfile "$HOME/FlexFlow/prof_%.gz" \
+    #--budget 10000 \
+    #--import-strategy "$HOME/FlexFlow/data/strategies/alexnetopt_big.strategy" \
+    #--import-strategy "$HOME/FlexFlow/nasrnn_4gpu_unopt.strategy" \
+    #--budget 10000 \
+    #--taskgraph "$HOME/FlexFlow/resnext50_opt_n4_b32.dot" \
+    #--import-strategy "$HOME/FlexFlow/alexnetopt_big.strategy" \
+    #--taskgraph "$HOME/FlexFlow/alexnetopt_big_zhihao.dot" \
+    #-lg:window 1000000 -hl:window 1000000
+    #--budget 100000 \
+    #--import-strategy "$HOME/FlexFlow/alexnet_optimized_nccl.strategy" #-lg:prof 1 -lg:prof_logfile "$HOME/FlexFlow/prof_%.gz"
+#"$HOME/FlexFlow/legion/tools/legion_prof.py" "$HOME/FlexFlow/prof_0.gz" -o "$HOME/FlexFlow/data/traces/alexnetopt_big_found_zhihao2"
+echo "cat \"$RESULTS_FILE\""
+echo "DONE!"

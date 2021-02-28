@@ -28,14 +28,14 @@ class ONNXTensor(object):
             self._set_dims_from_input(dims)
         else:
             self._set_dims_from_initializer(dims)
-    
+
     def _set_dims_from_input(self, dims):
         for i in range(len(dims)):
             if hasattr(dims, 'dim_param'):
                 self.dims[i] = dims[i].dim_param # "N"
             else:
                 self.dims[i] = dims[i].dim_value
-        
+
     def _set_dims_from_initializer(self, dims):
         for i in range(len(dims)):
             self.dims[i] = dims[i]
@@ -52,6 +52,13 @@ class ONNXModel(object):
             self.outputs[output.name] = output
         self.model = model
         self.symbol_table = {}
+
+    def handleMul(self, ffmodel, node):
+        input0 = self.symbol_table[node.input[0]]
+        input1 = self.symbol_table[node.input[1]]
+        output = ffmodel.multiply(input0, input1, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.multiply({}, {}, name={})".format(node.input[0], node.input[1], node.name))
 
     def handleAdd(self, ffmodel, node):
         input0 = self.symbol_table[node.input[0]]
@@ -145,12 +152,25 @@ class ONNXModel(object):
         self.symbol_table[node.output[0]] = output
         logging.debug("ffmodel.flat({})".format(node.input[0]))
 
-    def handleGemm(self, ffmodel, node):
-        input = self.symbol_table[node.input[0]]
-        dim = self.inputs[node.input[1]].dims[0]
-        output = ffmodel.dense(input, dim, name=node.name)
-        self.symbol_table[node.output[0]] = output
-        logging.debug("ffmodel.dense({}, {}, name={})".format(node.input[0], dim, node.name))
+    # def handleGemm(self, ffmodel, node):
+    #     input = self.symbol_table[node.input[0]]
+    #     dim = self.inputs[node.input[1]].dims[1]
+    #     assert len(node.input) in [2, 3]
+    #     if len(node.input) == 2:
+    #         use_bias = False
+    #     else:
+    #         raise Exception("This is not always correctly implemented for non-vector biases")
+    #         use_bias = True
+    #     output = ffmodel.dense(input, dim, use_bias=use_bias, name=node.name)
+    #     self.symbol_table[node.output[0]] = output
+    #     logging.debug("ffmodel.dense({}, {}, use_bias={}, name={})".format(node.input[0], dim, use_bias, node.name))
+
+    # def handleMatMul(self, ffmodel, node):
+    #     input0 = self.symbol_table[node.input[0]]
+    #     input1 = self.symbol_table[node.input[1]]
+    #     output = ffmodel.matmul(input0, input1, name=node.name)
+    #     self.symbol_table[node.output[0]] = output
+    #     logging.debug("ffmodel.matmul({}, {}, name={})".format(node.input[0], node.input[1], node.name))
 
     def handleMaxPool(self, ffmodel, node):
         input = self.symbol_table[node.input[0]]
@@ -173,11 +193,23 @@ class ONNXModel(object):
         self.symbol_table[node.output[0]] = output
         logging.debug("ffmodel.pool2d({}, {}, {}, {}, {}, {}, {}, PoolType.POOL_MAX, name={})".format(node.input[0], kernel[0], kernel[1], stride[0], stride[1], padding[0], padding[1], node.name))
 
+    def handleSigmoid(self, ffmodel, node):
+        input = self.symbol_table[node.input[0]]
+        output = ffmodel.sigmoid(input, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.sigmoid({}, name={})".format(node.input[0], node.name))
+
+    def handleTanh(self, ffmodel, node):
+        input = self.symbol_table[node.input[0]]
+        output = ffmodel.tanh(input, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.tanh({}, name={})".format(node.input[0], node.name))
+
     def handleRelu(self, ffmodel, node):
         input = self.symbol_table[node.input[0]]
         output = ffmodel.relu(input, name=node.name)
         self.symbol_table[node.output[0]] = output
-        logging.debug("ffmodel.relu({})".format(node.input[0]))
+        logging.debug("ffmodel.relu({}, name={})".format(node.input[0], node.name))
 
     def handlePad(self, ffmodel, node):
         input = self.symbol_table[node.input[0]]
@@ -198,11 +230,19 @@ class ONNXModel(object):
         self.symbol_table[node.output[0]] = output
         logging.debug("ffmodel.reshape({}, {}, name={})".format(node.input[0], list(shape.int64_data), node.name))
 
+    def handleTranspose(self, ffmodel, node):
+        input = self.symbol_table[node.input[0]]
+        attribute = {x.name: x for x in node.attribute}
+        perm = list(attribute["perm"].ints)
+        output = ffmodel.transpose(input, perm, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.transpose({}, {}, name={})".format(node.input[0], perm, node.name))
+
     def apply(self, ffmodel, input_dict):
         self.symbol_table.update(input_dict)
         # self.symbol_table = input_dict.copy()
-        # for initializer in self.model.graph.initializer:
-        #     self.symbol_table[initializer.name] = initializer
+        for initializer in self.model.graph.initializer:
+            self.symbol_table[initializer.name] = initializer
         for node in self.model.graph.node:
             handler_name = 'handle' + node.op_type
             if hasattr(self, handler_name):
@@ -212,7 +252,7 @@ class ONNXModel(object):
                 logging.warning("Can't handle: {}".format(node.op_type))
                 assert 0
         return self.symbol_table[self.model.graph.output[0].name]
-        
+
 class ONNXModelKeras(ONNXModel):
     def __init__(self, filename, ffconfig=None, ffmodel=None):
         super(ONNXModelKeras, self).__init__(filename)
@@ -222,7 +262,7 @@ class ONNXModelKeras(ONNXModel):
             else:
                 tensor = ONNXTensor(initializer.name, initializer.dims, 2)
                 self.inputs[initializer.name] = tensor
-        
+
     def handleMatMul(self, ffmodel, node):
         print("########################################I am in Keras MatMul")
         input = self.symbol_table[node.input[0]]
@@ -230,12 +270,12 @@ class ONNXModelKeras(ONNXModel):
         output = ffmodel.dense(input, dim, use_bias=False, name=node.name)
         self.symbol_table[node.output[0]] = output
         logging.debug("ffmodel.dense({}, {})".format(node.input[0], dim))
-        
+
     def handleTranspose(self, ffmodel, node):
         input = self.symbol_table[node.input[0]]
         self.symbol_table[node.output[0]] = input
         logging.debug("ffmodel.tranpose({})".format(node.input[0]))
-    
+
     def _create_initializer_tensor(self, ffconfig, ffmodel, input):
         if len(input.dims) == 1:
             dims = [ffconfig.get_batch_size(), input.dims[0]]

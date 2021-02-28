@@ -122,8 +122,10 @@ public:
   size_t simulator_work_space_size;
   size_t search_budget;
   float search_alpha;
+  int inter_gpu_bandwidth;
   bool search_overlap_backward_update;
   std::string export_strategy_task_graph_file;
+  std::string export_search_problem_file;
   //Control parallelizable dimensions
   bool enable_sample_parallel;
   bool enable_parameter_parallel;

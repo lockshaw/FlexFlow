@@ -39,9 +39,9 @@ Simulator::Simulator(const FFModel* model,
   base_ptr = (char*)simulatorInst.pointer_untyped(0, sizeof(char));
   capacity = model->config.simulator_work_space_size;
 
-  float inter_gpu_bandwidth = 20 * 1024 * 1024.0f; /* B/ms*/
-  float inter_node_bandwidth = 12 * 1024 * 1024.0f / model->config.numNodes; /* B/ms*/
-  float gpu_dram_bandwidth = 16 * 1024 * 1024.0f; /* B/ms*/
+  this->inter_gpu_bandwidth = model->config.inter_gpu_bandwidth * 1024 * 1024.0f; /* B/ms*/
+  this->inter_node_bandwidth = 12 * 1024 * 1024.0f / model->config.numNodes; /* B/ms*/
+  this->gpu_dram_bandwidth = 16 * 1024 * 1024.0f; /* B/ms*/
   size_t max_num_tasks = 1024 * 1024;
 
   cudaEventCreate(&start_event);
@@ -144,6 +144,10 @@ void Simulator::strategy_search_task(const Task *task,
     }
   }
 
+  if (model->config.export_search_problem_file.length() > 0) {
+    printf("Exporting the search problem file to %s\n", model->config.export_search_problem_file.c_str());
+    model->export_search_problem(simulator, model->config.export_search_problem_file);
+  }
   model->optimize(simulator, strategies, model->config.search_budget, model->config.search_alpha);
   if (model->config.export_strategy_file.length() > 0) {
     fprintf(stderr, "Exporting the best discovered strategy to %s\n",

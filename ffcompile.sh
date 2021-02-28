@@ -1,15 +1,27 @@
 #!/bin/bash
 
+set -euo pipefail
+
 APP="$1"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+FS_ENV_HASH="$(md5sum "$DIR/env.sh")"
+ENVHASH="$HASH"
+
+if [[ $FS_ENV_HASH != ${ENVHASH:-} ]]; then
+  echo "Resourcing env.sh"
+  source "$DIR/env.sh"
+fi
 
 if [ -z "$APP" ]; then echo "Usage: ./ffcompile app_dir"; exit; fi
 
 if [ -z "$FF_HOME" ]; then echo "FF_HOME variable is not defined, aborting compile"; exit; fi
 
-if [[ ! -f $FF_HOME/protobuf/src/protoc ]]; then echo "Please build the FlexFlow Protocol Buffer library"; exit; fi
+if [[ ! -f $FF_HOME/protobuf/src/.libs/protoc ]]; then echo "Please build the FlexFlow Protocol Buffer library"; exit; fi
 
 echo "Use the FlexFlow protoc"
-$FF_HOME/protobuf/src/protoc -I=$FF_HOME/src/runtime --cpp_out=$FF_HOME/src/runtime $FF_HOME/src/runtime/strategy.proto
+#$FF_HOME/protobuf/src/protoc -I=$FF_HOME/src/runtime --cpp_out=$FF_HOME/src/runtime $FF_HOME/src/runtime/strategy.proto
+#$FF_HOME/protobuf/src/.libs/protoc -I=$FF_HOME/src/runtime --cpp_out=$FF_HOME/src/runtime $FF_HOME/src/runtime/strategy.proto
 
 cd $APP
 make -j 12
