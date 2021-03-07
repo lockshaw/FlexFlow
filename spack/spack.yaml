@@ -1,0 +1,10 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs: [cuda@11.1.0%gcc@9.3.0, cmake%gcc@9.3.0, nccl@2.7.8-1%gcc@9.3.0, hdf5@1.10.7%gcc@9.3.0,
+    cudnn%gcc@9.3.0, unzip%gcc@9.3.0, python@3.8.6%gcc@9.3.0, gasnet%gcc@9.3.0~aligned-segments+ibv~pshm
+      segment-mmap-max=16GB, gasnet%gcc@9.3.0~aligned-segments+ibv+mpi~pshm segment-mmap-max=16GB]
+  view: true

@@ -1,24 +1,23 @@
 #! /usr/bin/env bash
 
-ml restore flexflow
+#ml restore flexflow
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-ENABLE_DISTRIBUTED=0
-
 export HASH=$(md5sum "$DIR/env.sh")
 
-export NCCL_HOME="$HOME/FlexFlow/nccl/build/"
 export FF_HOME="$DIR"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/FlexFlow/protobuf/src/.libs/"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/FlexFlow/nccl/build/lib/"
+# export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/FlexFlow/protobuf/src/.libs/"
 export GASNET_BACKTRACE=1
 export DEBUG=0
-export GASNET="$HOME/FlexFlow/gasnet/release"
-export USE_GASNET=$ENABLE_DISTRIBUTED
-export LD_FLAGS="-lcudnn -lpmix ${LD_FLAGS:-} -L$HOME/FlexFlow/protobuf/src/.libs/ -lcuda -lcurand -lcublas -lprotobuf"
+#export GASNET="$HOME/FlexFlow/gasnet/release"
+#export GASNET=":
+export GASNET="$SPACK_ENV/.spack-env/view/"
+export USE_GASNET=1
+#export LD_FLAGS="-lcudnn -lpmix ${LD_FLAGS:-} -L$HOME/FlexFlow/protobuf/src/.libs/ -lcuda -lcurand -lcublas -lprotobuf"
+# export LD_FLAGS="-lcudnn -lpmix ${LD_FLAGS:-} -lcuda -lcurand -lcublas"
 export USE_CUDA=1
 export USE_HDF=1
-export CMAKE_ARGS="-DProtobuf_INCLUDE_DIR='/home/users/unger/FlexFlow/protobuf/src/' -DONNX_USE_PROTOBUF_SHARED_LIBS=OFF"
-export PATH="$HOME/FlexFlow/protobuf/src/.libs/:$PATH"
-export FF_ENABLE_NCCL=0 #$ENABLE_DISTRIBUTED
+#export CMAKE_ARGS="-DProtobuf_INCLUDE_DIR='/home/users/unger/FlexFlow/protobuf/src/' -DONNX_USE_PROTOBUF_SHARED_LIBS=OFF"
+#export PATH="$HOME/FlexFlow/protobuf/src/.libs/:$PATH"
+export FF_ENABLE_NCCL=1
