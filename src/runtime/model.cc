@@ -1709,10 +1709,17 @@ void FFModel::export_search_problem(Simulator *simulator, std::ostream &oss) con
     }
 
     for (int i = 0; i < layer->numWeights; i++) {
-      oss << "weight node: \"" << layer->name
-          << "\" idx: " << i
-          << " size: " << layer->weights[i].get_volume()
-          << std::endl;
+      Tensor const &t = layer->weights[i];
+      std::cout << "Data type is " << t.data_type << std::endl;
+      /* assert (t.data_type == DT_FLOAT); */
+      oss << "weight node: \"" << layer->name << "\""
+          << " idx: " << i
+          << " dims: " << t.numDim
+          << " elementSize: " << sizeof(float);
+      for (int dim = 0; dim < t.numDim; dim++) {
+        oss << " dim" << (dim + 1) << ": " << t.adim[dim];
+      }
+      oss << std::endl;
     }
   }
   for (Op *layer : this->layers) {
@@ -1722,7 +1729,16 @@ void FFModel::export_search_problem(Simulator *simulator, std::ostream &oss) con
       if (pre_op == NULL) {
         continue;
       }
-      oss << "edge src: \"" << pre_op->name << "\" dst: \"" << layer->name << "\" size: " << t.get_volume() * 4 <<  std::endl;
+      /* oss << "edge src: \"" << pre_op->name << "\" dst: \"" << layer->name << "\" size: " << t.get_volume() * 4 <<  std::endl; */
+      /* assert (t.data_type == DT_FLOAT); */
+      oss << "edge src: \"" << pre_op->name << "\""
+          << " dst: \"" << layer->name << "\""
+          << " dims: " << t.numDim
+          << " elementSize: " << sizeof(float);
+      for (int dim = 0; dim < t.numDim; dim++) {
+        oss << " dim" << (dim + 1) << ": " << t.adim[dim];
+      }
+      oss << std::endl;
     }
   }
 }

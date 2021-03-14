@@ -152,25 +152,25 @@ class ONNXModel(object):
         self.symbol_table[node.output[0]] = output
         logging.debug("ffmodel.flat({})".format(node.input[0]))
 
-    # def handleGemm(self, ffmodel, node):
-    #     input = self.symbol_table[node.input[0]]
-    #     dim = self.inputs[node.input[1]].dims[1]
-    #     assert len(node.input) in [2, 3]
-    #     if len(node.input) == 2:
-    #         use_bias = False
-    #     else:
-    #         raise Exception("This is not always correctly implemented for non-vector biases")
-    #         use_bias = True
-    #     output = ffmodel.dense(input, dim, use_bias=use_bias, name=node.name)
-    #     self.symbol_table[node.output[0]] = output
-    #     logging.debug("ffmodel.dense({}, {}, use_bias={}, name={})".format(node.input[0], dim, use_bias, node.name))
+    def handleGemm(self, ffmodel, node):
+        input = self.symbol_table[node.input[0]]
+        dim = self.inputs[node.input[1]].dims[1]
+        assert len(node.input) in [2, 3]
+        if len(node.input) == 2:
+            use_bias = False
+        else:
+            raise Exception("This is not always correctly implemented for non-vector biases")
+            use_bias = True
+        output = ffmodel.dense(input, dim, use_bias=use_bias, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.dense({}, {}, use_bias={}, name={})".format(node.input[0], dim, use_bias, node.name))
 
-    # def handleMatMul(self, ffmodel, node):
-    #     input0 = self.symbol_table[node.input[0]]
-    #     input1 = self.symbol_table[node.input[1]]
-    #     output = ffmodel.matmul(input0, input1, name=node.name)
-    #     self.symbol_table[node.output[0]] = output
-    #     logging.debug("ffmodel.matmul({}, {}, name={})".format(node.input[0], node.input[1], node.name))
+    def handleMatMul(self, ffmodel, node):
+        input0 = self.symbol_table[node.input[0]]
+        input1 = self.symbol_table[node.input[1]]
+        output = ffmodel.matmul(input0, input1, name=node.name)
+        self.symbol_table[node.output[0]] = output
+        logging.debug("ffmodel.matmul({}, {}, name={})".format(node.input[0], node.input[1], node.name))
 
     def handleMaxPool(self, ffmodel, node):
         input = self.symbol_table[node.input[0]]
@@ -249,7 +249,7 @@ class ONNXModel(object):
                 handler = getattr(self, handler_name)
                 handler(ffmodel, node)
             else:
-                logging.warning("Can't handle: {}".format(node.op_type))
+                raise RuntimeError(f"Can't handle: {node.op_type}")
                 assert 0
         return self.symbol_table[self.model.graph.output[0].name]
 

@@ -22,9 +22,9 @@ for d in "$STRATEGY_DIR" "$OUTPUT_DIR" "$TASKGRAPH_DIR" "$SEARCH_PROBLEM_DIR" "$
 done
 
 export OPTIMIZED=1
-export BATCH_SIZE=16
+export BATCH_SIZE=64
 export NUM_GPUS=4
-export BUDGET=100000
+export BUDGET=100
 export BANDWIDTH=1
 export MODEL_TAG="-10x10"
 export ALPHA="1.0"
@@ -34,16 +34,16 @@ if [[ $OPTIMIZED == 1 ]]; then
 else
   OPTSTRING="unopt"
 fi
-export BASENAME="nasnet-n5${MODEL_TAG}_${OPTSTRING}_g${NUM_GPUS}_b${BATCH_SIZE}_bw${BANDWIDTH}_bu${BUDGET}_alpha${ALPHA//\./p}"
+export BASENAME="bert${MODEL_TAG}_${OPTSTRING}_g${NUM_GPUS}_b${BATCH_SIZE}_bw${BANDWIDTH}_bu${BUDGET}_alpha${ALPHA//\./p}"
 echo "$BASENAME"
 
 "$HOME/FlexFlow/python/flexflow_python" \
-  "$HOME/FlexFlow/examples/python/onnx/nasnet_a.py" \
+  "$HOME/FlexFlow/examples/python/onnx/bert.py" \
     -ll:py 1 \
     -ll:gpu "$NUM_GPUS" \
     -ll:csize 40000 \
     -ll:zsize 16384 \
-    -ll:fsize 14000 \
+    -ll:fsize 13000 \
     -ll:streams 1 \
     --batch-size "$BATCH_SIZE" \
     --budget "$BUDGET" \
@@ -56,26 +56,27 @@ echo "$BASENAME"
     --search-problem "$SEARCH_PROBLEM_DIR/${BASENAME}.problem" \
     --bandwidth "$BANDWIDTH" \
     -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_found.txt"
-export OPTIMIZED="old"
-"$HOME/FlexFlow/python/flexflow_python" \
-  "$HOME/FlexFlow/examples/python/onnx/nasnet_a.py" \
-    -ll:py 1 \
-    -ll:gpu "$NUM_GPUS" \
-    -ll:csize 40000 \
-    -ll:zsize 16384 \
-    -ll:fsize 14000 \
-    -ll:streams 1 \
-    --batch-size "$BATCH_SIZE" \
-    --budget "$BUDGET" \
-    --epochs 1 \
-    --overlap \
-    --nodes 1 \
-    --taskgraph "$TASKGRAPH_DIR/${BASENAME}_old.dot" \
-    --export-strategy "$STRATEGY_DIR/${BASENAME}_old.strategy" \
-    --search-alpha "$ALPHA" \
-    --search-problem "$SEARCH_PROBLEM_DIR/${BASENAME}_old.problem" \
-    --bandwidth "$BANDWIDTH" \
-    -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_old.txt"
+
+# export OPTIMIZED="old"
+# "$HOME/FlexFlow/python/flexflow_python" \
+#   "$HOME/FlexFlow/examples/python/onnx/nasnet_a.py" \
+#     -ll:py 1 \
+#     -ll:gpu "$NUM_GPUS" \
+#     -ll:csize 40000 \
+#     -ll:zsize 16384 \
+#     -ll:fsize 14000 \
+#     -ll:streams 1 \
+#     --batch-size "$BATCH_SIZE" \
+#     --budget "$BUDGET" \
+#     --epochs 1 \
+#     --overlap \
+#     --nodes 1 \
+#     --taskgraph "$TASKGRAPH_DIR/${BASENAME}_old.dot" \
+#     --export-strategy "$STRATEGY_DIR/${BASENAME}_old.strategy" \
+#     --search-alpha "$ALPHA" \
+#     --search-problem "$SEARCH_PROBLEM_DIR/${BASENAME}_old.problem" \
+#     --bandwidth "$BANDWIDTH" \
+#     -ll:util 4 | tee "$OUTPUT_DIR/${BASENAME}_old.txt"
 
 RESULTS_FILE="$RESULTS_DIR/${BASENAME}.txt"
 echo "" > "$RESULTS_FILE"

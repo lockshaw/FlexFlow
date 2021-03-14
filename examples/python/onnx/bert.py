@@ -1,16 +1,16 @@
 from flexflow.core import *
-from flexflow.keras.datasets import cifar10
+# from flexflow.keras.datasets import cifar10
 from flexflow.onnx.model import ONNXModel
 import logging
 import os
 import numpy as np
 
 from accuracy import ModelAccuracy
-from PIL import Image
+# from PIL import Image
 
 logging.basicConfig(level=logging.DEBUG)
 
-MODEL_DIRECTORY = "/home/groups/aaiken/unger/models/bert"
+MODEL_DIRECTORY = "/home/unger/models/bert"
 
 def top_level_task():
   ffconfig = FFConfig()
