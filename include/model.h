@@ -233,6 +233,7 @@ protected:
       const Tensor weight);
   bool check_output_input_weight_parallel_dims() const;
   bool check_output_input_weight_same_parallel_is() const;
+  bool check_output_input_weight_same_machine_view() const;
 public:
   Op(FFModel& model,
      OperatorType type,
@@ -655,7 +656,10 @@ public:
   bool convert_graph_to_layers(const Graph* graph,
                                const std::unordered_map<Node, MachineView>& optimal_views);
   std::vector<MachineView> get_valid_machine_views(const Op* op, const MachineResource& resource);
-  void register_machine_views();
+  static void register_all_machine_views(int num_nodes,
+                                         int gpus_per_node,
+                                         int cpus_per_node,
+                                         std::vector<MachineView>& valid_views);
   // ========================================
   // Internal Node creation APIs
   // ========================================
@@ -763,6 +767,9 @@ public:
                      size_t budget, float alpha,
                      CompMode comp_mode,
                      bool use_propagation) const;
+#ifdef FF_USE_NCCL
+  ncclComm_t* find_nccl_comms(const MachineView& view) const;
+#endif
 #ifdef FF_USE_PROPAGATE
   void propagate(std::map<Op *, ParallelConfig> const &current,
                  std::map<Op *, ParallelConfig> &next) const;
@@ -777,13 +784,15 @@ public:
   std::unordered_map<Op *, std::vector<std::pair<Op *, int>>> get_bwd_edge_map() const;
 
   // Internal funcitons
-  Legion::IndexSpace get_or_create_task_is(ParallelConfig pc);
+  Legion::IndexSpace get_or_create_task_is(const ParallelConfig& pc);
+  Legion::IndexSpace get_or_create_task_is(const MachineView& view);
   Legion::IndexSpace get_or_create_task_is(const Legion::Domain& domain);
-  Legion::IndexSpace get_or_create_task_is(int ndims, const std::string& pcname);
+  //Legion::IndexSpace get_or_create_task_is(int ndims, const std::string& pcname);
   Legion::IndexSpace get_or_create_task_is(const Tensor);
   Legion::IndexSpace get_task_is(const Legion::Domain& domain) const;
-  Legion::IndexSpace get_task_is(ParallelConfig pc) const;
-  Legion::IndexSpace get_task_is(int ndims, const std::string& pcname) const;
+  Legion::IndexSpace get_task_is(const ParallelConfig& pc) const;
+  Legion::IndexSpace get_task_is(const MachineView& view) const;
+  //Legion::IndexSpace get_task_is(int ndims, const std::string& pcname) const;
   // APIs for setting iteration configs
 public:
   void set_iteration_config_sequence_length(int seq_length);
@@ -816,11 +825,14 @@ public:
   std::unordered_map<size_t, Combine*> cached_combine_ops;
   std::unordered_map<size_t, FusedParallelOp*> cached_fused_parallel_ops;
   std::vector<MachineView> all_valid_views;
+#ifdef FF_USE_NCCL
+  std::unordered_map<size_t, ncclComm_t*> view_hash_to_nccl_comms;
+#endif
   //DataLoader *dataLoader;
 private:
   bool debug;
   Tensor label_tensor_with_final_part;//FIXME: to be removed
-  std::map<ParallelConfig, Legion::IndexSpace, ParaConfigCompare> taskIs;
+  std::map<MachineView, Legion::IndexSpace, MachineViewDimCompare> all_task_is;
 
   template<int NDIM>
   void map_tensor_with_dim(Tensor tensor, const Op* parallel_op);
