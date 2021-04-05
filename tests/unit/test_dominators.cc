@@ -290,3 +290,94 @@ TEST(inplace_transitive_reduction, basic) {
 
   EXPECT_EQ(g, answer);
 }
+
+TEST(is_acyclic, basic_true) {
+  BasicGraph<int> g(
+    { 1, 2, 3, 4, 5, 6, 7 },
+    {
+      {1, 2},
+      {2, 3},
+      {2, 4},
+      {3, 4},
+      {4, 5},
+      {6, 7}
+    }
+  );
+
+  bool result = is_acyclic(g);
+
+  EXPECT_EQ(result, true);
+}
+
+TEST(is_acyclic, basic_false) {
+  BasicGraph<int> g(
+    {1, 2, 3, 4, 5, 6, 7},
+    {
+      {1, 2},
+      {2, 3},
+      {3, 4},
+      {4, 2},
+      {4, 5},
+      {6, 7}
+    }
+  );
+
+  bool result = is_acyclic(g);
+
+  EXPECT_EQ(result, false);
+}
+
+TEST(is_acyclic, selfloop) {
+  BasicGraph<int> g(
+    {1, 2, 3},
+    {
+      {1, 2},
+      {2, 2},
+      {2, 3}
+    }
+  );
+
+  bool result = is_acyclic(g);
+
+  EXPECT_EQ(result, false);
+}
+
+TEST(weakly_reachable, basic) {
+  BasicGraph<int> g(
+    {1, 2, 3, 4, 5},
+    {
+      {1, 2},
+      {2, 3},
+      {4, 5}
+    }
+  );
+
+  std::unordered_set<int> result = weakly_reachable(g, 2);
+
+  std::unordered_set<int> answer = { 1, 2, 3 };
+
+  EXPECT_EQ(result, answer);
+}
+
+TEST(weakly_connected_components, basic) {
+  BasicGraph<int> g(
+    {1, 2, 3, 4, 5},
+    {
+      {1, 2},
+      {2, 3},
+      {4, 5}
+    }
+  );
+
+  std::vector<std::unordered_set<int>> result = weakly_connected_components(g);
+
+  std::unordered_set<int> component1 = {1, 2, 3};
+  std::unordered_set<int> component2 = {4, 5};
+
+  bool has_component1 = (result.find(component1) != result.end());
+  bool has_component2 = (result.find(component2) != result.end());
+
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_EQ(has_component1, true);
+  EXPECT_EQ(has_component2, true);
+}

@@ -177,11 +177,18 @@ namespace flexflow::graph {
   }
 
   template <typename G, typename Structure = GraphStructure<G>>
+  bool is_acyclic(G const &g) {
+    using N = typename Structure::vertex_type;
+
+    std::vector<N> topo_sorted;
+    topo_sort<G, Structure>(g, &topo_sorted);
+
+    return topo_sorted.size() == nodes<G, Structure>(g).size();
+  }
+
+  template <typename G, typename Structure = GraphStructure<G>>
   std::unordered_map<typename Structure::vertex_type, std::unordered_set<typename Structure::vertex_type>> dominators(G const &g) {
     using N = typename Structure::vertex_type;
-    //using E = typename Structure::edge_type;
-
-    //Structure s;
 
     std::vector<N> nodes;
     topo_sort<G, Structure>(g, &nodes);
@@ -263,6 +270,52 @@ namespace flexflow::graph {
 
   /* template <typename G, typename Structure> */
   /* using DFSVisitor = ; */
+  template <typename G, typename Structure = GraphStructure<G>>
+  void bidirectional_dfs(
+      G const &g,
+      typename Structure::vertex_type const &n,
+      std::function<void(G const &, Structure const &, typename Structure::vertex_type const &, typename Structure::vertex_type const &)> const &visitor
+  ) {
+    using N = typename Structure::vertex_type;
+    using E = typename Structure::edge_type;
+
+    Structure s;
+
+    /* auto i_visitor = std::bind(visitor, g, s, n); */
+    auto i_visitor = [&](N const &nn) {
+      return visitor(g, s, n, nn);
+    };
+
+    std::list<N> q;
+    std::unordered_set<N> visited;
+
+    auto visit = [&](N const &n) {
+      if (visited.find(n) == visited.end()) {
+        q.push_front(n);
+        visited.insert(n);
+      }
+    };
+
+    visit(n);
+
+    while (!q.empty()) {
+      N current = q.front();
+      q.pop_front();
+
+      i_visitor(current);
+
+      for (E const &edge : s.get_outgoing_edges(g, current)) {
+        N const &dst = s.get_dst(g, edge);
+        visit(dst);
+      }
+      for (E const &edge : s.get_incoming_edges(g, current)) {
+        N const &src = s.get_src(g, edge);
+        visit(src);
+      }
+    }
+
+    return;
+  }
 
   template <typename G, typename Structure = GraphStructure<G>>
   void dfs(
@@ -280,12 +333,12 @@ namespace flexflow::graph {
       return visitor(g, s, n, nn);
     };
 
-    std::queue<N> q;
+    std::list<N> q;
     std::unordered_set<N> visited;
 
     auto visit = [&](N const &n) {
       if (visited.find(n) == visited.end()) {
-        q.push(n);
+        q.push_front(n);
         visited.insert(n);
       }
     };
@@ -294,7 +347,7 @@ namespace flexflow::graph {
 
     while (!q.empty()) {
       N current = q.front();
-      q.pop();
+      q.pop_front();
 
       i_visitor(current);
 
@@ -305,6 +358,45 @@ namespace flexflow::graph {
     }
 
     return;
+  }
+
+  template < typename G, typename Structure = GraphStructure<G>>
+  std::unordered_set<typename Structure::vertex_type> weakly_reachable(G const &g, typename Structure::vertex_type const &n) {
+    using N = typename Structure::vertex_type;
+
+    std::unordered_set<N> ret;
+
+    auto visitor = [&](G const &g, Structure const &s, N const &root, N const &nn) {
+      ret.insert(nn);
+    };
+
+    dfs<G, Structure>(g, n, visitor);
+
+    return ret;
+  }
+
+  template <typename G, typename Struction = GraphStructure<G>>
+  std::vector<std::unordered_set<typename Structure::vertex_type>> weakly_connected_components(G const &g) {
+    using N = typename Structure::vertex_type;
+    using E = typename Structure::edge_type;
+
+    Structure s;
+
+    std::unordered_set<N> nodes = s.get_nodes(g);
+    std::vector<std::unordered_set<N>> components;
+
+    while (!nodes.empty()) {
+      N node = *nodes.begin();
+
+      std::unordered_set<N> component = weakly_reachable<G, Structure>(g, node);
+      components.push_back(component);
+
+      for (Node const &n : component) {
+        nodes.erase(n);
+      }
+    }
+
+    return components;
   }
 
   template <typename G, typename Structure = GraphStructure<G>>

@@ -1275,6 +1275,21 @@ ncclComm_t* FFModel::find_nccl_comms(const MachineView& view) const
 }
 #endif
 
+Node FFModel::node_with_guid() {
+  Node ret;
+  ret.guid = this->node_global_guid++;
+  ret.ptr = nullptr;
+
+  return ret;
+}
+
+Node FFModel::node_with_guid(Op *op) {
+  Node ret = this->node_with_guid();
+  ret.ptr = op;
+
+  return ret;
+}
+
 /*
 template<int NDIM>
 Tensor FFModel::create_tensor(const int dims[],

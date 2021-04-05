@@ -797,6 +797,9 @@ public:
 public:
   void set_iteration_config_sequence_length(int seq_length);
 public:
+  Node node_with_guid();
+  Node node_with_guid(Op *op);
+
   size_t op_global_guid, tensor_global_guid, node_global_guid;
   FFConfig config;
   FFIterationConfig iter_config;

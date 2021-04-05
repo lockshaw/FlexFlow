@@ -268,7 +268,7 @@ void ImgDataLoader4D::next_batch(FFModel& ff)
   Runtime* runtime = ff.config.lg_hlr;
   // Load input
   {
-    IndexSpaceT<4> task_is = IndexSpaceT<4>(ff.get_or_create_task_is(4, ""));
+    IndexSpaceT<4> task_is = IndexSpaceT<4>(ff.get_or_create_task_is(4));
     Rect<4> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
     int idx = next_index;
@@ -297,7 +297,7 @@ void ImgDataLoader4D::next_batch(FFModel& ff)
   }
   // Load label
   {
-    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2, ""));
+    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2));
     Rect<2> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
     int idx = next_index;
@@ -436,7 +436,7 @@ void ImgDataLoader2D::next_batch(FFModel& ff)
   Runtime* runtime = ff.config.lg_hlr;
   // Load input
   {
-    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2, ""));
+    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2));
     Rect<2> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
     int idx = next_index;
@@ -465,7 +465,7 @@ void ImgDataLoader2D::next_batch(FFModel& ff)
   }
   // Load label
   {
-    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2, ""));
+    IndexSpaceT<2> task_is = IndexSpaceT<2>(ff.get_or_create_task_is(2));
     Rect<2> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
     int idx = next_index;
@@ -562,7 +562,7 @@ SingleDataLoader::SingleDataLoader(FFModel& ff, Tensor input, void *full_input_p
   dims[0] = num_samples;
   for (int i = 1; i < input->num_dims; i++)
     dims[i] = input->dims[input->num_dims-1-i].size;
-  
+
   int task_id = -1;
   if (datatype == DT_FLOAT) {
     task_id = PY_DL_FLOAT_INDEX_LOAD_ENTIRE_CPU_TASK_ID;
@@ -601,7 +601,7 @@ void SingleDataLoader::index_loader_xd_launcher(FFModel& ff, int task_id, void *
   Context ctx = ff.config.lg_ctx;
   Runtime* runtime = ff.config.lg_hlr;
 
-#ifdef FF_PYTHON_USE_INDEX_LOADER  
+#ifdef FF_PYTHON_USE_INDEX_LOADER
   IndexSpaceT<NDIM> task_is = IndexSpaceT<NDIM>(ff.get_or_create_task_is(NDIM, ""));
   Rect<NDIM> rect = runtime->get_index_space_domain(ctx, task_is);
   ArgumentMap argmap;
@@ -622,7 +622,7 @@ void SingleDataLoader::index_loader_xd_launcher(FFModel& ff, int task_id, void *
       TaskArgument(NULL, 0), argmap);
   // regions[0]: full_input
   launcher.add_region_requirement(
-      RegionRequirement(full_input->part, 0, 
+      RegionRequirement(full_input->part, 0,
                         WRITE_ONLY, EXCLUSIVE, full_input->region,
                         MAP_TO_ZC_MEMORY));
   launcher.add_field(0, FID_DATA);
@@ -648,7 +648,7 @@ void SingleDataLoader::index_loader_xd_launcher(FFModel& ff, int task_id, void *
   Future fu = runtime->execute_task(ctx, launcher);
   fu.wait();
 #endif
-  
+
 }
 
 void SingleDataLoader::reset()
@@ -684,8 +684,8 @@ void SingleDataLoader::next_batch_xd_launcher(FFModel& ff, int task_id)
   Runtime* runtime = ff.config.lg_hlr;
   // Load input
 #if 1
-  {  
-    IndexSpaceT<NDIM> task_is = IndexSpaceT<NDIM>(ff.get_or_create_task_is(NDIM, ""));
+  {
+    IndexSpaceT<NDIM> task_is = IndexSpaceT<NDIM>(ff.get_or_create_task_is(NDIM));
     Rect<NDIM> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
     int idx = next_index;
@@ -705,7 +705,7 @@ void SingleDataLoader::next_batch_xd_launcher(FFModel& ff, int task_id)
         RegionRequirement(full_input->region, 0/*projection id*/,
                           READ_ONLY, EXCLUSIVE, full_input->region,
                           MAP_TO_ZC_MEMORY));
-    launcher.add_field(0, FID_DATA);                    
+    launcher.add_field(0, FID_DATA);
     launcher.add_region_requirement(
         RegionRequirement(batch_input->part, 0/*projection id*/,
                           WRITE_ONLY, EXCLUSIVE, batch_input->region));
@@ -714,7 +714,7 @@ void SingleDataLoader::next_batch_xd_launcher(FFModel& ff, int task_id)
   }
   next_index += ff.config.batchSize;
 #else
-  {  
+  {
     IndexSpaceT<NDIM> task_is = IndexSpaceT<NDIM>(ff.get_or_create_task_is(NDIM, ""));
     Rect<NDIM> rect = runtime->get_index_space_domain(ctx, task_is);
     ArgumentMap argmap;
@@ -735,7 +735,7 @@ void SingleDataLoader::next_batch_xd_launcher(FFModel& ff, int task_id)
         RegionRequirement(full_input->part, 0/*projection id*/,
                           READ_ONLY, EXCLUSIVE, full_input->region,
                           MAP_TO_ZC_MEMORY));
-    launcher.add_field(0, FID_DATA);                    
+    launcher.add_field(0, FID_DATA);
     launcher.add_region_requirement(
         RegionRequirement(batch_input->part, 0/*projection id*/,
                           WRITE_ONLY, EXCLUSIVE, batch_input->region));
@@ -823,11 +823,11 @@ void SingleDataLoader::index_load_entire_dataset_from_numpy_with_dim(const Task 
 {
   assert(regions.size() == 1);
   assert(task->regions.size() == regions.size());
-#ifdef FF_PYTHON_USE_INDEX_LOADER  
-  IndexLoadArg* meta = (IndexLoadArg*) task->local_args; 
+#ifdef FF_PYTHON_USE_INDEX_LOADER
+  IndexLoadArg* meta = (IndexLoadArg*) task->local_args;
 #else
   IndexLoadArg* meta = (IndexLoadArg*) task->args;
-#endif 
+#endif
   const AccessorWO<DT, NDIM> acc_input(regions[0], FID_DATA);
   Rect<NDIM> rect_input = runtime->get_index_space_domain(
       ctx, task->regions[0].region.get_index_space());
@@ -837,7 +837,7 @@ void SingleDataLoader::index_load_entire_dataset_from_numpy_with_dim(const Task 
   size_t volume = meta->size_per_sample * meta->num_samples;
   DT* input_ptr_head_ = static_cast<DT*>(meta->ptr);
   DT* input_ptr_ =  input_ptr_head_ + volume * meta->idx;
-  
+
   printf("Check ptr input_head_ %p, input_ %p %lu %lu, input %p %lu %lu\n", input_ptr_head_, input_ptr_, (uintptr_t)input_ptr_, volume, input_ptr, (uintptr_t)input_ptr, rect_input.volume());
   assert(rect_input.volume() == volume);
   memcpy(input_ptr, input_ptr_, sizeof(DT)*volume);

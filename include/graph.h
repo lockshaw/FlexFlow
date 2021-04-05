@@ -28,10 +28,19 @@ struct Edge {
        const Node& _dstOp,
        int _srcIdx,
        int _dstIdx);
+  Edge(const Node &_srcOp,
+       const Node &_dstOp,
+       int _srcIdx,
+       int _dstIdx,
+       int _srcMergeIdx,
+       int _dstMergeIdx);
   bool operator==(const Edge &rhs) const;
   Node srcOp, dstOp;
   int srcIdx, dstIdx;
+  int srcMergeIdx, dstMergeIdx;
 };
+
+bool is_ghost_edge(Edge const &edge);
 
 struct EdgeCompare {
   bool operator()(const Edge& a, const Edge& b) const {
@@ -52,6 +61,8 @@ namespace std {
       size_t res = 17;
       res = res * 31 + hash<size_t>()((size_t)e.srcOp.guid);
       res = res * 31 + hash<size_t>()((size_t)e.dstOp.guid);
+      res = res * 31 + hash<int>()(e.srcIdx);
+      res = res * 31 + hash<int>()(e.dstIdx);
       res = res * 31 + hash<int>()(e.srcIdx);
       res = res * 31 + hash<int>()(e.dstIdx);
       return res;
@@ -84,26 +95,34 @@ size_t dp_state_hash(const Graph* graph,
 
 using SequenceGraph = ::flexflow::graph::BasicGraph<Node>;
 
+struct NodeAssignment {
+  Node node;
+  std::unordered_map<Node, MachineView> view;
+};
+
 class SearchHelper {
 public:
   SearchHelper(FFModel *model);
 
   float graph_cost(const Graph* graph,
-                   const Node& sink_node,
-                   const MachineView& sink_view,
-                   const Node& source_node,
-                   const MachineView& source_view,
+                   const NodeAssignment& source,
+                   const NodeAssignment& sink,
                    const MachineResource& resources,
                    bool include_sink_compute_time,
                    bool constructing_optimal_view = false) const;
 
-  float find_optimal_sequence_graph_time(Graph const *pre_graph,
+  float find_optimal_sequence_graph_time(Graph const *g,
+                                         Graph const *pre_graph,
                                          Graph const *post_graph,
                                          Node const &bottleneck_node,
                                          NodeAssignment const &source,
                                          NodeAssignment const &sink,
                                          MachineResource const &resources) const;
-  float find_optimal_nonsequence_graph_time(Graph const *g, NodeAssignment const &source, NodeAssignment const &sink, MachineResource const &resources) const;
+  float find_optimal_nonsequence_graph_time(Graph const *g,
+                                            NodeAssignment const &source,
+                                            NodeAssignment const &sink,
+                                            MachineResource const &resources,
+                                            bool include_sink_compute_time) const;
 private:
   FFModel *model;
 
@@ -114,6 +133,8 @@ private:
 class Graph {
 public:
   Graph(FFModel* model);
+  bool has_node(Node const &) const;
+  void remove_node(Node const &);
   void add_edge(const Node& srcOp,
                 const Node& dstOp,
                 int srcIdx,
@@ -140,11 +161,15 @@ public:
 
   Graph apply_sequence_graph(SequenceGraph const &sequence) const;
   SequenceGraph get_sequence_graph() const;
+  void merge_nodes(Node const &n1, Node const &n2);
+  Graph with_merged_nodes(Node const &n1, Node const &n2) const;
+  bool is_merge_node(Node const &n) const;
 
   std::pair<std::unique_ptr<Graph>, std::unique_ptr<Graph>> split_at_node(Node const &bottleneck) const;
 public:
   FFModel* model;
   std::unordered_map<Node, std::unordered_set<Edge> > inEdges, outEdges;
+  std::unordered_map<Node, std::vector<Node>> merge_info;
 };
 
 namespace flexflow::graph {

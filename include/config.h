@@ -96,6 +96,9 @@ struct MachineResource {
   int start_gpu_id, start_cpu_id;
 };
 
+std::pair<MachineResource, MachineResource> partition_nodes(MachineResource const &, int);
+std::pair<MachineResource, MachineResource> partition_gpus(MachineResource const &, int);
+
 struct ParallelOpInfo {
   OperatorType op_type;
   int parallel_dim;
