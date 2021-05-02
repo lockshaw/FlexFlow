@@ -8,6 +8,7 @@ cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0077 NEW)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(FLEXFLOW_ROOT ${CMAKE_CURRENT_LIST_DIR})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -UNDEBUG")
 
 # Set a default build type if none was specified
 set(default_build_type "Debug")
@@ -16,9 +17,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
       STRING "Choose the type of build." FORCE)
 endif()
-
-# do not disable assertions even if in release mode
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -UNDEBUG")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LIBEXT ".so")
@@ -93,7 +91,8 @@ endif()
 
 list(APPEND CC_FLAGS
   -std=c++11
-  -DMAX_TENSOR_DIM=${FF_MAX_DIM})
+  -DMAX_TENSOR_DIM=${FF_MAX_DIM}
+  -UNDEBUG)
 
 if(FF_USE_AVX2)
   list(APPEND CC_FLAGS
@@ -104,7 +103,8 @@ endif()
 list(APPEND NVCC_FLAGS
   -Wno-deprecated-gpu-targets
   -std=c++11
-  -DMAX_TENSOR_DIM=${FF_MAX_DIM})
+  -DMAX_TENSOR_DIM=${FF_MAX_DIM}
+  -UNDEBUG)
   
 list(APPEND LD_FLAGS
   -lrt
@@ -113,7 +113,7 @@ list(APPEND LD_FLAGS
 
 # Set FLAGS
 add_compile_options(${CC_FLAGS})
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS})
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS} -UNDEBUG)
 link_libraries(${LD_FLAGS})
 
 list(APPEND FLEXFLOW_INCLUDE_DIRS

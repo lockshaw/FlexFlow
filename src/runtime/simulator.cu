@@ -72,7 +72,9 @@ void Simulator::strategy_search_task(const Task *task,
                                      const std::vector<PhysicalRegion> &regions,
                                      Context ctx, Runtime *runtime)
 {
-  const FFModel* model = *((FFModel**) task->args);
+  FFModel* model = *((FFModel**) task->args);
+  model->config.numNodes = 4;
+  model->config.workersPerNode = 4;
   Memory gpu_mem = Machine::MemoryQuery(Machine::get_machine())
          .only_kind(Memory::GPU_FB_MEM).best_affinity_to(task->target_proc).first();
   // Realm::MemoryImpl* memImpl =

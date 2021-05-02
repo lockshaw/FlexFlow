@@ -594,7 +594,7 @@ float Simulator::simulate_runtime(const FFModel* model,
               }
             }
             // Add ncclTime to sim_time given nccl calls are blocking
-            sim_time += nccl_time;
+            /* sim_time += nccl_time; */
           }
       }
     }
@@ -627,5 +627,6 @@ float Simulator::simulate_runtime(const FFModel* model,
   }
   //if (memory_penalty > 0.0f)
   //  printf("Memory penalty = %.4lf ms\n", memory_penalty);
-  return sim_time + memory_penalty;
+  return sim_time;
+  /* return sim_time + memory_penalty; */
 }

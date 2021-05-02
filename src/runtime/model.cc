@@ -19,6 +19,7 @@
 #include "dirent.h"
 #include <unordered_set>
 #include "random_utils.h"
+#include <chrono>
 
 using namespace std;
 
@@ -1924,6 +1925,13 @@ void FFModel::optimize(Simulator* simulator,
                        bool use_propagation) const
 {
   // Start from data parallel
+  auto started = std::chrono::high_resolution_clock::now();
+  bool export_search_curve = !this->config.search_curve_file.empty();
+  std::ofstream search_curve_stream;
+  if (export_search_curve) {
+    search_curve_stream.open(this->config.search_curve_file);
+    search_curve_stream << "ms,iteration,current,best" << std::endl;
+  }
   std::map<Op*, ParallelConfig> current, next;
   float best_runtime = simulator->simulate_runtime(this, best, comp_mode);
   current = best;
@@ -1942,7 +1950,15 @@ void FFModel::optimize(Simulator* simulator,
     }
     rewrite(current, next, use_propagation);
     float next_runtime = simulator->simulate_runtime(this, next, comp_mode);
-    if (iter % 1000 == 0) {
+    if (export_search_curve && (iter % this->config.search_curve_interval == 0)) {
+      auto done = std::chrono::high_resolution_clock::now();
+      auto num_millis = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+      search_curve_stream << num_millis << "," 
+                          << iter << "," 
+                          << current_runtime << ","
+                          << best_runtime << std::endl;
+    }
+    if (iter % 100 == 0) {
       printf("iteration(%zu) current_strategy(%.4lf) best_strategy(%.4lf)\n", iter,
              current_runtime, best_runtime);
     }
@@ -2222,6 +2238,8 @@ struct DefaultConfig {
   const static int machine_model_version = 0;
   const static int simulator_segment_size = 16777216; // 16 MB
   const static int simulator_max_num_segments = 1;
+  const static bool enablePropagation = false;
+  const static int searchCurveInterval = 100;
 };
 
 FFConfig::FFConfig()
@@ -2244,6 +2262,7 @@ FFConfig::FFConfig()
   enable_sample_parallel = DefaultConfig::enableSampleParallel;
   enable_parameter_parallel = DefaultConfig::enableParameterParallel;
   enable_attribute_parallel = DefaultConfig::enableAttributeParallel;
+  enable_propagation = DefaultConfig::enablePropagation;
   allow_tensor_op_math_conversion = DefaultConfig::allowTensorOpMathConversion;
   machine_model_version = DefaultConfig::machine_model_version;
   simulator_segment_size = DefaultConfig::simulator_segment_size;
@@ -2253,6 +2272,8 @@ FFConfig::FFConfig()
   export_strategy_file = "";
   export_strategy_task_graph_file = "";
   dataset_path = "";
+  search_curve_file = "";
+  search_curve_interval = DefaultConfig::searchCurveInterval;
   syntheticInput = false;
   perform_fusion = false;
 
@@ -2388,6 +2409,14 @@ void FFConfig::parse_args(char **argv, int argc)
     }
     if (!strcmp(argv[i], "--enable-propagation")) {
       enable_propagation = true;
+      continue;
+    }
+    if (!strcmp(argv[i], "--search-curve")) {
+      search_curve_file = std::string(argv[++i]);
+      continue;
+    }
+    if (!strcmp(argv[i], "--search-curve-interval")) {
+      search_curve_interval = atoi(argv[++i]);
       continue;
     }
   }

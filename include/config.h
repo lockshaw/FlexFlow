@@ -144,6 +144,8 @@ public:
   std::string dataset_path;
   std::string import_strategy_file;
   std::string export_strategy_file;
+  std::string search_curve_file;
+  int search_curve_interval;
   // We use MappingTagID as the key since we will pass the tag to the mapper
   std::map<MappingTagID, ParallelConfig> strategies;
   int machine_model_version;
