@@ -1490,7 +1490,6 @@ std::unique_ptr<Graph> GraphSearchHelper::base_optimize(Graph const *r_graph, Si
   hashmap.insert(graph->hash());
   Graph *best_graph = new Graph(*graph);
   float best_cost = best_graph->optimal_cost();
-  int counter = 0;
   const float alpha = this->model->config.search_alpha;
 
   int budget = model->config.search_budget;
@@ -1510,7 +1509,7 @@ std::unique_ptr<Graph> GraphSearchHelper::base_optimize(Graph const *r_graph, Si
     }
 
     log_xfers.info("[%d] cur_cost(%.4lf) best_cost(%.4lf) candidates.size(%zu)",
-           counter, cur_graph->optimal_cost(), best_cost, candidates.size());
+           iter, cur_graph->optimal_cost(), best_cost, candidates.size());
 
     for (size_t i = 0; i < xfers.size(); i++) {
       int num_matches_found = 0,
@@ -1649,6 +1648,10 @@ float GraphSearchHelper::sequence_optimize(
       this->logger->debug() << "Finding cost of pre_graph (" << bottleneck_output_shape << ")";
       float pre_cost = this->sequence_optimize(pre_graph.get(), bottleneck.value(), bottleneck_output_shape, input_shape);
       this->logger->debug() << "Cost of pre_graph (" << bottleneck_output_shape << "): " << pre_cost;
+      if (pre_cost > best_cost) {
+        this->logger->leave();
+        continue;
+      }
       this->logger->debug() << "Finding cost of post_graph (" << bottleneck_output_shape << ")";
       float post_cost = this->sequence_optimize(post_graph.get(), sink_node, output_shape, bottleneck_output_shape);
       this->logger->debug() << "Cost of post_graph (" << bottleneck_output_shape << "): " << post_cost;
@@ -1718,7 +1721,6 @@ std::vector<TensorShape> GraphSearchHelper::possible_split_output_tensor_shapes(
     for (int i = 0; i < output_tensor->num_dims; i++) {
       oss << degrees[i] << " ";
     }
-    this->logger->spew() << "Considering: " << oss.str();
     if (is_done) {
       break;
     }

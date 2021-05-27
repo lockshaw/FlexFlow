@@ -8,6 +8,7 @@ public:
   /* RecursiveLogger(LegionRuntime::Logger::Category const &); */
   RecursiveLogger(std::string const &category_name);
 
+  Realm::LoggerMessage info();
   Realm::LoggerMessage debug();
   Realm::LoggerMessage spew();
   void enter();

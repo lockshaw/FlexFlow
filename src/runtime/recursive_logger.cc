@@ -4,6 +4,16 @@ RecursiveLogger::RecursiveLogger(std::string const &category_name)
   : logger(category_name)
 { }
 
+Realm::LoggerMessage RecursiveLogger::info() {
+  Realm::LoggerMessage msg = this->logger.info();
+  msg << this->depth << " ";
+  for (int i = 0; i < this->depth; i++) {
+    msg << " ";
+  }
+
+  return msg;
+}
+
 Realm::LoggerMessage RecursiveLogger::debug() {
   Realm::LoggerMessage msg = this->logger.debug();
   msg << this->depth << " ";
