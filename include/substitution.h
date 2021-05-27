@@ -206,6 +206,10 @@ public:
   std::vector<OpX*> dstOps;
 };
 
+template <typename T>
+struct GraphSearchImpl {
+};
+
 class GraphSearchHelper {
 public:
   GraphSearchHelper(FFModel *model);
@@ -214,10 +218,12 @@ public:
                       Graph*& best_graph,
                       std::unordered_map<Node, MachineView>& optimal_views);
 private:
-  float sequence_optimize(Graph const *graph, 
-                          Node const &sink_node, 
-                          tl::optional<TensorShape> const &output_shape, 
-                          tl::optional<TensorShape> const &input_shape);
+  template <typename T> 
+  T sequence_optimize(Graph const *graph, 
+                      Node const &sink_node, 
+                      tl::optional<TensorShape> const &output_shape, 
+                      tl::optional<TensorShape> const &input_shape);
+
   void load_graph_substitutions(std::vector<GraphXfer*> &xfers) const;
   Graph *construct_graph();
   void subgraph_optimize(Graph *subgraph);
@@ -228,6 +234,25 @@ private:
   
   void find_rewrite_matches(Graph const *graph, std::vector<GraphXferMatch>& matches) const;
   tl::optional<Node> find_split_node(Graph const *graph, int base_optimize_threshold) const;
+  Graph apply_shapes(Graph const *graph, 
+                     tl::optional<TensorShape> const &output_shape,
+                     tl::optional<TensorShape> const &input_shape) const;
+  Graph concat_graphs(Graph const &first, Graph const &second) const;
+private:
+  template <typename T>
+  bool try_load_cache(size_t hash, T &) const;
+
+  template <typename T>
+  void save_in_cache(size_t hash, T const &result);
+
+  template <typename T>
+  T base_return(std::unique_ptr<Graph> g) const;
+
+  template <typename T>
+  T join_results(T const &first, T const &second) const;
+
+  template <typename T>
+  T invalid_result() const;
 private:
   std::unordered_map<size_t, float> cached_optimized_graphs;
 

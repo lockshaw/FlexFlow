@@ -535,6 +535,12 @@ bool Graph::has_edge(const Edge& e) const
   return true;
 }
 
+int Graph::num_nodes() const {
+  using ::flexflow::graph::nodes;
+
+  return nodes(*this).size();
+}
+
 void Graph::print(void) const
 {
   log_graph.print("Printing in-edge graph...");
@@ -608,6 +614,12 @@ void Graph::print_dot(std::ostream &s) const {
       return rf;
   });
   s << std::endl;
+}
+
+void Graph::print_strategy_dot(std::unordered_map<Node, MachineView> const &strategy) const {
+  DotFile<Node> dot(std::cout);
+
+  this->export_strategy_computation_graph(strategy, dot);
 }
 
 bool Graph::has_loop(void)
@@ -938,11 +950,11 @@ void Graph::replace_subgraph_with_nonempty(std::unordered_set<Node> const &curre
 void Graph::contract_out_node(Node const &node) {
   using ::flexflow::graph::successors;
 
-  assert (node.ptr->numOutputs == 1);
-  assert (node.ptr->numInputs == 1);
+  assert (node.ptr->numOutputs <= 1);
+  assert (node.ptr->numInputs <= 1);
 
   std::unordered_set<Edge> in_edges = this->inEdges.at(node);
-  assert (in_edges.size() == 1);
+  assert (in_edges.size() <= 1);
   std::unordered_set<Edge> out_edges = this->outEdges.at(node);
 
   for (auto const &in_edge : in_edges) {
@@ -1110,6 +1122,18 @@ void Graph::simplify(SimplificationSettings const &settings) {
         }
       }
       this->remove_edge(in_edge);
+    }
+  }
+
+  if (settings.remove_inputs) {
+    using ::flexflow::graph::nodes;
+
+    std::unordered_set<Node> all_nodes = nodes(*this);
+
+    for (Node const &node : all_nodes) {
+      if (node.ptr->op_type == OP_INPUT) {
+        this->contract_out_node(node);
+      }
     }
   }
 }
@@ -1331,6 +1355,21 @@ void SearchHelper::check_matches_graph<GraphCostResult>(Graph const *g, GraphCos
     r_nodes.insert(kv.first);
   }
 
+  g->print_dot();
+  { 
+    std::ostringstream oss;
+    for (Node const &g_node : g_nodes) {
+      oss << g_node.to_string() << ", ";
+    }
+    log_dp.warning() << "g_nodes: " << oss.str();
+  }
+  { 
+    std::ostringstream oss;
+    for (Node const &r_node : r_nodes) {
+      oss << r_node.to_string() << ", ";
+    }
+    log_dp.warning() << "r_nodes: " << oss.str();
+  }
   assert( g_nodes == r_nodes );
 }
 

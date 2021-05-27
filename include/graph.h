@@ -222,6 +222,7 @@ struct SimplificationSettings {
   bool fuse_parallel_ops = false;
   bool remove_trailing_parallel_ops = false;
   bool remove_noops = false;
+  bool remove_inputs = false;
 };
 
 class Graph {
@@ -245,12 +246,14 @@ public:
   void contract_out_node(const Node&);
   float optimal_cost() const;
   std::unordered_map<Node, MachineView> optimal_views() const;
+  int num_nodes() const;
 
 
   size_t hash(void) const;
   void print(void) const;
   void print_dot() const;
   void print_dot(std::ostream &) const;
+  void print_strategy_dot(std::unordered_map<Node, MachineView> const &strategy) const;
 
   bool check_correctness(void);
   bool has_loop(void);
@@ -266,7 +269,7 @@ public:
 
   std::pair<std::unique_ptr<Graph>, std::unique_ptr<Graph>> split_at_node(Node const &bottleneck) const;
   std::pair<std::unique_ptr<Graph>, std::unique_ptr<Graph>> split_horizontal(Node const &source_node, Node const &sink_node) const;
-
+ 
   Graph reduced() const;
 
   Node find_sink_node() const;
