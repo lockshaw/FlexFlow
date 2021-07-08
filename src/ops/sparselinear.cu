@@ -264,6 +264,12 @@ void SparseLinear::forward_kernel(const SparseLinearMeta* m,
   }
 }
 
+/*
+  regions[0](I); input
+  regions[1](O): output
+  regions[2](I): kernel
+  regions[3](I): bias
+*/
 void SparseLinear::forward_task(const Task *task, 
                                 const std::vector<PhysicalRegion> &regions,
                                 Context ctx, Runtime *runtime) 
@@ -644,14 +650,148 @@ void SparseLinear::print_layer(const FFModel &ff)
   assert(false && "SparseLinear::print_layer not implemented");
 }
 
-void SparseLinear::create_output_and_partition(FFModel &ff) 
+void SparseLinear::create_output_and_partition(FFModel &model) 
 {
-  assert (false && "SparseLinear::create_output_and_partition not implemented");
+  // Retrive the task indexspace for the op
+  std::string pcname = name;
+  task_is = IndexSpaceT<2>(model.get_or_create_task_is(2, pcname));
+
+  Context ctx = model.config.lg_ctx;
+  Runtime* runtime = model.config.lg_hlr;
+  Rect<2> part_rect = runtime->get_index_space_domain(ctx, task_is);
+  int num_par_c = part_rect.hi[0] - part_rect.lo[0] + 1;
+  int num_par_n = part_rect.hi[2-1] - part_rect.lo[2-1] + 1;
+  int in_dim = inputs[0].adim[0];
+  assert(in_dim == in_channels);
+  int batch_size = inputs[0].adim[2-1];
+  {
+    int dims[2];
+    for (int i = 0; i < 2; i++)
+      dims[i] = outputs[0].adim[2-1-i];
+    outputs[0] = model.create_tensor<2>(dims, DT_FLOAT, this);
+    outputs[0].owner_op = this;
+    outputs[0].owner_idx = 0;
+  }
+  // Compute partition bound for input
+  Rect<2> input_rect = runtime->get_index_partition_color_space(
+      ctx, inputs[0].part.get_index_partition());
+  // Create replica tensor
+  if (num_par_c > 1) {
+    {
+      Rect<2> extent;
+      for (int i = 1; i < 2; i++) {
+        extent.lo[i] = 0;
+        assert(outputs[0].adim[i] % (part_rect.hi[i] - part_rect.lo[i] + 1) == 0);
+        extent.hi[i] = outputs[0].adim[i] / (part_rect.hi[i] - part_rect.lo[i] + 1) - 1;
+      }
+      extent.lo[0] = 0;
+      extent.hi[0] = in_dim-1;
+      Transform<2, 2> transform;
+      for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+          transform[i][j] = 0;
+      for (int i = 1; i < 2; i++)
+        transform[i][i] = extent.hi[i] + 1;
+      IndexPartition ip = runtime->create_partition_by_restriction(
+          ctx, inputs[0].region.get_index_space(), task_is, transform, extent);
+      assert(runtime->is_index_partition_complete(ctx, ip));
+      input_lps[0] = runtime->get_logical_partition(
+          ctx, inputs[0].region, ip);
+    }
+    if (model.config.computationMode == COMP_MODE_TRAINING) {
+      const int dims[3] = {num_par_c, batch_size, in_dim};
+      replica = model.create_linear_replica<3>(dims, (IndexSpaceT<2>)task_is, DT_FLOAT);
+      // Backward use the same ip as inputs[0]
+      input_grad_lps[0] = inputs[0].part_grad;
+      {
+        IndexSpaceT<2> input_task_is = IndexSpaceT<2>(model.get_or_create_task_is(input_rect));
+        Rect<2+1> extent;
+        for (int i = 0; i < 2; i++) {
+          extent.lo[i] = 0;
+          assert(inputs[0].adim[i] % (input_rect.hi[i] - input_rect.lo[i] + 1) == 0);
+          extent.hi[i] = inputs[0].adim[i] / (input_rect.hi[i] - input_rect.lo[i] + 1) - 1;
+        }
+        extent.lo[2] = 0;
+        extent.hi[2] = num_par_c - 1;
+        Transform<2+1, 2> transform;
+        for (int i = 0; i < 2+1; i++)
+          for (int j = 0; j < 2; j++)
+            transform[i][j] = 0;
+        for (int i = 0; i < 2; i++)
+          transform[i][i] = inputs[0].adim[i] / (input_rect.hi[i] - input_rect.lo[i] + 1);
+        IndexPartition ip = runtime->create_partition_by_restriction(
+            ctx, replica.region_grad.get_index_space(), input_task_is,
+            transform, extent);
+        assert(runtime->is_index_partition_disjoint(ctx, ip));
+        assert(runtime->is_index_partition_complete(ctx, ip));
+        // Note we use replica.part to save how to partition the replica
+        // to compute input_grad_lps
+        replica.part = runtime->get_logical_partition(
+            ctx, replica.region_grad, ip);
+      }
+    } // if COMP_MODE_TRAINING
+  } else {
+    // when num_par_c == 1
+    if (input_rect == part_rect) {
+      input_lps[0] = inputs[0].part;
+      if (model.config.computationMode == COMP_MODE_TRAINING) {
+        input_grad_lps[0] = inputs[0].part_grad;
+      }
+    } else {
+      Rect<2> extent;
+      for (int i = 0; i < 2; i++) {
+        extent.lo[i] = 0;
+        assert(inputs[0].adim[i] % (part_rect.hi[i] - part_rect.lo[i] + 1) == 0);
+        extent.hi[i] = inputs[0].adim[i] / (part_rect.hi[i] - part_rect.lo[i] + 1) - 1;
+      }
+      Transform<2, 2> transform;
+      for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++) {
+          transform[i][j] = 0;
+          if (i==j)
+            transform[i][j] = extent.hi[i] + 1;
+        }
+      IndexPartition ip = runtime->create_partition_by_restriction(
+          ctx, inputs[0].region.get_index_space(), task_is, transform, extent);
+      assert(runtime->is_index_partition_disjoint(ctx, ip));
+      assert(runtime->is_index_partition_complete(ctx, ip));
+      input_lps[0] = runtime->get_logical_partition(
+          ctx, inputs[0].region, ip);
+      if (model.config.computationMode == COMP_MODE_TRAINING) {
+        input_grad_lps[0] = runtime->get_logical_partition(
+            ctx, inputs[0].region_grad, ip);
+      }
+    }
+  }
 }
 
-void SparseLinear::create_weights(FFModel &ff) 
+void SparseLinear::create_weights(FFModel &model) 
 {
-  assert (false && "SparseLinear::create_weights not implemented");
+  // Retrive the task indexspace for the op
+  std::string pcname = name;
+  task_is = IndexSpaceT<2>(model.get_or_create_task_is(2, pcname));
+
+#ifdef FF_USE_NCCL
+  ParameterSyncType comm_type = ParameterSyncType::NCCL;
+#else
+  ParameterSyncType comm_type = ParameterSyncType::PS;
+#endif
+
+  // Create kernel tensor
+  {
+    const int dims[2] = {out_channels, in_channels};
+    weights[0] = model.create_linear_weight<2, 2>(this, dims, DT_FLOAT,
+        kernel_initializer, true/*create_grad*/, comm_type);
+  }
+  // Create bias tensor
+  if (use_bias) {
+    const int dims[1] = {out_channels};
+    weights[1] = model.create_linear_weight<1, 2>(this, dims, DT_FLOAT,
+        bias_initializer, true/*create_grad*/, comm_type);
+    assert(numWeights == 2);
+  } else {
+    assert(numWeights == 1);
+  }
 }
 
 bool SparseLinear::measure_operator_cost(Simulator *sim,

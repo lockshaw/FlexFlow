@@ -165,6 +165,7 @@ option(FF_BUILD_RESNET "build resnet example" OFF)
 option(FF_BUILD_ALEXNET "build alexnet example" OFF)
 option(FF_BUILD_DLRM "build DLRM example" OFF)
 option(FF_BUILD_INCEPTION "build inception example" OFF)
+option(FF_BUILD_SPARSEMLP "build sparse_mlp example" OFF)
 option(FF_BUILD_CANDLE_UNO "build candle uno example" OFF)
 option(FF_BUILD_TRANSFORMER "build transformer example" OFF)
 option(FF_BUILD_ALL_EXAMPLES "build all examples. Overrides others" OFF)
@@ -193,6 +194,10 @@ endif()
 
 if(FF_BUILD_INCEPTION OR FF_BUILD_ALL_EXAMPLES)
   add_subdirectory(examples/cpp/InceptionV3)
+endif()
+
+if(FF_BUILD_SPARSEMLP OR FF_BUILD_ALL_EXAMPLES)
+  add_subdirectory(examples/cpp/sparse_mlp)
 endif()
 
 #TODO: Once functional add to BUILD_ALL_EXAMPLES

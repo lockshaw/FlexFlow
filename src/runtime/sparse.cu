@@ -104,19 +104,23 @@ void csr_to_dense(cusparseHandle_t handle, cusparseSpMatDescr_t const &csr, cusp
 
 void free_all_csr(cusparseSpMatDescr_t &sparseDescr) 
 {
+  int64_t rows, cols, nnz;
   int *csr_offsets, *csr_columns;
   float *csr_values;
+  cusparseIndexType_t csrRowOffsetsType, csrColIndType;
+  cusparseIndexBase_t idxBase;
+  cudaDataType_t valueType;
   checkCUSPARSE(cusparseCsrGet(sparseDescr,
-                               nullptr/*rows*/,
-                               nullptr/*cols*/,
-                               nullptr/*nnz*/,
+                               &rows/*rows*/,
+                               &cols/*cols*/,
+                               &nnz/*nnz*/,
                                (void**)&csr_offsets/*csrRowOffsets*/,
                                (void**)&csr_columns/*csrColInd*/,
                                (void**)&csr_values/*csrValues*/,
-                               nullptr/*csrRowOffsetsType*/,
-                               nullptr/*csrColIndType*/,
-                               nullptr/*idxBase*/,
-                               nullptr/*valueType*/));
+                               &csrRowOffsetsType/*csrRowOffsetsType*/,
+                               &csrColIndType/*csrColIndType*/,
+                               &idxBase/*idxBase*/,
+                               &valueType/*valueType*/));
   checkCUSPARSE(cusparseDestroySpMat(sparseDescr));
   checkCUDA(cudaFree(csr_offsets));
   checkCUDA(cudaFree(csr_columns));

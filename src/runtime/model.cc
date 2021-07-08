@@ -2103,6 +2103,7 @@ std::string FFModel::get_operator_type_name(OperatorType type) const
     case OP_PRELU: return "PReLU";
     case OP_MULTIHEAD_ATTENTION: return "MultiHeadAttention";
     case OP_FUSED: return "FusedOp";
+    case OP_SPARSELINEAR: return "SparseLinear";
     default: assert(false && "Not supported Operator type"); return "Unsupported";
   }
 }
