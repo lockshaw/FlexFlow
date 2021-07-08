@@ -194,6 +194,44 @@ void UniformInitializer::init(const FFModel* ff,
   }
 }
 
+SparseUniformInitializer::SparseUniformInitializer(int _seed, float _min, float _max, float sparsity)
+: Initializer(), seed(_seed), min_val(_min), max_val(_max), sparsity(sparsity) {}
+
+SparseUniformInitializer::~SparseUniformInitializer(void)
+{}
+
+void SparseUniformInitializer::init(const FFModel* ff,
+                              const Parameter* p)
+{
+  Context ctx = ff->config.lg_ctx;
+  Runtime* runtime = ff->config.lg_hlr;
+  if (p->sync_type == ParameterSyncType::PS) {
+    TaskLauncher launcher(SPARSE_UNIFORM_INIT_TASK_ID,
+                          TaskArgument(this, sizeof(SparseUniformInitializer)));
+    // regions[0]: p->region
+    launcher.add_region_requirement(
+        RegionRequirement(p->region, WRITE_ONLY, EXCLUSIVE, p->region));
+    launcher.add_field(0, FID_DATA);
+    runtime->execute_task(ctx, launcher);
+  } else if (p->sync_type == ParameterSyncType::NCCL) {
+    assert(p->owner_op != NULL);
+    IndexSpace task_is = p->owner_op->task_is;
+    assert(task_is != IndexSpace::NO_SPACE);
+    ArgumentMap argmap;
+    IndexLauncher launcher(SPARSE_UNIFORM_INIT_TASK_ID, task_is,
+        TaskArgument(this, sizeof(SparseUniformInitializer)), argmap,
+        Predicate::TRUE_PRED, false, 0,
+        FFConfig::get_hash_id(p->owner_op->name));
+    launcher.add_region_requirement(
+        RegionRequirement(p->part, 0/*projection id*/,
+            WRITE_ONLY, EXCLUSIVE, p->region));
+    launcher.add_field(0, FID_DATA);
+    runtime->execute_index_space(ctx, launcher);
+  } else {
+    assert(false);
+  }
+}
+
 NormInitializer::NormInitializer(int _seed, float _mean, float _stddev)
 : seed(_seed), mean(_mean), stddev(_stddev) {}
 

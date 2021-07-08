@@ -53,6 +53,14 @@ void scale_kernel(float* ptr, coord_t size, float a, float b)
   }
 }
 
+__global__ 
+void masked_scale_kernel(float *ptr, float *mask, coord_t size, float a, float b, float threshold) {
+  CUDA_KERNEL_LOOP(i, size) 
+  {
+    ptr[i] = mask[i] > threshold ? ((b - a) * ptr[i] + a) : 0.0;
+  }
+}
+
 __global__
 void ones_kernel(float* ptr, coord_t size)
 {

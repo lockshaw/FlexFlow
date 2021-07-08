@@ -21,6 +21,61 @@
 #include <random>
 #include <ctime>
 
+void SparseUniformInitializer::init_task(const Task* task,
+                                   const std::vector<PhysicalRegion>& regions,
+                                   Context ctx, Runtime* runtime)
+{
+
+  assert(regions.size() == task->regions.size());
+  SparseUniformInitializer* initializer = (SparseUniformInitializer*) task->args;
+  curandGenerator_t gen;
+  curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+  cudaStream_t stream;
+  checkCUDA(get_legion_stream(&stream));
+  curandSetStream(gen, stream);
+  //fprintf(stderr, "seed = %d\n", initializer->seed);
+
+
+
+  for (size_t i = 0; i < regions.size(); i++) {
+    Domain domain = runtime->get_index_space_domain(
+        ctx, task->regions[i].region.get_index_space());
+    float* w;
+    float* mask;
+    switch (domain.get_dim()) {
+      case 0:
+      {
+        // Do not support 0-dim parameters
+        assert(false);
+        break;
+      }
+#define DIMFUNC(DIM) \
+      case DIM: \
+      { \
+        TensorAccessorW<float, DIM> accW( \
+            regions[i], task->regions[i], FID_DATA, ctx, runtime, false/*readOutput*/); \
+        w = accW.ptr; \
+        break; \
+      }
+      LEGION_FOREACH_N(DIMFUNC)
+#undef DIMFUNC
+      default:
+      {
+         assert(false);
+         break;
+      }
+    }
+    checkCUDA(cudaMalloc(&mask, domain.get_volume()));
+    curandSetPseudoRandomGeneratorSeed(gen, initializer->seed);
+    checkCURAND(curandGenerateUniform(gen, w, domain.get_volume()));
+    checkCURAND(curandGenerateUniform(gen, mask, domain.get_volume()));
+    masked_scale_kernel<<<GET_BLOCKS(domain.get_volume()), CUDA_NUM_THREADS, 0, stream>>>(
+        w, mask, domain.get_volume(), initializer->min_val, initializer->max_val, initializer->sparsity);
+  }
+  checkCUDA(cudaDeviceSynchronize());
+  curandDestroyGenerator(gen);
+}
+
 void UniformInitializer::init_task(const Task* task,
                                    const std::vector<PhysicalRegion>& regions,
                                    Context ctx, Runtime* runtime)

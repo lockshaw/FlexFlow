@@ -71,6 +71,19 @@ public:
   float min_val, max_val;
 };
 
+class SparseUniformInitializer : public Initializer
+{
+public:
+  SparseUniformInitializer(int _seed, float _min, float _max, float sparsity);
+  ~SparseUniformInitializer(void);
+  void init(const FFModel* ff, const Parameter* p);
+  static void init_task(const Task *task,
+                        const std::vector<PhysicalRegion>& regions,
+                        Context ctx, Runtime *runtime);
+  int seed;
+  float min_val, max_val, sparsity;
+};
+
 class NormInitializer : public Initializer
 {
 public:

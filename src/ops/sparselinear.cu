@@ -16,7 +16,7 @@ Tensor FFModel::sparse_linear(const Tensor& input,
 {
   if (kernel_initializer == NULL) {
     int seed = std::rand();
-    kernel_initializer = new GlorotUniform(seed);
+    kernel_initializer = new SparseUniformInitializer(seed, -0.01, 0.01, 0.1);
   }
   if (bias_initializer == NULL) {
     bias_initializer = new ZeroInitializer();
@@ -197,6 +197,25 @@ bool SparseLinear::use_cudnn_activation(ActiMode mode)
   }
   return false;
 }
+
+static void cudaTime(bool profiling, cudaStream_t stream, std::function<void()> const &f, std::function<void(float)> const &printer) {
+  cudaEvent_t t_start, t_end;
+  if (profiling) {
+    cudaEventCreate(&t_start);
+    cudaEventCreate(&t_end);
+    cudaEventRecord(t_start, stream);
+  }
+  f();
+  if (profiling) {
+    cudaEventRecord(t_end, stream);
+    checkCUDA(cudaEventSynchronize(t_end));
+    float elapsed = 0;
+    checkCUDA(cudaEventElapsedTime(&elapsed, t_start, t_end));
+    cudaEventDestroy(t_start);
+    cudaEventDestroy(t_end);
+    printer(elapsed);
+  }
+}
                               
 /*static*/
 void SparseLinear::forward_kernel(const SparseLinearMeta* m, 
@@ -222,16 +241,30 @@ void SparseLinear::forward_kernel(const SparseLinearMeta* m,
 
     // create the sparse cusparse descr for kernel tensor
     cusparseSpMatDescr_t sparseKernelDesc;
-    make_csr(m->handle.sparse, kernel_ptr, out_dim, in_dim, sparseKernelDesc);
+    cudaTime(m->profiling, stream,
+      [&]() {
+        make_csr(m->handle.sparse, kernel_ptr, out_dim, in_dim, sparseKernelDesc);
+      }, 
+      [&](float elapsed) { 
+        printf("%s [SparseLinear] weight conversion time = %.2lfms\n", m->op_name, elapsed); 
+      }
+    );
      
-    spmm(m->handle.sparse,
-         CUSPARSE_OPERATION_NON_TRANSPOSE,
-         CUSPARSE_OPERATION_NON_TRANSPOSE,
-         1.0, 
-         sparseKernelDesc,
-         inputDesc,
-         0.0, 
-         outputDesc);
+    cudaTime(m->profiling, stream,
+      [&]() {
+        spmm(m->handle.sparse,
+             CUSPARSE_OPERATION_NON_TRANSPOSE,
+             CUSPARSE_OPERATION_NON_TRANSPOSE,
+             1.0, 
+             sparseKernelDesc,
+             inputDesc,
+             0.0, 
+             outputDesc);
+      }, 
+      [&](float elapsed) { 
+        printf("%s [SparseLinear] spmm time = %.2lfms\n", m->op_name, elapsed); 
+      }
+    );
 
     free_all_csr(sparseKernelDesc);
   }
@@ -239,29 +272,43 @@ void SparseLinear::forward_kernel(const SparseLinearMeta* m,
 
   if (bias_ptr != NULL) {
     float alpha = 1.0, beta = 1.0;
-    checkCUDA(cublasSgemm(m->handle.blas, CUBLAS_OP_T, CUBLAS_OP_N,
-                          out_dim, batch_size, 1,
-                          &alpha, bias_ptr, 1,
-                          m->one_ptr, 1, &beta,
-                          output_ptr, out_dim));
+    cudaTime(m->profiling, stream,
+      [&]() {
+        checkCUDA(cublasSgemm(m->handle.blas, CUBLAS_OP_T, CUBLAS_OP_N,
+                              out_dim, batch_size, 1,
+                              &alpha, bias_ptr, 1,
+                              m->one_ptr, 1, &beta,
+                              output_ptr, out_dim));
+      }, 
+      [&](float elapsed) { 
+        printf("%s [SparseLinear] bias time = %.2lfms\n", m->op_name, elapsed); 
+      }
+    );
   }
 
-  if (use_cudnn_activation(m->activation)) {
-    float alpha = 1.0f, beta = 0.0f;
-    checkCUDNN(cudnnActivationForward(m->handle.dnn, m->actiDesc,
-        &alpha, m->outputTensor, output_ptr,
-        &beta, m->outputTensor, output_ptr));
-  } else if (m->activation == AC_MODE_GELU) {
-    size_t elements = (size_t)out_dim * (size_t) batch_size;
-    constexpr float B = 0.7978845608028654f;   // sqrt(2.0/M_PI)
-    constexpr float C = 0.035677408136300125f; // 0.044715 * sqrt(2.0/M_PI)
-    gelu_forward_kernel<<<GET_BLOCKS(elements), CUDA_NUM_THREADS>>>(
-        elements, B, C, output_ptr);
-  } else if (m->activation == AC_MODE_NONE) {
-    // Do nothing
-  } else {
-    assert(false && "Unsupported activation for Linear");
-  }
+  cudaTime(m->profiling, stream,
+    [&]() {
+      if (use_cudnn_activation(m->activation)) {
+        float alpha = 1.0f, beta = 0.0f;
+        checkCUDNN(cudnnActivationForward(m->handle.dnn, m->actiDesc,
+            &alpha, m->outputTensor, output_ptr,
+            &beta, m->outputTensor, output_ptr));
+      } else if (m->activation == AC_MODE_GELU) {
+        size_t elements = (size_t)out_dim * (size_t) batch_size;
+        constexpr float B = 0.7978845608028654f;   // sqrt(2.0/M_PI)
+        constexpr float C = 0.035677408136300125f; // 0.044715 * sqrt(2.0/M_PI)
+        gelu_forward_kernel<<<GET_BLOCKS(elements), CUDA_NUM_THREADS>>>(
+            elements, B, C, output_ptr);
+      } else if (m->activation == AC_MODE_NONE) {
+        // Do nothing
+      } else {
+        assert(false && "Unsupported activation for Linear");
+      }
+    }, 
+    [&](float elapsed) { 
+      printf("%s [SparseLinear] activation time = %.2lfms\n", m->op_name, elapsed); 
+    }
+  );
 }
 
 /*
@@ -302,35 +349,22 @@ void SparseLinear::forward_task(const Task *task,
   cudaStream_t stream;
   checkCUDA(get_legion_stream(&stream));
 
-  cudaEvent_t t_start, t_end;
-  if (m->profiling) {
-    cudaEventCreate(&t_start);
-    cudaEventCreate(&t_end);
-    cudaEventRecord(t_start, stream);
-  }
-  SparseLinear::forward_kernel(m, 
-                               acc_input.ptr, 
-                               acc_output.ptr,
-                               acc_kernel.ptr,
-                               acc_bias_ptr,
-                               in_dim,
-                               out_dim,
-                               batch_size,
-                               stream);
-
-  if (m->profiling) {
-    cudaEventRecord(t_end, stream);
-    checkCUDA(cudaEventSynchronize(t_end));
-    float elapsed = 0;
-    checkCUDA(cudaEventElapsedTime(&elapsed, t_start, t_end));
-    cudaEventDestroy(t_start);
-    cudaEventDestroy(t_end);
-    printf("%s [SparseLinear] forward time = %.2lfms\n", m->op_name, elapsed);
-    //print_tensor<NDIM, float>(acc_input.ptr, acc_input.rect, "[Linear:forward:input]");
-    //print_tensor<2, float>(acc_kernel.ptr, acc_kernel.rect, "[Linear:forward:kernel]");
-    //print_tensor<1, float>(acc_bias.ptr, acc_bias.rect, "[Linear:forward:bias]");
-    //print_tensor<NDIM, float>(acc_output.ptr, acc_output.rect, "[Linear:forward:output]");
-  }
+  cudaTime(m->profiling, stream,
+    [&]() {
+      SparseLinear::forward_kernel(m, 
+                                   acc_input.ptr, 
+                                   acc_output.ptr,
+                                   acc_kernel.ptr,
+                                   acc_bias_ptr,
+                                   in_dim,
+                                   out_dim,
+                                   batch_size,
+                                   stream);
+    }, 
+    [&](float elapsed) { 
+      printf("%s [SparseLinear] forward time = %.2lfms\n", m->op_name, elapsed); 
+    }
+  );
 }
 
 void SparseLinear::forward(const FFModel& ff)
@@ -798,6 +832,7 @@ bool SparseLinear::measure_operator_cost(Simulator *sim,
                                          const ParallelConfig &pc,
                                          CostMetrics& cost_metrics) 
 {
-  assert (false && "SparseLinear::measure_operator_cost not implemented");
-  return false;
+  return true;
+  /* assert (false && "SparseLinear::measure_operator_cost not implemented"); */
+  /* return false; */
 }

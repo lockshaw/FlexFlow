@@ -76,6 +76,9 @@ __global__
 void scale_kernel(float* ptr, coord_t size, float a, float b);
 
 __global__
+void masked_scale_kernel(float* ptr, float *mask, coord_t size, float a, float b, float threshold);
+
+__global__
 void ones_kernel(float* ptr, coord_t size);
 
 template<typename DT>

@@ -3111,6 +3111,14 @@ void register_flexflow_internal_tasks()
         registrar, "Uniform Init Task");
   }
   {
+    TaskVariantRegistrar registrar(SPARSE_UNIFORM_INIT_TASK_ID,
+                                   "SparseUniform Init");
+    registrar.add_constraint(ProcessorConstraint(Processor::TOC_PROC));
+    registrar.set_leaf();
+    Runtime::preregister_task_variant<SparseUniformInitializer::init_task>(
+        registrar, "SparseUniform Init Task");
+  }
+  {
     TaskVariantRegistrar registrar(GLOROT_INIT_TASK_ID,
                                    "Glorot Init");
     registrar.add_constraint(ProcessorConstraint(Processor::TOC_PROC));

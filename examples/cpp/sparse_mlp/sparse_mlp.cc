@@ -65,7 +65,7 @@ void top_level_task(const Task* task,
       ff.forward();
       ff.zero_gradients();
       ff.backward();
-      ff.update();
+      /* ff.update(); */
       if (epoch > 0)
         runtime->end_trace(ctx, 111/*trace_id*/);
     }
@@ -136,8 +136,8 @@ void DataLoader::next_batch(FFModel& ff)
     int idx = next_index;
     for (PointInRectIterator<2> it(rect); it(); it++) {
       SampleIdxs meta;
-      assert(ff.config.batchSize % (rect.hi[3] - rect.lo[3] + 1) == 0);
-      meta.num_samples = ff.config.batchSize / (rect.hi[3] - rect.lo[3] + 1);
+      assert(ff.config.batchSize % (rect.hi[1] - rect.lo[1] + 1) == 0);
+      meta.num_samples = ff.config.batchSize / (rect.hi[1] - rect.lo[1] + 1);
       for (int i = 0; i < meta.num_samples; i++)
         meta.idxs[i] = idx++;
       argmap.set_point(*it, TaskArgument(&meta, sizeof(SampleIdxs)));
