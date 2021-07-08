@@ -27,10 +27,20 @@
     }                                                                  \
 } while(0)
 
+template <typename T> std::string getErrorString(T status);
+
 #define checkCUDA(status) do {                                         \
     std::stringstream _error;                                          \
     if (status != 0) {                                                 \
-      _error << "Cuda failure: " << status;                            \
+      _error << "Cuda failure: " << getErrorString(status);            \
+      FatalError(_error.str());                                        \
+    }                                                                  \
+} while(0)
+
+#define checkCUSPARSE(status) do {                                       \
+    std::stringstream _error;                                          \
+    if (status != CUSPARSE_STATUS_SUCCESS) {                             \
+      _error << "CuSPARSE failure: " << status;                          \
       FatalError(_error.str());                                        \
     }                                                                  \
 } while(0)
@@ -75,9 +85,6 @@ void assign_kernel(DT* ptr, coord_t size, DT value);
 template<typename DT>
 __global__
 void copy_kernel(DT* dst, const DT* src, coord_t size);
-
-__global__
-void reluBackward(float* grad_ptr, const float* input, int n);
 
 __global__
 void apply_add_with_scale(float *data_ptr, const float *grad_ptr,

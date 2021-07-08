@@ -30,6 +30,20 @@ cudaError_t get_legion_stream(cudaStream_t *stream)
 }
 #endif
 
+template <>
+std::string getErrorString<cublasStatus_t>(cublasStatus_t status) {
+  std::ostringstream oss;
+  oss << status;
+  return oss.str();
+}
+
+template <>
+std::string getErrorString<cudaError_t>(cudaError_t status) {
+  std::ostringstream oss;
+  oss << cudaGetErrorString(status) << " (Code " << status << ")";
+  return oss.str();
+}
+
 __global__
 void scale_kernel(float* ptr, coord_t size, float a, float b)
 {
@@ -65,15 +79,6 @@ void copy_kernel(DT* dst, const DT* src, coord_t size)
   CUDA_KERNEL_LOOP(i, size)
   {
     dst[i] = src[i];
-  }
-}
-
-__global__
-void reluBackward(float *grad_ptr, const float *output, int n)
-{
-  CUDA_KERNEL_LOOP(i, n)
-  {
-    grad_ptr[i] = (output[i] > 0.0f) ? grad_ptr[i] : 0;
   }
 }
 

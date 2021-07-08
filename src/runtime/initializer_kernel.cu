@@ -65,7 +65,7 @@ void UniformInitializer::init_task(const Task* task,
       }
     }
     curandSetPseudoRandomGeneratorSeed(gen, initializer->seed);
-    checkCUDA(curandGenerateUniform(gen, w, domain.get_volume()));
+    checkCURAND(curandGenerateUniform(gen, w, domain.get_volume()));
     scale_kernel<<<GET_BLOCKS(domain.get_volume()), CUDA_NUM_THREADS, 0, stream>>>(
         w, domain.get_volume(), initializer->min_val, initializer->max_val);
   }
@@ -142,7 +142,7 @@ void GlorotUniform::init_task(const Task* task,
   GlorotUniform* initializer = (GlorotUniform*) task->args;
   curandSetPseudoRandomGeneratorSeed(gen, initializer->seed);
   fprintf(stderr, "seed = %d scale = %.4lf\n", initializer->seed, scale);
-  checkCUDA(curandGenerateUniform(gen, w, domain.get_volume()));
+  checkCURAND(curandGenerateUniform(gen, w, domain.get_volume()));
   scale_kernel<<<GET_BLOCKS(domain.get_volume()), CUDA_NUM_THREADS, 0, stream>>>(
       w, domain.get_volume(), -scale, scale);
   checkCUDA(cudaDeviceSynchronize());

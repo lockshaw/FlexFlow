@@ -80,6 +80,9 @@ endif()
 # Legion
 include(legion)
 
+# sputnik
+include(sputnik)
+
 if(FF_USE_PYTHON)
   list(APPEND CC_FLAGS
     -DBINDINGS_AUGMENT_PYTHONPATH)

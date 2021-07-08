@@ -10,3 +10,6 @@
 [submodule "deps/googletest"]
 	path = deps/googletest
 	url = https://github.com/google/googletest.git
+[submodule "deps/sputnik"]
+	path = deps/sputnik
+	url = https://github.com/google-research/sputnik.git

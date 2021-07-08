@@ -2758,6 +2758,28 @@ void register_flexflow_internal_tasks()
     Runtime::preregister_task_variant<Linear::backward2_task>(
         registrar, "Linear Backward Task (Aggregate replica)");
   }
+  // SparseLinear Task
+  {
+    TaskVariantRegistrar registrar(SPARSE_LINEAR_INIT_TASK_ID, "SparseLinear Init");
+    registrar.add_constraint(ProcessorConstraint(Processor::TOC_PROC));
+    registrar.set_leaf();
+    Runtime::preregister_task_variant<OpMeta*, SparseLinear::init_task>(
+        registrar, "SparseLinear Init Task");
+  }
+  {
+    TaskVariantRegistrar registrar(SPARSE_LINEAR_FWD_TASK_ID, "SparseLinear Forward");
+    registrar.add_constraint(ProcessorConstraint(Processor::TOC_PROC));
+    registrar.set_leaf();
+    Runtime::preregister_task_variant<SparseLinear::forward_task>(
+        registrar, "SparseLinear Forward Task");
+  }
+  {
+    TaskVariantRegistrar registrar(SPARSE_LINEAR_BWD_TASK_ID, "SparseLinear Backward");
+    registrar.add_constraint(ProcessorConstraint(Processor::TOC_PROC));
+    registrar.set_leaf();
+    Runtime::preregister_task_variant<SparseLinear::backward_task>(
+        registrar, "SparseLinear Backward Task");
+  }
   // Flat task
   {
     TaskVariantRegistrar registrar(FLAT_INIT_TASK_ID, "flat_init_task");

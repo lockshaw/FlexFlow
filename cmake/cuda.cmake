@@ -6,6 +6,7 @@ find_package(CUDA REQUIRED)
 
 if(CUDA_FOUND)
   # strip the cudart lib
+  set(ALL_CUDA_LIBRARIES "${CUDA_LIBRARIES}")
   string(REGEX REPLACE "[^\;]*cudart[^\;]*(\;?)" "" CUDA_LIBRARIES "${CUDA_LIBRARIES}")
   set(CUDA_LIBRARIES ${CUDA_LIBRARIES})
 
@@ -17,7 +18,8 @@ if(CUDA_FOUND)
   list(APPEND FLEXFLOW_EXT_LIBRARIES
     ${CUDADRV_LIBRARIES}
     ${CUDA_CUBLAS_LIBRARIES}
-    ${CUDA_curand_LIBRARY})
+    ${CUDA_curand_LIBRARY}
+    ${CUDA_cusparse_LIBRARY})
 
   # set CUDA ARCH
   # if CUDA_ARCH is not specified, then detect it

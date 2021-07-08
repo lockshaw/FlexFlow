@@ -15,6 +15,7 @@
 
 #include "model.h"
 #include "cuda_helper.h"
+#include "linear_utils.h"
 
 Tensor FFModel::batch_norm(const Tensor& input,
                            bool relu,

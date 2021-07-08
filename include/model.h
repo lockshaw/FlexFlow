@@ -85,6 +85,9 @@ enum TaskIDs {
   LINEAR_BWD_TASK_ID,
   LINEAR_BWD2_TASK_ID,
   LINEAR_UPD_TASK_ID,
+  SPARSE_LINEAR_INIT_TASK_ID,
+  SPARSE_LINEAR_FWD_TASK_ID,
+  SPARSE_LINEAR_BWD_TASK_ID,
   FLAT_INIT_TASK_ID,
   FLAT_FWD_TASK_ID,
   FLAT_BWD_TASK_ID,
@@ -415,6 +418,14 @@ public:
                Initializer* kernel_initializer = NULL,
                Initializer* bias_initializer = NULL,
                const char *name = NULL);
+  Tensor sparse_linear(const Tensor& input,
+                       int outDim,
+                       ActiMode activation = AC_MODE_NONE,
+                       bool use_bias = true,
+                       const Op *shared_op = NULL,
+                       Initializer* kernel_initializer = NULL,
+                       Initializer* bias_initializer = NULL,
+                       const char *name = NULL);
   // Add a concat layer
   Tensor concat(int n,
                 const Tensor* tensors,
@@ -977,6 +988,79 @@ public:
   char op_name[MAX_OPNAME];
 };
 
+
+class SparseLinearMeta : public OpMeta {
+public:
+  SparseLinearMeta(FFHandler handle, int batch_size);
+  ~SparseLinearMeta();
+  cudnnTensorDescriptor_t outputTensor;
+  cudnnActivationDescriptor_t actiDesc;
+  float const *one_ptr;
+  ActiMode activation;
+  bool use_bias;
+  char op_name[MAX_OPNAME];
+};
+
+
+class SparseLinear : public Op {
+public:
+  SparseLinear(FFModel& model,
+               const Tensor& input,
+               int outChannels,
+               ActiMode activation,
+               bool use_bias,
+               const Op* shared_op,
+               Initializer* kernel_initializer,
+               Initializer* bias_initializer,
+               const char *name);
+
+  void init(const FFModel&) override;
+  void forward(const FFModel&) override;
+  void backward(const FFModel&) override;
+  void print_layer(const FFModel&) override;
+  void create_weights(FFModel&);
+  void create_output_and_partition(FFModel&);
+
+  static OpMeta* init_task(const Task *task,
+                           const std::vector<PhysicalRegion> &regions,
+                           Context ctx, Runtime *runtime);
+  static void forward_task(const Task *task,
+                           const std::vector<PhysicalRegion> &regions,
+                           Context ctx, Runtime *runtime);
+  static void backward_task(const Task *task,
+                            const std::vector<PhysicalRegion> &regions,
+                            Context ctx, Runtime *runtime);
+
+  static void forward_kernel(const SparseLinearMeta* m,
+                      const float* input_ptr,
+                      float* output_ptr,
+                      const float* filter_ptr,
+                      const float* bias_ptr,
+                      int in_dim, int out_dim, int batch_size,
+                      cudaStream_t stream);
+  static void backward_kernel(const SparseLinearMeta* m,
+                       const float* input_ptr,
+                       float* input_grad_ptr,
+                       const float* output_ptr,
+                       float* output_grad_ptr,
+                       const float* kernel_ptr,
+                       float* kernel_grad_ptr,
+                       float* bias_grad_ptr,
+                       int in_dim, int out_dim, int batch_size,
+                       cudaStream_t stream);
+  bool measure_operator_cost(Simulator* sim,
+                             const ParallelConfig& pc,
+                             CostMetrics& cost_metrics);
+  static bool use_cudnn_activation(ActiMode mode);
+public:
+  int in_channels, out_channels;
+  Tensor replica;
+  bool use_bias;
+  ActiMode activation;
+  Initializer *kernel_initializer;
+  Initializer *bias_initializer;
+};
+
 class Linear : public Op {
 public:
   Linear(FFModel& model,
@@ -1023,7 +1107,7 @@ public:
                        float* output_grad_ptr,
                        const float* kernel_ptr,
                        float* kernel_grad_ptr,
-                       float* bias_ptr,
+                       float* bias_grad_ptr,
                        int in_dim, int out_dim, int batch_size,
                        cudaStream_t stream);
   bool measure_operator_cost(Simulator* sim,

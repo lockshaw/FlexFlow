@@ -15,6 +15,7 @@
 
 #include "model.h"
 #include "cuda_helper.h"
+#include "linear_utils.h"
 
 Tensor FFModel::conv2d(const Tensor& input,
                        int outChannels,

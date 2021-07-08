@@ -20,6 +20,7 @@
 #include "ffconst.h"
 #include <cudnn.h>
 #include <cublas_v2.h>
+#include <cusparse.h>
 #ifdef FF_USE_NCCL
 #include <nccl.h>
 #endif
@@ -75,6 +76,7 @@ struct ParallelConfig {
 struct FFHandler {
   cudnnHandle_t dnn;
   cublasHandle_t blas;
+  cusparseHandle_t sparse;
   void *workSpace;
   size_t workSpaceSize;
   bool allowTensorOpMathConversion;

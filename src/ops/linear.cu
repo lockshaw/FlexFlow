@@ -15,6 +15,7 @@
 
 #include "model.h"
 #include "cuda_helper.h"
+#include "linear_utils.h"
 
 Tensor FFModel::dense(const Tensor& input,
                       int outDim,
@@ -596,15 +597,6 @@ void Linear::forward_with_dim(const FFModel& ff)
     launcher.add_field(3, FID_DATA);
   }
   runtime->execute_index_space(ctx, launcher);
-}
-
-__global__
-void sigmoid_backward(float *grad_ptr, const float *output, int n)
-{
-  CUDA_KERNEL_LOOP(i, n)
-  {
-    grad_ptr[i] = grad_ptr[i] * output[i] * (1 - output[i]);
-  }
 }
 
 /*static*/
