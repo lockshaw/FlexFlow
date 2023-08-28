@@ -1,23 +1,2 @@
-ff_add_library(
-  NAME
-    utils
-  SRC_PATTERNS
-    src/*.cc
-  PUBLIC_INCLUDE
-    include/
-  PRIVATE_INCLUDE
-    src/
-  DEPS
-    optional
-    expected
-    variant
-    visit_struct
-    fmt
-    invoke
-    json
-    any
-    cuda
-)      
-
-add_subdirectory(ffi)
-add_subdirectory(test)
+add_subdirectory(utils)
+add_subdirectory(subtyping)

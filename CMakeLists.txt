@@ -110,6 +110,7 @@ include(legion)
 include(rapidcheck)
 include(invoke)
 include(any)
+include(boost_preprocessor)
 #include(gtest)
 #include(fmt)
 

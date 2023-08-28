@@ -52,6 +52,39 @@ function(ff_add_library)
   ff_set_cxx_properties(${FF_LIBRARY_NAME})
 endfunction()
 
+function(ff_add_header_only_library)
+  ff_parse_args(
+    PREFIX 
+      FF_HDR_LIBRARY
+    ARGS
+      NAME
+    VARIADIC_ARGS
+      INCLUDE
+      DEPS
+    PARSE
+      ${ARGN}
+  )
+  
+  project(${FF_HDR_LIBRARY_NAME})
+
+  add_library(
+    ${FF_HDR_LIBRARY_NAME}
+    INTERFACE)
+
+  target_include_directories(
+    ${FF_HDR_LIBRARY_NAME}
+    PUBLIC
+      ${FF_HDR_LIBRARY_INCLUDE})
+
+  target_link_libraries(
+    ${FF_HDR_LIBRARY_NAME}
+    INTERFACE
+      ${FF_HDR_LIBRARY_DEPS}
+  )
+  define_ff_vars(${FF_HDR_LIBRARY_NAME})
+  ff_set_cxx_properties(${FF_HDR_LIBRARY_NAME})
+endfunction()
+
 function(ff_add_test_executable)
   ff_parse_args(
     PREFIX 
