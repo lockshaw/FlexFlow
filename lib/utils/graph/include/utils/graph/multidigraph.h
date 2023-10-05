@@ -3,15 +3,14 @@
 
 #include "cow_ptr_t.h"
 #include "multidigraph_interfaces.h"
+#include "multidiedge.h"
 #include "node.h"
 
 namespace FlexFlow {
-struct MultiDiGraphView {
+struct MultiDiGraphView : virtual DiGraphView {
 public:
   using Edge = MultiDiEdge;
   using EdgeQuery = MultiDiEdgeQuery;
-
-  operator GraphView() const;
 
   friend void swap(MultiDiGraphView &, MultiDiGraphView &);
 
@@ -23,23 +22,20 @@ public:
                                  MultiDiGraphView>::type
       create(Args &&...args) {
     return MultiDiGraphView(
-        std::make_shared<T const>(std::forward<Args>(args)...));
+        make_cow_ptr<T>(std::forward<Args>(args)...));
   }
 
-  static MultiDiGraphView
-      unsafe_create_without_ownership(IMultiDiGraphView const &);
-
+protected:
+  MultiDiGraphView(cow_ptr_t<IMultiDiGraphView> ptr);
+  
 private:
-  MultiDiGraphView(std::shared_ptr<IMultiDiGraphView const> ptr);
+  cow_ptr_t <IMultiDiGraphView> get_ptr() const;
 
   friend struct GraphInternal;
-
-private:
-  std::shared_ptr<IMultiDiGraphView const> ptr;
 };
 CHECK_WELL_BEHAVED_VALUE_TYPE_NO_EQ(MultiDiGraphView);
 
-struct MultiDiGraph {
+struct MultiDiGraph : virtual MultiDiGraphView {
 public:
   using Edge = MultiDiEdge;
   using EdgeQuery = MultiDiEdgeQuery;
@@ -47,8 +43,6 @@ public:
   MultiDiGraph() = delete;
   MultiDiGraph(MultiDiGraph const &) = default;
   MultiDiGraph &operator=(MultiDiGraph const &) = default;
-
-  operator MultiDiGraphView() const;
 
   friend void swap(MultiDiGraph &, MultiDiGraph &);
 
@@ -71,13 +65,13 @@ public:
     return MultiDiGraph(make_cow_ptr<T>());
   }
 
-private:
+protected:
   MultiDiGraph(cow_ptr_t<IMultiDiGraph>);
 
-  friend struct GraphInternal;
-
 private:
-  cow_ptr_t<IMultiDiGraph> ptr;
+  cow_ptr_t<IMultiDiGraph> get_ptr() const;
+
+  friend struct GraphInternal;
 };
 CHECK_WELL_BEHAVED_VALUE_TYPE_NO_EQ(MultiDiGraph);
 

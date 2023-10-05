@@ -235,9 +235,12 @@ class FileContentsSatisfy(Expr):
     def evaluate(self, p: AbsolutePath, attrs: Attrs, extra: ExprExtra) -> bool:
         if not p.is_file(): 
             return False
-        with p.open('r') as f:
-            contents = f.read()
-        return self.condition(p, contents)
+        try:
+            with p.open('r') as f:
+                contents = f.read()
+            return self.condition(p, contents)
+        except UnicodeDecodeError:
+            return False
 
     @property
     def inputs(self) -> FrozenSet[FileAttribute]:
@@ -267,9 +270,10 @@ class DoesNotCreateNesting(Expr):
         for parent in p.parents:
             if self.expr.evaluate(parent, attrs, extra=extra):
                 return False
-        for child in children(p):
-            if self.expr.evaluate(child, attrs, extra=extra):
-                return False
+        if p.is_dir():
+            for child in children(p):
+                if self.expr.evaluate(child, attrs, extra=extra):
+                    return False
         return True
 
     @property
@@ -281,6 +285,7 @@ class DoesNotCreateNesting(Expr):
 
 @dataclass(frozen=True)
 class Rule:
+    name: str
     condition: Expr
     result: FileAttribute
 
@@ -293,9 +298,14 @@ class Rule:
         return frozenset({self.result})
 
     def __repr__(self) -> str:
-        return f'({self.condition} -> {self.result})'
+        return self.name
+
+    @property
+    def signature(self) -> str:
+        return f'{self.name} :: ({", ".join(map(str, self.inputs))}) -> {self.result}'
 
 def make_update_rules(
+        base_name: str,
         is_supported: FileAttribute,
         old_incorrect: FileAttribute, 
         old_correct: FileAttribute, 
@@ -304,9 +314,25 @@ def make_update_rules(
         did_fix: Optional[FileAttribute] = None
 ) -> FrozenSet[Rule]:
     rules: Set[Rule] = set()
-    rules.add(Rule(HasAttribute(old_correct), new_correct))
-    rules.add(Rule(HasAttribute(is_supported) & Not(HasAttribute(old_correct)), old_incorrect))
-    rules.add(Rule(HasAttribute(old_incorrect) & Not(HasAttribute(new_correct)), new_incorrect))
+    rules.add(Rule(
+        f'{base_name}.old_to_new_correct',
+        HasAttribute(old_correct), 
+        new_correct
+    ))
+    rules.add(Rule(
+        f'{base_name}.old_incorrect',
+        HasAttribute(is_supported) & Not(HasAttribute(old_correct)), 
+        old_incorrect
+    ))
+    rules.add(Rule(
+        f'{base_name}.new_incorrect',
+        HasAttribute(old_incorrect) & Not(HasAttribute(new_correct)), 
+        new_incorrect
+    ))
     if did_fix is not None:
-        rules.add(Rule(HasAttribute(old_incorrect) & HasAttribute(did_fix), new_correct))
+        rules.add(Rule(
+            f'{base_name}.old_to_new_when_fixed',
+            HasAttribute(old_incorrect) & HasAttribute(did_fix), 
+            new_correct
+        ))
     return frozenset(rules)

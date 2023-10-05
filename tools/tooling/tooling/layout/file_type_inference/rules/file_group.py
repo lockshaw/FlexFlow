@@ -4,10 +4,12 @@ from typing import FrozenSet
 
 rules: FrozenSet[Rule] = frozenset({
     Rule(
-        HasAnyOfAttributes.from_iter([FileAttribute.CPP_LIBRARY_IN_INCLUDE, FileAttribute.CPP_LIBRARY_IN_SRC]),
+        'file_group_base.find',
+        HasAnyOfAttributes.from_iter([FileAttribute.CPP_LIBRARY_INCLUDE_DIR, FileAttribute.CPP_LIBRARY_SRC_DIR]),
         FileAttribute.CPP_FILE_GROUP_BASE
     ),
     Rule(
+        'file_group_member.find',
         HasAnyOfAttributes.from_iter([
             FileAttribute.CPP_SOURCE, FileAttribute.CPP_TEST, FileAttribute.CPP_PRIVATE_HEADER, FileAttribute.CPP_PUBLIC_HEADER
         ]) & AncestorSatisfies(HasAttribute(FileAttribute.CPP_FILE_GROUP_BASE)),

@@ -1,5 +1,5 @@
-#ifndef _FLEXFLOW_UTILS_GRAPH_DIGRAPH_H
-#define _FLEXFLOW_UTILS_GRAPH_DIGRAPH_H
+#ifndef UTILS_GRAPH_INCLUDE_UTILS_GRAPH_DIGRAPH
+#define UTILS_GRAPH_INCLUDE_UTILS_GRAPH_DIGRAPH
 
 #include "cow_ptr_t.h"
 #include "digraph_interfaces.h"
@@ -11,14 +11,12 @@
 
 namespace FlexFlow {
 
-struct DiGraphView {
+struct DiGraphView : virtual public GraphView {
 public:
   using Edge = DirectedEdge;
   using EdgeQuery = DirectedEdgeQuery;
 
   DiGraphView() = delete;
-
-  operator GraphView() const;
 
   friend void swap(DiGraphView &, DiGraphView &);
 
@@ -30,23 +28,20 @@ public:
   static typename std::enable_if<std::is_base_of<IDiGraphView, T>::value,
                                  DiGraphView>::type
       create(Args &&...args) {
-    return DiGraphView(std::make_shared<T>(std::forward<Args>(args)...));
+    return DiGraphView(make_cow_ptr<T>(std::forward<Args>(args)...));
   }
 
-  static DiGraphView
-      unsafe_create_without_ownership(IDiGraphView const &graphView);
+protected:
+  DiGraphView(cow_ptr_t<IDiGraphView> ptr);
 
 private:
-  DiGraphView(std::shared_ptr<IDiGraphView const> ptr);
+  cow_ptr_t<IDiGraphView> get_ptr() const;
 
   friend struct GraphInternal;
-
-private:
-  std::shared_ptr<IDiGraphView const> ptr;
 };
 CHECK_WELL_BEHAVED_VALUE_TYPE_NO_EQ(DiGraphView);
 
-struct DiGraph {
+struct DiGraph : virtual DiGraphView {
 public:
   using Edge = DirectedEdge;
   using EdgeQuery = DirectedEdgeQuery;
@@ -54,8 +49,6 @@ public:
   DiGraph() = delete;
   DiGraph(DiGraph const &) = default;
   DiGraph &operator=(DiGraph const &) = default;
-
-  operator DiGraphView() const;
 
   friend void swap(DiGraph &, DiGraph &);
 
@@ -76,13 +69,13 @@ public:
     return DiGraph(make_cow_ptr<T>());
   }
 
-private:
+protected:
   DiGraph(cow_ptr_t<IDiGraph>);
 
-  friend struct GraphInternal;
-
 private:
-  cow_ptr_t<IDiGraph> ptr;
+  cow_ptr_t<IDiGraph> get_ptr();
+
+  friend struct GraphInternal;
 };
 CHECK_WELL_BEHAVED_VALUE_TYPE_NO_EQ(DiGraph);
 
