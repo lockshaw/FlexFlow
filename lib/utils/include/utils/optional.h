@@ -24,12 +24,25 @@ T const &assert_unwrap(std::optional<T> const &o) {
   return o.value();
 }
 
+template <typename F, typename T>
+std::optional<std::invoke_result_t<F, T>> transform(std::optional<T> const &o, F &&f) {
+  if (o.has_value()) {
+    return std::optional{f(o)};
+  } else {
+    return std::nullopt;
+  }
+}
+
 } // namespace FlexFlow
 
 namespace fmt {
 
-template <typename T>
-struct formatter<::std::optional<T>> : formatter<std::string> {
+template <typename T, typename Char>
+struct formatter<
+  ::std::optional<T>,
+  Char,
+  std::enable_if_t<!detail::has_format_as<std::optional<T>>::value>
+> : formatter<std::string> {
   template <typename FormatContext>
   auto format(::std::optional<T> const &q, FormatContext &ctx)
       -> decltype(ctx.out()) {
