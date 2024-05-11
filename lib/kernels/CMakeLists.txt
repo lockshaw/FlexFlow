@@ -1,13 +1,18 @@
 set(project_target kernels)
 
+# find_package(rccl)
+
 project(${project_target} 
-	LANGUAGES CXX CUDA)
+	LANGUAGES CXX)
+
+find_package(hip REQUIRED)
+find_package(miopen REQUIRED)
 
 file(GLOB_RECURSE SRC
      CONFIGURE_DEPENDS
      LIST_DIRECTORIES False
      src/*.cc
-     # src/*.cu
+     src/hip/concat_kernels.cpp
      )
 
 add_library(
@@ -25,9 +30,10 @@ target_include_directories(
 target_link_libraries(
   ${project_target}
   op-attrs
-  cuda
-  cudnn
-  nccl
+  # cuda
+  miopen
+  hip::host
+  rccl
 )
 
 define_ff_vars(${project_target})
@@ -35,5 +41,5 @@ define_ff_vars(${project_target})
 set_target_properties(
   ${project_target} 
   PROPERTIES 
-  CUDA_STANDARD 17
+  HIP_STANDARD 17
 )
