@@ -12,7 +12,6 @@ build_targets = [
   # "compiler",
 ]
 test_targets = [
-  "opattrs-tests",
   "utils-tests",
   "op-attrs-tests",
   # "substitutions-tests",
