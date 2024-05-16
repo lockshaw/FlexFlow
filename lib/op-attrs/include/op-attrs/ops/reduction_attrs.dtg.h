@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/reduction_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "57b8ccb5bc2e1a1a3bcf1bce2d8cad9e"
+  "generated_from": "28492e45a5c4f44987e17fe9ea876e11"
 }
 */
 
@@ -13,6 +13,8 @@
 #include "fmt/format.h"
 #include "nlohmann/json.hpp"
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
+#include "rapidcheck.h"
 #include <functional>
 #include <ostream>
 #include <tuple>

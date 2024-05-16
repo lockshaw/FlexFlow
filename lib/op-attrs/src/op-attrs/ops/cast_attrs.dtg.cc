@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/cast_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "62da4845a8aa0ae4ca3bce432a3aa9a3"
+  "generated_from": "c171c87db89b9ec9ea7d52a50c153054"
 }
 */
 

@@ -3,13 +3,14 @@
 // lib/op-attrs/include/op-attrs/ops/layer_norm_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "c03d823a6e889e1254b73a0730a71046"
+  "generated_from": "349deae8d9356d3eeacd7e7d069c3155"
 }
 */
 
 #include "op-attrs/ops/layer_norm_attrs.dtg.h"
 
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
 #include "utils/stack_vector.h"
 #include <sstream>
 

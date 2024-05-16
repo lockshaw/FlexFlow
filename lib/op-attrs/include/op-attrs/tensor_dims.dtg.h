@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/tensor_dims.struct.toml
 /* proj-data
 {
-  "generated_from": "f925a4c2343d2404116dc598c301beaf"
+  "generated_from": "5beb89eeae9eba303f90e726c794375d"
 }
 */
 

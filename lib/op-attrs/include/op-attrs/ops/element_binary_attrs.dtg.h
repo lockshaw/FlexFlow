@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/element_binary_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "1aae4139632791a4b7638e59fa6b5dc8"
+  "generated_from": "2bb947c9cc92e3833ee88c908c539629"
 }
 */
 

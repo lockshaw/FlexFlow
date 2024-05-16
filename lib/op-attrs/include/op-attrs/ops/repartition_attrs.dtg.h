@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/repartition_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "366cb1a14093762f75508260ac6494ca"
+  "generated_from": "0a4d8b435768ce3ee37013fc550c9ebb"
 }
 */
 
@@ -13,6 +13,8 @@
 #include "fmt/format.h"
 #include "nlohmann/json.hpp"
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
+#include "rapidcheck.h"
 #include <functional>
 #include <ostream>
 #include <tuple>

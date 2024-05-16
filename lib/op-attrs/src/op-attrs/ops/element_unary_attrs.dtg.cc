@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/element_unary_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "fdb867c04cdd7de320f573f360bcab90"
+  "generated_from": "75272cff78d3db866122dbb1001aedbe"
 }
 */
 

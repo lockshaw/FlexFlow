@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/parallel_tensor_shape.struct.toml
 /* proj-data
 {
-  "generated_from": "b2d36c9212916e66569af4e958c893f4"
+  "generated_from": "06d657d1e95f34aebf4b721c768cbee8"
 }
 */
 

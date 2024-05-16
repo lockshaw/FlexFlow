@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/reduce_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "bc6279031650335f4a0b7b6cfe116c85"
+  "generated_from": "097463446e254f662c7bdf5df4e12d17"
 }
 */
 
@@ -13,7 +13,9 @@
 #include "fmt/format.h"
 #include "nlohmann/json.hpp"
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
 #include "op-attrs/operator_type.dtg.h"
+#include "rapidcheck.h"
 #include "utils/stack_vector.h"
 #include <functional>
 #include <ostream>

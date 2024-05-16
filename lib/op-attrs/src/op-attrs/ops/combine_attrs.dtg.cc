@@ -3,13 +3,14 @@
 // lib/op-attrs/include/op-attrs/ops/combine_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "7caa0f9668b1894f5e446556f1a424c8"
+  "generated_from": "58fc5a388fd1a325ef4142094607e39a"
 }
 */
 
 #include "op-attrs/ops/combine_attrs.dtg.h"
 
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
 #include <sstream>
 
 namespace FlexFlow {

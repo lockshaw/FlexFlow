@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ff_dim.struct.toml
 /* proj-data
 {
-  "generated_from": "ffd119eb46e048b0f5a2d8fbef253de3"
+  "generated_from": "a5fa89a024e95c4f2d52681a74cab30f"
 }
 */
 
@@ -53,12 +53,6 @@ void adl_serializer<FlexFlow::ff_dim_t>::to_json(json &j,
   j["value"] = v.value;
 }
 } // namespace nlohmann
-
-namespace rc {
-Gen<FlexFlow::ff_dim_t> Arbitrary<FlexFlow::ff_dim_t>::arbitrary() {
-  return gen::construct<FlexFlow::ff_dim_t>(gen::arbitrary<int>());
-}
-} // namespace rc
 
 namespace FlexFlow {
 std::string format_as(ff_dim_t const &x) {

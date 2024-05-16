@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/pool_2d_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "607be08f56d910bfa340fb180646c126"
+  "generated_from": "03aeafe335f68ff831e3e73a77f45caf"
 }
 */
 

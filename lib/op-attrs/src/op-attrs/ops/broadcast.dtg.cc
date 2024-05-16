@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/broadcast.struct.toml
 /* proj-data
 {
-  "generated_from": "890d0e63a08a30d925aa170aea6992ba"
+  "generated_from": "12715c970e8416eacbd0750f338478e5"
 }
 */
 

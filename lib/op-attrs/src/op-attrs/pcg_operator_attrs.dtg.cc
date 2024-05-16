@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/pcg_operator_attrs.variant.toml
 /* proj-data
 {
-  "generated_from": "cf0da4385b7554748a06ec25ccf17f2f"
+  "generated_from": "e1d10b0c7c98524c27886bdae0972321"
 }
 */
 
@@ -376,6 +376,69 @@ void adl_serializer<::FlexFlow::PCGOperatorAttrs>::to_json(
   }
 }
 } // namespace nlohmann
+namespace rc {
+Gen<::FlexFlow::PCGOperatorAttrs>
+    Arbitrary<::FlexFlow::PCGOperatorAttrs>::arbitrary() {
+  return gen::oneOf(gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::BatchMatmulAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::BatchNormAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::CastAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::CombineAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ConcatAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::Conv2DAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::DropoutAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementBinaryAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementUnaryAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementScalarUnaryAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::EmbeddingAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::FlatAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::GatherAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::InputAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::LayerNormAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::LinearAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::MultiHeadAttentionAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::NoopAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::Pool2DAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ReduceAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ReductionAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::RepartitionAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ReplicateAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ReverseAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::ReshapeAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::SplitAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::SoftmaxAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::TopKAttrs>()),
+                    gen::cast<::FlexFlow::PCGOperatorAttrs>(
+                        gen::arbitrary<::FlexFlow::TransposeAttrs>()));
+}
+} // namespace rc
 namespace FlexFlow {
 std::string format_as(::FlexFlow::PCGOperatorAttrs const &x) {
   std::ostringstream oss;

@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ops/embedding_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "65af6a38dfabebbc05c8ad3f75397b07"
+  "generated_from": "a0ac41fc0f56bc06bcb1a8d42fc6191c"
 }
 */
 

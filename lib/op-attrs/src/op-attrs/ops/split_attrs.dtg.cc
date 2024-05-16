@@ -3,13 +3,14 @@
 // lib/op-attrs/include/op-attrs/ops/split_attrs.struct.toml
 /* proj-data
 {
-  "generated_from": "4112baa96de544b865618e0a999e0807"
+  "generated_from": "cde6b5caf6739d3b02fe8fce0d8ae8c5"
 }
 */
 
 #include "op-attrs/ops/split_attrs.dtg.h"
 
 #include "op-attrs/ff_dim.dtg.h"
+#include "op-attrs/ff_dim.h"
 #include "utils/stack_vector.h"
 #include <sstream>
 

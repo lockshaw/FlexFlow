@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/computation_graph_op_attrs.variant.toml
 /* proj-data
 {
-  "generated_from": "dc1445fed47c2acaed22038975eec627"
+  "generated_from": "cc0ab49405423594ffa1d8f541235a48"
 }
 */
 
@@ -384,6 +384,65 @@ void adl_serializer<::FlexFlow::ComputationGraphOpAttrs>::to_json(
   }
 }
 } // namespace nlohmann
+namespace rc {
+Gen<::FlexFlow::ComputationGraphOpAttrs>
+    Arbitrary<::FlexFlow::ComputationGraphOpAttrs>::arbitrary() {
+  return gen::oneOf(gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::BatchMatmulAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::BatchNormAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::BroadcastAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::CastAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ConcatAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::Conv2DAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::DropoutAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementBinaryAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementUnaryAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ElementScalarUnaryAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::EmbeddingAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::FlatAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::GatherAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::InputAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::LayerNormAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::LinearAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::MultiHeadAttentionAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::NoopAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::Pool2DAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ReduceAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ReverseAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::ReshapeAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::SplitAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::SoftmaxAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::TopKAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::TransposeAttrs>()),
+                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                        gen::arbitrary<::FlexFlow::WeightAttrs>()));
+}
+} // namespace rc
 namespace FlexFlow {
 std::string format_as(::FlexFlow::ComputationGraphOpAttrs const &x) {
   std::ostringstream oss;

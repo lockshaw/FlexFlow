@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/ff_dim.struct.toml
 /* proj-data
 {
-  "generated_from": "ffd119eb46e048b0f5a2d8fbef253de3"
+  "generated_from": "a5fa89a024e95c4f2d52681a74cab30f"
 }
 */
 
@@ -12,7 +12,6 @@
 
 #include "fmt/format.h"
 #include "nlohmann/json.hpp"
-#include "rapidcheck.h"
 #include <functional>
 #include <ostream>
 #include <tuple>
@@ -46,13 +45,6 @@ struct adl_serializer<FlexFlow::ff_dim_t> {
   static void to_json(json &, FlexFlow::ff_dim_t const &);
 };
 } // namespace nlohmann
-
-namespace rc {
-template <>
-struct Arbitrary<FlexFlow::ff_dim_t> {
-  static Gen<FlexFlow::ff_dim_t> arbitrary();
-};
-} // namespace rc
 
 namespace FlexFlow {
 std::string format_as(ff_dim_t const &);

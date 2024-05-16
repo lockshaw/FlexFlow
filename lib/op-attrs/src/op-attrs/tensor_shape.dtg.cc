@@ -3,7 +3,7 @@
 // lib/op-attrs/include/op-attrs/tensor_shape.struct.toml
 /* proj-data
 {
-  "generated_from": "52968754cf94f415c366d228c87042db"
+  "generated_from": "ef6fa5088b89d6da4dc8bddf0a6d3294"
 }
 */
 
