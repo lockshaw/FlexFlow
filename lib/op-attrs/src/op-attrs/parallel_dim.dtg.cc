@@ -82,9 +82,9 @@ void adl_serializer<::FlexFlow::ParallelDim>::to_json(
 } // namespace nlohmann
 namespace rc {
 Gen<::FlexFlow::ParallelDim> Arbitrary<::FlexFlow::ParallelDim>::arbitrary() {
-  return gen::oneOf(gen::cast<::FlexFlow::ParallelDim>(
+  return gen::oneOf(gen::construct<::FlexFlow::ParallelDim>(
                         gen::arbitrary<::FlexFlow::ShardParallelDim>()),
-                    gen::cast<::FlexFlow::ParallelDim>(
+                    gen::construct<::FlexFlow::ParallelDim>(
                         gen::arbitrary<::FlexFlow::ReplicaParallelDim>()));
 }
 } // namespace rc

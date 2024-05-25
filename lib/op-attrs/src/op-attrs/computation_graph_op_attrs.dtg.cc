@@ -387,59 +387,59 @@ void adl_serializer<::FlexFlow::ComputationGraphOpAttrs>::to_json(
 namespace rc {
 Gen<::FlexFlow::ComputationGraphOpAttrs>
     Arbitrary<::FlexFlow::ComputationGraphOpAttrs>::arbitrary() {
-  return gen::oneOf(gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+  return gen::oneOf(gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::BatchMatmulAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::BatchNormAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::BroadcastAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::CastAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ConcatAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::Conv2DAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::DropoutAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ElementBinaryAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ElementUnaryAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ElementScalarUnaryAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::EmbeddingAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::FlatAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::GatherAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::InputAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::LayerNormAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::LinearAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::MultiHeadAttentionAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::NoopAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::Pool2DAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ReduceAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ReverseAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::ReshapeAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::SplitAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::SoftmaxAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::TopKAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::TransposeAttrs>()),
-                    gen::cast<::FlexFlow::ComputationGraphOpAttrs>(
+                    gen::construct<::FlexFlow::ComputationGraphOpAttrs>(
                         gen::arbitrary<::FlexFlow::WeightAttrs>()));
 }
 } // namespace rc

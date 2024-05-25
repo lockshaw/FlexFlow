@@ -83,9 +83,9 @@ void adl_serializer<::FlexFlow::RegularizerAttrs>::to_json(
 namespace rc {
 Gen<::FlexFlow::RegularizerAttrs>
     Arbitrary<::FlexFlow::RegularizerAttrs>::arbitrary() {
-  return gen::oneOf(gen::cast<::FlexFlow::RegularizerAttrs>(
+  return gen::oneOf(gen::construct<::FlexFlow::RegularizerAttrs>(
                         gen::arbitrary<::FlexFlow::L1RegularizerAttrs>()),
-                    gen::cast<::FlexFlow::RegularizerAttrs>(
+                    gen::construct<::FlexFlow::RegularizerAttrs>(
                         gen::arbitrary<::FlexFlow::L2RegularizerAttrs>()));
 }
 } // namespace rc
