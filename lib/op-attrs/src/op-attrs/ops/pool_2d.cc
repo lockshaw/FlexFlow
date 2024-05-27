@@ -34,7 +34,7 @@ TensorShape get_output_shape(Pool2DAttrs const &attrs, TensorShape const &raw_in
     TensorDims{
       FFOrdered<size_t>{
         input.num_samples,
-        input.channels,
+        input.num_channels,
         out_height,
         out_width
       }
@@ -69,7 +69,7 @@ ParallelTensorShape get_kernel_shape(Pool2DAttrs const &attrs, ParallelTensorSha
       },
     },
     input.datatype,
-    };
+  };
 
   assert (total_parallel_degree(result.dims) == total_parallel_degree(raw_input_shape.dims));
 
@@ -115,7 +115,5 @@ ParallelTensorShape get_output_shape(Pool2DAttrs const &attrs, ParallelTensorSha
 
   return result;
 }
-
-
 
 } // namespace FlexFlow
