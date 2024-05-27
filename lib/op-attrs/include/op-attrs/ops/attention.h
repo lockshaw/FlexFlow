@@ -3,9 +3,9 @@
 
 #include "core.h"
 #include "op-attrs/ops/attention_attrs.dtg.h"
-#include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/ops/attention_inputs.dtg.h"
 #include "op-attrs/ops/parallel_attention_inputs.dtg.h"
+#include "op-attrs/parallel_tensor_shape.dtg.h"
 
 namespace FlexFlow {
 
@@ -37,15 +37,13 @@ int get_num_samples(MultiHeadAttentionInputs const &);
 
 TensorShape get_weights_shape(MultiHeadAttentionAttrs const &,
                               MultiHeadAttentionInputs const &);
-ParallelTensorShape
-    get_weights_shape(MultiHeadAttentionAttrs const &,
-                      ParallelMultiHeadAttentionInputs const &);
+ParallelTensorShape get_weights_shape(MultiHeadAttentionAttrs const &,
+                                      ParallelMultiHeadAttentionInputs const &);
 
 TensorShape get_output_shape(MultiHeadAttentionAttrs const &,
                              MultiHeadAttentionInputs const &);
-ParallelTensorShape
-    get_output_shape(MultiHeadAttentionAttrs const &,
-                     ParallelMultiHeadAttentionInputs const &);
+ParallelTensorShape get_output_shape(MultiHeadAttentionAttrs const &,
+                                     ParallelMultiHeadAttentionInputs const &);
 
 CHECK_VALID_OP_ATTR(MultiHeadAttentionAttrs);
 } // namespace FlexFlow
