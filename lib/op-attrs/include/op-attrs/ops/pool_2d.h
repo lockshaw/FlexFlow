@@ -3,13 +3,18 @@
 
 #include "core.h"
 #include "op-attrs/ops/pool_2d_attrs.dtg.h"
-#include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/tensor_shape.h"
 
 namespace FlexFlow {
 
 CHECK_VALID_OP_ATTR(Pool2DAttrs);
 
-ParallelTensorShape get_output_shape(Pool2DAttrs const &, ParallelTensorShape const &);
+TensorShape get_kernel_shape(Pool2DAttrs const &attrs, TensorShape const &input);
+TensorShape get_output_shape(Pool2DAttrs const &attrs, TensorShape const &input);
+
+ParallelTensorShape get_kernel_shape(Pool2DAttrs const &attrs, ParallelTensorShape const &input_shape);
+ParallelTensorShape get_output_shape(Pool2DAttrs const &attrs, ParallelTensorShape const &input_shape);
 
 } // namespace FlexFlow
 

@@ -6,6 +6,7 @@
 namespace FlexFlow {
 
 TensorShape get_kernel_shape(Pool2DAttrs const &attrs, TensorShape const &raw_input_shape) {
+  
   Pool2DInputShape input = parse_pool_2d_input_shape(raw_input_shape);
 
   return TensorShape{
@@ -24,8 +25,8 @@ TensorShape get_kernel_shape(Pool2DAttrs const &attrs, TensorShape const &raw_in
 TensorShape get_output_shape(Pool2DAttrs const &attrs, TensorShape const &raw_input_shape) {
   Pool2DInputShape input = parse_input_shape(raw_input_shape);
 
-  // size_t out_height = (input.height + 2 * attrs.padding_h - attrs.kernel_h) / attrs.stride_h + 1;
-  // size_t out_width = (input.width + 2 * attrs.padding_w - attrs.kernel_w) / attrs.stride_w + 1;
+  size_t out_height = (input.height + 2 * attrs.padding_h - attrs.kernel_h) / attrs.stride_h + 1;
+  size_t out_width = (input.width + 2 * attrs.padding_w - attrs.kernel_w) / attrs.stride_w + 1;
 
   assert(input.channels > 0);
 
@@ -43,10 +44,11 @@ TensorShape get_output_shape(Pool2DAttrs const &attrs, TensorShape const &raw_in
 }
 
 ParallelTensorShape get_kernel_shape(Pool2DAttrs const &attrs, ParallelTensorShape const &raw_input_shape) {
+
   Pool2DParallelInputShape input = parse_pool_2d_parallel_input_shape(raw_input_shape);
 
-  ShardParallelDim output_channels_dim = {size_t_from_int(input.sample_dim.size), input.sample_dim.size};
   ShardParallelDim input_channels_dim = {size_t_from_int(input.channel_dim.size), input.channel_dim.degree};
+  ShardParallelDim output_channels_dim = {size_t_from_int(input.channel_dim.size), input.discard_copy_reduction_degree}; //unsure about this line
   ShardParallelDim kernel_height_dim = {size_t_from_int(attrs.kernel_h), 1};
   ShardParallelDim kernel_width_dim = {size_t_from_int(attrs.kernel_w), 1};
 
@@ -75,7 +77,7 @@ ParallelTensorShape get_kernel_shape(Pool2DAttrs const &attrs, ParallelTensorSha
 }
 
 ParallelTensorShape get_output_shape(Pool2DAttrs const &attrs, ParallelTensorShape const &raw_input_shape) {
-  assert (attrs.groups == 1); // TODO(@lockshaw): currently not supported
+
   Pool2DParallelInputShape input = parse_pool_2d_parallel_input_shape(raw_input_shape);
 
   TensorShape unpar_output_shape = get_output_shape(attrs, get_reduced_shape(raw_input_shape));
@@ -117,51 +119,3 @@ ParallelTensorShape get_output_shape(Pool2DAttrs const &attrs, ParallelTensorSha
 
 
 } // namespace FlexFlow
-
-/*
-#include "op-attrs/ops/pool_2d.h"
-#include "parallel_dim_mapping_record.h"
-#include "parallel_dim_mapping_record_solver.h"
-
-namespace FlexFlow {
-
-namespace Input {
-constexpr int NUMDIM = 5, WIDTH = 0, HEIGHT = 1, CHANNEL = 2, SAMPLE = 3,
-              REPLICA = 4;
-};
-
-namespace Output {
-constexpr int NUMDIM = 5, WIDTH = 0, HEIGHT = 1, CHANNEL = 2, SAMPLE = 3,
-              REPLICA = 4;
-};
-
-bool Pool2DAttrs::is_valid(ParallelTensorShape const &input) const {
-  ParallelTensorShape output_shape = this->calculate_output_shape(input);
-
-  return output_shape.is_valid() && (input.at(Input::REPLICA).degree == 1);
-}
-
-static std::vector<ParallelDimMappingRecord>
-    construct_mappings(ParallelTensorShape const &input_shape) {
-  auto const outputMappings = construct_output_parallel_dims({
-      {Input::REPLICA, MappingOperation::PARTITION, Output::REPLICA},
-      {Input::SAMPLE, MappingOperation::PARTITION, Output::SAMPLE},
-      {Input::CHANNEL, MappingOperation::PARTITION, Output::CHANNEL},
-      {Input::HEIGHT, MappingOperation::PARTITION, Output::HEIGHT},
-      {Input::WIDTH, MappingOperation::PARTITION, Output::WIDTH},
-  });
-
-  return outputMappings;
-}
-
-static ParallelDimMappingSolution
-    solve_mappings(ParallelTensorShape const &input) {
-  return solve_parallel_dim_mappings(construct_mappings(input), {input}, 0, 1);
-}
-
-ParallelTensorShape Pool2DAttrs::calculate_output_shape(ParallelTensorShape const &input) const {
-  return solve_mappings(input).output_shapes.at(0);
-}
-
-} // namespace FlexFlow
-*/
