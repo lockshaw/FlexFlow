@@ -12,8 +12,7 @@ CHECK_VALID_OP_ATTR(EmbeddingAttrs);
 
 TensorShape get_weights_shape(EmbeddingAttrs const &, TensorShape const &);
 
-ParallelTensorShape get_output_shape(EmbeddingAttrs const &,
-                                     ParallelTensorShape const &);
+ParallelTensorShape get_output_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
 
 } // namespace FlexFlow
 

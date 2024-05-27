@@ -9,8 +9,7 @@ namespace FlexFlow {
 
 CHECK_VALID_OP_ATTR(ReverseAttrs);
 
-ParallelTensorShape get_output_shape(ReverseAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape);
+ParallelTensorShape get_output_shape(ReverseAttrs const &attrs, ParallelTensorShape const &input_shape);
 
 } // namespace FlexFlow
 

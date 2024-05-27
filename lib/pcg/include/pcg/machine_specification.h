@@ -3,6 +3,8 @@
 
 #include "machine_specification_t.h"
 
-namespace FlexFlow {} // namespace FlexFlow
+namespace FlexFlow {
+
+} // namespace FlexFlow
 
 #endif

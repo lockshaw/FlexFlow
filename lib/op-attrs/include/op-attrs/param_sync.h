@@ -3,6 +3,8 @@
 
 #include "param_sync_t.h"
 
-namespace FlexFlow {}
+namespace FlexFlow {
+
+}
 
 #endif

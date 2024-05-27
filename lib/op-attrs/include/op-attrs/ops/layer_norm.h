@@ -7,8 +7,7 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(LayerNormAttrs const &,
-                                     ParallelTensorShape const &);
+ParallelTensorShape get_output_shape(LayerNormAttrs const &, ParallelTensorShape const &);
 
 CHECK_VALID_OP_ATTR(LayerNormAttrs);
 

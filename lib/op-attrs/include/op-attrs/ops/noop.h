@@ -9,8 +9,7 @@ namespace FlexFlow {
 
 CHECK_VALID_OP_ATTR(NoopAttrs);
 
-ParallelTensorShape get_output_shape(NoopAttrs const &,
-                                     ParallelTensorShape const &);
+ParallelTensorShape get_output_shape(NoopAttrs const &, ParallelTensorShape const &);
 
 } // namespace FlexFlow
 

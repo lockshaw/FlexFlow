@@ -2,8 +2,7 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(ReshapeAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape) {
+ParallelTensorShape get_output_shape(ReshapeAttrs const &attrs, ParallelTensorShape const &input_shape) {
   NOT_IMPLEMENTED();
 }
 

@@ -2,8 +2,8 @@
 #include "op-attrs/computation_graph_op_attrs.dtg.h"
 #include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "utils/json.h"
-#include <iostream>
 #include <sstream>
+#include <iostream>
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("BatchNormAttrs to/from json") {
@@ -14,8 +14,9 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("ComputationGraphAttrs to/from json") {
-    ComputationGraphOpAttrs correct =
-        ComputationGraphOpAttrs{BatchNormAttrs{true}};
+    ComputationGraphOpAttrs correct = ComputationGraphOpAttrs{
+      BatchNormAttrs{true}
+    };
     json j = correct;
     auto result = j.get<ComputationGraphOpAttrs>();
 
@@ -23,10 +24,12 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("PCGOperatorAttrs to/from json") {
-    PCGOperatorAttrs correct = PCGOperatorAttrs{RepartitionAttrs{
+    PCGOperatorAttrs correct = PCGOperatorAttrs{
+      RepartitionAttrs{
         /*repartition_dim=*/ff_dim_t{1},
         /*repartition_degree=*/4,
-    }};
+      }
+    };
     json j = correct;
     auto result = j.get<PCGOperatorAttrs>();
 

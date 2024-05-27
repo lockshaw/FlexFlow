@@ -2,7 +2,6 @@
 #define _OPERATOR_PARAMS_H
 
 #include "op-attrs/ops/core.h"
-#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "ops/attention.h"
 #include "ops/batch_matmul.h"
 #include "ops/batch_norm.h"
@@ -32,9 +31,10 @@
 #include "ops/split.h"
 #include "ops/topk.h"
 #include "ops/transpose.h"
-#include "utils/record_formatter.h"
 #include "utils/variant.h"
 #include <variant>
+#include "utils/record_formatter.h"
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 
 namespace FlexFlow {
 
@@ -89,8 +89,7 @@ namespace FlexFlow {
 /* static_assert(is_valid_opattr<TransposeAttrs>::value, ""); */
 
 /* using ParallelOperatorAttrs = std:: */
-/*     variant<CombineAttrs, ReductionAttrs, RepartitionAttrs, ReplicateAttrs>;
- */
+/*     variant<CombineAttrs, ReductionAttrs, RepartitionAttrs, ReplicateAttrs>; */
 
 /* using ComputationGraphAttrs = */
 /*     variant_join<SharedOperatorAttrs, std::variant<BroadcastAttrs>>; */
@@ -101,8 +100,7 @@ namespace FlexFlow {
 
 /* static_assert(is_equal_comparable<ComputationGraphAttrs>::value, */
 /*               "ComputationGraphAttrs must support =="); */
-/* static_assert(elements_satisfy<is_valid_opattr,
- * ComputationGraphAttrs>::value, */
+/* static_assert(elements_satisfy<is_valid_opattr, ComputationGraphAttrs>::value, */
 /*               ""); */
 /* static_assert(is_neq_comparable<ComputationGraphAttrs>::value, */
 /*               "ComputationGraphAttrs must support !="); */
