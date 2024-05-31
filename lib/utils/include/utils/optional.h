@@ -2,6 +2,7 @@
 #define _FLEXFLOW_UTILS_INCLUDE_UTILS_OPTIONAL_H
 
 #include "fmt.h"
+#include "rapidcheck.h"
 #include "utils/exception.h"
 #include "utils/optional.decl"
 
@@ -24,7 +25,8 @@ T const &assert_unwrap(std::optional<T> const &o) {
 }
 
 template <typename F, typename T>
-std::optional<std::invoke_result_t<F, T>> transform(std::optional<T> const &o, F &&f) {
+std::optional<std::invoke_result_t<F, T>> transform(std::optional<T> const &o,
+                                                    F &&f) {
   using Return = std::invoke_result_t<F, T>;
   if (o.has_value()) {
     Return r = f(o.value());
@@ -40,10 +42,10 @@ namespace fmt {
 
 template <typename T, typename Char>
 struct formatter<
-  ::std::optional<T>,
-  Char,
-  std::enable_if_t<!detail::has_format_as<std::optional<T>>::value>
-> : formatter<std::string> {
+    ::std::optional<T>,
+    Char,
+    std::enable_if_t<!detail::has_format_as<std::optional<T>>::value>>
+    : formatter<std::string> {
   template <typename FormatContext>
   auto format(::std::optional<T> const &q, FormatContext &ctx)
       -> decltype(ctx.out()) {
@@ -58,5 +60,19 @@ struct formatter<
 };
 
 } // namespace fmt
+
+namespace rc {
+
+template <typename T>
+struct Arbitrary<std::optional<T>> {
+  static Gen<std::optional<T>> arbitrary() {
+    return gen::map(
+        gen::maybe(std::move(gen::arbitrary<T>())), [](Maybe<T> &&m) {
+          return m ? std::optional<T>(std::move(*m)) : std::optional<T>();
+        });
+  }
+};
+
+} // namespace rc
 
 #endif

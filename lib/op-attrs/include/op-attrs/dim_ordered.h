@@ -2,8 +2,8 @@
 #define _FLEXFLOW_OPATTRS_INCLUDE_OPATTRS_FF_STACK_VECTOR_H
 
 #include "op-attrs/ff_dim.dtg.h"
-#include "utils/stack_vector.h"
 #include "utils/json.h"
+#include "utils/stack_vector.h"
 
 namespace FlexFlow {
 
@@ -126,6 +126,7 @@ struct DimOrdered {
   }
 
   friend struct ::std::hash<DimOrdered>;
+
 private:
   stack_vector<T, MAX_TENSOR_DIM> contents;
 };
@@ -171,7 +172,6 @@ FFOrdered<T> const &outer_to_inner(FFOrdered<T> const &ff_ordered) {
 
 } // namespace FlexFlow
 
-
 /* template <typename Idx, typename T> */
 /* void to_json(json &j, DimOrdered<Idx, T> const &x) { */
 /*   /1* j = std::vector<T>{x.cbegin(), x.cend()}; *1/ */
@@ -189,11 +189,11 @@ struct adl_serializer<::FlexFlow::DimOrdered<Idx, T>> {
     return {j.template get<std::vector<T>>()};
   }
 
-  static void to_json(json& j, ::FlexFlow::DimOrdered<Idx, T> const &x) {
+  static void to_json(json &j, ::FlexFlow::DimOrdered<Idx, T> const &x) {
     j = std::vector<T>{x.cbegin(), x.cend()};
   }
 };
-}
+} // namespace nlohmann
 
 namespace std {
 
@@ -208,5 +208,17 @@ struct hash<::FlexFlow::DimOrdered<Idx, T>> {
 };
 
 } // namespace std
+
+namespace rc {
+
+template <typename Idx, typename T>
+struct Arbitrary<::FlexFlow::DimOrdered<Idx, T>> {
+  static Gen<::FlexFlow::DimOrdered<Idx, T>> arbitrary() {
+    return gen::construct<::FlexFlow::DimOrdered<Idx, T>>(
+        gen::arbitrary<::FlexFlow::stack_vector<T, MAX_TENSOR_DIM>>());
+  }
+};
+
+} // namespace rc
 
 #endif

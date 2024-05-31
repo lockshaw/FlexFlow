@@ -199,8 +199,7 @@ template <typename C, typename F>
 bool all_of(C const &c, F const &f);
 
 template <typename Container, typename Function>
-std::optional<bool> optional_all_of(Container const &,
-                                    Function const &);
+std::optional<bool> optional_all_of(Container const &, Function const &);
 
 template <typename C, typename F>
 int count(C const &c, F const &f);
@@ -219,11 +218,6 @@ std::vector<Out> transform(std::vector<In> const &v, F const &f);
 template <typename F, typename C>
 auto transform(req<C> const &c, F const &f)
     -> decltype(transform(std::declval<C>(), std::declval<F>()));
-
-template <typename F,
-          typename In,
-          typename Out = decltype(std::declval<F>()(std::declval<In>()))>
-std::vector<Out> vector_transform(F const &f, std::vector<In> const &v);
 
 template <typename F,
           typename In,
