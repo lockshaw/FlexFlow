@@ -124,5 +124,4 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct_output_shape);
   }
 
-
 }

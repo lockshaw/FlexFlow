@@ -5,7 +5,7 @@ features = [
   "ord",
   "hash",
   "json",
-  "rapidcheck",
+  # "rapidcheck",
   "fmt",
 ]
 
@@ -44,4 +44,4 @@ type = "::FlexFlow::PoolOp"
 
 [[fields]]
 name = "activation"
-type = "::FlexFlow::Activation"
+type = "std::optional<::FlexFlow::Activation>"
