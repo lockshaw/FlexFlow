@@ -12,8 +12,6 @@ TensorShape get_kernel_shape(Pool2DAttrs const &attrs, TensorShape const &raw_in
   return TensorShape{
     TensorDims{
       FFOrdered<size_t>{
-        input.num_samples,
-        input.num_channels,
         size_t_from_int(attrs.kernel_h),
         size_t_from_int(attrs.kernel_w),
       }
@@ -47,19 +45,15 @@ ParallelTensorShape get_kernel_shape(Pool2DAttrs const &attrs, ParallelTensorSha
 
   Pool2DParallelInputShape input = parse_pool_2d_parallel_input_shape(raw_input_shape);
 
-  ShardParallelDim input_channels_dim = {size_t_from_int(input.channel_dim.size), input.channel_dim.degree};
-  ShardParallelDim output_channels_dim = {size_t_from_int(input.channel_dim.size), input.discard_copy_reduction_degree}; //unsure about this line
   ShardParallelDim kernel_height_dim = {size_t_from_int(attrs.kernel_h), 1};
   ShardParallelDim kernel_width_dim = {size_t_from_int(attrs.kernel_w), 1};
 
   int sum_degree = 1;
-  int discard_copy_degree = input.height_dim.degree * input.width_dim.degree * input.sum_reduction_degree;
+  int discard_copy_degree = input.height_dim.degree * input.width_dim.degree * input.discard_copy_reduction_degree * input.sum_reduction_degree; //unsure about this line
 
   ParallelTensorShape result = ParallelTensorShape{
   ParallelTensorDims{
     FFOrdered<ShardParallelDim>{
-      output_channels_dim,
-      input_channels_dim,
       kernel_height_dim,
       kernel_width_dim,
     },
@@ -110,7 +104,7 @@ ParallelTensorShape get_output_shape(Pool2DAttrs const &attrs, ParallelTensorSha
     },
     input.datatype,
   };
-
+  
   assert (total_parallel_degree(result.dims) == total_parallel_degree(raw_input_shape.dims));
 
   return result;
