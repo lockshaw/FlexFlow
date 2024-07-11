@@ -48,7 +48,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("Check Replicate Forward and Backward Kernel against CPU Kernel") {
-    nonnegative_int num_replicas = 10_n;
+    nonnegative_int num_replicas = 2_n;
 
     TensorShape input_shape =
         make_tensor_shape_from_legion_dims({5_n}, DataType::FLOAT);

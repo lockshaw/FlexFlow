@@ -99,7 +99,8 @@ struct CPUAccessorRContainsNonZero {
 
     T const *data_ptr = accessor.get<DT>();
 
-    for (size_t i = 0; i < accessor.shape.num_elements(); i++) {
+    int volume = accessor.shape.num_elements().unwrap_nonnegative();
+    for (size_t i = 0; i < volume; i++) {
       if (data_ptr[i] != 0) {
         return true;
       }
@@ -178,7 +179,8 @@ struct AccessorsAreEqual {
     T const *a_data_ptr = cpu_accessor_a.get<DT>();
     T const *b_data_ptr = cpu_accessor_b.get<DT>();
 
-    for (size_t i = 0; i < accessor_a.shape.num_elements(); i++) {
+    int volume = accessor_a.shape.num_elements().unwrap_nonnegative();
+    for (size_t i = 0; i < volume; i++) {
       if (a_data_ptr[i] != b_data_ptr[i]) {
         return false;
       }
@@ -218,7 +220,9 @@ struct CreateFilledAccessorW {
     GenericTensorAccessorW src_accessor = cpu_allocator.allocate_tensor(shape);
 
     T *data_ptr = src_accessor.get<DT>();
-    for (size_t i = 0; i < dst_accessor.shape.num_elements(); i++) {
+
+    int volume = dst_accessor.shape.num_elements().unwrap_nonnegative();
+    for (size_t i = 0; i < volume; i++) {
       data_ptr[i] = unwrapped_value;
     }
 
