@@ -47,9 +47,11 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("backward_kernel") {
       GenericTensorAccessorW output_grad_data =
-          create_random_filled_accessor_w(output_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(output_shape,
+                                                           allocator);
       GenericTensorAccessorW input_grad_data =
-          create_random_filled_accessor_w(input_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
+                                                           allocator);
 
       Kernels::Dropout::backward_kernel(managed_stream.raw_stream(),
                                         state,

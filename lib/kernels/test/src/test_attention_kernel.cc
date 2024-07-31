@@ -47,13 +47,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         make_tensor_shape_from_legion_dims({state.weightSize}, DataType::FLOAT);
 
     GenericTensorAccessorW query_accessor =
-        create_random_filled_accessor_w(query_shape, allocator);
+        create_random_filled_accessor_w<DataType::FLOAT>(query_shape,
+                                                         allocator);
     GenericTensorAccessorW key_accessor =
-        create_random_filled_accessor_w(key_shape, allocator);
+        create_random_filled_accessor_w<DataType::FLOAT>(key_shape, allocator);
     GenericTensorAccessorW value_accessor =
-        create_random_filled_accessor_w(value_shape, allocator);
+        create_random_filled_accessor_w<DataType::FLOAT>(value_shape,
+                                                         allocator);
     GenericTensorAccessorW weight_accessor =
-        create_random_filled_accessor_w(weight_shape, allocator);
+        create_random_filled_accessor_w<DataType::FLOAT>(weight_shape,
+                                                         allocator);
 
     SUBCASE("forward_kernel") {
       GenericTensorAccessorW output_accessor =
@@ -73,15 +76,20 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("backward_kernel") {
       GenericTensorAccessorW query_grad_accessor =
-          create_random_filled_accessor_w(query_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(query_shape,
+                                                           allocator);
       GenericTensorAccessorW key_grad_accessor =
-          create_random_filled_accessor_w(key_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(key_shape,
+                                                           allocator);
       GenericTensorAccessorW value_grad_accessor =
-          create_random_filled_accessor_w(value_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(value_shape,
+                                                           allocator);
       GenericTensorAccessorW weight_grad_accessor =
-          create_random_filled_accessor_w(weight_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(weight_shape,
+                                                           allocator);
       GenericTensorAccessorW output_grad_accessor =
-          create_random_filled_accessor_w(output_shape, allocator);
+          create_random_filled_accessor_w<DataType::FLOAT>(output_shape,
+                                                           allocator);
 
       Kernels::MultiHeadAttention::backward_kernel(
           managed_stream.raw_stream(),

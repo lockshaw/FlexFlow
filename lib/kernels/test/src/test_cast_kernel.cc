@@ -83,9 +83,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims<DataType::FLOAT>({100, 100});
+        make_tensor_shape_from_legion_dims({100, 100}, DataType::FLOAT);
     TensorShape output_shape =
-        make_tensor_shape_from_legion_dims<DataType::INT32>({100, 100});
+        make_tensor_shape_from_legion_dims({100, 100}, DataType::INT32);
 
     GenericTensorAccessorW output_accessor_gpu =
         gpu_allocator.allocate_tensor(output_shape);
@@ -102,31 +102,34 @@ TEST_SUITE(FF_TEST_SUITE) {
       // Run GPU Forward Kernel
       GenericTensorAccessorW input_accessor_gpu =
           create_transformed_accessor_w<float, float>(
-              input_shape, gpu_allocator, transform, false);
+              input_shape, gpu_allocator, transform);
       Kernels::Cast::forward_kernel(
           managed_stream.raw_stream(),
           read_only_accessor_from_write_accessor(input_accessor_gpu),
           output_accessor_gpu,
           DataType::FLOAT,
           DataType::INT32);
+      std::cout << "Before GPU load" << std::endl;
       std::vector<int32_t> result_data_gpu =
-          load_accessor_data<DataType::INT32>(
-              read_only_accessor_from_write_accessor(output_accessor_gpu),
-              false);
+          load_accessor_data<DataType::INT32>(output_accessor_gpu);
 
       // Run CPU Forward Kernel
       GenericTensorAccessorW input_accessor_cpu =
           create_transformed_accessor_w<float, float>(
-              input_shape, cpu_allocator, transform, true);
-      Kernels::Cast::CPU::forward_kernel(
+              input_shape, cpu_allocator, transform);
+      Kernels::Cast::cpu_forward_kernel(
           read_only_accessor_from_write_accessor(input_accessor_cpu),
           output_accessor_cpu,
           DataType::FLOAT,
           DataType::INT32);
+      std::cout << "Before CPU load" << std::endl;
+      if (output_accessor_cpu.on_device) {
+        std::cout << "CPU data is on device" << std::endl;
+      } else {
+        std::cout << "CPU data is on host" << std::endl;
+      }
       std::vector<int32_t> result_data_cpu =
-          load_accessor_data<DataType::INT32>(
-              read_only_accessor_from_write_accessor(output_accessor_cpu),
-              true);
+          load_accessor_data<DataType::INT32>(output_accessor_cpu);
 
       CHECK(result_data_gpu == result_data_cpu);
     }
