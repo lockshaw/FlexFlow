@@ -7,6 +7,10 @@ void *Allocator::allocate(size_t mem_size) {
   return this->i_allocator->allocate(mem_size);
 }
 
+void *Allocator::allocate_and_zero(size_t mem_size) {
+  return this->i_allocator->allocate_and_zero(mem_size);
+}
+
 void Allocator::deallocate(void *ptr) {
   this->i_allocator->deallocate(ptr);
 }

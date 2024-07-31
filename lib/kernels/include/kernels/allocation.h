@@ -5,10 +5,13 @@
 #include <cstddef>
 #include <memory>
 
+enum class AllocLocation { HOST, DEVICE };
+
 namespace FlexFlow {
 
 struct IAllocator {
   virtual void *allocate(size_t) = 0;
+  virtual void *allocate_and_zero(size_t) = 0;
   virtual void deallocate(void *) = 0;
 
   virtual DeviceType get_allocation_device_type() const = 0;
@@ -22,6 +25,7 @@ struct Allocator {
   GenericTensorAccessorW allocate_tensor(TensorShape const &tensor_shape);
 
   void *allocate(size_t mem_size);
+  void *allocate_and_zero(size_t mem_size);
   void deallocate(void *ptr);
 
   DeviceType get_allocation_device_type() const;
@@ -34,6 +38,8 @@ struct Allocator {
   }
 
   Allocator(std::shared_ptr<IAllocator> ptr) : i_allocator(ptr){};
+
+  AllocLocation alloc_location;
 
 private:
   std::shared_ptr<IAllocator> i_allocator;

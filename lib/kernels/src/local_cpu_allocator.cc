@@ -23,8 +23,7 @@ DeviceType LocalCPUAllocator::get_allocation_device_type() const {
 }
 
 Allocator create_local_cpu_memory_allocator() {
-  Allocator allocator = Allocator::create<LocalCPUAllocator>();
-  return allocator;
+  return Allocator::create<LocalCPUAllocator>();
 }
 
 } // namespace FlexFlow
