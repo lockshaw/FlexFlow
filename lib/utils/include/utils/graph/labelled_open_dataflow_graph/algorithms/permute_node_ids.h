@@ -7,6 +7,7 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_open_dataflow_values.h"
 #include "utils/graph/open_dataflow_graph/algorithms/permute_node_ids.h"
 #include "utils/overload.h"
+#include "utils/containers/generate_map.h"
 
 namespace FlexFlow {
 

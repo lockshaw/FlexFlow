@@ -1,4 +1,4 @@
-#include "substitutions/substitution_internal/perform_shape_inference.h"
+#include "substitutions/apply_substitution/perform_shape_inference.h"
 #include "utils/containers/map_keys.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip.h"

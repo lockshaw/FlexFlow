@@ -1,4 +1,4 @@
-#include "substitutions/substitution_internal/evaluate_substitution_output.h"
+#include "substitutions/apply_substitution/evaluate_substitution_output.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "substitutions/open_parallel_tensor_guid_t.h"
 #include "substitutions/operator_pattern/operator_attribute_constraint.h"
@@ -64,7 +64,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         OutputGraphExprInput{output_g.add_input({})};
 
     OutputOperatorAttrsAssignment fused_mm_relu_attrs_assignment =
-        OutputOperatorAttrsAssignment{{
+        OutputOperatorAttrsAssignment{
+          std::nullopt,
+          {
             set_attr_to_constant(OperatorAttributeKey::OP_TYPE,
                                  OperatorAttributeValue{OperatorType::LINEAR}),
             copy_attr_from_pattern_node(OperatorAttributeKey::OUT_CHANNELS,

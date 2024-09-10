@@ -5,6 +5,7 @@
 #include "utils/graph/labelled_open_dataflow_graph/labelled_open_dataflow_graph_view.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_open_dataflow_values.h"
+#include "utils/graph/open_dataflow_graph/algorithms/get_edges.h"
 
 namespace FlexFlow {
 

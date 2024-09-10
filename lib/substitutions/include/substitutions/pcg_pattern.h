@@ -10,6 +10,8 @@
 
 namespace FlexFlow {
 
+std::unordered_set<PatternNode> get_nodes(PCGPattern const &);
+
 /**
  * @brief Find all locations in \p pcg that match \p pattern
  */
@@ -30,6 +32,8 @@ std::vector<PatternNodeOutput> get_pattern_node_outputs(PCGPattern const &,
 bool assignment_satisfies(SubParallelComputationGraph const &,
                           PCGPattern const &,
                           UnlabelledDataflowGraphPatternMatch const &);
+
+
 
 } // namespace FlexFlow
 

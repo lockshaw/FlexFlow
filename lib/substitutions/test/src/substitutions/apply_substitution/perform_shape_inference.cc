@@ -1,4 +1,4 @@
-#include "substitutions/substitution_internal/perform_shape_inference.h"
+#include "substitutions/apply_substitution/perform_shape_inference.h"
 #include "utils/containers/get_only.h"
 #include "utils/graph/instances/unordered_set_labelled_open_dataflow_graph.h"
 #include "utils/graph/labelled_open_dataflow_graph/algorithms/get_graph_data.h"

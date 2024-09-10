@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include "utils/fmt/unordered_map.h"
 
 using namespace FlexFlow;
 
@@ -52,18 +53,12 @@ namespace doctest {
 //   }
 // };
 
-// template <typename K, typename V>
-// struct StringMaker<std::unordered_map<K, V>> {
-//   static String convert(std::unordered_map<K, V> const &m) {
-//     std::unordered_set<std::string> entries;
-//     for (auto const &kv : m) {
-//       std::ostringstream oss;
-//       oss << toString(kv.first) << " -> " << toString(kv.second);
-//       entries.insert(oss.str());
-//     }
-//     return toString(entries);
-//   }
-// };
+template <typename K, typename V>
+struct StringMaker<std::unordered_map<K, V>> {
+  static String convert(std::unordered_map<K, V> const &m) {
+    return toString(fmt::to_string(m));
+  }
+};
 
 template <typename T, typename E>
 struct StringMaker<tl::expected<T, E>> {

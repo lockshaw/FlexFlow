@@ -4,6 +4,7 @@
 #include "utils/containers/extend.h"
 #include "utils/containers/get_element_type.h"
 #include <type_traits>
+#include <string>
 
 namespace FlexFlow {
 
@@ -36,6 +37,18 @@ std::unordered_set<Out> flatmap_v2(std::unordered_set<In> const &v,
   for (auto const &elem : v) {
     extend(result, f(elem));
   }
+  return result;
+}
+
+template <typename F>
+std::string flatmap(std::string const &input, F const &f) {
+  std::string result = "";
+
+  for (char c : input) {
+    std::string for_c = f(c);
+    result += for_c;
+  }
+
   return result;
 }
 

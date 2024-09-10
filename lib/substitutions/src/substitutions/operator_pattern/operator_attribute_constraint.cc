@@ -4,9 +4,9 @@ namespace FlexFlow {
 
 OperatorAttributeConstraint op_type_equals_constraint(OperatorType op_type) {
   return OperatorAttributeConstraint{
-      ConstraintType::EQUAL,
-      OperatorAttributeExpr{OperatorAttributeKey::OP_TYPE},
-      OperatorAttributeValue{op_type},
+    ConstraintType::EQUAL,
+    OperatorAttributeExpr{OperatorAttributeKey::OP_TYPE},
+    OperatorAttributeValue{op_type},
   };
 }
 
@@ -14,9 +14,18 @@ OperatorAttributeConstraint
     op_attr_key_equals(OperatorAttributeKey key,
                        OperatorAttributeValue const &val) {
   return OperatorAttributeConstraint{
-      ConstraintType::EQUAL,
-      OperatorAttributeExpr{key},
-      OperatorAttributeValue{val},
+    ConstraintType::EQUAL,
+    OperatorAttributeExpr{key},
+    OperatorAttributeValue{val},
+  };
+}
+
+OperatorAttributeConstraint op_attr_key_divisible_by(OperatorAttributeKey key, 
+                                                     int denominator) {
+  return OperatorAttributeConstraint{
+    ConstraintType::DIVISIBLE_BY,
+    OperatorAttributeExpr{key},
+    OperatorAttributeValue{denominator},
   };
 }
 
@@ -24,9 +33,9 @@ OperatorAttributeConstraint
     make_equals_constraint(OperatorAttributeExpr const &expr,
                            OperatorAttributeValue const &val) {
   return OperatorAttributeConstraint{
-      ConstraintType::EQUAL,
-      expr,
-      val,
+    ConstraintType::EQUAL,
+    expr,
+    val,
   };
 }
 
