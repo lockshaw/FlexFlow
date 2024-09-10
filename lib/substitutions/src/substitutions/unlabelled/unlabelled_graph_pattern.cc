@@ -7,6 +7,7 @@
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_edges.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_inputs.h"
+#include "utils/graph/open_dataflow_graph/algorithms/get_open_dataflow_graph_inputs.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_open_dataflow_values.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_subgraph.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_subgraph_inputs.h"
@@ -31,8 +32,9 @@ std::unordered_set<PatternValue> get_values(UnlabelledGraphPattern const &p) {
                    pattern_value_from_raw_open_dataflow_value);
 }
 
-std::unordered_set<PatternInput> get_inputs(UnlabelledGraphPattern const &p) {
-  return transform(get_inputs(p.raw_graph),
+std::unordered_set<PatternInput>
+    get_graph_inputs(UnlabelledGraphPattern const &p) {
+  return transform(get_open_dataflow_graph_inputs(p.raw_graph),
                    [](DataflowGraphInput const &i) { return PatternInput{i}; });
 }
 
