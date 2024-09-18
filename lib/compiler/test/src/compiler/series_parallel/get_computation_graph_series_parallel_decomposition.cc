@@ -170,7 +170,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           }};
     }
 
-    SUBCASE("SP with or without preprocessing, but preprocessing would SP "
+    SUBCASE("SP with or without preprocessing, but preprocessing would modify SP "
             "decomposition") {
       // computation graph:
       //

@@ -66,7 +66,11 @@ tensor_guid_t ComputationGraphBuilder::create_weight(
     TensorAttrs const &tensor_attrs,
     std::optional<std::string> const &maybe_name) {
   LayerAttrs layer_attrs = LayerAttrs{
-      ComputationGraphOpAttrs{InputAttrs{}},
+      ComputationGraphOpAttrs{
+        WeightAttrs{
+          /*tensor_shape=*/tensor_attrs.shape,
+        },
+      },
       maybe_name,
   };
 

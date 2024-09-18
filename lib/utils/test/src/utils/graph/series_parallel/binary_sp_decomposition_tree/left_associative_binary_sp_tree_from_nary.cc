@@ -54,12 +54,25 @@ TEST_SUITE(FF_TEST_SUITE) {
       // we use multiple checks here because SerialParallelDecomposition's
       // ParallelSplit is unordered, so there are multiple possible
       // left-associative binary SP trees
-      CHECK(is_binary_sp_tree_left_associative(result));
+      
+      SUBCASE("produces left-associative tree") {
+        CHECK(is_binary_sp_tree_left_associative(result));
+      }
 
-      std::unordered_multiset<Node> result_nodes = get_nodes(input);
-      std::unordered_multiset<Node> correct_nodes = {n1, n2, n3};
+      SUBCASE("has same leaves as input") {
+        std::unordered_multiset<Node> result_nodes = get_leaves(result);
+        std::unordered_multiset<Node> correct_nodes = {n1, n2, n3};
 
-      CHECK(result_nodes == correct_nodes);
+        CHECK(result_nodes == correct_nodes);
+      }
+      
+      SUBCASE("is inverse of nary_sp_tree_from_binary") {
+        SeriesParallelDecomposition inverted = 
+          nary_sp_tree_from_binary(result);
+        SeriesParallelDecomposition correct = input;
+
+        CHECK(inverted == correct);
+      }
     }
 
     SUBCASE("nested") {
@@ -83,13 +96,63 @@ TEST_SUITE(FF_TEST_SUITE) {
       BinarySPDecompositionTree result =
           left_associative_binary_sp_tree_from_nary(input);
 
-      CHECK(is_binary_sp_tree_left_associative(result));
+      SUBCASE("produces left-associative tree") {
+        CHECK(is_binary_sp_tree_left_associative(result));
+      }
 
-      std::unordered_multiset<Node> result_nodes = get_nodes(input);
-      std::unordered_multiset<Node> correct_nodes = {
-          n1, n2, n3, n3, n5, n6, n4, n5};
+      SUBCASE("has same leaves as input") {
+        std::unordered_multiset<Node> result_nodes = get_leaves(result);
+        std::unordered_multiset<Node> correct_nodes = get_nodes(input);
 
-      CHECK(result_nodes == correct_nodes);
+        CHECK(result_nodes == correct_nodes);
+      }
+
+      SUBCASE("is inverse of nary_sp_tree_from_binary") {
+        SeriesParallelDecomposition inverted = 
+          nary_sp_tree_from_binary(result);
+        SeriesParallelDecomposition correct = input;
+
+        CHECK(inverted == correct);
+      }
+    }
+
+    SUBCASE("nested2") {
+      SeriesParallelDecomposition input = SeriesParallelDecomposition{
+        SeriesSplit{
+          ParallelSplit{
+            n1,
+            n2,
+            n3,
+          },
+          ParallelSplit{
+            n4,
+            n5,
+          },
+          n6
+        },
+      };
+
+      BinarySPDecompositionTree result =
+          left_associative_binary_sp_tree_from_nary(input);
+
+      SUBCASE("produces left-associative tree") {
+        CHECK(is_binary_sp_tree_left_associative(result));
+      }
+
+      SUBCASE("keeps all nodes") {
+        std::unordered_multiset<Node> result_nodes = get_leaves(result);
+        std::unordered_multiset<Node> correct_nodes = get_nodes(input);
+
+        CHECK(result_nodes == correct_nodes);
+      }
+      
+      SUBCASE("is inverse of nary_sp_tree_from_binary") {
+        SeriesParallelDecomposition inverted = 
+          nary_sp_tree_from_binary(result);
+        SeriesParallelDecomposition correct = input;
+
+        CHECK(inverted == correct);
+      }
     }
   }
 }
