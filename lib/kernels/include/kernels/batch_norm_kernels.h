@@ -7,8 +7,7 @@
 #include "kernels/ff_handle.h"
 #include <memory>
 
-namespace FlexFlow {
-namespace Kernels::BatchNorm {
+namespace ::FlexFlow::Kernels::BatchNorm;
 
 BatchNormPerDeviceState init_kernel(PerDeviceFFHandle handle,
                                     Allocator allocator,
@@ -28,8 +27,6 @@ void forward_kernel(ffStream_t stream,
 
 void backward_kernel(ffStream_t stream,
                      BatchNormPerDeviceState const &per_device_state,
-                     float const *input_ptr,
-                     float *output_grad_ptr,
                      float const *output_ptr,
                      float *output_grad_ptr,
                      float const *input_ptr,
@@ -46,8 +43,5 @@ void cleanup_kernel(Allocator allocator,
                     ffActivationDescriptor_t actiDesc,
                     bool relu,
                     float *runningMean);
-
-} // namespace Kernels::BatchNorm
-} // namespace FlexFlow
 
 #endif

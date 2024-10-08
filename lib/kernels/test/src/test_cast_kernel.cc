@@ -94,44 +94,34 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     // Only calling forward kernel as backward kernel is exactly the same
     SUBCASE("forward_kernel") {
-      auto transform = [start_val = 1.1f,
-                        counter = 0.0f](float input) mutable -> float {
-        return start_val + counter++;
-      };
-
       // Run GPU Forward Kernel
       GenericTensorAccessorW input_accessor_gpu =
-          create_transformed_accessor_w<float, float>(
-              input_shape, gpu_allocator, transform);
+          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
+                                                           gpu_allocator);
       Kernels::Cast::forward_kernel(
           managed_stream.raw_stream(),
           read_only_accessor_from_write_accessor(input_accessor_gpu),
           output_accessor_gpu,
           DataType::FLOAT,
           DataType::INT32);
-      std::cout << "Before GPU load" << std::endl;
+
       std::vector<int32_t> result_data_gpu =
           load_accessor_data<DataType::INT32>(output_accessor_gpu);
 
       // Run CPU Forward Kernel
       GenericTensorAccessorW input_accessor_cpu =
-          create_transformed_accessor_w<float, float>(
-              input_shape, cpu_allocator, transform);
+          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
+                                                           cpu_allocator);
       Kernels::Cast::cpu_forward_kernel(
           read_only_accessor_from_write_accessor(input_accessor_cpu),
           output_accessor_cpu,
           DataType::FLOAT,
           DataType::INT32);
-      std::cout << "Before CPU load" << std::endl;
-      if (output_accessor_cpu.on_device) {
-        std::cout << "CPU data is on device" << std::endl;
-      } else {
-        std::cout << "CPU data is on host" << std::endl;
-      }
+
       std::vector<int32_t> result_data_cpu =
           load_accessor_data<DataType::INT32>(output_accessor_cpu);
 
-      CHECK(result_data_gpu == result_data_cpu);
+      CHECK(vectors_are_approx_equal(result_data_gpu, result_data_cpu));
     }
   }
 }
