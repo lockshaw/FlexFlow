@@ -45,11 +45,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         {output_w, output_h, output_c, output_n}, DataType::FLOAT);
 
     GenericTensorAccessorW input_accessor =
-        create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
-                                                         allocator);
+        create_random_filled_accessor_w(input_shape, allocator);
     GenericTensorAccessorW output_accessor =
-        create_random_filled_accessor_w<DataType::FLOAT>(output_shape,
-                                                         allocator);
+        create_random_filled_accessor_w(output_shape, allocator);
 
     SUBCASE("forward_kernel") {
       Kernels::Pool2D::forward_kernel(managed_stream.raw_stream(),
