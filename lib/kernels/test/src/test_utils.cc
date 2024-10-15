@@ -113,6 +113,83 @@ struct CPUAccessorRContainsNonZero {
 bool contains_non_zero(GenericTensorAccessorR const &accessor) {
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
   GenericTensorAccessorR cpu_accessor =
+      create_cpu_compatible_accessor_r(accessor, cpu_allocator);
+  return DataTypeDispatch1<CPUAccessorRContainsNonZero>{}(
+      cpu_accessor.data_type, cpu_accessor);
+}
+
+bool contains_non_zero(GenericTensorAccessorW const &accessor) {
+  GenericTensorAccessorR r_accessor =
+      read_only_accessor_from_write_accessor(accessor);
+  return contains_non_zero(r_accessor);
+}
+
+GenericTensorAccessorR
+    create_cpu_compatible_accessor_r(GenericTensorAccessorR const &accessor,
+                                     Allocator &cpu_allocator) {
+  GenericTensorAccessorR cpu_accessor = accessor;
+  if (accessor.device_type == DeviceType::GPU) {
+    cpu_accessor = copy_tensor_accessor_r(accessor, cpu_allocator);
+  }
+  return cpu_accessor;
+}
+
+GenericTensorAccessorW
+    create_cpu_compatible_accessor_w(GenericTensorAccessorW const &accessor,
+                                     Allocator &cpu_allocator) {
+  GenericTensorAccessorW cpu_accessor = accessor;
+  if (accessor.device_type == DeviceType::GPU) {
+    cpu_accessor = copy_tensor_accessor_w(accessor, cpu_allocator);
+  }
+  return cpu_accessor;
+}
+
+template <DataType DT>
+struct PrintCPUAccessorR {
+  void operator()(GenericTensorAccessorR const &accessor) {
+    using T = real_type_t<DT>;
+
+    T const *data_ptr = accessor.get<DT>();
+    for (size_t i = 0; i < accessor.shape.num_elements(); i++) {
+      std::cout << data_ptr[i] << " ";
+    }
+    std::cout << "\n";
+  }
+};
+
+void print_accessor(GenericTensorAccessorR const &accessor) {
+  Allocator cpu_allocator = create_local_cpu_memory_allocator();
+  GenericTensorAccessorR cpu_accessor =
+      create_cpu_compatible_accessor_r(accessor, cpu_allocator);
+  DataTypeDispatch1<PrintCPUAccessorR>{}(accessor.data_type, accessor);
+}
+
+void print_accessor(GenericTensorAccessorW const &accessor) {
+  GenericTensorAccessorR r_accessor =
+      read_only_accessor_from_write_accessor(accessor);
+  print_accessor(r_accessor);
+}
+
+template <DataType DT>
+struct CPUAccessorRContainsNonZero {
+  bool operator()(GenericTensorAccessorR const &accessor) {
+    using T = real_type_t<DT>;
+
+    T const *data_ptr = accessor.get<DT>();
+
+    for (size_t i = 0; i < accessor.shape.num_elements(); i++) {
+      if (data_ptr[i] != 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+};
+
+bool contains_non_zero(GenericTensorAccessorR const &accessor) {
+  Allocator cpu_allocator = create_local_cpu_memory_allocator();
+  GenericTensorAccessorR cpu_accessor =
       copy_accessor_r_to_cpu_if_necessary(accessor, cpu_allocator);
   return DataTypeDispatch1<CPUAccessorRContainsNonZero>{}(
       cpu_accessor.data_type, cpu_accessor);

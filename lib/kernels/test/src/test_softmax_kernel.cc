@@ -32,13 +32,11 @@ TEST_SUITE(FF_TEST_SUITE) {
                                       input_w.unwrap_nonnegative());
 
     GenericTensorAccessorW output_accessor =
-        create_random_filled_accessor_w<DataType::FLOAT>(output_shape,
-                                                         allocator);
+        create_random_filled_accessor_w(output_shape, allocator);
 
     SUBCASE("forward_kernel") {
       GenericTensorAccessorW input_accessor =
-          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
-                                                           allocator);
+          create_random_filled_accessor_w(input_shape, allocator);
 
       Kernels::Softmax::forward_kernel(managed_stream.raw_stream(),
                                        state,

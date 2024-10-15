@@ -27,8 +27,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("forward_kernel") {
       GenericTensorAccessorW input_accessor =
-          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
-                                                           allocator);
+          create_random_filled_accessor_w(input_shape, allocator);
 
       std::vector<float *> output_ptrs = repeat(num_outputs, [&]() {
         GenericTensorAccessorW output_accessor =
@@ -49,8 +48,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::vector<float *> output_grad_ptrs(num_outputs.unwrap_nonnegative());
       for (int i = 0; i < num_outputs; i++) {
         GenericTensorAccessorW output_grad_accessor =
-            create_random_filled_accessor_w<DataType::FLOAT>(output_shape,
-                                                             allocator);
+            create_random_filled_accessor_w(output_shape, allocator);
         output_grad_ptrs[i] = output_grad_accessor.get_float_ptr();
       }
 

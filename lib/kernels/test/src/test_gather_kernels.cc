@@ -42,8 +42,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       GenericTensorAccessorR output_grad_accessor =
           create_random_filled_accessor_r(output_shape, allocator);
       GenericTensorAccessorW input_grad_accessor =
-          create_random_filled_accessor_w<DataType::FLOAT>(input_shape,
-                                                           allocator);
+          create_random_filled_accessor_w(input_shape, allocator);
 
       Kernels::Gather::backward_kernel(managed_stream.raw_stream(),
                                        state,
