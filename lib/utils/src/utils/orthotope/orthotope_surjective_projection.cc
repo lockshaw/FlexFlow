@@ -5,6 +5,7 @@
 #include "utils/containers/map_keys.h"
 #include "utils/containers/range.h"
 #include "utils/containers/set_of.h"
+#include "utils/containers/subvec.h"
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/unordered_set_of.h"
@@ -16,7 +17,7 @@
 #include "utils/orthotope/orthotope_dim_idx_t.dtg.h"
 #include "utils/orthotope/orthotope_dim_idx_t.h"
 #include "utils/containers/vector_from_idx_map.h"
-#include "utils/containers/scanl.h"
+#include "utils/containers/scanr.h"
 #include "utils/containers/all_of.h"
 #include "utils/fmt/vector.h"
 
@@ -79,7 +80,7 @@ std::unordered_set<OrthotopeSurjectiveProjection> get_all_surjective_projections
   return transform(valid_mappings, make_orthotope_projection_from_map);
 }
 
-int deconflict_noninjective_dims(std::vector<std::pair<int, int>> const &coords_and_sizes) {
+int deconflict_overlapping_dims(std::vector<std::pair<int, int>> const &coords_and_sizes) {
   if (coords_and_sizes.size() == 0) {
     throw mk_runtime_error("deconflict_noninjective_dims expected non-empty vector, but receieved empty vector");
   }
@@ -91,16 +92,11 @@ int deconflict_noninjective_dims(std::vector<std::pair<int, int>> const &coords_
     throw mk_runtime_error(fmt::format("coords out of bounds of dim sizes: coords={}, dim_sizes={}", coords, dim_sizes));
   }
 
-
-  std::vector<int> strides = scanl(dim_sizes, 1, [](int accum, int next) { return accum * next; });
+  std::vector<int> strides = scanr(subvec(dim_sizes, 1, std::nullopt), 1, [](int next, int accum) { return accum * next; });
   return sum(zip_with(coords, strides, [](int coord, int stride) { return coord * stride; }));
 }
 
 OrthotopeCoordinate project_coordinate_through(OrthotopeSurjectiveProjection const &p, Orthotope const &o, OrthotopeCoordinate const &c) {
-  auto calculate_nonoverlapping_result = [](std::vector<int> const &coords, std::vector<int> const &dim_sizes) -> int {
-    NOT_IMPLEMENTED();
-  };
-
   if (p.reversed) {
     NOT_IMPLEMENTED(); // TODO @lockshaw
   } else {

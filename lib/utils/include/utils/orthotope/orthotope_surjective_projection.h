@@ -22,7 +22,7 @@ OrthotopeSurjectiveProjection reverse_projection(OrthotopeSurjectiveProjection c
 
 std::unordered_set<OrthotopeSurjectiveProjection> get_all_surjective_projections_between(Orthotope const &src, Orthotope const &dst);
 
-int deconflict_noninjective_dims(std::vector<std::pair<int, int>> const &coords_and_sizes);
+int deconflict_overlapping_dims(std::vector<std::pair<int, int>> const &coords_and_sizes);
 OrthotopeCoordinate project_coordinate_through(OrthotopeSurjectiveProjection const &, Orthotope const &, OrthotopeCoordinate const &);
 
 } // namespace FlexFlow

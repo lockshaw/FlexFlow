@@ -5,12 +5,12 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("deconflict_noninjective_dims") {
+  TEST_CASE("deconflict_overlapping_dims") {
     SUBCASE("single input dim is unaffected") {
       std::vector<int> coords = {2};
       std::vector<int> dim_sizes = {5};
 
-      int result = deconflict_noninjective_dims(zip(coords, dim_sizes));
+      int result = deconflict_overlapping_dims(zip(coords, dim_sizes));
       int correct = 2;
 
       CHECK(result == correct);
@@ -20,7 +20,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::vector<int> coords = {4, 1};
       std::vector<int> dim_sizes = {5, 3};
 
-      int result = deconflict_noninjective_dims(zip(coords, dim_sizes));
+      int result = deconflict_overlapping_dims(zip(coords, dim_sizes));
       int correct = 4 * 3 + 1;
 
       CHECK(result == correct);
@@ -30,7 +30,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::vector<int> coords = {1, 4};
       std::vector<int> dim_sizes = {3, 5};
 
-      int result = deconflict_noninjective_dims(zip(coords, dim_sizes));
+      int result = deconflict_overlapping_dims(zip(coords, dim_sizes));
       int correct = 1 * 5 + 4;
 
       CHECK(result == correct);
@@ -40,11 +40,11 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::vector<int> coords = {2, 3, 1};
       std::vector<int> dim_sizes = {5, 3, 2};
 
-      CHECK_THROWS(deconflict_noninjective_dims(zip(coords, dim_sizes)));
+      CHECK_THROWS(deconflict_overlapping_dims(zip(coords, dim_sizes)));
     }
 
     SUBCASE("throws if input is empty") {
-      CHECK_THROWS(deconflict_noninjective_dims({}));
+      CHECK_THROWS(deconflict_overlapping_dims({}));
     }
   }
 }
