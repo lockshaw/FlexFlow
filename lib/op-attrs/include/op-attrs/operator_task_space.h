@@ -1,8 +1,8 @@
-#ifndef _FLEXFLOW_PCG_INCLUDE_OPERATOR_TASK_SPACE_H
-#define _FLEXFLOW_PCG_INCLUDE_OPERATOR_TASK_SPACE_H
+#ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPERATOR_TASK_SPACE_H
+#define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPERATOR_TASK_SPACE_H
 
-#include "pcg/operator_task_space.dtg.h"
-#include "pcg/task_space_coordinate.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/task_space_coordinate.dtg.h"
 #include <cstddef>
 #include <unordered_set>
 

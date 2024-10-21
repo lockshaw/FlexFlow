@@ -1,0 +1,20 @@
+namespace = "FlexFlow"
+name = "Orthotope"
+features = [
+  "eq",
+  "fmt",
+  "hash",
+]
+
+includes = [
+  "<vector>",
+]
+
+src_includes = [
+  "utils/hash/vector.h",
+  "utils/fmt/vector.h",
+]
+
+[[fields]]
+name = "dims"
+type = "std::vector<int>"

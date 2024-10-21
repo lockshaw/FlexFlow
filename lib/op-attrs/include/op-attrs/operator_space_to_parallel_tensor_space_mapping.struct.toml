@@ -1,0 +1,20 @@
+namespace = "FlexFlow"
+name = "OperatorSpaceToParallelTensorSpaceMapping"
+features = [
+  "eq",
+  "hash",
+  "fmt",
+]
+
+includes = [
+  "<unordered_map>",
+]
+
+src_includes = [
+  "utils/hash/unordered_map.h",
+  "utils/fmt/unordered_map.h",
+]
+
+[[fields]]
+name = "raw_mapping"
+type = "std::unordered_map<int, int>"

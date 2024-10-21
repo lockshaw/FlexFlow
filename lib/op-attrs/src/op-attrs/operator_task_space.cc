@@ -1,4 +1,4 @@
-#include "pcg/operator_task_space.h"
+#include "op-attrs/operator_task_space.h"
 #include "utils/containers/cartesian_product.h"
 #include "utils/containers/maximum.h"
 #include "utils/containers/product.h"

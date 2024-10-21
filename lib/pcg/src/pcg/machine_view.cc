@@ -1,8 +1,8 @@
 #include "pcg/machine_view.h"
 #include "pcg/machine_specification.h"
-#include "pcg/operator_task_space.h"
+#include "op-attrs/operator_task_space.h"
 #include "utils/containers/contains.h"
-#include "utils/containers/count.h"
+#include "utils/containers/range.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/scanl.h"
 #include "utils/containers/sum.h"
@@ -52,21 +52,21 @@ std::optional<MachineSpaceCoordinate> get_machine_space_coordinate(
       [&](MachineSpecificationDimension dimension) {
         std::vector<MachineSpecificationDimension> mv_dimensions =
             get_dimensions(machine_view);
-        return filter(count(mv_dimensions.size()), [&](size_t idx) {
+        return filter(range(mv_dimensions.size()), [&](int idx) {
           return mv_dimensions.at(idx) == dimension;
         });
       };
 
   auto compute_index = [&](int start_idx,
-                           std::vector<size_t> const &dimension_indices) {
+                           std::vector<int> const &dimension_indices) {
     std::vector<stride_t> mv_strides = get_strides(machine_view);
 
-    std::vector<int> sizes = transform(dimension_indices, [&](size_t i) {
+    std::vector<int> sizes = transform(dimension_indices, [&](int i) {
       return task.degrees.at(i) * mv_strides.at(i).unwrapped;
     });
     std::vector<int> coord_points = transform(
-        dimension_indices, [&](size_t i) { return coord.raw_coord.at(i); });
-    std::vector<int> strides = transform(dimension_indices, [&](size_t i) {
+        dimension_indices, [&](int i) { return coord.raw_coord.at(i); });
+    std::vector<int> strides = transform(dimension_indices, [&](int i) {
       return mv_strides.at(i).unwrapped;
     });
 
@@ -80,10 +80,10 @@ std::optional<MachineSpaceCoordinate> get_machine_space_coordinate(
     return index;
   };
 
-  std::vector<size_t> inter_dimension_indices =
+  std::vector<int> inter_dimension_indices =
       get_dimension_indices_for_dimension(
           MachineSpecificationDimension::INTER_NODE);
-  std::vector<size_t> intra_dimension_indices =
+  std::vector<int> intra_dimension_indices =
       get_dimension_indices_for_dimension(
           MachineSpecificationDimension::INTRA_NODE);
 
