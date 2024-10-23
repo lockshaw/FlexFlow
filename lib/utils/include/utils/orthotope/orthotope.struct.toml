@@ -7,14 +7,9 @@ features = [
 ]
 
 includes = [
-  "<vector>",
-]
-
-src_includes = [
-  "utils/hash/vector.h",
-  "utils/fmt/vector.h",
+  "utils/orthotope/orthotope_dim_indexed/orthotope_dim_indexed.h",
 ]
 
 [[fields]]
 name = "dims"
-type = "std::vector<int>"
+type = "::FlexFlow::OrthotopeDimIndexed<int>"

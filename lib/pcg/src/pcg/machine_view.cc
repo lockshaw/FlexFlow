@@ -8,6 +8,7 @@
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip.h"
+#include "utils/containers/zip3.h"
 
 namespace FlexFlow {
 
@@ -74,7 +75,7 @@ std::optional<MachineSpaceCoordinate> get_machine_space_coordinate(
 
     int index = start_idx;
     for (auto [coeff, coord_point, stride] :
-         zip(coeffs, coord_points, strides)) {
+         zip3(coeffs, coord_points, strides)) {
       index += coeff * coord_point * stride;
     }
     return index;

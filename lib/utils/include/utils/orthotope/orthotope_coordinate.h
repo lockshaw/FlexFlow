@@ -9,7 +9,7 @@ namespace FlexFlow {
 
 std::set<orthotope_dim_idx_t> get_orthotope_coord_dims(OrthotopeCoordinate const &);
 
-OrthotopeCoordinate restrict_orthotope_coord_dims(OrthotopeCoordinate const &, std::set<orthotope_dim_idx_t> const &);
+OrthotopeCoordinate orthotope_coord_drop_dims_except(OrthotopeCoordinate const &, std::set<orthotope_dim_idx_t> const &);
 
 } // namespace FlexFlow
 

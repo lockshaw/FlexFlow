@@ -92,5 +92,53 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       CHECK_THROWS(orthotope_contains_coord(orthotope, coord));
     }
+
+    SUBCASE("works if the orthotope is zero-dimensional") {
+      Orthotope orthotope = Orthotope{{}};  
+      OrthotopeCoordinate coord = OrthotopeCoordinate{{}};
+
+      bool result = orthotope_contains_coord(orthotope, coord);
+      bool correct = true;
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("orthotope_get_volume") {
+    SUBCASE("1d orthotope volume is just dim size") {
+      Orthotope input = Orthotope{{8}};
+
+      int result = orthotope_get_volume(input);
+      int correct = 8;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("multi-dimensional orthotope") {
+      Orthotope input = Orthotope{{3, 5, 1, 2}};
+
+      int result = orthotope_get_volume(input);
+      int correct = 30;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("any dim size being zero makes the volume zero") {
+      Orthotope input = Orthotope{{3, 5, 0, 2}};
+
+      int result = orthotope_get_volume(input);
+      int correct = 0;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("zero-dimensional orthotope has volume 1") {
+      Orthotope input = Orthotope{{}};
+
+      int result = orthotope_get_volume(input);
+      int correct = 1;
+
+      CHECK(result == correct);
+    }
   }
 }

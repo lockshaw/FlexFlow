@@ -4,21 +4,16 @@
 #include "utils/exception.h"
 #include "utils/orthotope/orthotope_dim_idx_t.h"
 #include "utils/fmt/set.h"
+#include "utils/orthotope/orthotope_dim_indexed/drop_idxs_except.h"
 
 namespace FlexFlow {
 
 std::set<orthotope_dim_idx_t> get_orthotope_coord_dims(OrthotopeCoordinate const &coord) {
-  return dim_idxs_for_orthotope_with_num_dims(coord.idxs.size());
+  return coord.idxs.indices();
 }
 
-OrthotopeCoordinate restrict_orthotope_coord_dims(OrthotopeCoordinate const &coord, std::set<orthotope_dim_idx_t> const &mask) {
-  std::set<orthotope_dim_idx_t> coord_dims = get_orthotope_coord_dims(coord);
-
-  if (!is_subseteq_of(coord_dims, mask)) {
-    throw mk_runtime_error(fmt::format("restrict_orthotope_coord_dims expected mask to be a subset of coord dims, but got coord={}, mask={}", coord, mask));
-  }
-
-  std::vector<int> new_idxs = filter_idxs(coord.idxs, [&](int i) { return contains(mask, orthotope_dim_idx_t{i}); });
+OrthotopeCoordinate orthotope_coord_drop_dims_except(OrthotopeCoordinate const &coord, std::set<orthotope_dim_idx_t> const &mask) {
+  OrthotopeDimIndexed<int> new_idxs = drop_idxs_except(coord.idxs, mask);
 
   return OrthotopeCoordinate{new_idxs};
 }
