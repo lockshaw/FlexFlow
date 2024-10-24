@@ -6,6 +6,25 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
+  TEST_CASE("operator==(OrthotopeBijectiveProjection, OrthotopeBijectiveProjection)") {
+    SUBCASE("if src num dims and dst num dims are the same, projections are equivalent") {
+      orthotope_dim_idx_t src0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t src1 = orthotope_dim_idx_t{1};
+
+      orthotope_dim_idx_t dst0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t dst1 = orthotope_dim_idx_t{1};
+
+      OrthotopeBijectiveProjection p = make_orthotope_projection_from_map(
+        {
+          {src0, dst0},
+          {src1, dst1},
+        },
+        /*reversed=*/false);
+
+      CHECK(p == reverse_projection(p));
+    }
+  }
+
   TEST_CASE("get_all_bijective_projections_between") {
     SUBCASE("dst num dims greater than src num dims") {
       Orthotope src = Orthotope{{6, 4}};

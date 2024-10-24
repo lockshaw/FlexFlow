@@ -139,4 +139,10 @@ tl::expected<ParallelTensorShape, std::string>
       unpar, sum_degree, discard_copy_degree, shard_degrees);
 }
 
+tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
+    get_output_space_mapping(LinearAttrs const &attrs, 
+                             ParallelTensorSpace const &input) {
+  NOT_IMPLEMENTED();  
+}
+
 } // namespace FlexFlow
