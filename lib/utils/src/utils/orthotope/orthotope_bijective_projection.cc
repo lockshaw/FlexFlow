@@ -6,6 +6,7 @@
 #include "utils/containers/map_keys.h"
 #include "utils/containers/map_values.h"
 #include "utils/containers/merge_maps.h"
+#include "utils/containers/product.h"
 #include "utils/containers/range.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/subvec.h"
@@ -30,12 +31,59 @@
 namespace FlexFlow {
 
 OrthotopeBijectiveProjection
-  make_orthotope_projection_from_map(std::unordered_map<orthotope_dim_idx_t, orthotope_dim_idx_t> const &m) {
+  make_orthotope_projection_from_map(std::unordered_map<orthotope_dim_idx_t, orthotope_dim_idx_t> const &m, bool reversed) {
     std::unordered_map<int, orthotope_dim_idx_t> raw_idx_map = map_keys(m, [](orthotope_dim_idx_t const &k) { return k.raw_idx; });
     return OrthotopeBijectiveProjection{
       /*dim_mapping=*/vector_from_idx_map(raw_idx_map).value(),
-      /*reversed=*/false,
+      /*reversed=*/reversed,
     };
+}
+
+bool is_valid_projection_between(OrthotopeBijectiveProjection const &proj, Orthotope const &src, Orthotope const &dst) {
+  if (proj.reversed) {
+    return is_valid_projection_between(reverse_projection(proj), dst, src);
+  } 
+
+  auto get_src_dim_size = [&](orthotope_dim_idx_t const &src_idx) -> int {
+    return src.dims.at(src_idx);
+  };
+
+  auto get_dst_dim_size = [&](orthotope_dim_idx_t const &dst_idx) -> int {
+    return dst.dims.at(dst_idx);
+  };
+  
+  std::unordered_map<orthotope_dim_idx_t, std::set<orthotope_dim_idx_t>> src_dims_by_dst_dim
+    = get_src_dims_by_dst_dim_map(proj);
+
+  return all_of(src_dims_by_dst_dim, 
+                    [&](orthotope_dim_idx_t const &dst_idx, std::set<orthotope_dim_idx_t> const &src_idxs) -> bool {
+                      std::vector<int> src_dim_sizes = transform(vector_of(src_idxs), get_src_dim_size);
+
+                      return get_dst_dim_size(dst_idx) == product(src_dim_sizes);
+                    });
+}
+std::unordered_map<orthotope_dim_idx_t, std::set<orthotope_dim_idx_t>> 
+  get_src_dims_by_dst_dim_map(OrthotopeBijectiveProjection const &p) {
+  if (p.reversed) {
+    throw mk_runtime_error(fmt::format("get_src_dims_by_dst_dim_map expected p.reversed=false, but received p={}", p));
+  }
+
+  std::set<orthotope_dim_idx_t> src_dim_idxs = dim_idxs_for_orthotope_with_num_dims(get_src_num_dims(p));
+
+  return group_by(src_dim_idxs,
+                  [&](orthotope_dim_idx_t const &src_dim_idx) { return get_dst_dim_for_src_dim(p, src_dim_idx); });
+}
+
+std::unordered_map<orthotope_dim_idx_t, std::set<orthotope_dim_idx_t>> 
+  get_dst_dims_by_src_dim_map(OrthotopeBijectiveProjection const &p) {
+  if (!p.reversed) {
+    throw mk_runtime_error(fmt::format("get_dst_dims_by_src_dim_map expected p.reversed=true, but received p={}", p));
+  }
+
+  std::set<orthotope_dim_idx_t> dst_dim_idxs = dim_idxs_for_orthotope_with_num_dims(get_dst_num_dims(p));
+
+  return group_by(dst_dim_idxs,
+                  [&](orthotope_dim_idx_t const &dst_dim_idx) { return get_src_dim_for_dst_dim(p, dst_dim_idx); });
 }
 
 std::unordered_map<orthotope_dim_idx_t, orthotope_dim_idx_t> get_src_to_dst_dim_map(OrthotopeBijectiveProjection const &p) {
@@ -85,9 +133,9 @@ OrthotopeBijectiveProjection reverse_projection(OrthotopeBijectiveProjection con
   return result;
 }
 
-std::unordered_set<OrthotopeBijectiveProjection> get_all_bijective_projections_between(int src_num_dims, int dst_num_dims) {
+std::unordered_set<OrthotopeBijectiveProjection> get_all_bijective_projections_between_dim_numbers(int src_num_dims, int dst_num_dims) {
   if (src_num_dims < dst_num_dims) {
-    return transform(get_all_bijective_projections_between(dst_num_dims, src_num_dims), 
+    return transform(get_all_bijective_projections_between_dim_numbers(dst_num_dims, src_num_dims), 
                      [](OrthotopeBijectiveProjection const &p) { return reverse_projection(p); });
   }
 
@@ -103,7 +151,14 @@ std::unordered_set<OrthotopeBijectiveProjection> get_all_bijective_projections_b
              return set_of(values(src_to_dst_idx)) == dst_dim_idxs;
            });
 
-  return transform(valid_mappings, make_orthotope_projection_from_map);
+  return transform(valid_mappings, [](std::unordered_map<orthotope_dim_idx_t, orthotope_dim_idx_t> const &m) { return make_orthotope_projection_from_map(m, /*reversed=*/false); });
+}
+
+std::unordered_set<OrthotopeBijectiveProjection> get_all_bijective_projections_between(Orthotope const &src, Orthotope const &dst) {
+  return filter(get_all_bijective_projections_between_dim_numbers(/*src_num_dims=*/orthotope_num_dims(src), /*dst_num_dims=*/orthotope_num_dims(dst)),
+                [&](OrthotopeBijectiveProjection const &p) {
+                  return is_valid_projection_between(p, /*src=*/src, /*dst=*/dst);
+                });
 }
 
 int project_into_1d(Orthotope const &orthotope, OrthotopeCoordinate const &coord) {
@@ -148,8 +203,8 @@ OrthotopeCoordinate project_out_of_1d(int one_dimensional_coord, Orthotope const
 }
 
 OrthotopeCoordinate project_coordinate_through(OrthotopeBijectiveProjection const &p, Orthotope const &src_orthotope, OrthotopeCoordinate const &src_coord, Orthotope const &dst_orthotope) {
-  std::set<orthotope_dim_idx_t> dst_dim_idxs = transform(get_orthotope_dims(dst_orthotope), [](orthotope_dim_idx_t const &idx) { return idx; });
-  std::set<orthotope_dim_idx_t> src_dim_idxs = transform(get_orthotope_dims(src_orthotope), [](orthotope_dim_idx_t const &idx) { return idx; });
+  std::set<orthotope_dim_idx_t> dst_dim_idxs = get_orthotope_dims(dst_orthotope);
+  std::set<orthotope_dim_idx_t> src_dim_idxs = get_orthotope_dims(src_orthotope);
 
   if (src_coord.idxs.size() != get_src_num_dims(p)) {
     throw mk_runtime_error(fmt::format("project_coordinate_through requires projection src and coordinate to have same num dims, but got {} and {} respectively",

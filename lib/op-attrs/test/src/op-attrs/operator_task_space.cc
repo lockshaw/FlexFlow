@@ -8,23 +8,23 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("get_task_space_coordinates") {
 
     SUBCASE("OperatorTaskSpace has 0 dimensions") {
-      OperatorTaskSpace task = OperatorTaskSpace{{}};
+      OperatorTaskSpace task = OperatorTaskSpace{Orthotope{{}}};
 
       std::unordered_set<TaskSpaceCoordinate> correct = {
-          TaskSpaceCoordinate{{}}};
+          TaskSpaceCoordinate{OrthotopeCoordinate{{}}}};
       std::unordered_set<TaskSpaceCoordinate> result =
           get_task_space_coordinates(task);
       CHECK(correct == result);
     }
     SUBCASE("OperatorTaskSpace has 2 dimensions") {
 
-      OperatorTaskSpace task = OperatorTaskSpace{{2, 2}};
+      OperatorTaskSpace task = OperatorTaskSpace{Orthotope{{2, 2}}};
 
       std::unordered_set<TaskSpaceCoordinate> correct = {{
-          TaskSpaceCoordinate{{0, 0}},
-          TaskSpaceCoordinate{{0, 1}},
-          TaskSpaceCoordinate{{1, 0}},
-          TaskSpaceCoordinate{{1, 1}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 0}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 1}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{1, 0}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{1, 1}}},
       }};
       std::unordered_set<TaskSpaceCoordinate> result =
           get_task_space_coordinates(task);
@@ -32,13 +32,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
     SUBCASE("OperatorTaskSpace has 3 dimensions") {
 
-      OperatorTaskSpace task = OperatorTaskSpace{{1, 2, 2}};
+      OperatorTaskSpace task = OperatorTaskSpace{Orthotope{{1, 2, 2}}};
 
       std::unordered_set<TaskSpaceCoordinate> correct = {{
-          TaskSpaceCoordinate{{0, 0, 0}},
-          TaskSpaceCoordinate{{0, 0, 1}},
-          TaskSpaceCoordinate{{0, 1, 0}},
-          TaskSpaceCoordinate{{0, 1, 1}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 0, 0}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 0, 1}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 1, 0}}},
+          TaskSpaceCoordinate{OrthotopeCoordinate{{0, 1, 1}}},
       }};
       std::unordered_set<TaskSpaceCoordinate> result =
           get_task_space_coordinates(task);
@@ -48,17 +48,17 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("get_task_space_maximum_coordinate") {
     SUBCASE("OperatorTaskSpace has 2 dimensions") {
 
-      OperatorTaskSpace task = OperatorTaskSpace{{3, 2}};
+      OperatorTaskSpace task = OperatorTaskSpace{Orthotope{{3, 2}}};
 
-      TaskSpaceCoordinate correct = TaskSpaceCoordinate{{2, 1}};
+      TaskSpaceCoordinate correct = TaskSpaceCoordinate{OrthotopeCoordinate{{2, 1}}};
       TaskSpaceCoordinate result = get_task_space_maximum_coordinate(task);
       CHECK(correct == result);
     }
     SUBCASE("OperatorTaskSpace has 3 dimensions") {
 
-      OperatorTaskSpace task = OperatorTaskSpace{{3, 2, 4}};
+      OperatorTaskSpace task = OperatorTaskSpace{Orthotope{{3, 2, 4}}};
 
-      TaskSpaceCoordinate correct = TaskSpaceCoordinate{{2, 1, 3}};
+      TaskSpaceCoordinate correct = TaskSpaceCoordinate{OrthotopeCoordinate{{2, 1, 3}}};
       TaskSpaceCoordinate result = get_task_space_maximum_coordinate(task);
       CHECK(correct == result);
     }

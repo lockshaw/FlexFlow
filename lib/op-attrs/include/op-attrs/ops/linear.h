@@ -8,6 +8,8 @@
 #include "op-attrs/tensor_shape.dtg.h"
 #include "utils/record_formatter.h"
 #include <tl/expected.hpp>
+#include "op-attrs/parallel_tensor_space.dtg.h"
+#include "op-attrs/operator_space_parallel_tensor_space_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -33,6 +35,10 @@ tl::expected<ParallelTensorShape, std::string>
 tl::expected<ParallelTensorShape, std::string>
     get_output_shape(LinearAttrs const &attrs,
                      ParallelTensorShape const &input);
+
+tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
+    get_output_space_mapping(LinearAttrs const &attrs, 
+                             ParallelTensorSpace const &input);
 
 } // namespace FlexFlow
 

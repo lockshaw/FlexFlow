@@ -149,10 +149,10 @@ public:
   }
 };
 
-// template <typename T>
-// std::enable_if_t<is_lt_comparable_v<T>, bool> operator<(OrthotopeDimIndexed<T> const &lhs, OrthotopeDimIndexed<T> const &rhs) {
-//   return lhs.tie() < rhs.tie();
-// }
+template <typename T>
+std::enable_if_t<is_lt_comparable_v<T>, bool> operator<(OrthotopeDimIndexed<T> const &lhs, OrthotopeDimIndexed<T> const &rhs) {
+  return lhs.tie() < rhs.tie();
+}
 
 template <typename T>
 std::vector<T> format_as(OrthotopeDimIndexed<T> const &d) {

@@ -6,22 +6,15 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/unordered_set_of.h"
 #include "utils/fmt/unordered_set.h"
+#include "utils/orthotope/orthotope.h"
 
 namespace FlexFlow {
 
 std::unordered_set<TaskSpaceCoordinate>
     get_task_space_coordinates(OperatorTaskSpace const &task) {
 
-  std::vector<std::vector<int>> coordinate_ranges = transform(
-      task.degrees, [&](int const &num_points) { return range(num_points); });
-
-  std::unordered_set<std::vector<int>> raw_coordinates =
-      unordered_set_of(cartesian_product(coordinate_ranges));
-  std::unordered_set<TaskSpaceCoordinate> task_space_coordinates =
-      transform(raw_coordinates, [](std::vector<int> const &point) {
-        return TaskSpaceCoordinate{point};
-      });
-  return task_space_coordinates;
+  return transform(orthotope_get_contained_coordinates(task.raw_orthotope), 
+                   [](OrthotopeCoordinate const &c) { return TaskSpaceCoordinate{c}; });
 }
 
 TaskSpaceCoordinate
@@ -30,10 +23,11 @@ TaskSpaceCoordinate
 }
 
 size_t num_dims(OperatorTaskSpace const &task) {
-  return task.degrees.size();
+  return orthotope_num_dims(task.raw_orthotope);
 }
+
 size_t num_tasks(OperatorTaskSpace const &task) {
-  return product(task.degrees);
+  return orthotope_get_volume(task.raw_orthotope);
 }
 
 } // namespace FlexFlow

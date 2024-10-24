@@ -1,15 +1,13 @@
 namespace = "FlexFlow"
-name = "OperatorTaskSpace"
+name = "ParallelTensorSpace"
 features = [
   "eq",
   "ord",
   "hash",
-  "json",
-  # "rapidcheck",
   "fmt",
 ]
 
-includes = [ 
+includes = [
   "utils/orthotope/orthotope.dtg.h",
 ]
 

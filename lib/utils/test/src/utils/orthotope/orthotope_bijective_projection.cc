@@ -1,10 +1,91 @@
 #include "utils/orthotope/orthotope_bijective_projection.h"
 #include "utils/containers/zip.h"
 #include <doctest/doctest.h>
+#include "test/utils/doctest/fmt/unordered_set.h"
 
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
+  TEST_CASE("get_all_bijective_projections_between") {
+    SUBCASE("dst num dims greater than src num dims") {
+      Orthotope src = Orthotope{{6, 4}};
+      orthotope_dim_idx_t src0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t src1 = orthotope_dim_idx_t{1};
+
+      Orthotope dst = Orthotope{{3, 4, 2}};
+      orthotope_dim_idx_t dst0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t dst1 = orthotope_dim_idx_t{1};
+      orthotope_dim_idx_t dst2 = orthotope_dim_idx_t{2};
+
+      std::unordered_set<OrthotopeBijectiveProjection> result = get_all_bijective_projections_between(src, dst);
+      std::unordered_set<OrthotopeBijectiveProjection> correct = {
+        make_orthotope_projection_from_map({
+          {dst0, src0},
+          {dst1, src1},
+          {dst2, src0},
+        }, /*reversed=*/true),
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("src num dims greater than dst num dims") {
+      Orthotope src = Orthotope{{3, 4, 2}};
+      orthotope_dim_idx_t src0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t src1 = orthotope_dim_idx_t{1};
+      orthotope_dim_idx_t src2 = orthotope_dim_idx_t{2};
+
+      Orthotope dst = Orthotope{{6, 4}};
+      orthotope_dim_idx_t dst0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t dst1 = orthotope_dim_idx_t{1};
+
+      std::unordered_set<OrthotopeBijectiveProjection> result = get_all_bijective_projections_between(src, dst);
+      std::unordered_set<OrthotopeBijectiveProjection> correct = {
+        make_orthotope_projection_from_map({
+          {src0, dst0},
+          {src1, dst1},
+          {src2, dst0},
+        }, /*reversed=*/false),
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("multiple possible mappings") {
+      Orthotope src = Orthotope{{3, 3}};
+      orthotope_dim_idx_t src0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t src1 = orthotope_dim_idx_t{1};
+
+      Orthotope dst = Orthotope{{3, 3}};
+      orthotope_dim_idx_t dst0 = orthotope_dim_idx_t{0};
+      orthotope_dim_idx_t dst1 = orthotope_dim_idx_t{1};
+
+      std::unordered_set<OrthotopeBijectiveProjection> result = get_all_bijective_projections_between(src, dst);
+      std::unordered_set<OrthotopeBijectiveProjection> correct = {
+        make_orthotope_projection_from_map({
+          {src0, dst0},
+          {src1, dst1},
+        }, /*reversed=*/false),
+        make_orthotope_projection_from_map({
+          {src0, dst1},
+          {src1, dst0},
+        }, /*reversed=*/false),
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("no possible mappings") {
+      Orthotope src = Orthotope{{4, 3}};
+      Orthotope dst = Orthotope{{6, 2}};
+
+      std::unordered_set<OrthotopeBijectiveProjection> result = get_all_bijective_projections_between(src, dst);
+      std::unordered_set<OrthotopeBijectiveProjection> correct = {};
+
+      CHECK(result == correct);
+    }
+  }
+
   TEST_CASE("project_into_1d") {
     SUBCASE("to 1d from 1d is identity") {
       OrthotopeCoordinate coord = OrthotopeCoordinate{{2}};

@@ -10,14 +10,9 @@ features = [
 ]
 
 includes = [ 
-  "<vector>",
-]
-
-src_includes = [
-  "utils/hash/vector.h",
-  "utils/fmt/vector.h",
+  "utils/orthotope/orthotope_coordinate.dtg.h",
 ]
 
 [[fields]]
-name = "raw_coord"
-type = "std::vector<int>"
+name = "orthotope_coord"
+type = "::FlexFlow::OrthotopeCoordinate"

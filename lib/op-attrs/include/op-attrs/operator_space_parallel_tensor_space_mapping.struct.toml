@@ -1,0 +1,15 @@
+namespace = "FlexFlow"
+name = "OperatorSpaceParallelTensorSpaceMapping"
+features = [
+  "eq",
+  "hash",
+  "fmt",
+]
+
+includes = [
+  "utils/orthotope/orthotope_bijective_projection.dtg.h",
+]
+
+[[fields]]
+name = "raw_projection"
+type = "::FlexFlow::OrthotopeBijectiveProjection"
