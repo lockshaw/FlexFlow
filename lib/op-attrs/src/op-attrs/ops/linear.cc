@@ -1,6 +1,7 @@
 #include "op-attrs/ops/linear.h"
 #include "op-attrs/dim_ordered/slice.h"
 #include "op-attrs/dim_ordered/transform.h"
+#include "op-attrs/operator_space_parallel_tensor_space_mapping.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/product.h"
@@ -140,9 +141,26 @@ tl::expected<ParallelTensorShape, std::string>
 }
 
 tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
+    get_projection_space_mapping(LinearAttrs const &attrs,
+                                 ParallelTensorDimDegrees const &input) {
+
+  SumDegree sum_degree = SumDegree{1};
+  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
+      get_sum_degree(input) *
+      product(
+          slice(ff_ordered_shard_degrees(input), std::nullopt, ff_dim_t{-1}))};
+  FFOrdered<int> shard_degrees = FFOrdered<int>{
+      shard_dim_at_idx(input, ff_dim_t{-1}).degree,
+      get_discard_copy_degree(input),
+  };
+
+  return 
+}
+
+tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
     get_output_space_mapping(LinearAttrs const &attrs, 
-                             ParallelTensorSpace const &input) {
-  NOT_IMPLEMENTED();  
+                             ParallelTensorDimDegrees const &input) {
+  return get_identity_mapping(input);
 }
 
 } // namespace FlexFlow

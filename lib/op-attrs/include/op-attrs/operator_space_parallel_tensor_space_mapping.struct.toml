@@ -7,9 +7,11 @@ features = [
 ]
 
 includes = [
-  "utils/orthotope/orthotope_bijective_projection.dtg.h",
+  "utils/orthotope/dim_projection.dtg.h",
+  "op-attrs/operator_task_space_dim_idx_t.dtg.h",
+  "op-attrs/parallel_tensor_dim_idx_t.dtg.h",
 ]
 
 [[fields]]
 name = "raw_projection"
-type = "::FlexFlow::OrthotopeBijectiveProjection"
+type = "::FlexFlow::DimProjection<::FlexFlow::operator_task_space_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"

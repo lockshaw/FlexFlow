@@ -2,6 +2,7 @@
 #include "op-attrs/dim_ordered/get_idxs.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "utils/containers/filtrans.h"
 #include "utils/containers/generate_map.h"
 #include "utils/containers/get_all_assignments.h"
 #include "utils/containers/map_keys.h"
@@ -10,8 +11,32 @@
 #include "utils/containers/range.h"
 #include "utils/containers/unordered_set_of.h"
 #include "utils/containers/transform.h"
+#include "utils/containers/set_union.h"
 
 namespace FlexFlow {
+
+std::set<parallel_tensor_dim_idx_t> get_nontrivial_parallel_tensor_dim_indices(ParallelTensorDimDegrees const &degrees) {
+  std::set<parallel_tensor_dim_idx_t> nontrivial_replica_dims;
+
+  if (degrees.sum_degree.value > 1) {
+    nontrivial_replica_dims.insert(parallel_tensor_dim_idx_t{ReplicaType::SUM});
+  }
+
+  if (degrees.discard_copy_degree.value > 1) {
+    nontrivial_replica_dims.insert(parallel_tensor_dim_idx_t{ReplicaType::DISCARD_COPY});
+  }
+
+  std::set<parallel_tensor_dim_idx_t> nontrivial_shard_dims = 
+    filtrans(get_idxs(degrees.shard_degrees), [&](ff_dim_t const &dim) -> std::optional<parallel_tensor_dim_idx_t> {
+          if (degrees.shard_degrees.at(dim) > 1) {
+            return parallel_tensor_dim_idx_t{dim};
+          } else {
+            return std::nullopt;
+          }
+        });
+
+  return set_union(nontrivial_replica_dims, nontrivial_shard_dims);
+}
 
 std::unordered_map<parallel_tensor_dim_idx_t, int>
   get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &degrees) {

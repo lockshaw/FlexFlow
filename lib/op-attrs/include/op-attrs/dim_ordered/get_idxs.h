@@ -8,8 +8,8 @@
 namespace FlexFlow {
 
 template <typename T>
-std::vector<ff_dim_t> get_idxs(FFOrdered<T> const &d) {
-  return transform(range(d.size()), [](int i) { return ff_dim_t{i}; });
+std::set<ff_dim_t> get_idxs(FFOrdered<T> const &d) {
+  return transform(set_of(range(d.size())), [](int i) { return ff_dim_t{i}; });
 }
 
 } // namespace FlexFlow

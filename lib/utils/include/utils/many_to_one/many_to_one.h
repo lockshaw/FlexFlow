@@ -8,8 +8,11 @@
 #include "utils/hash-utils.h"
 #include "utils/hash/unordered_map.h"
 #include "utils/hash/unordered_set.h"
+#include "utils/hash/tuple.h"
 #include "utils/containers/keys.h"
 #include "utils/exception.h"
+#include "utils/fmt/unordered_map.h"
+#include "utils/fmt/unordered_set.h"
 
 namespace FlexFlow {
 
@@ -18,6 +21,21 @@ struct ManyToOne {
 public:
   ManyToOne()
     : l_to_r(), r_to_l()
+  { }
+
+  template <typename It>
+  ManyToOne(It start, It end) 
+    : ManyToOne()
+  { 
+    for (; start < end; start++) {
+      for (L const &l : start->first) {
+        this->insert(std::pair<L, R>{l, start->second});
+      }
+    }
+  }
+
+  ManyToOne(std::initializer_list<std::pair<std::initializer_list<L>, R>> const &l_to_r)
+    : ManyToOne(l_to_r.begin(), l_to_r.end())
   { }
 
   bool operator==(ManyToOne const &other) const {
@@ -69,6 +87,22 @@ private:
 
   friend struct std::hash<ManyToOne<L, R>>;
 };
+
+template <typename L, typename R>
+std::unordered_map<std::unordered_set<L>, R> format_as(ManyToOne<L, R> const &m) {
+  std::unordered_map<std::unordered_set<L>, R> result;
+
+  for (R const &r : m.right_values()) {
+    result.insert({m.at_r(r), r});
+  }
+
+  return result;
+}
+
+template <typename L, typename R>
+std::ostream &operator<<(std::ostream &s, ManyToOne<L, R> const &m) {
+  return (s << fmt::to_string(m));
+}
 
 } // namespace FlexFlow
 

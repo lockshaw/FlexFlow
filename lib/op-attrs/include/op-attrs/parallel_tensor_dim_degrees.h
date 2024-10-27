@@ -7,6 +7,8 @@
 
 namespace FlexFlow {
 
+std::set<parallel_tensor_dim_idx_t> get_nontrivial_parallel_tensor_dim_indices(ParallelTensorDimDegrees const &);
+
 std::unordered_map<parallel_tensor_dim_idx_t, int>
   get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &);
 

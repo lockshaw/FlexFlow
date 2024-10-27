@@ -8,8 +8,12 @@
 #include "utils/hash-utils.h"
 #include "utils/hash/unordered_map.h"
 #include "utils/hash/unordered_set.h"
+#include "utils/hash/tuple.h"
 #include "utils/containers/keys.h"
 #include "utils/exception.h"
+#include "utils/containers/generate_map.h"
+#include "utils/fmt/unordered_map.h"
+#include "utils/fmt/unordered_set.h"
 
 namespace FlexFlow {
 
@@ -18,6 +22,21 @@ struct OneToMany {
 public:
   OneToMany()
     : l_to_r(), r_to_l()
+  { }
+
+  template <typename It>
+  OneToMany(It start, It end) 
+    : OneToMany()
+  { 
+    for (; start < end; start++) {
+      for (R const &r : start->second) {
+        this->insert(std::pair<L, R>{start->first, r});
+      }
+    }
+  }
+
+  OneToMany(std::initializer_list<std::pair<L, std::initializer_list<R>>> const &l_to_r)
+    : OneToMany(l_to_r.begin(), l_to_r.end())
   { }
 
   bool operator==(OneToMany const &other) const {
@@ -69,6 +88,16 @@ private:
 
   friend struct std::hash<OneToMany<L, R>>;
 };
+
+template <typename L, typename R>
+std::unordered_map<L, std::unordered_set<R>> format_as(OneToMany<L, R> const &m) {
+  return generate_map(m.left_values(), [&](L const &l) { return m.at_l(l); });
+}
+
+template <typename  L, typename R>
+std::ostream &operator<<(std::ostream &s, OneToMany<L, R> const &m) {
+  return (s << fmt::to_string(m));
+}
 
 } // namespace FlexFlow
 
