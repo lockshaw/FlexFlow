@@ -27,5 +27,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(&base_stream.raw_stream() == base_stream_ptr);
       }
     }
+
+    SUBCASE("Test Self-Assignment") {
+      base_stream = std::move(base_stream);
+      CHECK(&base_stream.raw_stream() == base_stream_ptr);
+    }
   }
 }
