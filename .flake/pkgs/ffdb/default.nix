@@ -23,12 +23,13 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/share/ffdb
     cp ffdb.py $out/share/ffdb
-    makeWrapper ${gdb}/bin/gdb $out/bin/ffdb \
+    makeWrapper ${gdb}/bin/gdb $out/bin/gdb \
       --add-flags "-q -x $out/share/ffdb/ffdb.py" \
       --set NIX_PYTHONPATH ${pythonPath} \
       --prefix PATH : ${lib.makeBinPath [
         python3
       ]}
+    cp $out/bin/gdb $out/bin/ffdb
   '';
 
   nativeCheckInputs = [
