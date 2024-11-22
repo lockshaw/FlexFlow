@@ -67,7 +67,7 @@ void forward_kernel(ffStream_t stream,
                     void const *input_ptr,
                     void *output_ptr);
 
-void backward_kernel(ffStream_t stream,
+void backward_kernel(cudaStream_t stream,
                      Pool2DPerDeviceState const &m,
                      void const *output_ptr,
                      void const *output_grad_ptr,
