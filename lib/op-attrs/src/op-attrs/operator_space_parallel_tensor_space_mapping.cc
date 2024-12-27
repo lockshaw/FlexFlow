@@ -8,7 +8,7 @@
 namespace FlexFlow {
 
 OperatorSpaceParallelTensorSpaceMapping
-  get_identity_mapping(ParallelTensorDimDegrees const &degrees) {
+  get_identity_mapping(TensorNumDims const &tensor_num_dims) {
   
   std::set<parallel_tensor_dim_idx_t> parallel_tensor_dim_indices 
     = get_nontrivial_parallel_tensor_dim_indices(degrees);
