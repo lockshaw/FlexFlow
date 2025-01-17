@@ -7,8 +7,8 @@
 namespace FlexFlow {
 
 template <typename L, typename R>
-OneToMany<L, R> invert_many_to_one(ManyToOne<L, R> const &many_to_one) {
-  OneToMany<L, R> result;
+OneToMany<R, L> invert_many_to_one(ManyToOne<L, R> const &many_to_one) {
+  OneToMany<R, L> result;
 
   for (L const &l : many_to_one.left_values()) {
     result.insert({many_to_one.at_l(l), l});

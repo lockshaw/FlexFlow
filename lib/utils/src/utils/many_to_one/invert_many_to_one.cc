@@ -7,6 +7,6 @@ using L = value_type<0>;
 using R = value_type<1>;
 
 template
-  OneToMany<L, R> invert_many_to_one(ManyToOne<L, R> const &);
+  OneToMany<R, L> invert_many_to_one(ManyToOne<L, R> const &);
 
 } // namespace FlexFlow

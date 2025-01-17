@@ -6,6 +6,7 @@
 #include "utils/orthotope/up_projection.dtg.h"
 #include "utils/many_to_one/many_to_one_from_bidict.h"
 #include "utils/many_to_one/exhaustive_relational_join.h"
+#include "utils/many_to_one/invert_many_to_one.h"
 
 namespace FlexFlow {
 
