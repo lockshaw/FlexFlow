@@ -6,6 +6,6 @@ namespace FlexFlow {
 using T = value_type<0>;
 
 template
-  std::vector<T> filter_idxs(std::vector<T> const &, std::function<bool(int)> const &);
+  std::vector<T> filter_idxs(std::vector<T> const &, std::function<bool(nonnegative_int)> const &);
 
 } // namespace FlexFlow

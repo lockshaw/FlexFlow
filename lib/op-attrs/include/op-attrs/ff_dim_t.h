@@ -9,7 +9,7 @@ namespace FlexFlow {
 
 relative_ff_dim_t relative_ff_dim_t_from_ff_dim_t(ff_dim_t ff_dim);
 
-std::set<ff_dim_t> ff_dim_range(int end);
+std::set<ff_dim_t> ff_dim_range(nonnegative_int end);
 
 } // namespace FlexFlow
 

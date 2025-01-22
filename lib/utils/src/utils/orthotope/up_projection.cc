@@ -14,6 +14,12 @@ using L = value_type<0>;
 using R = value_type<1>;
 
 template
+  std::unordered_set<L> input_dims_of_up_projection(UpProjection<L, R> const &);
+
+template
+  std::unordered_set<R> output_dims_of_up_projection(UpProjection<L, R> const &);
+
+template
   UpProjection<L, R> make_empty_up_projection();
 
 template

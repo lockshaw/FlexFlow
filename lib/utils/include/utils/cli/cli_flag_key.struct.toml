@@ -2,6 +2,7 @@ namespace = "FlexFlow"
 name = "CLIFlagKey"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
 ]

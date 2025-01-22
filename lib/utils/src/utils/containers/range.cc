@@ -1,10 +1,14 @@
 #include "utils/containers/range.h"
 #include <cassert>
+#include <fmt/format.h>
+#include "utils/exception.h"
 
 namespace FlexFlow {
 
 std::vector<int> range(int start, int end, int step) {
-  assert(step != 0);
+  if (step == 0) {
+    throw mk_runtime_error(fmt::format("range expected step != 0, but received: {}", step));
+  }
 
   std::vector<int> result;
   if (step > 0) {

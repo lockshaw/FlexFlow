@@ -17,6 +17,9 @@ public:
 
   explicit operator int() const noexcept;
 
+  nonnegative_int operator*(nonnegative_int other) const;
+  nonnegative_int &operator*=(nonnegative_int other);
+
   bool operator<(nonnegative_int const &other) const;
   bool operator==(nonnegative_int const &other) const;
   bool operator>(nonnegative_int const &other) const;
@@ -45,8 +48,14 @@ public:
   int get_value() const;
 
 private:
+  nonnegative_int &set_value(int);
+
+private:
   int value_;
 };
+
+nonnegative_int operator ""_n(unsigned long long int);
+
 } // namespace FlexFlow
 
 namespace nlohmann {

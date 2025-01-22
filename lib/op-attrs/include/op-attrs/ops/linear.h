@@ -6,7 +6,6 @@
 #include "op-attrs/ops/linear_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
-#include "op-attrs/tensor_num_dims.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "utils/record_formatter.h"
 #include <tl/expected.hpp>
@@ -49,15 +48,12 @@ tl::expected<ParallelTensorShape, std::string>
     get_output_shape(LinearAttrs const &attrs,
                      ParallelTensorShape const &input);
 
+tl::expected<ParallelTensorSpaceMapping, std::string>
+    get_input_to_output_mapping(LinearAttrs const &attrs, nonnegative_int input_num_dims);
 tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
-    get_projection_space_mapping(LinearAttrs const &attrs,
-                                 ParallelTensorDimDegrees const &input);
+    get_operator_to_input_mapping(LinearAttrs const &attrs, nonnegative_int input_num_dims);
 tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
-    get_bias_space_mapping(LinearAttrs const &attrs,
-                           ParallelTensorDimDegrees const &input);
-tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
-    get_output_space_mapping(LinearAttrs const &attrs, 
-                             TensorNumDims const &input_num_dims);
+    get_operator_to_output_mapping(LinearAttrs const &attrs, nonnegative_int input_num_dims);
 
 } // namespace FlexFlow
 

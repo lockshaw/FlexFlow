@@ -5,7 +5,7 @@
 #include "op-attrs/operator_space_parallel_tensor_space_mapping.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/tensor_num_dims.dtg.h"
+#include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/product.h"
 #include "utils/integer_conversions.h"
@@ -100,7 +100,7 @@ tl::expected<ParallelTensorShape, std::string>
   };
 
   return lift_to_parallel_with_degrees(
-      unpar, sum_degree, discard_copy_degree, shard_degrees);
+      unpar, ParallelTensorDimDegrees{sum_degree, discard_copy_degree, shard_degrees});
 }
 
 tl::expected<ParallelTensorShape, std::string>
@@ -122,7 +122,7 @@ tl::expected<ParallelTensorShape, std::string>
   FFOrdered<int> shard_degrees = FFOrdered<int>{get_discard_copy_degree(input)};
 
   return lift_to_parallel_with_degrees(
-      unpar, sum_degree, discard_copy_degree, shard_degrees);
+      unpar, ParallelTensorDimDegrees{sum_degree, discard_copy_degree, shard_degrees});
 }
 
 tl::expected<ParallelTensorShape, std::string>
@@ -145,7 +145,7 @@ tl::expected<ParallelTensorShape, std::string>
   shard_degrees.at(relative_ff_dim_t{-1}) = get_discard_copy_degree(input);
 
   return lift_to_parallel_with_degrees(
-      unpar, sum_degree, discard_copy_degree, shard_degrees);
+      unpar, ParallelTensorDimDegrees{sum_degree, discard_copy_degree, shard_degrees});
 }
 
 // tl::expected<ParallelTensorSpaceMapping, std::string>
@@ -157,18 +157,26 @@ tl::expected<ParallelTensorShape, std::string>
 // }
 
 tl::expected<ParallelTensorSpaceMapping, std::string>
-    get_input_to_output_projection(LinearAttrs const &attrs, TensorNumDims const &input_num_dims) {
+    get_input_to_output_projection(LinearAttrs const &attrs, nonnegative_int input_num_dims) {
   
-  auto inp_to_out = make_empty_down_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+  DownProjection<
+    parallel_tensor_dim_idx_t, 
+    parallel_tensor_dim_idx_t
+  > inp_to_out = make_empty_down_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+
+  ff_dim_t input_channel_dim = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{-1}, input_num_dims);
+
+  nonnegative_int output_num_dims = input_num_dims;
+  ff_dim_t output_channel_dim = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{-1}, output_num_dims);
 
   project_dims(inp_to_out, 
-               /*from=*/{sum_dim_idx(), shard_dim_idx(ff_dim_t{-1})},
+               /*from=*/{sum_dim_idx(), shard_dim_idx(input_channel_dim)},
                /*onto=*/sum_dim_idx());
   project_dims(inp_to_out, 
                /*from=*/{discard_copy_dim_idx()}, 
-               /*onto=*/shard_dim_idx(ff_dim_t{-1}));
+               /*onto=*/shard_dim_idx(output_channel_dim));
 
-  for (ff_dim_t const &idx : ff_dim_range(input_num_dims.value - 1)) {
+  for (ff_dim_t const &idx : ff_dim_range(nonnegative_int{input_num_dims.get_value() - 1})) {
     project_dims(inp_to_out, 
                  /*from=*/{shard_dim_idx(idx)}, 
                  /*onto=*/shard_dim_idx(idx));
@@ -179,15 +187,15 @@ tl::expected<ParallelTensorSpaceMapping, std::string>
 
 tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
   get_operator_to_input_projection(LinearAttrs const &attrs,
-                                   TensorNumDims const &input_num_dims) {
+                                   nonnegative_int input_num_dims) {
 
-    TensorNumDims output_num_dims = input_num_dims;
+    nonnegative_int output_num_dims = input_num_dims;
 
     UpProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t> 
       out_to_inp = invert_down_projection(throw_if_unexpected(get_input_to_output_projection(attrs, input_num_dims)).raw_projection.require_down_proj());
 
     EqProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> 
-      op_to_out = throw_if_unexpected(get_output_space_mapping(attrs, output_num_dims)).raw_projection.require_eq_proj();
+      op_to_out = throw_if_unexpected(get_operator_to_output_mapping(attrs, input_num_dims)).raw_projection.require_eq_proj();
 
     return OperatorSpaceParallelTensorSpaceMapping{
       DimProjection{
@@ -197,29 +205,12 @@ tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
 }
 
 tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
-    get_operator_to_output_projection(LinearAttrs const &attrs,
-                                      TensorNumDims const &output_num_dims) {
+    get_operator_to_output_mapping(LinearAttrs const &attrs,
+                                      nonnegative_int input_num_shard_dims) {
+  nonnegative_int output_num_shard_dims = input_num_shard_dims;
 
-  return OperatorSpaceParallelTensorSpaceMapping{
-    get
-
-  SumDegree sum_degree = SumDegree{1};
-  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      get_sum_degree(input) *
-      product(
-          slice(ff_ordered_shard_degrees(input), std::nullopt, ff_dim_t{-1}))};
-  FFOrdered<int> shard_degrees = FFOrdered<int>{
-      shard_dim_at_idx(input, ff_dim_t{-1}).degree,
-      get_discard_copy_degree(input),
-  };
-
-  return 
+  return get_identity_mapping(output_num_shard_dims);
 }
 
-tl::expected<OperatorSpaceParallelTensorSpaceMapping, std::string>
-    get_output_space_mapping(LinearAttrs const &attrs, 
-                             ParallelTensorDimDegrees const &input) {
-  return get_identity_mapping(input);
-}
 
 } // namespace FlexFlow

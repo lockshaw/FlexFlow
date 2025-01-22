@@ -1,6 +1,7 @@
 #include "utils/cli/cli_spec.h"
 #include "utils/containers/range.h"
 #include "utils/containers/transform.h"
+#include "utils/containers/vector_of.h"
 #include "utils/integer_conversions.h"
 
 namespace FlexFlow {

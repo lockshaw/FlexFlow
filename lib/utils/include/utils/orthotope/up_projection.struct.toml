@@ -12,7 +12,6 @@ template_params = [
 
 includes = [
   "utils/one_to_many/one_to_many.h",
-  "utils/orthotope/orthotope_dim_idx_t.dtg.h",
 ]
 
 [[fields]]

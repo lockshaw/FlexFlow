@@ -5,6 +5,7 @@
 #include "op-attrs/ff_dim_t.h"
 #include "utils/containers/range.h"
 #include "utils/containers/transform.h"
+#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 

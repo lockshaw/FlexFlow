@@ -2,21 +2,23 @@
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_ORTHOTOPE_H
 
 #include "utils/orthotope/orthotope.dtg.h"
-#include "utils/orthotope/orthotope_coordinate.dtg.h"
-#include "utils/orthotope/orthotope_dim_idx_t.dtg.h"
-#include <unordered_set>
+#include "utils/orthotope/orthotope_coord.dtg.h"
 
 namespace FlexFlow {
 
-std::set<orthotope_dim_idx_t> get_orthotope_dims(Orthotope const &);
-int orthotope_num_dims(Orthotope const &);
+nonnegative_int get_orthotope_num_dims(Orthotope const &);
 
-bool orthotope_contains_coord(Orthotope const &, OrthotopeCoordinate const &);
-std::unordered_set<OrthotopeCoordinate> orthotope_get_contained_coordinates(Orthotope const &);
+nonnegative_int get_orthotope_volume(Orthotope const &);
 
-int orthotope_get_volume(Orthotope const &);
+std::unordered_set<OrthotopeCoord> get_all_coords_in_orthotope(Orthotope const &);
 
-Orthotope orthotope_drop_dims_except(Orthotope const &, std::set<orthotope_dim_idx_t> const &);
+bool orthotope_contains_coord(Orthotope const &, OrthotopeCoord const &);
+
+Orthotope restrict_orthotope_to_dims(Orthotope const &, std::set<nonnegative_int> const &);
+
+nonnegative_int flatten_orthotope_coord(OrthotopeCoord const &, Orthotope const &);
+
+OrthotopeCoord unflatten_orthotope_coord(nonnegative_int, Orthotope const &);
 
 } // namespace FlexFlow
 

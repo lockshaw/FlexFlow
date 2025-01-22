@@ -3,15 +3,19 @@
 namespace FlexFlow {
 
 nonnegative_int::nonnegative_int(int value) {
-  if (value < 0) {
-    throw std::invalid_argument(
-        "Value of nonnegative_int type must be nonnegative.");
-  }
-  this->value_ = value;
+  this->set_value(value);
 }
 
 nonnegative_int::operator int() const noexcept {
   return this->value_;
+}
+
+nonnegative_int nonnegative_int::operator*(nonnegative_int other) const {
+  return nonnegative_int{this->value_ * other.value_};
+}
+
+nonnegative_int &nonnegative_int::operator*=(nonnegative_int other) {
+  return this->set_value(this->value_ * other.value_);
 }
 
 bool nonnegative_int::operator<(nonnegative_int const &other) const {
@@ -83,6 +87,20 @@ int nonnegative_int::get_value() const {
 int format_as(nonnegative_int const &x) {
   return x.get_value();
 }
+
+nonnegative_int &nonnegative_int::set_value(int value) {
+  if (value < 0) {
+    throw std::invalid_argument(
+        "Value of nonnegative_int type must be nonnegative.");
+  }
+  this->value_ = value;
+  return *this;
+}
+
+nonnegative_int operator ""_n(unsigned long long int value) {
+  return nonnegative_int{static_cast<int>(value)};
+}
+
 } // namespace FlexFlow
 
 namespace nlohmann {

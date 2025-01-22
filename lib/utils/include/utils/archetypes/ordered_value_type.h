@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <functional>
+#include <string>
 
 namespace FlexFlow {
 
@@ -47,6 +48,11 @@ struct ordered_value_type {
     assert(false);
   }
 };
+
+template <int TAG>
+std::string format_as(ordered_value_type<TAG> const &) {
+  assert (false);
+}
 
 } // namespace FlexFlow
 

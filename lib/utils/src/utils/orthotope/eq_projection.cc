@@ -7,6 +7,12 @@ using L = value_type<0>;
 using R = value_type<1>;
 
 template
+  std::unordered_set<L> input_dims_of_eq_projection(EqProjection<L, R> const &);
+
+template
+  std::unordered_set<R> output_dims_of_eq_projection(EqProjection<L, R> const &);
+
+template
   EqProjection<R, L> invert_eq_projection(EqProjection<L, R> const &);
 
 using T1 = value_type<0>;

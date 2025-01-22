@@ -5,7 +5,7 @@ header_extension = ".h"
 
 build_targets = [
   "utils",
-  # "op-attrs",
+  "op-attrs",
   # "kernels",
   # "pcg",
   # "substitutions",
@@ -20,7 +20,7 @@ build_targets = [
 test_targets = [
   # "kernels-tests",
   "utils-tests",
-  # "op-attrs-tests",
+  "op-attrs-tests",
   # "pcg-tests",
   # "substitutions-tests",
   # "compiler-tests",

@@ -1,0 +1,13 @@
+namespace = "FlexFlow"
+name = "To"
+features = []
+
+template_params = [ "L", "R" ]
+
+includes = [
+  "<functional>"
+]
+
+[[fields]]
+name = "func"
+type = "std::function<R(L const &)>"
