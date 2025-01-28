@@ -11,6 +11,28 @@
 
 namespace FlexFlow {
 
+inline int calculate_accessor_offset(std::vector<int> const &indices,
+                                     ArrayShape const &shape) {
+  int offset = 0;
+  int multiplier = 1;
+
+  for (int i = 0; i < shape.num_dims(); i++) {
+    if (indices.at(i) >= shape.at(legion_dim_t{i})) {
+      throw mk_runtime_error(
+          fmt::format("In {} dimension, attempting to access index {} "
+                      "when only {} indexes exist",
+                      i,
+                      indices.at(i),
+                      shape.at(legion_dim_t{i})));
+    }
+
+    offset += indices.at(i) * multiplier;
+    multiplier *= shape.at(legion_dim_t{i});
+  }
+
+  return offset;
+}
+
 class GenericTensorAccessorR {
 public:
   template <DataType DT>
@@ -57,23 +79,7 @@ public:
 
     using T = real_type_t<DT>;
     T const *data_ptr = static_cast<T const *>(this->ptr);
-
-    int offset = 0;
-    int multiplier = 1;
-    for (int i = 0; i < this->shape.num_dims(); i++) {
-      if (indices.at(i) >= this->shape.at(legion_dim_t{i})) {
-        throw mk_runtime_error(
-            fmt::format("In {} dimension, attempting to access index {} "
-                        "when only {} indexes exist",
-                        i,
-                        indices.at(i),
-                        this->shape.at(legion_dim_t{i})));
-      }
-
-      offset += indices.at(i) * multiplier;
-      multiplier *= this->shape.at(legion_dim_t{i});
-    }
-
+    int offset = calculate_accessor_offset(indices, this->shape);
     return data_ptr[offset];
   }
 
@@ -141,24 +147,8 @@ public:
     }
 
     using T = real_type_t<DT>;
-
     T *data_ptr = static_cast<T *>(this->ptr);
-    int offset = 0;
-    int multiplier = 1;
-    for (int i = 0; i < this->shape.num_dims(); i++) {
-      if (indices.at(i) >= this->shape.at(legion_dim_t{i})) {
-        throw mk_runtime_error(
-            fmt::format("In {} dimension, attempting to access index {} "
-                        "when only {} indexes exist",
-                        i,
-                        indices.at(i),
-                        this->shape.at(legion_dim_t{i})));
-      }
-
-      offset += indices.at(i) * multiplier;
-      multiplier *= this->shape.at(legion_dim_t{i});
-    }
-
+    int offset = calculate_accessor_offset(indices, this->shape);
     return data_ptr[offset];
   }
 
@@ -179,24 +169,8 @@ public:
     }
 
     using T = real_type_t<DT>;
-
     T const *data_ptr = static_cast<T const *>(this->ptr);
-    int offset = 0;
-    int multiplier = 1;
-    for (int i = 0; i < this->shape.num_dims(); i++) {
-      if (indices.at(i) >= this->shape.at(legion_dim_t{i})) {
-        throw mk_runtime_error(
-            fmt::format("In {} dimension, attempting to access index {} "
-                        "when only {} indexes exist",
-                        i,
-                        indices.at(i),
-                        this->shape.at(legion_dim_t{i})));
-      }
-
-      offset += indices.at(i) * multiplier;
-      multiplier *= this->shape.at(legion_dim_t{i});
-    }
-
+    int offset = calculate_accessor_offset(indices, this->shape);
     return data_ptr[offset];
   }
 

@@ -16,7 +16,7 @@
 #include "device.h"
 #include "kernels/metrics_kernels.h"
 #include "kernels/perf_metrics.h"
-#include "pcg/metric.h"
+#include "pcg/metric_attrs.h"
 
 namespace FlexFlow {
 
@@ -163,7 +163,7 @@ __global__ void update_metrics_label_kernel(float const *logits,
 
 void update_metrics_sparse_label_kernel_wrapper(float const *logit_ptr,
                                                 int const *label_ptr,
-                                                MetricsAttrs const *me,
+                                                MetricsAttrs const &me,
                                                 int num_effective_samples,
                                                 int num_classes,
                                                 PerfMetrics &perf_zc) {
@@ -179,7 +179,7 @@ void update_metrics_sparse_label_kernel_wrapper(float const *logit_ptr,
                                        CUDA_NUM_THREADS,
                                        0,
                                        stream>>>(
-      logit_ptr, label_ptr, perf_cuda, *me, num_effective_samples, num_classes);
+      logit_ptr, label_ptr, perf_cuda, me, num_effective_samples, num_classes);
   checkCUDA(cudaStreamSynchronize(stream));
   checkCUDA(cudaMemcpy(
       &perf, perf_cuda, sizeof(CUDAPerfMetrics), cudaMemcpyDeviceToHost));
@@ -188,7 +188,7 @@ void update_metrics_sparse_label_kernel_wrapper(float const *logit_ptr,
 
 void update_metrics_label_kernel_wrapper(float const *logit_ptr,
                                          float const *label_ptr,
-                                         MetricsAttrs const *me,
+                                         MetricsAttrs const &me,
                                          int num_samples,
                                          int num_classes,
                                          PerfMetrics &perf_zc) {
@@ -201,7 +201,7 @@ void update_metrics_label_kernel_wrapper(float const *logit_ptr,
   cudaStream_t stream;
   checkCUDA(get_legion_stream(&stream));
   update_metrics_label_kernel<<<GET_BLOCKS(num_samples), 256, 0, stream>>>(
-      logit_ptr, label_ptr, perf_cuda, *me, num_samples, num_classes);
+      logit_ptr, label_ptr, perf_cuda, me, num_samples, num_classes);
   checkCUDA(cudaStreamSynchronize(stream));
   checkCUDA(cudaMemcpy(
       &perf, perf_cuda, sizeof(CUDAPerfMetrics), cudaMemcpyDeviceToHost));

@@ -1,8 +1,8 @@
-#include "pcg/metric.h"
+#include "pcg/metric_attrs.h"
 
 namespace FlexFlow {
 MetricsAttrs::MetricsAttrs(LossFunction _loss_type,
-                           std::vector<Metric> const &metrics)
+                           std::unordered_set<Metric> const &metrics)
     : loss_type(_loss_type), measure_accuracy(false),
       measure_categorical_crossentropy(false),
       measure_sparse_categorical_crossentropy(false),
@@ -29,8 +29,8 @@ MetricsAttrs::MetricsAttrs(LossFunction _loss_type,
         measure_mean_absolute_error = true;
         continue;
       default:
-        throw mk_runtime_error(
-            "Initializing MetricsAttrs with unrecogonized metrics type");
+        throw mk_runtime_error(fmt::format(
+            "Initializing MetricsAttrs with unrecogonized metrics type {}", m));
     }
   }
 }

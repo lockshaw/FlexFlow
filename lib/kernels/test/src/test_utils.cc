@@ -1,5 +1,6 @@
 #include "test_utils.h"
 #include "op-attrs/tensor_shape.h"
+#include "utils/join_strings.h"
 #include <random>
 
 namespace FlexFlow {
@@ -140,21 +141,16 @@ template <DataType DT>
 struct Print2DCPUAccessorR {
   void operator()(GenericTensorAccessorR const &accessor,
                   std::ostream &stream) {
-    using T = real_type_t<DT>;
-
-    T const *data_ptr = accessor.get<DT>();
     int rows = accessor.shape.at(legion_dim_t{0});
     int cols = accessor.shape.at(legion_dim_t{1});
 
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        stream << data_ptr[i * cols + j];
+    std::vector<int> indices(cols);
+    std::iota(indices.begin(), indices.end(), 0);
 
-        if (j < cols - 1) {
-          stream << " ";
-        }
-      }
-      stream << std::endl;
+    for (int i = 0; i < rows; i++) {
+      stream << join_strings(indices, " ", [&](int k) {
+        return accessor.at<DT>({i, k});
+      }) << std::endl;
     }
   }
 };

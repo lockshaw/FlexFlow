@@ -1,6 +1,6 @@
 #include "doctest/doctest.h"
 #include "kernels/pool_2d_kernels.h"
-#include "op-attrs/make_datatype_value.h"
+#include "op-attrs/datatype_value.h"
 #include "test_utils.h"
 
 using namespace ::FlexFlow;

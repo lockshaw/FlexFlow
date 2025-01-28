@@ -1,6 +1,6 @@
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
+#include "op-attrs/datatype_value.h"
 #include "op-attrs/get_incoming_tensor_roles.h"
-#include "op-attrs/make_datatype_value.h"
 #include "op-attrs/ops/attention.h"
 #include "op-attrs/ops/batch_matmul.h"
 #include "op-attrs/ops/batch_norm.h"

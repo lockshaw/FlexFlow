@@ -1,4 +1,4 @@
-#include "op-attrs/make_datatype_value.h"
+#include "op-attrs/datatype_value.h"
 
 namespace FlexFlow {
 

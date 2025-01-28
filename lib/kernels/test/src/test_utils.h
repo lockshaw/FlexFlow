@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-using namespace FlexFlow;
+using namespace ::FlexFlow;
 
 GenericTensorAccessorW create_random_filled_accessor_w(TensorShape const &shape,
                                                        Allocator &allocator);

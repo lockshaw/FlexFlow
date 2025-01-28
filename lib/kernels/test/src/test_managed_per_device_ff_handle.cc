@@ -5,7 +5,8 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("ManagedPerDeviceFFHandle") {
-    ManagedPerDeviceFFHandle base_handle{1024 * 1024, true};
+    ManagedPerDeviceFFHandle base_handle{/*workSpaceSize=*/1024 * 1024,
+                                         /*allowTensorOpMathConversion=*/true};
     PerDeviceFFHandle const *base_handle_ptr = &base_handle.raw_handle();
 
     SUBCASE("constructor") {
@@ -22,7 +23,9 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("move assignment operator") {
       SUBCASE("move assign to other") {
-        ManagedPerDeviceFFHandle new_handle{1024 * 1024, true};
+        ManagedPerDeviceFFHandle new_handle{
+            /*workSpaceSize=*/1024 * 1024,
+            /*allowTensorOpMathConversion=*/true};
         new_handle = std::move(base_handle);
 
         CHECK(&base_handle.raw_handle() == nullptr);

@@ -1,7 +1,7 @@
 #include "doctest/doctest.h"
 #include "kernels/reverse_kernels.h"
 #include "kernels/reverse_kernels_cpu.h"
-#include "op-attrs/make_datatype_value.h"
+#include "op-attrs/datatype_value.h"
 #include "test_utils.h"
 
 using namespace ::FlexFlow;

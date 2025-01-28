@@ -19,6 +19,7 @@ public:
 
   ffStream_t const &raw_stream() const;
 
+private:
   void cleanup();
 
 private:

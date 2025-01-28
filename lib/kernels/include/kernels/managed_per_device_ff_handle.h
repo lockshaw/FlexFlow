@@ -24,6 +24,7 @@ public:
 
   PerDeviceFFHandle const &raw_handle() const;
 
+private:
   void cleanup();
 
 private:
