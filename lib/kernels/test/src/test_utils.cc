@@ -3,7 +3,7 @@
 #include "utils/join_strings.h"
 #include <random>
 
-namespace FlexFlow {
+using namespace ::FlexFlow;
 
 GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
                                                      Allocator &allocator) {
@@ -242,4 +242,3 @@ GenericTensorAccessorR create_filled_accessor_r(TensorShape const &shape,
       create_filled_accessor_w(shape, allocator, val);
   return read_only_accessor_from_write_accessor(w_accessor);
 }
-} // namespace FlexFlow
