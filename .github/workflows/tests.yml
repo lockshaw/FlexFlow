@@ -81,6 +81,10 @@ jobs:
       # - name: free additional space on runner
       #   run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
 
+      - name: run nvidia-smi
+        run: |
+          nvidia-smi
+
       - name: show disk usage
         run: |
           du --all --human-readable --threshold 1G .[^.]* /*
@@ -105,10 +109,6 @@ jobs:
 
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
-
-      - name: run nvidia-smi
-        run: |
-          nvidia-smi
 
       - name: regenerate all dtgen files
         run: |
