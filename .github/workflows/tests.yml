@@ -86,10 +86,6 @@ jobs:
         run: |
           nvidia-smi
 
-      - name: purge module system
-        run: | 
-          rm /etc/profiles.d/modules.*
-
       - name: show disk usage
         run: |
           du --all --human-readable --threshold 1G .[^.]* /* || true
@@ -106,7 +102,7 @@ jobs:
           # authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - name: setup nix develop shell
-        uses: nicknovitski/nix-develop@v1.2.1
+        uses: lockshaw/nix-develop
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
