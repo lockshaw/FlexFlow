@@ -79,27 +79,9 @@ jobs:
         with:
           submodules: recursive
 
-      # - name: remove the module system
-      #   run: | 
-      #     rm /etc/profile.d/modules.sh
-
       - name: mount ephemeral drive to nix
         run: |
           sudo mkdir $HOME/_work/nix && sudo mkdir /nix && sudo mount --bind $HOME/_work/nix /nix
-
-      # Note that this step is not only necessary to make space for the nix-provided
-      # dependencies, but also to prevent contention between the nix-provided nccl and the
-      # system-provided ones in the DL AMI
-      - name: free additional space on runner
-        run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
-
-      - name: run nvidia-smi
-        run: |
-          nvidia-smi
-
-      - name: show disk usage
-        run: |
-          du --all --human-readable --threshold 1G .[^.]* /* || true
 
       - name: install nix
         uses: cachix/install-nix-action@v25
@@ -113,7 +95,7 @@ jobs:
           # authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - name: setup nix develop shell
-        uses: lockshaw/nix-develop@116f24a2996eb68cfadddb5657b4b923e5f69ec5
+        uses: nicknovitski/nix-develop@v1.1.0
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
