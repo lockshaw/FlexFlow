@@ -85,7 +85,7 @@ jobs:
 
       - name: mount ephemeral drive to nix
         run: |
-          sudo mkdir $HOME/nix && sudo mkdir /nix && sudo mount --bind $HOME/nix /nix
+          sudo mkdir $HOME/_work/nix && sudo mkdir /nix && sudo mount --bind $HOME/_work/nix /nix
 
       # Note that this step is not only necessary to make space for the nix-provided
       # dependencies, but also to prevent contention between the nix-provided nccl and the
