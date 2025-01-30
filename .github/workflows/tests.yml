@@ -16,7 +16,7 @@ jobs:
           submodules: recursive
 
       - name: Free additional space on runner
-        run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
+        run: ./.github/workflows/helpers/free_space_on_runner.sh
 
       - name: Install nix
         uses: cachix/install-nix-action@v25
@@ -105,7 +105,8 @@ jobs:
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
-          arguments: ".#gpu-ci --accept-flake-config --impure"
+          arguments: ".#ci --accept-flake-config"
+          # arguments: ".#gpu-ci --accept-flake-config --impure"
 
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
