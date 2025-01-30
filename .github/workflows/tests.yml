@@ -67,7 +67,7 @@ jobs:
     runs-on:
       - runs-on
       - family=g4dn.xlarge
-      - image=ubuntu22-gpu-x64
+      - image=runs-on-gpu-pinned
 
     strategy:
       max-parallel: 1
