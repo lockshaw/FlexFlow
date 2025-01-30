@@ -67,7 +67,7 @@ jobs:
     runs-on:
       - runs-on
       - family=g4dn.xlarge
-      - image=dlami-x64
+      - image=ubuntu22-gpu-x64
 
     strategy:
       max-parallel: 1
