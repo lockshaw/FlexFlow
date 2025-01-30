@@ -66,8 +66,7 @@ jobs:
     # needs: cpu-ci
     runs-on:
       - runs-on
-      - family=g4dn.xlarge
-      - image=ubuntu22-full-x64
+      - runner=gpu-nvidia
 
     strategy:
       max-parallel: 1
