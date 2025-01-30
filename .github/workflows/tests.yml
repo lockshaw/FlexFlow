@@ -79,6 +79,10 @@ jobs:
         with:
           submodules: recursive
 
+      # - name: remove the module system
+      #   run: | 
+      #     rm /etc/profile.d/modules.sh
+
       - name: free additional space on runner
         run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
 
@@ -102,7 +106,7 @@ jobs:
           # authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - name: setup nix develop shell
-        uses: lockshaw/nix-develop@d98b122fa2769db1d1634116f43e61c4bbc8c9d0
+        uses: lockshaw/nix-develop@fe82f9454ed98c3f24081cdf477f2e940e76781e
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
