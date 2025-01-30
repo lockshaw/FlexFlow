@@ -78,8 +78,8 @@ jobs:
         with:
           submodules: recursive
 
-      # - name: free additional space on runner
-      #   run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
+      - name: free additional space on runner
+        run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
 
       - name: run nvidia-smi
         run: |
