@@ -1,8 +1,9 @@
-#!/bin/bash
+#! /usr/bin/env bash
 set -euo pipefail
 set -x
 
-sudo rm -rf /usr/share/dotnet
-sudo rm -rf /usr/local/lib/android
-sudo rm -rf /opt/ghc
-sudo rm -rf "/usr/local/share/boost"
+sudo rm -rf \
+  /usr/local/cuda-12.1 \
+  /usr/local/cuda-12.2 \
+  /usr/local/cuda-12.3 \
+  /usr/local/cuda-12.5

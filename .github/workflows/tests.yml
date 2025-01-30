@@ -87,7 +87,7 @@ jobs:
 
       - name: show disk usage
         run: |
-          du --all --human-readable --threshold 1G .[^.]* /*
+          du --all --human-readable --threshold 1G .[^.]* /* || true
 
       - name: install nix
         uses: cachix/install-nix-action@v25
