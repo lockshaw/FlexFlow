@@ -8,10 +8,7 @@ sudo rm -rf /opt/ghc
 sudo rm -rf /usr/local/share/boost
 sudo rm -rf /usr/local/share/powershell
 sudo rm -rf /usr/local/share/chromium
-sudo rm -rf /usr/local/share/chromium
 sudo rm -rf /opt/microsoft
 sudo rm -rf /opt/google
 sudo rm -rf /opt/az
 sudo rm -rf /opt/hostedtoolcache
-sudo rm -rf /usr/lib/x86_64-linux-gnu/libcu*
-sudo rm -rf /usr/lib/x86_64-linux-gnu/libcu*

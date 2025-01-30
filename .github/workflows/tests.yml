@@ -34,7 +34,7 @@ jobs:
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
-          arguments: "--store /home/runner/nix .#ci --accept-flake-config"
+          arguments: ".#ci --accept-flake-config"
 
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -82,6 +82,10 @@ jobs:
       # - name: remove the module system
       #   run: | 
       #     rm /etc/profile.d/modules.sh
+
+      - name: mount ephemeral drive to nix
+        run: |
+          mkdir $HOME/nix && mount --bind $HOME/nix /nix
 
       # Note that this step is not only necessary to make space for the nix-provided
       # dependencies, but also to prevent contention between the nix-provided nccl and the
