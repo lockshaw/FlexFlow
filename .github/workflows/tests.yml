@@ -83,6 +83,9 @@ jobs:
       #   run: | 
       #     rm /etc/profile.d/modules.sh
 
+      # Note that this step is not only necessary to make space for the nix-provided
+      # dependencies, but also to prevent contention between the nix-provided nccl and the
+      # system-provided ones in the DL AMI
       - name: free additional space on runner
         run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
 
