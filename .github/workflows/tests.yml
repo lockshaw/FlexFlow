@@ -102,7 +102,7 @@ jobs:
           # authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - name: setup nix develop shell
-        uses: lockshaw/nix-develop
+        uses: lockshaw/nix-develop@d98b122fa2769db1d1634116f43e61c4bbc8c9d0
         env:
           NIXPKGS_ALLOW_UNFREE: 1
         with:
