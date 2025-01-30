@@ -78,8 +78,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: free additional space on runner
-        run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
+      # - name: free additional space on runner
+      #   run: ./.github/workflows/helpers/free_space_on_runner_gpu.sh
+
+      - name: show disk usage
+        run: |
+          du --all --human-readable --threshold 1G .[^.]* /*
 
       - name: install nix
         uses: cachix/install-nix-action@v25
