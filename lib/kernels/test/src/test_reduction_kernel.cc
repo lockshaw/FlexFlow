@@ -9,7 +9,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::size_t num_replicas = 5;
 
     TensorShape input_shape = make_tensor_shape_from_legion_dims(
-        {10, 10, 10, 10, 10}, DataType::FLOAT);
+        {10_n, 10_n, 10_n, 10_n, 10_n}, DataType::FLOAT);
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,
@@ -20,7 +20,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("forward_kernel") {
       TensorShape output_shape =
-          make_tensor_shape_from_legion_dims({10}, DataType::FLOAT);
+         
+          make_tensor_shape_from_legion_dims({10_n}, DataType::FLOAT);
 
       GenericTensorAccessorR input_accessor =
           create_random_filled_accessor_r(input_shape, allocator);

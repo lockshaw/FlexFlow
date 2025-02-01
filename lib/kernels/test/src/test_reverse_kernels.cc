@@ -7,9 +7,9 @@
 using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Call Reverse Forward and Backward Kernels") {
-    std::size_t reverse_dim_size = 10;
-    std::size_t in_blk_size = 10;
-    std::size_t num_out_blks = 1;
+    nonnegative_int reverse_dim_size = 10_n;
+    nonnegative_int in_blk_size = 10_n;
+    nonnegative_int num_out_blks = 1_n;
 
     TensorShape input_shape = make_tensor_shape_from_legion_dims(
         {num_out_blks, reverse_dim_size, in_blk_size}, DataType::FLOAT);
@@ -29,13 +29,14 @@ TEST_SUITE(FF_TEST_SUITE) {
       GenericTensorAccessorW output_accessor =
           allocator.allocate_tensor(output_shape);
 
-      Kernels::Reverse::forward_kernel(managed_stream.raw_stream(),
-                                       input_accessor.get_float_ptr(),
-                                       output_accessor.get_float_ptr(),
-                                       num_out_blks,
-                                       reverse_dim_size,
-                                       in_blk_size,
-                                       input_accessor.shape.num_elements());
+      Kernels::Reverse::forward_kernel(
+          managed_stream.raw_stream(),
+          input_accessor.get_float_ptr(),
+          output_accessor.get_float_ptr(),
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative(),
+          input_accessor.shape.num_elements().unwrap_nonnegative());
 
       CHECK(contains_non_zero(output_accessor));
     }
@@ -50,19 +51,19 @@ TEST_SUITE(FF_TEST_SUITE) {
           managed_stream.raw_stream(),
           output_grad_accessor.get_float_ptr(),
           input_grad_accessor.get_float_ptr(),
-          num_out_blks,
-          reverse_dim_size,
-          in_blk_size,
-          input_grad_accessor.shape.num_elements());
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative(),
+          input_grad_accessor.shape.num_elements().unwrap_nonnegative());
 
       CHECK(contains_non_zero(input_grad_accessor));
     }
   }
 
   TEST_CASE("Check Reverse Forward and Backward Kernels against CPU Kernels") {
-    std::size_t num_out_blks = 4;
-    std::size_t reverse_dim_size = 3;
-    std::size_t in_blk_size = 2;
+    nonnegative_int num_out_blks = 4_n;
+    nonnegative_int reverse_dim_size = 3_n;
+    nonnegative_int in_blk_size = 2_n;
 
     TensorShape input_shape = make_tensor_shape_from_legion_dims(
         {num_out_blks, reverse_dim_size, in_blk_size}, DataType::FLOAT);
@@ -90,10 +91,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       Kernels::Reverse::forward_kernel(managed_stream.raw_stream(),
                                        input_accessor_gpu.get_float_ptr(),
                                        output_accessor_gpu.get_float_ptr(),
-                                       num_out_blks,
-                                       reverse_dim_size,
-                                       in_blk_size,
-                                       input_accessor_gpu.shape.num_elements());
+                                       num_out_blks.unwrap_nonnegative(),
+                                       reverse_dim_size.unwrap_nonnegative(),
+                                       in_blk_size.unwrap_nonnegative(),
+                                       input_accessor_gpu.shape.num_elements().unwrap_nonnegative());
 
       // Run CPU Cast Forward Kernel
       GenericTensorAccessorR input_accessor_cpu =
@@ -118,10 +119,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           managed_stream.raw_stream(),
           output_grad_accessor_gpu.get_float_ptr(),
           input_grad_accessor_gpu.get_float_ptr(),
-          num_out_blks,
-          reverse_dim_size,
-          in_blk_size,
-          input_grad_accessor_gpu.shape.num_elements());
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative(),
+          input_grad_accessor_gpu.shape.num_elements().unwrap_nonnegative());
 
       // Run CPU Cast Backward Kernel
       GenericTensorAccessorR output_grad_accessor_cpu =

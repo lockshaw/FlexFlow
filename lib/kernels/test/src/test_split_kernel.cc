@@ -8,7 +8,7 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Test Split Forward and Backward Kernel") {
-    size_t num_outputs = 2;
+    nonnegative_int num_outputs = 2_n;
     coord_t out_blk_sizes[] = {50, 50};
     coord_t in_blk_size = 100;
     coord_t num_blks = 1;
@@ -21,9 +21,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator allocator = create_local_cuda_memory_allocator();
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({100}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({100_n}, DataType::FLOAT);
     TensorShape output_shape =
-        make_tensor_shape_from_legion_dims({50}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({50_n}, DataType::FLOAT);
 
     SUBCASE("forward_kernel") {
       GenericTensorAccessorW input_accessor =
@@ -41,11 +41,11 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      out_blk_sizes,
                                      in_blk_size,
                                      num_blks,
-                                     num_outputs);
+                                     num_outputs.unwrap_nonnegative());
     }
 
     SUBCASE("backward_kernel") {
-      std::vector<float *> output_grad_ptrs(num_outputs);
+      std::vector<float *> output_grad_ptrs(num_outputs.unwrap_nonnegative());
       for (int i = 0; i < num_outputs; i++) {
         GenericTensorAccessorW output_grad_accessor =
             create_random_filled_accessor_w(output_shape, allocator);
@@ -61,7 +61,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                       out_blk_sizes,
                                       in_blk_size,
                                       num_blks,
-                                      num_outputs);
+                                      num_outputs.unwrap_nonnegative());
     }
   }
 }

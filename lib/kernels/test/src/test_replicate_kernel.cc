@@ -6,12 +6,12 @@
 using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Call Replicate Forward and Backward Kernels") {
-    std::size_t num_replicas = 10;
+    nonnegative_int num_replicas = 10_n;
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({100}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({100_n}, DataType::FLOAT);
     TensorShape output_shape =
-        make_tensor_shape_from_legion_dims({100}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({100_n}, DataType::FLOAT);
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,
@@ -48,12 +48,12 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("Check Replicate Forward and Backward Kernel against CPU Kernel") {
-    std::size_t num_replicas = 2;
+    nonnegative_int num_replicas = 10_n;
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({5}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({5_n}, DataType::FLOAT);
     TensorShape output_shape =
-        make_tensor_shape_from_legion_dims({5, num_replicas}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({5_n, num_replicas}, DataType::FLOAT);
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,

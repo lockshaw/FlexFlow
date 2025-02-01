@@ -6,7 +6,11 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Test Softmax Kernel Operations") {
-    int input_n = 1, input_c = 1, input_h = 1, input_w = 100, channels = 100;
+    nonnegative_int input_n = 1_n;
+    nonnegative_int input_c = 1_n;
+    nonnegative_int input_h = 1_n;
+    nonnegative_int input_w = 100_n;
+    nonnegative_int channels = 100_n;
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,
@@ -16,11 +20,16 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator allocator = create_local_cuda_memory_allocator();
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({100}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({100_n}, DataType::FLOAT);
     TensorShape output_shape = input_shape;
 
-    SoftmaxPerDeviceState state = Kernels::Softmax::init_kernel(
-        managed_handle.raw_handle(), 0, input_n, channels, input_h, input_w);
+    SoftmaxPerDeviceState state =
+        Kernels::Softmax::init_kernel(managed_handle.raw_handle(),
+                                      0,
+                                      input_n.unwrap_nonnegative(),
+                                      channels.unwrap_nonnegative(),
+                                      input_h.unwrap_nonnegative(),
+                                      input_w.unwrap_nonnegative());
 
     GenericTensorAccessorW output_accessor =
         create_random_filled_accessor_w(output_shape, allocator);
@@ -47,7 +56,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           managed_stream.raw_stream(),
           output_grad_accessor.get_float_ptr(),
           input_grad_accessor.get_float_ptr(),
-          output_grad_accessor.shape.num_elements());
+          output_grad_accessor.shape.num_elements().unwrap_nonnegative());
 
       CHECK(contains_non_zero(input_grad_accessor));
     }

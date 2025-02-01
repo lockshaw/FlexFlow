@@ -6,9 +6,9 @@
 using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Test concat kernel forward and backward") {
-    size_t num_inputs = 2;
-    size_t size_per_input = 10;
-    ff_dim_t concat_axis = ff_dim_t{nonnegative_int{1}};
+    nonnegative_int num_inputs = 2_n;
+    nonnegative_int size_per_input = 10_n;
+    ff_dim_t concat_axis = ff_dim_t{1_n};
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,
@@ -24,7 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("forward_kernel") {
       std::vector<GenericTensorAccessorR> input_accessors =
-          repeat<GenericTensorAccessorR>(num_inputs, [&]() {
+          repeat(num_inputs, [&]() {
             return read_only_accessor_from_write_accessor(
                 create_random_filled_accessor_w(input_shape, allocator));
           });
