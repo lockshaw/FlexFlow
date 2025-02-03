@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_output_shape(BatchMatmulAttrs, TensorShape)") {
     nonnegative_int b = 4_n;
     nonnegative_int m = 6_n;

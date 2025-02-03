@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/set.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("filtrans(std::vector<In>, F)") {
     std::vector<int> input = {1, 2, 3, 2, 4};
     std::vector<std::string> result =
@@ -54,4 +54,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

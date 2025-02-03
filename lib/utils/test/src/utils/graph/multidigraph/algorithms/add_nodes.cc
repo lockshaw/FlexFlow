@@ -1,11 +1,11 @@
 #include "utils/graph/multidigraph/algorithms/add_nodes.h"
 #include "utils/graph/instances/adjacency_multidigraph.h"
 #include "utils/graph/node/node_query.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("add_nodes(MultiDiGraph &, int)") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
@@ -14,4 +14,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

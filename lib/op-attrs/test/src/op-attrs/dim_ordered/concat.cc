@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("concat(FFOrdered<T>, FFOrdered<T>)") {
     SUBCASE("inputs have elements") {
       FFOrdered<int> l_input = FFOrdered<int>{1, 3, 1};

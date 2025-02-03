@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/unordered_set.h"
 #include "utils/bidict/algorithms/left_entries.h"
 #include "utils/bidict/algorithms/right_entries.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("bidict_from_enumerating(std::unordered_set<T>)") {
     std::unordered_set<std::string> input = {"zero", "one", "two"};
 
@@ -38,4 +38,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

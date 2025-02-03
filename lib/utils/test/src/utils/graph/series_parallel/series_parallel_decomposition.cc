@@ -1,10 +1,10 @@
 #include "utils/graph/series_parallel/series_parallel_decomposition.h"
 #include "test/utils/doctest/fmt/unordered_multiset.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("to_final_ast (base case)") {
     std::variant<IntermediateSpDecompositionTree, Node> input = Node{1};
     SeriesParallelDecomposition result = to_final_ast(input);
@@ -157,4 +157,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::unordered_multiset<Node> correct = {input};
     CHECK(result == correct);
   }
-}

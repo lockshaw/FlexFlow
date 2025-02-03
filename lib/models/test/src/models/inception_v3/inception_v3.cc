@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_inception_v3_computation_graph") {
     InceptionV3Config config = get_default_inception_v3_training_config();
 

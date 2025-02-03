@@ -5,11 +5,11 @@
 #include "utils/graph/multidigraph/algorithms/add_nodes.h"
 #include "utils/graph/multidigraph/algorithms/get_edges.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_pre/post/center_node") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
     std::vector<Node> n = add_nodes(g, 3_n);
@@ -20,19 +20,19 @@ TEST_SUITE(FF_TEST_SUITE) {
                                            });
     SeriesReduction reduction = make_series_reduction(e.at(0), e.at(1));
 
-    SUBCASE("get_pre_node") {
+    SECTION("get_pre_node") {
       Node result = get_pre_node(g, reduction);
       Node correct = n.at(0);
       CHECK(result == correct);
     }
 
-    SUBCASE("get_post_node") {
+    SECTION("get_post_node") {
       Node result = get_post_node(g, reduction);
       Node correct = n.at(2);
       CHECK(result == correct);
     }
 
-    SUBCASE("get_center_node") {
+    SECTION("get_center_node") {
       Node result = get_center_node(g, reduction);
       Node correct = n.at(1);
       CHECK(result == correct);
@@ -41,7 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
   TEST_CASE("find_series_reduction") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
-    SUBCASE("base case") {
+    SECTION("base case") {
       std::vector<Node> n = add_nodes(g, 3_n);
       std::vector<MultiDiEdge> e = add_edges(g,
                                              {
@@ -55,8 +55,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not find if other edges are involved with center node") {
-      SUBCASE("duplicate edge") {
+    SECTION("does not find if other edges are involved with center node") {
+      SECTION("duplicate edge") {
         std::vector<Node> n = add_nodes(g, 3_n);
         std::vector<MultiDiEdge> e = add_edges(g,
                                                {
@@ -70,7 +70,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("misc edge") {
+      SECTION("misc edge") {
         std::vector<Node> n = add_nodes(g, 4_n);
         std::vector<MultiDiEdge> e = add_edges(g,
                                                {
@@ -85,9 +85,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("does find if other edges are involved with non-center node") {
+    SECTION("does find if other edges are involved with non-center node") {
       std::vector<Node> n = add_nodes(g, 4_n);
-      SUBCASE("edge from dst") {
+      SECTION("edge from dst") {
         std::vector<MultiDiEdge> e = add_edges(g,
                                                {
                                                    {n.at(0), n.at(1)},
@@ -106,7 +106,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("finds one reduction when there are multiple") {
+    SECTION("finds one reduction when there are multiple") {
       std::vector<Node> n = add_nodes(g, 4_n);
       std::vector<MultiDiEdge> e = add_edges(g,
                                              {
@@ -124,7 +124,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(contains(correct_options, result.value()));
     }
 
-    SUBCASE("in larger graph") {
+    SECTION("in larger graph") {
       std::vector<Node> n = add_nodes(g, 8_n);
       std::vector<MultiDiEdge> e = add_edges(g,
                                              {
@@ -148,7 +148,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("apply_series_reduction") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
-    SUBCASE("base case") {
+    SECTION("base case") {
       std::vector<Node> n = add_nodes(g, 3_n);
       std::vector<MultiDiEdge> e = add_edges(g,
                                              {
@@ -160,26 +160,26 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       MultiDiEdge returned_edge = apply_series_reduction(g, reduction);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(g);
         std::unordered_set<Node> correct_nodes = {n.at(0), n.at(2)};
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<MultiDiEdge> result_edges = get_edges(g);
         std::unordered_set<MultiDiEdge> correct_edges = {returned_edge};
         CHECK(result_edges == correct_edges);
       }
 
-      SUBCASE("returned edge") {
-        SUBCASE("src") {
+      SECTION("returned edge") {
+        SECTION("src") {
           Node returned_edge_src = g.get_multidiedge_src(returned_edge);
           Node correct_src = n.at(0);
           CHECK(returned_edge_src == correct_src);
         }
 
-        SUBCASE("dst") {
+        SECTION("dst") {
           Node returned_edge_dst = g.get_multidiedge_dst(returned_edge);
           Node correct_dst = n.at(2);
           CHECK(returned_edge_dst == correct_dst);
@@ -187,7 +187,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("in larger graph") {
+    SECTION("in larger graph") {
       std::vector<Node> n = add_nodes(g, 8_n);
       std::vector<MultiDiEdge> e = add_edges(g,
                                              {
@@ -208,14 +208,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       MultiDiEdge returned_edge = apply_series_reduction(g, reduction);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(g);
         std::unordered_set<Node> correct_nodes =
             set_minus(unordered_set_of(n), {n.at(4)});
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<MultiDiEdge> result_edges = get_edges(g);
         std::unordered_set<MultiDiEdge> correct_edges = [&] {
           std::unordered_set<MultiDiEdge> new_edges = unordered_set_of(e);
@@ -227,14 +227,14 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result_edges == correct_edges);
       }
 
-      SUBCASE("returned edge") {
-        SUBCASE("src") {
+      SECTION("returned edge") {
+        SECTION("src") {
           Node returned_edge_src = g.get_multidiedge_src(returned_edge);
           Node correct_src = n.at(3);
           CHECK(returned_edge_src == correct_src);
         }
 
-        SUBCASE("dst") {
+        SECTION("dst") {
           Node returned_edge_dst = g.get_multidiedge_dst(returned_edge);
           Node correct_dst = n.at(5);
           CHECK(returned_edge_dst == correct_dst);
@@ -242,4 +242,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

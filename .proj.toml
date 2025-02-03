@@ -4,18 +4,20 @@ namespace_name = "FlexFlow"
 header_extension = ".h"
 
 build_targets = [
-  "utils",
-  "op-attrs",
-  "kernels",
-  "pcg",
-  "substitutions",
-  "compiler",
-  "substitution-generator",
-  "local-execution",
-  "models",
-  "export-model-arch",
-  "substitution-to-dot",
-  "compiler-benchmarks",
+  "utils-tests",
+  "compiler-tests",
+  # "op-attrs",
+  # "kernels",
+  # "pcg",
+  # "substitutions",
+  # "compiler",
+  # "substitution-generator",
+  # "local-execution",
+  # "models",
+  # "export-model-arch",
+  # "substitution-to-dot",
+  # "compiler-benchmarks",
+  # "benchmarks",
 ]
 
 test_targets = [

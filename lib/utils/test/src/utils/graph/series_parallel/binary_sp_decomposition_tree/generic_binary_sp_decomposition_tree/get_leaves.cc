@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/unordered_multiset.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.dtg.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_leaves") {
     Node n1 = Node{1};
     Node n2 = Node{2};
@@ -22,7 +22,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       return get_leaves(tree, impl);
     };
 
-    SUBCASE("leaf") {
+    SECTION("leaf") {
       BinarySPDecompositionTree input = BinarySPDecompositionTree{n1};
 
       std::unordered_multiset<Node> result = generic_get_leaves(input);
@@ -31,8 +31,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("series split") {
-      SUBCASE("children are not the same") {
+    SECTION("series split") {
+      SECTION("children are not the same") {
         BinarySPDecompositionTree input = BinarySPDecompositionTree{
             BinarySeriesSplit{
                 BinarySPDecompositionTree{n1},
@@ -46,7 +46,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("children are the same") {
+      SECTION("children are the same") {
         BinarySPDecompositionTree input = BinarySPDecompositionTree{
             BinarySeriesSplit{
                 BinarySPDecompositionTree{n1},
@@ -61,8 +61,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("parallel split") {
-      SUBCASE("children are not the same") {
+    SECTION("parallel split") {
+      SECTION("children are not the same") {
         BinarySPDecompositionTree input = BinarySPDecompositionTree{
             BinaryParallelSplit{
                 BinarySPDecompositionTree{n1},
@@ -76,7 +76,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("children are the same") {
+      SECTION("children are the same") {
         BinarySPDecompositionTree input = BinarySPDecompositionTree{
             BinaryParallelSplit{
                 BinarySPDecompositionTree{n1},
@@ -103,7 +103,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_leaf = [](Node const &n) { return BinarySPDecompositionTree{n}; };
 
-    SUBCASE("nested") {
+    SECTION("nested") {
       BinarySPDecompositionTree input = make_parallel_split(
           make_series_split(make_leaf(n1),
                             make_series_split(make_leaf(n2), make_leaf(n3))),
@@ -115,4 +115,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_conv2d_incoming_tensor_roles(Conv2DAttrs") {
     auto make_attrs = [](bool use_bias) {
       return Conv2DAttrs{/*out_channels=*/4_n,

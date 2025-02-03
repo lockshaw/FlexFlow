@@ -3,13 +3,13 @@
 #include "test/utils/doctest/fmt/vector.h"
 #include "utils/containers/unordered_multiset_of.h"
 #include "utils/hash/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_all_permutations") {
-    SUBCASE("input size 1") {
+    SECTION("input size 1") {
       std::vector<int> input = {1};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -19,7 +19,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input size 3") {
+    SECTION("input size 3") {
       std::vector<int> input = {2, 1, 3};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -36,7 +36,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("elements repeated") {
+    SECTION("elements repeated") {
       std::vector<int> input = {1, 2, 2};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -50,4 +50,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

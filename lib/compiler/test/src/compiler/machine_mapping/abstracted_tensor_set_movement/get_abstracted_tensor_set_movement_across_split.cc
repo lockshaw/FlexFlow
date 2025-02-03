@@ -3,11 +3,11 @@
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "utils/containers/get_only.h"
 #include "utils/full_binary_tree/binary_tree_path.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_abstracted_tensor_set_movement_across_split") {
     auto make_series_split = [](PCGBinarySPDecomposition const &lhs,
                                 PCGBinarySPDecomposition const &rhs) {
@@ -67,7 +67,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*create_gradients=*/CreateGrad::YES,
     };
 
-    SUBCASE("no edges across split") {
+    SECTION("no edges across split") {
       ParallelLayerAddedResult input1 = pcg_add_input_layer(pcg, input_shape);
       ParallelLayerAddedResult input2 = pcg_add_input_layer(pcg, input_shape);
 
@@ -87,7 +87,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("single edge across split") {
+    SECTION("single edge across split") {
       ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
 
       ParallelLayerAddedResult layer_1 = add_parallel_layer(
@@ -126,7 +126,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not include edges removed by transitive reduction") {
+    SECTION("does not include edges removed by transitive reduction") {
       ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
 
       ParallelLayerAddedResult layer_1 = add_parallel_layer(
@@ -175,7 +175,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("single tensor, multiple consumers across split") {
+    SECTION("single tensor, multiple consumers across split") {
       ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
 
       ParallelLayerAddedResult layer_1 = add_parallel_layer(
@@ -224,7 +224,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("multiple tensors, multiple consumers across split") {
+    SECTION("multiple tensors, multiple consumers across split") {
       ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
 
       ParallelLayerAddedResult layer_1 = add_parallel_layer(
@@ -297,4 +297,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

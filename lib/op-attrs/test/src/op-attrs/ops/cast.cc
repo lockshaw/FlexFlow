@@ -5,7 +5,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Cast shape inference") {
     DataType input_datatype = DataType::FLOAT;
     DataType output_datatype = DataType::DOUBLE;

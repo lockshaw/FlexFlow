@@ -2,11 +2,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_incoming_edges(DataflowGraphView, Node)") {
     DataflowGraph g = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -26,7 +26,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     Node n4 = n4_added.node;
     DataflowOutput o4 = get_only(n4_added.outputs);
 
-    SUBCASE("n4 - multiple incoming edges") {
+    SECTION("n4 - multiple incoming edges") {
       std::vector<DataflowEdge> result = get_incoming_edges(g, n4);
       std::vector<DataflowEdge> correct = {
           DataflowEdge{o2, DataflowInput{n4, 0_n}},
@@ -34,7 +34,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("n3- single incoming edge") {
+    SECTION("n3- single incoming edge") {
       std::vector<DataflowEdge> result = get_incoming_edges(g, n3);
       std::vector<DataflowEdge> correct = {
           DataflowEdge{o2, DataflowInput{n3, 0_n}},
@@ -42,10 +42,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("n1- no incoming edges") {
+    SECTION("n1- no incoming edges") {
       std::vector<DataflowEdge> result = get_incoming_edges(g, n1);
       std::vector<DataflowEdge> correct = {};
       CHECK(result == correct);
     }
   }
-}

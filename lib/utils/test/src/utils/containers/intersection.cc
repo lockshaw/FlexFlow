@@ -1,11 +1,11 @@
 #include "utils/containers/intersection.h"
 #include "test/utils/doctest/fmt/optional.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("intersection(std::unordered_set<T>, std::unordered_set<T>)") {
     std::unordered_set<int> input_l = {1, 2, 3};
     std::unordered_set<int> input_r = {2, 3, 5};
@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("intersection(C)") {
-    SUBCASE("input is empty container") {
+    SECTION("input is empty container") {
       std::vector<std::unordered_set<int>> input = {};
 
       std::optional<std::unordered_set<int>> result = intersection(input);
@@ -26,7 +26,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input is has only one set") {
+    SECTION("input is has only one set") {
       std::vector<std::unordered_set<int>> input = {{1, 2, 3}};
 
       std::optional<std::unordered_set<int>> result = intersection(input);
@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input has multiple sets") {
+    SECTION("input has multiple sets") {
       std::vector<std::unordered_set<int>> input = {
           {1, 2, 3}, {2, 3, 4}, {3, 4, 5}};
 
@@ -45,4 +45,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

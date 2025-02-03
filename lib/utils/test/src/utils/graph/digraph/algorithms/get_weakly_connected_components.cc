@@ -2,15 +2,15 @@
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_weakly_connected_components") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("single node") {
+    SECTION("single node") {
       std::vector<Node> n = add_nodes(g, 1);
 
       std::unordered_set<std::unordered_set<Node>> result =
@@ -19,7 +19,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("one node cycle") {
+    SECTION("one node cycle") {
       std::vector<Node> n = add_nodes(g, 1);
       add_edges(g,
                 {
@@ -32,7 +32,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("two disconnected nodes with cycles") {
+    SECTION("two disconnected nodes with cycles") {
       std::vector<Node> n = add_nodes(g, 2);
       add_edges(g,
                 {
@@ -47,7 +47,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("two unidirectionally connected nodes") {
+    SECTION("two unidirectionally connected nodes") {
       std::vector<Node> n = add_nodes(g, 2);
       add_edges(g,
                 {
@@ -61,7 +61,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("two node cycle") {
+    SECTION("two node cycle") {
       std::vector<Node> n = add_nodes(g, 2);
       add_edges(g,
                 {
@@ -76,7 +76,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("nontrivial graph") {
+    SECTION("nontrivial graph") {
       std::vector<Node> n = add_nodes(g, 5);
 
       add_edges(g,
@@ -99,4 +99,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

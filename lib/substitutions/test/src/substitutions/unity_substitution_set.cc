@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_substitution_set") {
     MachineSpecification machine_spec = MachineSpecification{
         /*num_nodes=*/2_n,

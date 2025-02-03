@@ -20,7 +20,6 @@ function(define_ff_vars target)
     MAX_TENSOR_DIM=${FF_MAX_DIM}
     MAX_NUM_TASK_REGIONS=${FF_MAX_NUM_TASK_REGIONS}
     MAX_NUM_TASK_ARGUMENTS=${FF_MAX_NUM_TASK_ARGUMENTS}
-    # _FORTIFY_SOURCE=0
     )
 
   if (FF_GPU_BACKEND STREQUAL "cuda")
@@ -40,18 +39,7 @@ function(ff_set_cxx_properties target)
       CXX_EXTENSIONS NO
   )
   target_compile_options(${target}
-    PUBLIC 
-    $<$<COMPILE_LANGUAGE:CXX>:> 
-    "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=." 
-    "-fsanitize=undefined" 
-    "-fno-sanitize-recover=all"
-    # add C++ compile flags here
-  )
-  target_link_options(${target}
-    PUBLIC 
-    $<$<COMPILE_LANGUAGE:CXX>:> 
-    "-fsanitize=undefined" 
-    "-fno-sanitize-recover=all"
+    PRIVATE $<$<COMPILE_LANGUAGE:CXX>:> "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=." # add C++ compile flags here
   )
 endfunction()
 
@@ -112,8 +100,6 @@ function(ff_add_test_executable)
       DEPS
     PARSE
       ${ARGN}
-      rapidcheck
-      doctest
   )
 
   project(${FF_TEST_EXEC_NAME})
@@ -130,17 +116,22 @@ function(ff_add_test_executable)
     ${FF_TEST_EXEC_NAME}
     ${FF_TEST_EXEC_DEPS})
 
-  target_compile_definitions(${FF_TEST_EXEC_NAME} PRIVATE FF_TEST_SUITE="${FF_TEST_EXEC_NAME}" FF_CUDA_TEST_SUITE="cuda-${FF_TEST_EXEC_NAME}")
+  target_compile_definitions(
+    ${FF_TEST_EXEC_NAME} 
+    PRIVATE 
+      CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+  )
 
   define_ff_vars(${FF_TEST_EXEC_NAME})
   ff_set_cxx_properties(${FF_TEST_EXEC_NAME})
-  doctest_discover_tests(${FF_TEST_EXEC_NAME} ADD_LABELS 1)
+  # doctest_discover_tests(${FF_TEST_EXEC_NAME} ADD_LABELS 1)
+  catch_discover_tests(${FF_TEST_EXEC_NAME} TEST_PREFIX="${FF_TEST_EXEC_NAME}")
 endfunction()
 
-function(ff_add_benchmark_executable)
+function(ff_add_benchmarks)
   ff_parse_args(
     PREFIX 
-      FF_TEST_EXEC
+      FF_BENCHMARK
     ARGS
       NAME
     VARIADIC_ARGS
@@ -151,24 +142,27 @@ function(ff_add_benchmark_executable)
       ${ARGN}
   )
 
-  project(${FF_TEST_EXEC_NAME})
+  project("${FF_BENCHMARK_NAME}-benchmarks")
   file(GLOB_RECURSE SRC
        CONFIGURE_DEPENDS
        LIST_DIRECTORIES False
-       ${FF_TEST_EXEC_SRC_PATTERNS})
+       ${FF_BENCHMARK_SRC_PATTERNS})
 
-  add_executable(
-    ${FF_TEST_EXEC_NAME}
+  add_library(
+    "${FF_BENCHMARK_NAME}-benchmarks"
+    OBJECT
     ${SRC})
 
   target_link_libraries(
-    ${FF_TEST_EXEC_NAME}
-    ${FF_TEST_EXEC_DEPS}
+    "${FF_BENCHMARK_NAME}-benchmarks"
+    ${FF_BENCHMARK_DEPS}
     gbenchmark
-    gbenchmark-main)
+    utils-benchmark-common)
 
-  define_ff_vars(${FF_TEST_EXEC_NAME})
-  ff_set_cxx_properties(${FF_TEST_EXEC_NAME})
+  target_compile_definitions("${FF_BENCHMARK_NAME}-benchmarks" PRIVATE FF_BENCHMARK_SUITE=${FF_BENCHMARK_NAME} FF_CUDA_BENCHMARK_SUITE=cuda_${FF_BENCHMARK_NAME})
+
+  define_ff_vars("${FF_BENCHMARK_NAME}-benchmarks")
+  ff_set_cxx_properties("${FF_BENCHMARK_NAME}-benchmarks")
 endfunction()
 
 function(ff_add_executable)

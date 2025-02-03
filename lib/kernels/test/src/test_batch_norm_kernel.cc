@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test BatchNorm Kernel") {
     nonnegative_int output_n = 1_n;
     nonnegative_int output_c = 10_n;

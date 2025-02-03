@@ -1,0 +1,13 @@
+ff_add_library(
+  NAME
+    utils-benchmark-common
+  SRC_PATTERNS
+    src/*.cc
+  PUBLIC_INCLUDE
+    include/
+  PRIVATE_INCLUDE
+    src/
+  DEPS
+    utils
+    gbenchmark
+)

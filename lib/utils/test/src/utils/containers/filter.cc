@@ -5,29 +5,32 @@
 #include "test/utils/doctest/fmt/unordered_multiset.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include "test/utils/rapidcheck.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <rapidcheck.h>
+#include <rapidcheck/catch.h>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE_TEMPLATE("filter(T, F)",
-                     T,
+
+  TEMPLATE_TEST_CASE("filter(TestType, F)",
+                     "",
                      std::vector<int>,
                      std::unordered_set<std::string>,
                      std::set<std::string>,
-                     std::unordered_map<int, int>,
-                     std::map<int, std::string>) {
-    RC_SUBCASE("filter returns empty for predicate always_false",
-               [](T const &t) {
+                     (std::unordered_map<int, int>),
+                     (std::map<int, std::string>)) {
+    rc::prop("filter returns empty for predicate always_false",
+               [](TestType const &t) {
                  auto always_false = [](auto const &) { return false; };
-                 T result = filter(t, always_false);
+                 TestType result = filter(t, always_false);
                  return result.size() == 0;
                });
 
-    RC_SUBCASE("filter returns input for predicate always_true",
-               [](T const &t) {
+    rc::prop("filter returns input for predicate always_true",
+               [](TestType const &t) {
                  auto always_true = [](auto const &) { return true; };
-                 T result = filter(t, always_true);
+                 TestType result = filter(t, always_true);
                  return result == t;
                });
   }
@@ -105,4 +108,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::unordered_multiset<int> correct = {2, 2, 2, 4, 6, 8, 8};
     CHECK(result == correct);
   }
-}

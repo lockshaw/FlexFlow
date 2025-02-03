@@ -1,9 +1,9 @@
 #include "utils/hash/unordered_set.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("std::hash<std::unordered_set<T>>") {
     std::unordered_set<int> set1{1, 2, 3};
     std::unordered_set<int> set2{1, 2, 3, 4};
@@ -17,4 +17,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     hash1 = get_std_hash(set1);
     CHECK(hash1 == hash2);
   }
-}

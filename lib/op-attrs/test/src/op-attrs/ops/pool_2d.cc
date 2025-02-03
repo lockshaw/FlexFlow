@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("make_adaptive_pool2d") {
     nonnegative_int input_n = 10_n;
     nonnegative_int input_c = 11_n;

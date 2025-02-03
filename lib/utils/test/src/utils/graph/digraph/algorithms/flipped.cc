@@ -3,11 +3,11 @@
 #include "utils/graph/digraph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("flipped_directed_edge") {
     DirectedEdge input = DirectedEdge{Node{0}, Node{1}};
     DirectedEdge result = flipped_directed_edge(input);
@@ -33,13 +33,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     DiGraphView result = flipped(g);
 
-    SUBCASE("nodes") {
+    SECTION("nodes") {
       std::unordered_set<Node> correct_nodes = unordered_set_of(n);
       std::unordered_set<Node> result_nodes = get_nodes(result);
       CHECK(result_nodes == correct_nodes);
     }
 
-    SUBCASE("edges") {
+    SECTION("edges") {
       std::unordered_set<DirectedEdge> correct_edges = {
           DirectedEdge{n.at(1), n.at(0)},
           DirectedEdge{n.at(2), n.at(1)},
@@ -53,4 +53,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result_edges == correct_edges);
     }
   }
-}

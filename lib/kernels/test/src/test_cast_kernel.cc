@@ -4,7 +4,7 @@
 #include <type_traits>
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Call Cast Forward and Backward Kernels") {
     ManagedFFStream managed_stream{};
 

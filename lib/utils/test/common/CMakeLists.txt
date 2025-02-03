@@ -10,5 +10,5 @@ ff_add_library(
   DEPS
     utils
     rapidcheck
-    doctest
+    catch2
 )

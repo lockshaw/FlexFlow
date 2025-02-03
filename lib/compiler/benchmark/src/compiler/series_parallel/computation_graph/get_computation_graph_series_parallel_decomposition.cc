@@ -5,10 +5,12 @@
 #include "models/candle_uno/candle_uno.h"
 #include "models/bert/bert.h"
 #include <benchmark/benchmark.h>
+#include "benchmark/utils/suite.h"
 
 using namespace ::FlexFlow;
 
-static void benchmark_get_computation_graph_series_parallel_decomposition(benchmark::State &state, ComputationGraph const &cg) {
+static void
+benchmark_get_computation_graph_series_parallel_decomposition(benchmark::State &state, ComputationGraph const &cg) {
   // ComputationGraph cg = state.range(0);
       // get_split_test_computation_graph(/*batch_size=*/8);
 
@@ -17,31 +19,31 @@ static void benchmark_get_computation_graph_series_parallel_decomposition(benchm
   }
 }
 
-BENCHMARK_CAPTURE(
+FF_BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   split_test,
-  get_split_test_computation_graph(/*batch_size=*/8)
+  get_split_test_computation_graph(/*batch_size=*/8_n)
 );
 
-BENCHMARK_CAPTURE(
+FF_BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   transformer,
   get_transformer_computation_graph(get_default_transformer_config())
 );
 
-BENCHMARK_CAPTURE(
+FF_BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   bert,
   get_bert_computation_graph(get_default_bert_config())
 );
 
-BENCHMARK_CAPTURE(
+FF_BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   candle_uno,
   get_candle_uno_computation_graph(get_default_candle_uno_config())
 );
 
-BENCHMARK_CAPTURE(
+FF_BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   inception_v3,
   get_inception_v3_computation_graph(get_default_inception_v3_training_config())

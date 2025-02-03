@@ -1,12 +1,13 @@
 #include "utils/containers/any_of.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
+#include "utils/fmt/vector.h"
 #include <vector>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("any_of(C, F)") {
-    SUBCASE("has element matching condition") {
+    SECTION("has element matching condition") {
       std::vector<int> input = {1, 2, 3};
 
       bool result = any_of(input, [](int x) { return x > 1; });
@@ -15,7 +16,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not have element matching condition") {
+    SECTION("does not have element matching condition") {
       std::vector<int> input = {1, 2, 3};
 
       bool result = any_of(input, [](int x) { return x > 5; });
@@ -24,7 +25,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input is empty") {
+    SECTION("input is empty") {
       std::vector<int> input = {};
 
       bool result = any_of(input, [](int x) { return true; });
@@ -33,4 +34,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

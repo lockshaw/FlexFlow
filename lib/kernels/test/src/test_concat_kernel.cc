@@ -4,7 +4,7 @@
 #include "utils/containers/repeat.h"
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test concat kernel forward and backward") {
     nonnegative_int num_inputs = 3_n;
     nonnegative_int size_per_input = 100_n;

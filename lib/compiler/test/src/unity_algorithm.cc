@@ -1,10 +1,10 @@
 #include "compiler/unity_algorithm.h"
-#include "doctest/doctest.h"
+#include "catch2/catch_test_macros.hpp"
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   // Rapidcheck does not work for now
   // TEST_CASE("graph_optimize") {
-  //   RC_SUBCASE([](ComputationGraph const &g,
+  //   RC_SECTION([](ComputationGraph const &g,
   //                float alpha,
   //                int budget,
   //                float threshold,
@@ -22,5 +22,3 @@ TEST_SUITE(FF_TEST_SUITE) {
   //     RC_ASSERT(s.machine_mapping.runtime > 0);
   //     RC_ASSERT(keys(s.machine_mapping.machine_views) == get_nodes(s.pcg));
   //   });
-  // }
-}

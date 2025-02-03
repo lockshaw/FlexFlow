@@ -4,7 +4,7 @@
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
 
   TEST_CASE_TEMPLATE(
       "Arbitrary<DimOrdered<int, T>> with T=", T, int, double, char) {

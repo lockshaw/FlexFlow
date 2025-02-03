@@ -1,11 +1,11 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_open_dataflow_graph_inputs.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
 #include "utils/graph/open_dataflow_graph/open_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_open_dataflow_graph_inputs(OpenDataflowGraphView)") {
     OpenDataflowGraph g =
         OpenDataflowGraph::create<UnorderedSetDataflowGraph>();
@@ -21,4 +21,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

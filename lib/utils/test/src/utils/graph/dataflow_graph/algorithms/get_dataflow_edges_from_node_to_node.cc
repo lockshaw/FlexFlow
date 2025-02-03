@@ -2,15 +2,15 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_dataflow_edges_from_node_to_node") {
     DataflowGraph g = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
-    SUBCASE("gets edges if there are multiple") {
+    SECTION("gets edges if there are multiple") {
       NodeAddedResult n1_added = g.add_node({}, 2_n);
       Node n1 = n1_added.node;
       DataflowOutput n1_o0 = n1_added.outputs.at(0);
@@ -39,7 +39,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not get edges to/from other nodes") {
+    SECTION("does not get edges to/from other nodes") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
       DataflowOutput o1 = get_only(n1_added.outputs);
@@ -59,7 +59,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE(
+    SECTION(
         "does not get flipped edges (i.e., respects from vs to direction)") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
@@ -75,7 +75,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("returns empty set if no edges exist between the given nodes") {
+    SECTION("returns empty set if no edges exist between the given nodes") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
 
@@ -89,7 +89,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("returns empty set if src node == dst node (as cycles cannot exist "
+    SECTION("returns empty set if src node == dst node (as cycles cannot exist "
             "in DataflowGraph") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
@@ -101,4 +101,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

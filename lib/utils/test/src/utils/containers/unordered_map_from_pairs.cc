@@ -1,15 +1,15 @@
 #include "utils/containers/unordered_map_from_pairs.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
 #include "utils/containers/contains.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <vector>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("unordered_map_from_pairs") {
-    SUBCASE("nonempty input") {
+    SECTION("nonempty input") {
       std::vector<std::pair<int, std::string>> input = {
           {1, "hello"},
           {3, "world"},
@@ -25,7 +25,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("empty input") {
+    SECTION("empty input") {
       std::vector<std::pair<int, std::string>> input = {};
 
       std::unordered_map<int, std::string> result =
@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input with duplicate keys") {
+    SECTION("input with duplicate keys") {
       std::vector<std::pair<int, std::string>> input = {
           {1, "a"},
           {2, "c"},
@@ -54,4 +54,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(contains(possible_correct_values, result));
     }
   }
-}

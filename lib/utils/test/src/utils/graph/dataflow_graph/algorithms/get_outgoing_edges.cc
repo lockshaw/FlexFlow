@@ -2,11 +2,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_outgoing_edges(DataflowGraphView, Node)") {
     DataflowGraph g = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -26,7 +26,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     Node n4 = n4_added.node;
     DataflowOutput o4 = get_only(n4_added.outputs);
 
-    SUBCASE("n2 - single outgoing edge") {
+    SECTION("n2 - single outgoing edge") {
       std::unordered_set<DataflowEdge> result = get_outgoing_edges(g, n2);
       std::unordered_set<DataflowEdge> correct = {
           DataflowEdge{o2, DataflowInput{n4, 0_n}},
@@ -34,7 +34,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("n1 - multiple outgoing edges") {
+    SECTION("n1 - multiple outgoing edges") {
       std::unordered_set<DataflowEdge> result = get_outgoing_edges(g, n1);
       std::unordered_set<DataflowEdge> correct = {
           DataflowEdge{o1, DataflowInput{n2, 0_n}},
@@ -43,7 +43,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("n4 - no outgoing edges") {
+    SECTION("n4 - no outgoing edges") {
       std::unordered_set<DataflowEdge> result = get_outgoing_edges(g, n4);
       std::unordered_set<DataflowEdge> correct = {};
       CHECK(result == correct);
@@ -69,7 +69,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     Node n4 = n4_added.node;
     DataflowOutput o4 = get_only(n4_added.outputs);
 
-    SUBCASE("multiple nodes - combined outgoing edges") {
+    SECTION("multiple nodes - combined outgoing edges") {
       std::unordered_set<Node> nodes = {n1, n2};
       std::unordered_set<DataflowEdge> result = get_outgoing_edges(g, nodes);
       std::unordered_set<DataflowEdge> correct = {
@@ -80,11 +80,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("multiple nodes - no outgoing edges") {
+    SECTION("multiple nodes - no outgoing edges") {
       std::unordered_set<Node> nodes = {n3, n4};
       std::unordered_set<DataflowEdge> result = get_outgoing_edges(g, nodes);
       std::unordered_set<DataflowEdge> correct = {};
       CHECK(result == correct);
     }
   }
-}

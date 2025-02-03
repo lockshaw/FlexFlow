@@ -1,0 +1,15 @@
+ff_add_benchmarks(
+  NAME
+    kernels
+  SRC_PATTERNS
+    src/*.cc
+  PRIVATE_INCLUDE
+    src/
+  DEPS
+    kernels
+    cuda
+    cudnn
+    cudart
+    cublas
+    op-attrs
+)

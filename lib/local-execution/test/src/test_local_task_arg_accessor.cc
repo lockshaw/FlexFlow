@@ -6,7 +6,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("LocalTaskArgumentAccessor") {
     Allocator allocator = create_local_cpu_memory_allocator();
     nonnegative_int embed_dim = 32_n;

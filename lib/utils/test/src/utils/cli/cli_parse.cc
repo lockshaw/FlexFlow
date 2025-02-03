@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/expected.h"
 #include "test/utils/doctest/fmt/optional.h"
 #include "utils/expected.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("cli_parse_flag(CLISpec, std::string)") {
     CLISpec cli = CLISpec{
         {
@@ -27,7 +27,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CLIFlagKey key_flag1 = CLIFlagKey{0_n};
     CLIFlagKey key_flag2 = CLIFlagKey{1_n};
 
-    SUBCASE("correctly parses short flag") {
+    SECTION("correctly parses short flag") {
       std::string input = "-2";
 
       tl::expected<CLIFlagKey, std::string> result = cli_parse_flag(cli, input);
@@ -36,7 +36,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("correctly parses long flag") {
+    SECTION("correctly parses long flag") {
       std::string input = "--flag1";
 
       tl::expected<CLIFlagKey, std::string> result = cli_parse_flag(cli, input);
@@ -45,7 +45,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("fails on unknown flag") {
+    SECTION("fails on unknown flag") {
       std::string input = "--not-real";
 
       tl::expected<CLIFlagKey, std::string> result = cli_parse_flag(cli, input);
@@ -55,7 +55,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("fails on non-flag") {
+    SECTION("fails on non-flag") {
       std::string input = "-flag1";
 
       std::optional<CLIFlagKey> result =
@@ -67,7 +67,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("cli_parse(CLISpec, std::vector<std::string>)") {
-    SUBCASE("works even if cli is empty") {
+    SECTION("works even if cli is empty") {
       CLISpec cli = CLISpec{{}, {}};
       std::vector<std::string> inputs = {"prog_name"};
 
@@ -78,7 +78,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("flag parsing") {
+    SECTION("flag parsing") {
       CLISpec cli = CLISpec{
           {
               CLIFlagSpec{
@@ -97,7 +97,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CLIFlagKey key_flag1 = CLIFlagKey{0_n};
       CLIFlagKey key_flag2 = CLIFlagKey{1_n};
 
-      SUBCASE("parses flags in any order") {
+      SECTION("parses flags in any order") {
         std::vector<std::string> inputs = {"prog_name", "-2", "--flag1"};
 
         tl::expected<CLIParseResult, std::string> result =
@@ -113,7 +113,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("is fine if some are not present") {
+      SECTION("is fine if some are not present") {
         std::vector<std::string> inputs = {"prog_name", "-2"};
 
         tl::expected<CLIParseResult, std::string> result =
@@ -129,7 +129,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("is fine if none are present") {
+      SECTION("is fine if none are present") {
         std::vector<std::string> inputs = {"prog_name"};
 
         tl::expected<CLIParseResult, std::string> result =
@@ -145,7 +145,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("is fine even if the program name is a flag") {
+      SECTION("is fine even if the program name is a flag") {
         std::vector<std::string> inputs = {"--flag1", "-2"};
 
         tl::expected<CLIParseResult, std::string> result =
@@ -162,8 +162,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("positional argument parsing") {
-      SUBCASE("without choices") {
+    SECTION("positional argument parsing") {
+      SECTION("without choices") {
         CLISpec cli = CLISpec{
             {},
             {
@@ -183,7 +183,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CLIPositionalArgumentKey key_posarg1 = CLIPositionalArgumentKey{0_n};
         CLIPositionalArgumentKey key_posarg2 = CLIPositionalArgumentKey{1_n};
 
-        SUBCASE("can parse multiple positional arguments") {
+        SECTION("can parse multiple positional arguments") {
           std::vector<std::string> inputs = {"prog_name", "hello", "world"};
 
           tl::expected<CLIParseResult, std::string> result =
@@ -198,7 +198,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("requires all positional arguments to be present") {
+        SECTION("requires all positional arguments to be present") {
           std::vector<std::string> inputs = {"prog_name", "hello"};
 
           tl::expected<CLIParseResult, std::string> result =
@@ -209,7 +209,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("requires no extra positional arguments to be present") {
+        SECTION("requires no extra positional arguments to be present") {
           std::vector<std::string> inputs = {
               "prog_name", "hello", "there", "world"};
 
@@ -221,7 +221,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("allows arguments to contain spaces") {
+        SECTION("allows arguments to contain spaces") {
           std::vector<std::string> inputs = {
               "prog_name", "hello there", "world"};
 
@@ -237,7 +237,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("allows arguments to be empty") {
+        SECTION("allows arguments to be empty") {
           std::vector<std::string> inputs = {"prog_name", "hello", ""};
 
           tl::expected<CLIParseResult, std::string> result =
@@ -253,8 +253,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         }
       }
 
-      SUBCASE("with choices") {
-        SUBCASE("choices is non-empty") {
+      SECTION("with choices") {
+        SECTION("choices is non-empty") {
           CLISpec cli = CLISpec{
               {},
               {
@@ -268,7 +268,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
           CLIPositionalArgumentKey key_posarg = CLIPositionalArgumentKey{0_n};
 
-          SUBCASE(
+          SECTION(
               "succeeds if a positional argument is set to a valid choice") {
             std::vector<std::string> inputs = {"prog_name", "blue"};
 
@@ -282,7 +282,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             };
           }
 
-          SUBCASE(
+          SECTION(
               "fails if a positional argument is set to an invalid choice") {
             std::vector<std::string> inputs = {"prog_name", " red"};
 
@@ -295,7 +295,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           }
         }
 
-        SUBCASE("if choices is empty, rejects everything") {
+        SECTION("if choices is empty, rejects everything") {
           CLISpec cli = CLISpec{
               {},
               {
@@ -319,7 +319,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("correctly differentiates mixed arguments/flags") {
+    SECTION("correctly differentiates mixed arguments/flags") {
       CLISpec cli = CLISpec{
           {
               CLIFlagSpec{
@@ -357,7 +357,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CLIPositionalArgumentKey key_posarg1 = CLIPositionalArgumentKey{0_n};
       CLIPositionalArgumentKey key_posarg2 = CLIPositionalArgumentKey{1_n};
 
-      SUBCASE("works if flags are before positional arguments") {
+      SECTION("works if flags are before positional arguments") {
         std::vector<std::string> inputs = {
             "prog_name", "-f", "--flag3", "red", "world"};
 
@@ -378,7 +378,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("works if flags are interspersed") {
+      SECTION("works if flags are interspersed") {
         std::vector<std::string> inputs = {
             "prog_name", "red", "-f", "world", "--flag3"};
 
@@ -399,7 +399,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("detects if posargs are missing instead of treating flags as "
+      SECTION("detects if posargs are missing instead of treating flags as "
               "posarg values") {
         std::vector<std::string> inputs = {"prog_name", "-f", "red", "--flag2"};
 
@@ -474,4 +474,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

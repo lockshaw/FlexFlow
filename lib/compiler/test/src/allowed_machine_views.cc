@@ -1,5 +1,5 @@
 #include "compiler/allowed_machine_views.h"
-#include "doctest/doctest.h"
+#include "catch2/catch_test_macros.hpp"
 #include "utils/containers/extend.h"
 #include "utils/containers/range.h"
 #include "utils/containers/transform.h"
@@ -9,11 +9,11 @@
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
 
   TEST_CASE("get_allowed_machine_views") {
 
-    SUBCASE("1 degree of parallelism") {
+    SECTION("1 degree of parallelism") {
       MachineSpecification ms = MachineSpecification{
           /*num_nodes=*/1_n,
           /*num_cpus_per_node=*/5_n,
@@ -58,7 +58,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(correct == result);
     }
 
-    SUBCASE("2 degrees of parallelism") {
+    SECTION("2 degrees of parallelism") {
 
       MachineSpecification ms = MachineSpecification{
           /*num_nodes=*/3_n,
@@ -107,4 +107,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(correct == result);
     }
   }
-}

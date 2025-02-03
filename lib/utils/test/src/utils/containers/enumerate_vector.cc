@@ -1,12 +1,12 @@
 #include "utils/containers/enumerate_vector.h"
 #include "test/utils/doctest/fmt/map.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("enumerate_vector(std::vector<T>)") {
-    SUBCASE("input vector is empty") {
+    SECTION("input vector is empty") {
       std::vector<int> input = {};
 
       std::map<nonnegative_int, int> result = enumerate_vector(input);
@@ -15,7 +15,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input vector is not empty") {
+    SECTION("input vector is not empty") {
       std::vector<int> input = {2, 3, 1, 3, 3};
 
       std::map<nonnegative_int, int> result = enumerate_vector(input);
@@ -30,4 +30,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

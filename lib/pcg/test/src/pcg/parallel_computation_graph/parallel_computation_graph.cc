@@ -8,7 +8,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("topological_ordering") {
     // TODO(@lockshaw) should probably be replaced with a rapidcheck test that
     // compares ParallelComputationGraph to DataflowGraph, but since we

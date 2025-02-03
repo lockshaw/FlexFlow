@@ -1,12 +1,14 @@
 #include "utils/rapidcheck/optional.h"
 #include "test/utils/rapidcheck.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <rapidcheck.h>
+#include <rapidcheck/catch.h>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE_TEMPLATE(
-      "Arbitrary<std::optional<T>> with T=", T, int, double, char) {
-    RC_SUBCASE([](std::optional<T> o) {});
+
+  TEMPLATE_TEST_CASE(
+      "Arbitrary<std::optional<TestType>> with TestType=", "", int, double, char) {
+    rc::prop("generation works", [](std::optional<TestType> o) { });
   }
-}

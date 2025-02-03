@@ -1,11 +1,11 @@
 #include "utils/containers/filtermap_values.h"
 #include "test/utils/doctest/fmt/map.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("filtermap_values(std::unordered_map<K, V>, F)") {
     std::unordered_map<int, std::string> input = {
         {1, "one"},
@@ -43,4 +43,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
     CHECK(result == correct);
   }
-}

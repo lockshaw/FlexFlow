@@ -1,13 +1,13 @@
 #include "utils/containers/foldl.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <vector>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("foldl") {
-    SUBCASE("product") {
+    SECTION("product") {
       std::vector<int> container = {1, 2, 3, 4, 5};
       int result =
           foldl(container, 1, [](int acc, int elem) { return acc * elem; });
@@ -15,7 +15,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("string concat") {
+    SECTION("string concat") {
       std::vector<int> container = {1, 2, 3, 4, 5};
       std::string result =
           foldl(container, std::string(""), [](std::string acc, int elem) {
@@ -27,7 +27,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("foldl1") {
-    SUBCASE("product") {
+    SECTION("product") {
       std::vector<int> container = {1, 2, 3, 4, 5};
       int result =
           foldl1(container, [](int acc, int elem) { return acc * elem; });
@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("string concat") {
+    SECTION("string concat") {
       std::vector<std::string> container = {"1", "2", "3", "4", "5"};
       std::string result =
           foldl1(container,
@@ -44,4 +44,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

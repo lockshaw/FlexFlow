@@ -1,13 +1,13 @@
 #include "utils/bidict/algorithms/merge_disjoint_bidicts.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
 
   TEST_CASE("merge_disjoint_bidicts") {
 
-    SUBCASE("disjoint keys and values") {
+    SECTION("disjoint keys and values") {
       bidict<int, std::string> bd1 = {{1, "one"}, {2, "two"}};
       bidict<int, std::string> bd2 = {{3, "three"}, {4, "four"}};
 
@@ -18,25 +18,24 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("overlapping key, different associated value") {
+    SECTION("overlapping key, different associated value") {
       bidict<int, std::string> bd1 = {{1, "one"}, {2, "two"}};
       bidict<int, std::string> bd2 = {{2, "three"}, {3, "four"}};
 
       CHECK_THROWS(merge_disjoint_bidicts(bd1, bd2));
     }
 
-    SUBCASE("overlapping key, same associated value") {
+    SECTION("overlapping key, same associated value") {
       bidict<int, std::string> bd1 = {{1, "one"}, {2, "two"}};
       bidict<int, std::string> bd2 = {{2, "two"}, {3, "three"}};
 
       CHECK_THROWS(merge_disjoint_bidicts(bd1, bd2));
     }
 
-    SUBCASE("overlapping values") {
+    SECTION("overlapping values") {
       bidict<int, std::string> bd1 = {{1, "one"}, {2, "two"}};
       bidict<int, std::string> bd2 = {{3, "two"}, {4, "four"}};
 
       CHECK_THROWS(merge_disjoint_bidicts(bd1, bd2));
     }
   }
-}

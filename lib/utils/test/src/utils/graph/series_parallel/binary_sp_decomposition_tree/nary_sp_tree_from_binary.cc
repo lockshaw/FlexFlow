@@ -1,11 +1,11 @@
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/nary_sp_tree_from_binary.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
 #include "utils/graph/series_parallel/series_parallel_decomposition.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("nary_sp_tree_from_binary(BinarySPDecompositionTree)") {
     Node n1 = Node{1};
     Node n2 = Node{2};
@@ -26,7 +26,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_leaf = [](Node const &n) { return BinarySPDecompositionTree{n}; };
 
-    SUBCASE("leaf") {
+    SECTION("leaf") {
       BinarySPDecompositionTree input = make_leaf(n1);
 
       SeriesParallelDecomposition result = nary_sp_tree_from_binary(input);
@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("left associative series") {
+    SECTION("left associative series") {
       BinarySPDecompositionTree input = make_series_split(
           make_series_split(make_leaf(n2), make_leaf(n1)), make_leaf(n3));
 
@@ -46,7 +46,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("right associative series") {
+    SECTION("right associative series") {
       BinarySPDecompositionTree input = make_series_split(
           make_leaf(n2), make_series_split(make_leaf(n1), make_leaf(n3)));
 
@@ -57,7 +57,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("series with duplicate children") {
+    SECTION("series with duplicate children") {
       BinarySPDecompositionTree input =
           make_series_split(make_leaf(n1), make_leaf(n1));
 
@@ -69,7 +69,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("left associative parallel") {
+    SECTION("left associative parallel") {
       BinarySPDecompositionTree input = make_parallel_split(
           make_parallel_split(make_leaf(n2), make_leaf(n1)), make_leaf(n3));
 
@@ -80,7 +80,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("right associative parallel") {
+    SECTION("right associative parallel") {
       BinarySPDecompositionTree input = make_parallel_split(
           make_leaf(n2), make_parallel_split(make_leaf(n1), make_leaf(n3)));
 
@@ -91,7 +91,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("parallel with duplicate children") {
+    SECTION("parallel with duplicate children") {
       BinarySPDecompositionTree input =
           make_parallel_split(make_leaf(n1), make_leaf(n1));
 
@@ -103,7 +103,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("nested") {
+    SECTION("nested") {
       BinarySPDecompositionTree input = make_parallel_split(
           make_parallel_split(
               make_parallel_split(
@@ -137,4 +137,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

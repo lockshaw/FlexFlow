@@ -1,13 +1,13 @@
 #include "utils/deduplicated_priority_queue.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("DeduplicatedPriorityQueue push and pop") {
     DeduplicatedPriorityQueue<int> queue;
 
-    SUBCASE("Push elements") {
+    SECTION("Push elements") {
       queue.push(5);
       queue.push(2);
       queue.push(7);
@@ -18,7 +18,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_FALSE(queue.empty());
     }
 
-    SUBCASE("Pop elements") {
+    SECTION("Pop elements") {
       queue.push(5);
       queue.push(2);
       queue.push(7);
@@ -35,4 +35,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(queue.empty());
     }
   }
-}

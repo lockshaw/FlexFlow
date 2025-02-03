@@ -18,7 +18,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_isomorphic_to(Substitution, Substitution)") {
     auto make_substitution = [] {
       SubstitutionBuilder b;

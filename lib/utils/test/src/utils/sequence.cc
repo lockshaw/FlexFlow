@@ -1,17 +1,17 @@
 #include "utils/sequence.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("seq_head") {
-    SUBCASE("seq_head with non-empty sequence") {
+    SECTION("seq_head with non-empty sequence") {
       using Seq = seq<1, 2, 3, 4>;
       constexpr int result = seq_head<Seq>::value;
       CHECK(result == 1);
     }
 
-    SUBCASE("seq_head with empty sequence") {
+    SECTION("seq_head with empty sequence") {
       using Seq = seq<>;
       constexpr int result = seq_head<Seq>::value;
       CHECK(result == -1);
@@ -19,14 +19,14 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("seq_tail") {
-    SUBCASE("seq_tail with non-empty sequence") {
+    SECTION("seq_tail with non-empty sequence") {
       using Seq = seq<1, 2, 3, 4>;
       using ResultType = typename seq_tail<Seq>::type;
       using ExpectedType = seq<2, 3, 4>;
       CHECK(std::is_same<ResultType, ExpectedType>::value);
     }
 
-    SUBCASE("seq_tail with empty sequence") {
+    SECTION("seq_tail with empty sequence") {
       using Seq = seq<>;
       using ResultType = typename seq_tail<Seq>::type;
       using ExpectedType = seq<>;
@@ -66,26 +66,26 @@ TEST_SUITE(FF_TEST_SUITE) {
   // }
 
   // TEST_CASE("seq_select") {
-  //   SUBCASE("Valid index") {
+  //   SECTION("Valid index") {
   //     using Seq = seq<1, 2, 3>;
   //     int result = seq_select(square<int>, 1, seq<1, 2, 3>);
   //     CHECK(result == 4);
   //   }
 
-  //   SUBCASE("Invalid index") {
+  //   SECTION("Invalid index") {
   //     using Seq = seq<1, 2, 3>;
   //     CHECK_THROWS_AS(seq_select(square<int>, 3, Seq{}), std::runtime_error);
   //   }
   // }
 
   // TEST_CASE("seq_get") {
-  //   SUBCASE("Valid index") {
+  //   SECTION("Valid index") {
   //     using Seq = seq<1, 2, 3>;
   //     int result = seq_get(square<int>, 2, Seq{});
   //     CHECK(result == 9);
   //   }
 
-  //   SUBCASE("Invalid index") {
+  //   SECTION("Invalid index") {
   //     using Seq = seq<1, 2, 3>;
   //     CHECK_THROWS_AS(seq_get(square<int>, 3, Seq{}), std::runtime_error);
   //   }
@@ -99,13 +99,13 @@ TEST_SUITE(FF_TEST_SUITE) {
   //     }
   //   };
 
-  //   SUBCASE("Valid index") {
+  //   SECTION("Valid index") {
   //     using Seq = seq<1, 2, 3>;
   //     int result = seq_get(F{}, 2, Seq{});
   //     CHECK(result == 9);
   //   }
 
-  //   SUBCASE("Invalid index") {
+  //   SECTION("Invalid index") {
   //     using Seq = seq<1, 2, 3>;
   //     CHECK_THROWS_AS(seq_get(F{}, 3, Seq{}), std::runtime_error);
   //   }
@@ -170,4 +170,3 @@ TEST_SUITE(FF_TEST_SUITE) {
   //   int result = seq_get(F{}, 3, Seq{});
   //   CHECK(result == 16);
   // }
-}

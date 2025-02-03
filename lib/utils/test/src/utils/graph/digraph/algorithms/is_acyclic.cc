@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/optional.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_acyclic") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
@@ -28,4 +28,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

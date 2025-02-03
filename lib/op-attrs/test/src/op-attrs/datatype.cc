@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("can_promote_datatype_from_to(DataType, DataType)") {
     CHECK(
         can_strictly_promote_datatype_from_to(DataType::BOOL, DataType::INT32));

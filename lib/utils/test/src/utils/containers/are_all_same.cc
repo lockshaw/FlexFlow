@@ -1,12 +1,13 @@
 #include "utils/containers/are_all_same.h"
-#include <doctest/doctest.h>
+#include <fmt/format.h>
+#include <catch2/catch_test_macros.hpp>
 #include <vector>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("are_all_same(std::vector<T>)") {
-    SUBCASE("input is empty") {
+    SECTION("input is empty") {
       std::vector<int> input = {};
 
       bool result = are_all_same(input);
@@ -15,7 +16,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input elements are all same") {
+    SECTION("input elements are all same") {
       std::vector<int> input = {1, 1, 1};
 
       bool result = are_all_same(input);
@@ -24,7 +25,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input elements are not all same") {
+    SECTION("input elements are not all same") {
       std::vector<int> input = {1, 1, 2, 1};
 
       bool result = are_all_same(input);
@@ -33,4 +34,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

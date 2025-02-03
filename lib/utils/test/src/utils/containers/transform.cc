@@ -2,11 +2,11 @@
 #include "test/utils/doctest/fmt/optional.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("transform(std::vector<In>, F)") {
     std::vector<int> input = {1, 2, 3};
     std::vector<std::string> result =
@@ -31,7 +31,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("transform(std::optional<T>, F)") {
-    SUBCASE("has value") {
+    SECTION("has value") {
       std::optional<int> input = 3;
 
       std::optional<std::string> result =
@@ -41,7 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("has nullopt") {
+    SECTION("has nullopt") {
       std::optional<int> input = std::nullopt;
 
       std::optional<std::string> result =
@@ -51,4 +51,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

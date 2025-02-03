@@ -1,14 +1,14 @@
 #include "utils/cli/cli_get_help_message.h"
 #include "utils/join_strings.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("cli_get_help_message(std::string, CLISpec)") {
     std::string program_name = "prog_name";
 
-    SUBCASE("no flags or positional arguments") {
+    SECTION("no flags or positional arguments") {
       CLISpec cli = CLISpec{
           {},
           {},
@@ -20,7 +20,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("no flags") {
+    SECTION("no flags") {
       CLISpec cli = CLISpec{
           {},
           {
@@ -41,7 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("no positional arguments") {
+    SECTION("no positional arguments") {
       CLISpec cli = CLISpec{
           {
               CLIFlagSpec{
@@ -62,8 +62,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("flag formatting") {
-      SUBCASE("flag with shortname") {
+    SECTION("flag formatting") {
+      SECTION("flag with shortname") {
         CLISpec cli = CLISpec{
             {
                 CLIFlagSpec{
@@ -84,7 +84,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("flag without shortname") {
+      SECTION("flag without shortname") {
         CLISpec cli = CLISpec{
             {
                 CLIFlagSpec{
@@ -105,7 +105,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("flags are displayed in provided order") {
+      SECTION("flags are displayed in provided order") {
         CLISpec cli = CLISpec{
             {
                 CLIFlagSpec{
@@ -133,8 +133,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("positional argument formatting") {
-      SUBCASE("without choices") {
+    SECTION("positional argument formatting") {
+      SECTION("without choices") {
         CLISpec cli = CLISpec{
             {},
             {
@@ -155,8 +155,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("with choices") {
-        SUBCASE("choices are not empty") {
+      SECTION("with choices") {
+        SECTION("choices are not empty") {
           CLISpec cli = CLISpec{
               {},
               {
@@ -177,7 +177,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("choices are empty") {
+        SECTION("choices are empty") {
           CLISpec cli = CLISpec{
               {},
               {
@@ -199,7 +199,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         }
       }
 
-      SUBCASE("are displayed in provided order") {
+      SECTION("are displayed in provided order") {
         CLISpec cli = CLISpec{
             {},
             {
@@ -227,8 +227,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("flag and positional argument alignment") {
-      SUBCASE("flags are longer") {
+    SECTION("flag and positional argument alignment") {
+      SECTION("flags are longer") {
         CLISpec cli = CLISpec{
             {
                 CLIFlagSpec{
@@ -265,7 +265,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("pos args are longer") {
+      SECTION("pos args are longer") {
         CLISpec cli = CLISpec{
             {
                 CLIFlagSpec{
@@ -302,8 +302,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("line break behavior") {
-        SUBCASE("line breaks max out other argument alignments") {
+      SECTION("line break behavior") {
+        SECTION("line breaks max out other argument alignments") {
           CLISpec cli = CLISpec{
               {
                   CLIFlagSpec{
@@ -340,8 +340,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
           CHECK(result == correct);
         }
-        SUBCASE("positional argument line break behavior") {
-          SUBCASE("positional arguments cause a line break at or above "
+        SECTION("positional argument line break behavior") {
+          SECTION("positional arguments cause a line break at or above "
                   "formatted-length 22") {
             std::string arg_name = "aaaaaaaaaaaaaaaaaaaaaa";
             REQUIRE(arg_name.size() == 22);
@@ -367,7 +367,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             CHECK(result == correct);
           }
 
-          SUBCASE("positional arguments do not cause a line break below "
+          SECTION("positional arguments do not cause a line break below "
                   "formatted-length 22") {
             std::string arg_name = "aaaaaaaaaaaaaaaaaaaaa";
             REQUIRE(arg_name.size() == 21);
@@ -392,8 +392,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           }
         }
 
-        SUBCASE("flag line break behavior") {
-          SUBCASE("flags cause a line break at or above formatted-length 21") {
+        SECTION("flag line break behavior") {
+          SECTION("flags cause a line break at or above formatted-length 21") {
             std::string arg_name = "bbbbbbbbbbbbbbb";
             {
               std::string formatted = "-b, --" + arg_name;
@@ -422,7 +422,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             CHECK(result == correct);
           }
 
-          SUBCASE("flags do not cause a line break below formatted-length 21") {
+          SECTION("flags do not cause a line break below formatted-length 21") {
             std::string arg_name = "bbbbbbbbbbbbbb";
             {
               std::string formatted = "-b, --" + arg_name;
@@ -451,8 +451,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           }
         }
 
-        SUBCASE("choice line breakpoint formatting") {
-          SUBCASE(
+        SECTION("choice line breakpoint formatting") {
+          SECTION(
               "choices cause a line break at or above formatted-length 21") {
             std::vector<std::string> choices = {
                 "a", "b", "c", "d", "e", "fffffffff"};
@@ -483,7 +483,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             CHECK(result == correct);
           }
 
-          SUBCASE(
+          SECTION(
               "choices do not cause a line break below formatted-length 21") {
             std::vector<std::string> choices = {
                 "a", "b", "c", "d", "e", "ffffffff"};
@@ -516,4 +516,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

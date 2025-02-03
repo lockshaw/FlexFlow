@@ -3,15 +3,15 @@
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("transitive_reduction") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("base case") {
+    SECTION("base case") {
       std::vector<Node> n = add_nodes(g, 3);
 
       add_edges(g,
@@ -23,13 +23,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       DiGraphView result = transitive_reduction(g);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(result);
         std::unordered_set<Node> correct_nodes = unordered_set_of(n);
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<DirectedEdge> result_edges = get_edges(result);
         std::unordered_set<DirectedEdge> correct_edges = {
             DirectedEdge{n.at(0), n.at(1)},
@@ -39,7 +39,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("nontrivial graph") {
+    SECTION("nontrivial graph") {
       // from
       // https://en.wikipedia.org/w/index.php?title=Transitive_reduction&oldid=1226082357#In_directed_acyclic_graphs
 
@@ -59,13 +59,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       DiGraphView result = transitive_reduction(g);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(result);
         std::unordered_set<Node> correct_nodes = unordered_set_of(n);
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<DirectedEdge> result_edges = get_edges(result);
         std::unordered_set<DirectedEdge> correct_edges = {
             DirectedEdge{n.at(0), n.at(1)},
@@ -78,7 +78,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("longer paths") {
+    SECTION("longer paths") {
       std::vector<Node> n = add_nodes(g, 5);
 
       add_edges(g,
@@ -92,13 +92,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       DiGraphView result = transitive_reduction(g);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(result);
         std::unordered_set<Node> correct_nodes = unordered_set_of(n);
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<DirectedEdge> result_edges = get_edges(result);
         std::unordered_set<DirectedEdge> correct_edges = {
             DirectedEdge{n.at(0), n.at(1)},
@@ -110,7 +110,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("irreducible sp n-graph") {
+    SECTION("irreducible sp n-graph") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -122,13 +122,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       DiGraphView result = transitive_reduction(g);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(result);
         std::unordered_set<Node> correct_nodes = unordered_set_of(n);
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_set<DirectedEdge> result_edges = get_edges(result);
         std::unordered_set<DirectedEdge> correct_edges = {
             DirectedEdge{n.at(0), n.at(2)},
@@ -139,4 +139,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

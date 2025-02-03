@@ -2,16 +2,16 @@
 #include "utils/graph/digraph/algorithms/complete_bipartite_composite/is_complete_bipartite_digraph.h"
 #include "utils/graph/digraph/digraph.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_complete_bipartite_digraph(UndirectedGraphView, "
             "std::unordered_set)") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("simple bipartite graph") {
+    SECTION("simple bipartite graph") {
       std::vector<Node> n = add_nodes(g, 5);
 
       add_edges(g,
@@ -24,7 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                     DirectedEdge{n.at(2), n.at(4)},
                 });
 
-      SUBCASE("source group") {
+      SECTION("source group") {
         std::unordered_set<Node> group1 = {n.at(0), n.at(1), n.at(2)};
 
         bool result = is_complete_bipartite_digraph(g, group1);
@@ -33,7 +33,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("sink group") {
+      SECTION("sink group") {
         std::unordered_set<Node> group1 = {n.at(3), n.at(4)};
 
         bool result = is_complete_bipartite_digraph(g, group1);
@@ -43,7 +43,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("missing an edge (i.e., not complete)") {
+    SECTION("missing an edge (i.e., not complete)") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -60,7 +60,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("extra edge (i.e., not bipartite)") {
+    SECTION("extra edge (i.e., not bipartite)") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -79,7 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("flipped edge") {
+    SECTION("flipped edge") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -97,7 +97,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("group too small") {
+    SECTION("group too small") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -119,7 +119,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("is_complete_bipartite_digraph(UndirectedGraphView)") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("simple bipartite graph") {
+    SECTION("simple bipartite graph") {
       std::vector<Node> n = add_nodes(g, 5);
 
       add_edges(g,
@@ -138,7 +138,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("missing an edge") {
+    SECTION("missing an edge") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -154,7 +154,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("extra edge") {
+    SECTION("extra edge") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -172,4 +172,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

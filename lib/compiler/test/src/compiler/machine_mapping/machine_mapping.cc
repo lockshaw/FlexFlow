@@ -1,10 +1,10 @@
 #include "compiler/machine_mapping/machine_mapping.h"
-#include "doctest/doctest.h"
+#include "catch2/catch_test_macros.hpp"
 #include "pcg/machine_view.h"
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
 
   TEST_CASE("combine_disjoint_mappings(MachineMapping, MachineMappping)") {
     MachineView machine_view_0 = MachineView{
@@ -87,7 +87,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         {parallel_layer_guid_t{Node{0}}, machine_view_0},
     });
 
-    SUBCASE("nodes are disjoint") {
+    SECTION("nodes are disjoint") {
       MachineMapping machine_mapping_1 = MachineMapping({
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
       });
@@ -97,7 +97,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("nodes are not disjoint") {
+    SECTION("nodes are not disjoint") {
       MachineMapping machine_mapping_1 = MachineMapping({
           {parallel_layer_guid_t{Node{0}}, machine_view_0},
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
@@ -107,4 +107,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

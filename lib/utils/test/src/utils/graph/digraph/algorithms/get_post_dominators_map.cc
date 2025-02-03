@@ -1,15 +1,15 @@
 #include "utils/graph/digraph/algorithms/get_post_dominators_map.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_post_dominators_map") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("trivial sequential graph") {
+    SECTION("trivial sequential graph") {
       std::vector<Node> n = add_nodes(g, 2);
 
       g.add_edge(DirectedEdge{n.at(0), n.at(1)});
@@ -22,7 +22,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
     }
 
-    SUBCASE("nested splits graph") {
+    SECTION("nested splits graph") {
       std::vector<Node> n = add_nodes(g, 10);
 
       add_edges(g,
@@ -59,7 +59,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("cyclic graph") {
+    SECTION("cyclic graph") {
       // example from
       // https://en.wikipedia.org/w/index.php?title=Dominator_(graph_theory)&oldid=1189814332
 
@@ -91,4 +91,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

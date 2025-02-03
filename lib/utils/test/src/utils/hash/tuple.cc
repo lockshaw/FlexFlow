@@ -1,10 +1,10 @@
 #include "utils/hash/tuple.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("std::hash<std::tuple<Ts...>>") {
     std::tuple<int, std::string, double> tuple1{1, "test", 3.14};
     std::tuple<int, std::string, double> tuple2{2, "test", 3.14};
@@ -18,4 +18,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     hash1 = get_std_hash(tuple1);
     CHECK(hash1 == hash2);
   }
-}

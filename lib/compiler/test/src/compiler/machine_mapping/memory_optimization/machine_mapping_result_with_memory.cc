@@ -1,11 +1,11 @@
 #include "compiler/machine_mapping/memory_optimization/machine_mapping_with_memory_result.h"
 #include "pcg/machine_view.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("remove_non_pareto_optimal_machine_mapping_result") {
     MachineView machine_view_0 = MachineView{
         /*start=*/MachineSpaceCoordinate{
@@ -106,7 +106,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    SUBCASE("empty") {
+    SECTION("empty") {
       MachineMappingWithMemoryResult before_remove =
           empty_machine_mapping_with_memory_result();
       MachineMappingWithMemoryResult result =
@@ -117,7 +117,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("all solutions are pareto-optimal") {
+    SECTION("all solutions are pareto-optimal") {
       MachineMappingWithMemoryResult before_remove =
           MachineMappingWithMemoryResult{
               {
@@ -132,7 +132,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("there exists a non-pareto-optimal solution") {
+    SECTION("there exists a non-pareto-optimal solution") {
       MachineMappingWithMemoryResult before_remove =
           MachineMappingWithMemoryResult{
               {
@@ -239,7 +239,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     float comm_cost = 3.0;
 
-    SUBCASE("pre is empty") {
+    SECTION("pre is empty") {
       MachineMappingWithMemoryResult result = series_combine(
           comm_cost, empty, post, ParallelSplitTransformation::LthenR);
       MachineMappingWithMemoryResult correct = empty;
@@ -247,7 +247,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("post is empty") {
+    SECTION("post is empty") {
       MachineMappingWithMemoryResult result = series_combine(
           comm_cost, pre, empty, ParallelSplitTransformation::LthenR);
       MachineMappingWithMemoryResult correct = empty;
@@ -255,7 +255,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("both are nonempty") {
+    SECTION("both are nonempty") {
       MachineMappingWithMemoryResult no_parallel_split_transform =
           MachineMappingWithMemoryResult{
               {
@@ -294,7 +294,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               },
           };
 
-      SUBCASE("parallel_split_transformation = std::nullopt") {
+      SECTION("parallel_split_transformation = std::nullopt") {
         MachineMappingWithMemoryResult result =
             series_combine(comm_cost, pre, post, std::nullopt);
         MachineMappingWithMemoryResult correct = no_parallel_split_transform;
@@ -302,7 +302,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("parallel_split_transformation = LthenR") {
+      SECTION("parallel_split_transformation = LthenR") {
         MachineMappingWithMemoryResult result = series_combine(
             comm_cost, pre, post, ParallelSplitTransformation::LthenR);
         MachineMappingWithMemoryResult correct = no_parallel_split_transform;
@@ -310,7 +310,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("parallel_split_transformation = RthenL") {
+      SECTION("parallel_split_transformation = RthenL") {
         MachineMappingWithMemoryResult result = series_combine(
             comm_cost, pre, post, ParallelSplitTransformation::RthenL);
         MachineMappingWithMemoryResult correct = MachineMappingWithMemoryResult{
@@ -437,21 +437,21 @@ TEST_SUITE(FF_TEST_SUITE) {
     MachineMappingWithMemoryResult empty =
         empty_machine_mapping_with_memory_result();
 
-    SUBCASE("lhs is empty") {
+    SECTION("lhs is empty") {
       MachineMappingWithMemoryResult result = parallel_combine(empty, rhs);
       MachineMappingWithMemoryResult correct = empty;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("rhs is empty") {
+    SECTION("rhs is empty") {
       MachineMappingWithMemoryResult result = parallel_combine(lhs, empty);
       MachineMappingWithMemoryResult correct = empty;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("both are nonempty") {
+    SECTION("both are nonempty") {
       MachineMappingWithMemoryResult result = parallel_combine(lhs, rhs);
       MachineMappingWithMemoryResult correct = MachineMappingWithMemoryResult{{
           MachineMappingForSingleLayer{
@@ -611,4 +611,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

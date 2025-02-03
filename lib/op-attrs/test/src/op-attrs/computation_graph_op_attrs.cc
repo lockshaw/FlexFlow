@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("ComputationGraphOpAttrs to/from json") {
     ComputationGraphOpAttrs correct = ComputationGraphOpAttrs{BatchNormAttrs{
         /*relu=*/false,

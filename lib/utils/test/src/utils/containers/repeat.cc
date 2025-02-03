@@ -1,10 +1,10 @@
 #include "utils/containers/repeat.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("repeat") {
     int x = 0;
     std::vector<int> result = repeat(3_n, [&]() {
@@ -17,4 +17,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

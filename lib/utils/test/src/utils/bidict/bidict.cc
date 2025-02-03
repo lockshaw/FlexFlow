@@ -2,97 +2,97 @@
 #include "test/utils/doctest/check_without_stringify.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("bidict") {
     bidict<int, std::string> dict;
     dict.equate(1, "one");
     dict.equate(2, "two");
 
-    SUBCASE("L type is the same as R type") {
+    SECTION("L type is the same as R type") {
       bidict<int, int> bd;
       bd.equate(1, 3);
 
-      SUBCASE("bidict::contains_l") {
+      SECTION("bidict::contains_l") {
         CHECK(bd.contains_l(1));
         CHECK_FALSE(bd.contains_l(3));
       }
 
-      SUBCASE("bidict::contains_r") {
+      SECTION("bidict::contains_r") {
         CHECK(bd.contains_r(3));
         CHECK_FALSE(bd.contains_r(1));
       }
     }
 
-    SUBCASE("L type is not the same as R type") {
+    SECTION("L type is not the same as R type") {
       bidict<int, std::string> dict;
       dict.equate(1, "one");
       dict.equate(2, "two");
 
-      SUBCASE("bidict::contains_l") {
+      SECTION("bidict::contains_l") {
         CHECK(dict.contains_l(1));
         CHECK_FALSE(dict.contains_l(3));
       }
 
-      SUBCASE("bidict::contains_r") {
+      SECTION("bidict::contains_r") {
         CHECK(dict.contains_r("one"));
         CHECK_FALSE(dict.contains_r("three"));
       }
     }
 
-    SUBCASE("bidict::equate") {
+    SECTION("bidict::equate") {
       CHECK(dict.at_l(1) == "one");
       CHECK(dict.at_r("one") == 1);
       CHECK(dict.at_l(2) == "two");
       CHECK(dict.at_r("two") == 2);
     }
 
-    SUBCASE("bidict::erase_l") {
+    SECTION("bidict::erase_l") {
       dict.erase_l(1);
       CHECK(dict.size() == 1);
       CHECK_THROWS_AS(dict.at_l(1), std::out_of_range);
       CHECK(dict.at_r("two") == 2);
     }
 
-    SUBCASE("bidict::erase_r") {
+    SECTION("bidict::erase_r") {
       dict.erase_r("one");
       CHECK(dict.size() == 1);
       CHECK_THROWS_AS(dict.at_r("one"), std::out_of_range);
       CHECK(dict.at_l(2) == "two");
     }
 
-    SUBCASE("bidict::reversed") {
+    SECTION("bidict::reversed") {
       bidict<std::string, int> reversed_dict = dict.reversed();
       CHECK(reversed_dict.at_l("one") == 1);
       CHECK(reversed_dict.at_r(2) == "two");
     }
 
-    SUBCASE("bidict::size") {
+    SECTION("bidict::size") {
       CHECK(dict.size() == 2);
     }
 
-    SUBCASE("implicitly convert to std::unordered_map") {
+    SECTION("implicitly convert to std::unordered_map") {
       std::unordered_map<int, std::string> res = dict;
       std::unordered_map<int, std::string> expected = {{1, "one"}, {2, "two"}};
       CHECK(res == expected);
     }
 
-    SUBCASE("bidict::begin") {
+    SECTION("bidict::begin") {
       auto it = dict.begin();
       CHECK(it->first == 2);
       CHECK(it->second == "two");
     }
 
-    SUBCASE("bidict::end") {
+    SECTION("bidict::end") {
       auto it = dict.end();
 
       CHECK_WITHOUT_STRINGIFY(it == dict.end());
     }
 
-    SUBCASE("map_keys(bidict<K, V>, F)") {
+    SECTION("map_keys(bidict<K, V>, F)") {
       bidict<std::string, std::string> result = map_keys(dict, [](int k) {
         std::ostringstream oss;
         oss << k;
@@ -105,7 +105,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("map_values(bidict<K, V>, F)") {
+    SECTION("map_values(bidict<K, V>, F)") {
       bidict<int, std::string> result =
           map_values(dict, [](std::string const &v) { return v + "a"; });
       bidict<int, std::string> correct = {
@@ -115,7 +115,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("filter_keys(bidict<K, V>, F") {
+    SECTION("filter_keys(bidict<K, V>, F") {
       bidict<int, std::string> result =
           filter_keys(dict, [](int k) { return k == 1; });
       bidict<int, std::string> correct = {
@@ -124,7 +124,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("filter_values(bidict<K, V>, F") {
+    SECTION("filter_values(bidict<K, V>, F") {
       bidict<int, std::string> result =
           filter_values(dict, [](std::string const &v) { return v == "two"; });
       bidict<int, std::string> correct = {
@@ -133,7 +133,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("filtermap_keys(bidict<K, V>, F)") {
+    SECTION("filtermap_keys(bidict<K, V>, F)") {
       bidict<std::string, std::string> result =
           filtermap_keys(dict, [](int k) -> std::optional<std::string> {
             if (k == 1) {
@@ -150,7 +150,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("filtermap_values(bidict<K, V>, F)") {
+    SECTION("filtermap_values(bidict<K, V>, F)") {
       bidict<int, int> result = filtermap_values(
           dict, [](std::string const &v) -> std::optional<int> {
             if (v == "two") {
@@ -165,7 +165,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("transform(bidict<K, V>, F)") {
+    SECTION("transform(bidict<K, V>, F)") {
       bidict<std::string, int> result =
           transform(dict, [](int k, std::string const &v) {
             return std::make_pair(v, k);
@@ -177,10 +177,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("fmt::to_string(bidict<int, std::string>)") {
+    SECTION("fmt::to_string(bidict<int, std::string>)") {
       std::string result = fmt::to_string(dict);
       std::string correct = fmt::to_string(dict.as_unordered_map());
       CHECK(result == correct);
     }
   }
-}

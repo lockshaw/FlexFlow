@@ -1,12 +1,12 @@
 #include "utils/containers/reversed.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("reversed(std::vector<T>)") {
-    SUBCASE("non-empty input") {
+    SECTION("non-empty input") {
       std::vector<int> input = {1, 2, 3, 2};
 
       std::vector<int> result = reversed(input);
@@ -15,7 +15,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("empty input") {
+    SECTION("empty input") {
       std::vector<int> input = {};
 
       std::vector<int> result = reversed(input);
@@ -24,4 +24,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

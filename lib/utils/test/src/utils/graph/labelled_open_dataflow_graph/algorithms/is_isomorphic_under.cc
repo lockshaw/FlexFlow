@@ -2,11 +2,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/instances/unordered_set_labelled_open_dataflow_graph.h"
 #include "utils/graph/labelled_open_dataflow_graph/labelled_open_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_isomorphic_under") {
     auto g1 = LabelledOpenDataflowGraph<std::string, int>::create<
         UnorderedSetLabelledOpenDataflowGraph<std::string, int>>();
@@ -57,4 +57,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result);
   }
-}

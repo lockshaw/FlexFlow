@@ -4,11 +4,11 @@
 #include "utils/graph/digraph/algorithms.h"
 #include "utils/graph/digraph/algorithms/get_topological_ordering.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_inputs/get_outputs") {
     DataflowGraph g = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -28,13 +28,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     Node n4 = n4_added.node;
     DataflowOutput o4 = get_only(n4_added.outputs);
 
-    SUBCASE("get_input_values") {
+    SECTION("get_input_values") {
       std::vector<DataflowOutput> result = get_input_values(g, n4);
       std::vector<DataflowOutput> correct = {o1, o2, o3};
       CHECK(result == correct);
     }
 
-    SUBCASE("get_outputs") {
+    SECTION("get_outputs") {
       std::vector<DataflowOutput> result = get_outputs(g, n4);
       std::vector<DataflowOutput> correct = {o4};
       CHECK(result == correct);
@@ -60,4 +60,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::vector<Node> correct = {n1, n2, n3};
     CHECK(result == correct);
   }
-}

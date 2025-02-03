@@ -4,7 +4,7 @@
 #include "utils/containers/count.h"
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test Dropout Kernels") {
     unsigned long long seed = 12345;
     float dropout_rate = 0.1;

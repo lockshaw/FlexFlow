@@ -22,7 +22,7 @@ using namespace ::FlexFlow;
 //
 // Improving them is being tracked in
 // https://github.com/flexflow/FlexFlow/issues/1474
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("ParallelComputationGraphBuilder::add") {
     ParallelComputationGraphBuilder b;
 

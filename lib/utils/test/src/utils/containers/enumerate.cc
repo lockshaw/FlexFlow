@@ -8,12 +8,12 @@
 #include "utils/containers/unordered_multiset_of.h"
 #include "utils/containers/values.h"
 #include "utils/containers/vector_of.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("enumerate(std::vector<T>)") {
     std::vector<std::string> input = {"zero", "one", "two", "three"};
 
@@ -28,7 +28,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
 
-    SUBCASE("check iteration order") {
+    SECTION("check iteration order") {
       std::vector<std::pair<nonnegative_int const, std::string>>
           iterated_result = vector_of(result);
       std::vector<std::pair<nonnegative_int const, std::string>>
@@ -53,4 +53,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(keys(result) == correct_keys);
     CHECK(unordered_multiset_of(values(result)) == correct_values);
   }
-}

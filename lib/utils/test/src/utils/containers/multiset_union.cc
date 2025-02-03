@@ -1,11 +1,11 @@
 #include "utils/containers/multiset_union.h"
 #include "test/utils/doctest/fmt/multiset.h"
 #include "test/utils/doctest/fmt/unordered_multiset.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("multiset_union(std::unordered_multiset<T>, "
             "std::unordered_multiset<T>)") {
     std::unordered_multiset<int> input_lhs = {1, 2, 2, 3};
@@ -26,4 +26,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

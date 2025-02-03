@@ -15,7 +15,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("LocalSlotsBacking -- Attention Op") {
     // allocate input memory
     Allocator allocator = create_local_cpu_memory_allocator();

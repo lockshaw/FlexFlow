@@ -4,11 +4,11 @@
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_transitive_reduced_edges_across_split") {
     DataflowGraph g = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -24,7 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_leaf = [](Node const &n) { return BinarySPDecompositionTree{n}; };
 
-    SUBCASE("multiple nodes with edges across") {
+    SECTION("multiple nodes with edges across") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
       DataflowOutput o1 = get_only(n1_added.outputs);
@@ -69,7 +69,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("nodes each have multiple edges across") {
+    SECTION("nodes each have multiple edges across") {
       NodeAddedResult n1_added = g.add_node({}, 2_n);
       Node n1 = n1_added.node;
       DataflowOutput n1_o1 = n1_added.outputs.at(0);
@@ -106,7 +106,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not return edges eliminated by transitive reduction") {
+    SECTION("does not return edges eliminated by transitive reduction") {
       NodeAddedResult n1_added = g.add_node({}, 1_n);
       Node n1 = n1_added.node;
       DataflowOutput o1 = get_only(n1_added.outputs);
@@ -143,4 +143,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

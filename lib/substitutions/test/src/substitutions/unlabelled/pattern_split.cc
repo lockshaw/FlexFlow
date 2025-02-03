@@ -8,7 +8,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("pattern_split (sequential)") {
     OpenDataflowGraph g =
         OpenDataflowGraph::create<UnorderedSetDataflowGraph>();

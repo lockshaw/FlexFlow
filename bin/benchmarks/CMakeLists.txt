@@ -1,0 +1,11 @@
+ff_add_executable(
+  NAME
+    benchmarks
+  SRC_PATTERNS
+    *.cc
+  DEPS
+    utils-benchmarks
+    compiler-benchmarks
+    gbenchmark
+    kernels-benchmarks
+)

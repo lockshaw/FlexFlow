@@ -1,25 +1,24 @@
 #include "utils/containers/is_superseteq_of.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <unordered_set>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_superseteq_of") {
     std::unordered_set<int> super = {1, 2, 3, 4};
 
-    SUBCASE("true containment") {
+    SECTION("true containment") {
       std::unordered_set<int> sub = {1, 2, 3};
       CHECK(is_superseteq_of(super, sub));
     }
 
-    SUBCASE("false containment") {
+    SECTION("false containment") {
       std::unordered_set<int> sub = {1, 2, 5};
       CHECK_FALSE(is_superseteq_of(super, sub));
     }
 
-    SUBCASE("reflexive") {
+    SECTION("reflexive") {
       CHECK(is_superseteq_of(super, super));
     }
   }
-}

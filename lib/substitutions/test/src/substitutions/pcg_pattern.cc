@@ -11,7 +11,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("find_pattern_matches(PCGPattern, SubParallelComputationGraph)") {
     ParallelComputationGraphBuilder builder;
 

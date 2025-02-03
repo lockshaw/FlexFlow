@@ -1,13 +1,13 @@
 #include "utils/vector.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("concat function") {
-    SUBCASE("concatenates two vectors") {
+    SECTION("concatenates two vectors") {
       std::vector<int> v1 = {1, 2, 3};
       std::vector<int> v2 = {4, 5, 6};
       std::vector<int> result = concat(v1, v2);
@@ -15,7 +15,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == expected);
     }
 
-    SUBCASE("concatenates two string vectors") {
+    SECTION("concatenates two string vectors") {
       std::vector<std::string> v1 = {"1", "2", "3"};
       std::vector<std::string> v2 = {"4", "5", "6"};
       std::vector<std::string> result = concat(v1, v2);
@@ -23,7 +23,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == expected);
     }
 
-    SUBCASE("concatenates multiple vectors") {
+    SECTION("concatenates multiple vectors") {
       std::vector<int> v1 = {1, 2, 3};
       std::vector<int> v2 = {4, 5, 6};
       std::vector<int> v3 = {7, 8, 9};
@@ -32,4 +32,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == expected);
     }
   }
-}

@@ -1,15 +1,15 @@
 #include "utils/stack_map.h"
 #include "test/utils/doctest/fmt/pair.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("stack_map") {
     stack_map<int, int, 5> map;
 
-    SUBCASE("operator[]") {
+    SECTION("operator[]") {
       map[1] = 10;
       map[2] = 20;
 
@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(map[2] == 20);
     }
 
-    SUBCASE("insert") {
+    SECTION("insert") {
       map.insert(1, 10);
       map.insert(2, 20);
 
@@ -25,7 +25,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(map[2] == 20);
     }
 
-    SUBCASE("at") {
+    SECTION("at") {
       map[1] = 10;
       map[2] = 20;
 
@@ -38,7 +38,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(const_map.at(2) == 20);
     }
 
-    SUBCASE("Iterator") {
+    SECTION("Iterator") {
       map[1] = 10;
       map[2] = 20;
       map[3] = 30;
@@ -48,4 +48,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(actual == expected);
     }
   }
-}

@@ -3,11 +3,11 @@
 #include "utils/graph/multidigraph/multidiedge_query.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/node/node_query.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("AdjacencyMultiDiGraph") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
@@ -103,27 +103,27 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("remove edge") {
+    SECTION("remove edge") {
       g.remove_edge(e3);
       check_state({n1, n2}, {e1, e2, e4});
     }
 
-    SUBCASE("remove node") {
+    SECTION("remove node") {
       g.remove_node(n2);
       check_state({n1}, {e1, e2});
       g.remove_node(n1);
       check_state({}, {});
     }
 
-    SUBCASE("copy") {
+    SECTION("copy") {
       MultiDiGraphView g2 = g;
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         g.add_node();
         std::unordered_set<Node> result = g2.query_nodes(node_query_all());
         std::unordered_set<Node> correct = {n1, n2};
         CHECK(result == correct);
       }
-      SUBCASE("edges") {
+      SECTION("edges") {
         g.add_edge(n1, n2);
         std::unordered_set<MultiDiEdge> result =
             g2.query_edges(multidiedge_query_all());
@@ -132,7 +132,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("materialize_copy_of") {
+    SECTION("materialize_copy_of") {
       std::unordered_set<Node> correct_nodes = get_nodes(g);
       std::unordered_map<MultiDiEdge, DirectedEdge> correct_edges =
           get_multidiedge_to_diedge_map(g);
@@ -140,16 +140,15 @@ TEST_SUITE(FF_TEST_SUITE) {
       MultiDiGraph g2 =
           MultiDiGraph::materialize_copy_of<AdjacencyMultiDiGraph>(g);
 
-      SUBCASE("nodes") {
+      SECTION("nodes") {
         std::unordered_set<Node> result_nodes = get_nodes(g2);
         CHECK(result_nodes == correct_nodes);
       }
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_map<MultiDiEdge, DirectedEdge> result_edges =
             get_multidiedge_to_diedge_map(g);
         CHECK(result_edges == correct_edges);
       }
     }
   }
-}

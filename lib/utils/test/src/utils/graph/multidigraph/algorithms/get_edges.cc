@@ -3,11 +3,11 @@
 #include "utils/graph/instances/adjacency_multidigraph.h"
 #include "utils/graph/multidigraph/algorithms/add_edges.h"
 #include "utils/graph/multidigraph/algorithms/add_nodes.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_edges(MultiDiGraphView)") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
@@ -25,4 +25,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

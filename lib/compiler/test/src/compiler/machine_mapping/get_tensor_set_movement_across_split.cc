@@ -5,11 +5,11 @@
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "utils/containers/get_only.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_tensor_set_movement_across_split") {
     auto make_pcg_series_split = [](PCGBinarySPDecomposition const &lhs,
                                     PCGBinarySPDecomposition const &rhs) {
@@ -124,7 +124,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    SUBCASE("single edge across split") {
+    SECTION("single edge across split") {
       PCGBinarySeriesSplit split = PCGBinarySeriesSplit{
           make_pcg_series_split(make_pcg_leaf_node(input.parallel_layer),
                                 make_pcg_leaf_node(relu_1.parallel_layer)),
@@ -160,9 +160,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("does not include edges removed by transitive reduction") {}
+    SECTION("does not include edges removed by transitive reduction") {}
 
-    SUBCASE("single tensor, multiple consumers across split") {
+    SECTION("single tensor, multiple consumers across split") {
       ParallelLayerAddedResult relu_3 = add_parallel_layer(
           pcg, relu_attrs, {get_only(relu_1.outputs)}, {relu_output_attrs});
 
@@ -173,7 +173,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                   make_pcg_leaf_node(relu_3.parallel_layer)),
       };
 
-      SUBCASE("consumers have same view") {
+      SECTION("consumers have same view") {
         auto pre_mapping = ParallelLayerGuidObliviousMachineMapping{{
             {
                 BinaryTreePath{{
@@ -217,7 +217,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("consumers have different views") {
+      SECTION("consumers have different views") {
         auto pre_mapping = ParallelLayerGuidObliviousMachineMapping{{
             {
                 BinaryTreePath{{
@@ -262,7 +262,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("multiple tensors, multiple consumers across split") {
+    SECTION("multiple tensors, multiple consumers across split") {
       ParallelLayerAddedResult relu_3 = add_parallel_layer(
           pcg, relu_attrs, {get_only(input.outputs)}, {relu_output_attrs});
 
@@ -336,4 +336,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

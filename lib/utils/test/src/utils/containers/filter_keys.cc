@@ -1,12 +1,12 @@
 #include "utils/containers/filter_keys.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <unordered_map>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("filter_keys") {
     std::unordered_map<int, std::string> m = {
         {1, "one"}, {2, "two"}, {3, "three"}};
@@ -15,4 +15,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::unordered_map<int, std::string> correct = {{1, "one"}, {3, "three"}};
     CHECK(result == correct);
   }
-}

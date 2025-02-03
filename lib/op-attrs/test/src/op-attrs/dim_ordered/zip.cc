@@ -5,7 +5,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("zip(DimOrdered<Idx, T>, DimOrdered<Idx, T>)") {
     DimOrdered<ff_dim_t, int> lhs_input = {9, 9, 8, 9};
     DimOrdered<ff_dim_t, std::string> rhs_input = {"m", "m", "k", "l", "m"};

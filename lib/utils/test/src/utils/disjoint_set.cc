@@ -1,6 +1,7 @@
 #include "utils/disjoint_set.h"
 #include "test/utils/doctest/fmt/optional.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
 using namespace FlexFlow;
 
@@ -17,23 +18,23 @@ std::string generate_element<std::string>(int seed) {
   return "Element" + std::to_string(seed);
 }
 
-TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE_TEMPLATE("DisjointSetUnionAndFind", T, int, std::string) {
-    disjoint_set<std::optional<T>> ds;
 
-    SUBCASE("SingleElementSets") {
-      std::optional<T> element = generate_element<T>(1);
+  TEMPLATE_TEST_CASE("DisjointSetUnionAndFind", "", int, std::string) {
+    disjoint_set<std::optional<TestType>> ds;
+
+    SECTION("SingleElementSets") {
+      std::optional<TestType> element = generate_element<TestType>(1);
       CHECK(ds.find(element) == element);
 
-      element = generate_element<T>(2);
+      element = generate_element<TestType>(2);
       CHECK(ds.find(element) == element);
     }
 
-    SUBCASE("UnionAndFind") {
-      std::optional<T> element1 = generate_element<T>(1);
-      std::optional<T> element2 = generate_element<T>(2);
-      std::optional<T> element3 = generate_element<T>(3);
-      std::optional<T> element4 = generate_element<T>(4);
+    SECTION("UnionAndFind") {
+      std::optional<TestType> element1 = generate_element<TestType>(1);
+      std::optional<TestType> element2 = generate_element<TestType>(2);
+      std::optional<TestType> element3 = generate_element<TestType>(3);
+      std::optional<TestType> element4 = generate_element<TestType>(4);
 
       ds.m_union(element1, element2);
       CHECK(ds.find(element1) == ds.find(element2));
@@ -49,7 +50,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE_TEMPLATE("DisjointSetMapping", T, int, std::string) {
+  TEST_CASE("DisjointSetMapping") {
     disjoint_set<int> ds;
     ds.m_union(1, 2);
     ds.m_union(3, 4);
@@ -67,4 +68,3 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                        // inside the optionals
     }
   }
-}

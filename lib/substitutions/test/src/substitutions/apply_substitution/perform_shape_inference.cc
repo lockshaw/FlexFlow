@@ -11,7 +11,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("perform_shape_inference") {
     auto g =
         LabelledOpenDataflowGraph<ParallelLayerAttrs, std::monostate>::create<

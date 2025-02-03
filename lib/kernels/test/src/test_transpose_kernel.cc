@@ -3,7 +3,7 @@
 #include "test_utils.h"
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test Transpose Kernel Operations") {
     TransposeAttrs attrs = TransposeAttrs{
         FFOrdered<ff_dim_t>{

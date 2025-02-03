@@ -1,13 +1,13 @@
 #include "utils/variant.h"
 #include "test/utils/doctest/fmt/optional.h"
 #include "test/utils/doctest/fmt/variant.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("widen and narrow functions") {
-    SUBCASE("widen function") {
+    SECTION("widen function") {
       std::variant<int, float> v1 = 42;
       std::variant<int, float, double> result =
           widen<std::variant<int, float, double>>(v1);
@@ -15,7 +15,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == expected);
     }
 
-    SUBCASE("narrow function  fail") {
+    SECTION("narrow function  fail") {
       std::variant<int, float, double> v2 =
           3.14; // this is a doule, because 3.14 default to double
       std::optional<std::variant<int, float>> result =
@@ -24,7 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(!result.has_value()); // result should be empty due to narrowing
     }
 
-    SUBCASE("narrow function  success") {
+    SECTION("narrow function  success") {
       std::variant<int, float, double> v2 =
           3.14; // this is a doule, because 3.14 default to double
       std::optional<std::variant<int, double>> result =
@@ -33,7 +33,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == expected); //
     }
 
-    SUBCASE("cast function") {
+    SECTION("cast function") {
       std::variant<int, float> v3 = 42;
       std::optional<std::variant<int, double>> result =
           cast<std::variant<int, double>>(v3);
@@ -73,4 +73,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     // Check the result
     CHECK(get<int>(wider_variant) == 42);
   }
-}

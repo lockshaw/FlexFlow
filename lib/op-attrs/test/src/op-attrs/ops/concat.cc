@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_output_shape(ConcatAttrs, std::vector<TensorShape>)") {
     ConcatAttrs attrs = ConcatAttrs{
         ff_dim_t{nonnegative_int{1}},

@@ -8,7 +8,7 @@ ff_add_test_executable(
   DEPS
     utils
     compiler
-    doctest
-    utils-test-common
+    catch2-main
     models
+    libassert
 )

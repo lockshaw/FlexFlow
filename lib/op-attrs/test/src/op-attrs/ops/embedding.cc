@@ -6,7 +6,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Sum embedding shape inference") {
     nonnegative_int out_channels = 128_n;
     nonnegative_int num_entries = 1024_n;

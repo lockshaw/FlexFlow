@@ -1,11 +1,11 @@
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/generic_binary_sp_decomposition_tree/is_binary_sp_tree_right_associative.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.dtg.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("is_binary_sp_tree_right_associative") {
     Node n1 = Node{1};
     Node n2 = Node{2};
@@ -30,8 +30,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_leaf = [](Node const &n) { return BinarySPDecompositionTree{n}; };
 
-    SUBCASE("input is actually right associative") {
-      SUBCASE("just node") {
+    SECTION("input is actually right associative") {
+      SECTION("just node") {
         BinarySPDecompositionTree input = make_leaf(n1);
 
         bool result = is_binary_sp_tree_right_associative(input);
@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("just series") {
+      SECTION("just series") {
         BinarySPDecompositionTree input = make_series_split(
             make_leaf(n1), make_series_split(make_leaf(n2), make_leaf(n3)));
 
@@ -50,7 +50,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("just parallel") {
+      SECTION("just parallel") {
         BinarySPDecompositionTree input = make_parallel_split(
             make_leaf(n1), make_parallel_split(make_leaf(n2), make_leaf(n3)));
 
@@ -60,7 +60,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("nested") {
+      SECTION("nested") {
         BinarySPDecompositionTree input = make_series_split(
             make_parallel_split(make_leaf(n1), make_leaf(n2)),
             make_parallel_split(make_leaf(n3), make_leaf(n4)));
@@ -72,8 +72,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("input is not right associative") {
-      SUBCASE("just series") {
+    SECTION("input is not right associative") {
+      SECTION("just series") {
         BinarySPDecompositionTree input = make_series_split(
             make_series_split(make_leaf(n1), make_leaf(n2)), make_leaf(n3));
 
@@ -83,7 +83,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("just parallel") {
+      SECTION("just parallel") {
         BinarySPDecompositionTree input = make_parallel_split(
             make_parallel_split(make_leaf(n1), make_leaf(n2)), make_leaf(n3));
 
@@ -94,4 +94,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

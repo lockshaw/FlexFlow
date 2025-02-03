@@ -1,10 +1,9 @@
 #include "utils/bidict/try_merge_nondisjoint_bidicts.h"
-#include "test/utils/doctest/fmt/optional.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("try_merge_nondisjoint_bidicts(bidict<L, R>, bidict<L, R>)") {
     bidict<int, std::string> d1 = {
         {0, "zero"},
@@ -15,7 +14,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         {2, "two"},
     };
 
-    SUBCASE("compatible neither superset") {
+    SECTION("compatible neither superset") {
       std::optional<bidict<int, std::string>> result =
           try_merge_nondisjoint_bidicts(d1, d2);
       std::optional<bidict<int, std::string>> correct = {{
@@ -26,7 +25,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("mismatched key") {
+    SECTION("mismatched key") {
       d1.equate(2, "three");
       std::optional<bidict<int, std::string>> result =
           try_merge_nondisjoint_bidicts(d1, d2);
@@ -34,7 +33,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("repeated value") {
+    SECTION("repeated value") {
       d1.equate(3, "one");
       std::optional<bidict<int, std::string>> result =
           try_merge_nondisjoint_bidicts(d1, d2);
@@ -42,7 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("left superset") {
+    SECTION("left superset") {
       d1.equate(2, "two");
       std::optional<bidict<int, std::string>> result =
           try_merge_nondisjoint_bidicts(d1, d2);
@@ -50,7 +49,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("right superset") {
+    SECTION("right superset") {
       d2.equate(1, "one");
       std::optional<bidict<int, std::string>> result =
           try_merge_nondisjoint_bidicts(d1, d2);
@@ -58,7 +57,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("equal") {
+    SECTION("equal") {
       d1.equate(2, "two");
       d2.equate(1, "one");
       std::optional<bidict<int, std::string>> result =
@@ -67,4 +66,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

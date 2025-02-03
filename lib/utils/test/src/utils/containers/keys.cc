@@ -1,13 +1,13 @@
 #include "utils/containers/keys.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("keys") {
     std::unordered_map<int, std::string> m = {
         {1, "one"}, {2, "two"}, {3, "three"}};
@@ -15,4 +15,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::unordered_set<int> expected = {1, 2, 3};
     CHECK(result == expected);
   }
-}

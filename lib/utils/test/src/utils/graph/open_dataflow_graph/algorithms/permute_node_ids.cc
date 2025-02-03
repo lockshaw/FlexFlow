@@ -6,11 +6,11 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_graph_data.h"
 #include "utils/graph/open_dataflow_graph/dataflow_input_edge_query.h"
 #include "utils/graph/open_dataflow_graph/open_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("permute_node_ids(OpenDataflowGraphView, bidict<NewNode, Node>)") {
     OpenDataflowGraph g =
         OpenDataflowGraph::create<UnorderedSetDataflowGraph>();
@@ -89,15 +89,15 @@ TEST_SUITE(FF_TEST_SUITE) {
     // because get_graph_data only uses matchall nodes which don't require as
     // much updating, we also add test cases for the query methods with concrete
     // queries to check the through-node-permutation querying logic
-    SUBCASE("query_nodes(NodeQuery)") {
-      SUBCASE("check access to old nodes") {
+    SECTION("query_nodes(NodeQuery)") {
+      SECTION("check access to old nodes") {
         std::unordered_set<Node> result_nodes =
             result.query_nodes(NodeQuery{n0});
         std::unordered_set<Node> correct = {};
         CHECK(result_nodes == correct);
       }
 
-      SUBCASE("check access to new nodes") {
+      SECTION("check access to new nodes") {
         std::unordered_set<Node> result_nodes =
             result.query_nodes(NodeQuery{new_node0});
         std::unordered_set<Node> correct = {new_node0};
@@ -105,8 +105,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("query_edges(OpenDataflowEdgeQuery)") {
-      SUBCASE("check access to old edges") {
+    SECTION("query_edges(OpenDataflowEdgeQuery)") {
+      SECTION("check access to old edges") {
         OpenDataflowEdgeQuery query = OpenDataflowEdgeQuery{
             dataflow_input_edge_query_for_edge(
                 DataflowInputEdge{i0, DataflowInput{n0, 0_n}}),
@@ -119,7 +119,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result_nodes == correct);
       }
 
-      SUBCASE("check access to new edges") {
+      SECTION("check access to new edges") {
         DataflowEdge new_standard_edge = DataflowEdge{
             DataflowOutput{new_node0, 0_n},
             DataflowInput{new_node1, 1_n},
@@ -144,8 +144,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("query_outputs(DataflowOutputQuery)") {
-      SUBCASE("check access to old outputs") {
+    SECTION("query_outputs(DataflowOutputQuery)") {
+      SECTION("check access to old outputs") {
         DataflowOutput old_output = n0_output;
 
         DataflowOutputQuery query =
@@ -158,7 +158,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result_outputs == correct);
       }
 
-      SUBCASE("check access to new outputs") {
+      SECTION("check access to new outputs") {
         DataflowOutput new_output = DataflowOutput{new_node0, 0_n};
 
         DataflowOutputQuery query =
@@ -172,4 +172,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

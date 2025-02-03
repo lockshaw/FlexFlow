@@ -1,10 +1,10 @@
 #include "utils/graph/series_parallel/intermediate_sp_decomposition_tree.h"
 #include "utils/fmt/variant.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("flatten_ast") {
     std::variant<IntermediateSpDecompositionTree, Node> input =
         IntermediateSpDecompositionTree{
@@ -35,4 +35,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

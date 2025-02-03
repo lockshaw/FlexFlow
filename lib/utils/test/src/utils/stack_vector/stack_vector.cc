@@ -1,21 +1,24 @@
 #include "utils/stack_vector/stack_vector.h"
 #include "test/utils/doctest/fmt/vector.h"
 #include "test/utils/rapidcheck.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <iterator>
+#include <catch2/catch_template_test_macros.hpp>
+#include <rapidcheck.h>
+#include <rapidcheck/catch.h>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE_TEMPLATE(
-      "stack_vector<T, MAXSIZE>::push_back", T, int, double, char) {
+
+  TEMPLATE_TEST_CASE(
+      "stack_vector<TestType, MAXSIZE>::push_back", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 5;
-    using StackVector = stack_vector<T, MAXSIZE>;
+    using StackVector = stack_vector<TestType, MAXSIZE>;
     StackVector vector;
 
     vector.push_back(10);
-    std::vector<T> result = vector;
-    std::vector<T> correct = {10};
+    std::vector<TestType> result = vector;
+    std::vector<TestType> correct = {10};
     CHECK(result == correct);
 
     vector.push_back(20);
@@ -24,10 +27,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE_TEMPLATE(
-      "stack_vector<T, MAXSIZE>::operator[]", T, int, double, char) {
+  TEMPLATE_TEST_CASE(
+      "stack_vector<TestType, MAXSIZE>::operator[]", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 5;
-    using StackVector = stack_vector<T, MAXSIZE>;
+    using StackVector = stack_vector<TestType, MAXSIZE>;
     StackVector vector;
 
     vector.push_back(10);
@@ -39,9 +42,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(vector[2] == 30);
   }
 
-  TEST_CASE_TEMPLATE("stack_vector<T, MAXSIZE>::size", T, int, double, char) {
+  TEMPLATE_TEST_CASE("stack_vector<TestType, MAXSIZE>::size", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 5;
-    using StackVector = stack_vector<T, MAXSIZE>;
+    using StackVector = stack_vector<TestType, MAXSIZE>;
     StackVector vector;
 
     CHECK(vector.size() == 0);
@@ -53,10 +56,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(vector.size() == 2);
   }
 
-  TEST_CASE_TEMPLATE(
-      "stack_vector<T, MAXSIZE>::operator==", T, int, double, char) {
+  TEMPLATE_TEST_CASE(
+      "stack_vector<TestType, MAXSIZE>::operator==", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 5;
-    using StackVector = stack_vector<T, MAXSIZE>;
+    using StackVector = stack_vector<TestType, MAXSIZE>;
     StackVector vector1, vector2;
 
     vector1.push_back(10);
@@ -70,9 +73,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(vector1 == vector2);
   }
 
-  TEST_CASE_TEMPLATE("stack_vector<T, MAXSIZE>::back", T, int, double, char) {
+  TEMPLATE_TEST_CASE("stack_vector<TestType, MAXSIZE>::back", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 5;
-    using StackVector = stack_vector<T, MAXSIZE>;
+    using StackVector = stack_vector<TestType, MAXSIZE>;
     StackVector vector;
 
     vector.push_back(10);
@@ -82,11 +85,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(vector.back() == 20);
   }
 
-  TEST_CASE_TEMPLATE(
-      "stack_vector<T, MAXSIZE> - check for size bound", T, int, double, char) {
+  TEMPLATE_TEST_CASE(
+      "stack_vector<TestType, MAXSIZE> - check for size bound", "", int, double, char) {
     constexpr std::size_t MAXSIZE = 10;
-    RC_SUBCASE("within bound", [&](stack_vector<T, MAXSIZE> v) {
+    rc::prop("within bound", [&](stack_vector<TestType, MAXSIZE> v) {
       RC_ASSERT(v.size() <= MAXSIZE);
     });
   }
-}

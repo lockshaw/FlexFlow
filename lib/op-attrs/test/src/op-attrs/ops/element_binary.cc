@@ -5,7 +5,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("EWAdd shape inference") {
     nonnegative_int d1 = 16_n;
     nonnegative_int d2 = 32_n;

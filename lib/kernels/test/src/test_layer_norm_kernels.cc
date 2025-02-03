@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test LayerNorm Forward and Backward Kernel") {
     nonnegative_int batch_size = 10_n;
     nonnegative_int feature_size = 10_n;

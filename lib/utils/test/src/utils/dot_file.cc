@@ -1,12 +1,12 @@
 #include "utils/dot_file.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <sstream>
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("DotFile") {
     std::ostringstream oss;
     DotFile<std::string> dotFile(oss);
-    SUBCASE("add_node") {
+    SECTION("add_node") {
       dotFile.add_node("A", {{"shape", "circle"}, {"label", "Node A"}});
       dotFile.add_node("B", {{"shape", "rectangle"}, {"label", "Node B"}});
 
@@ -20,7 +20,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(oss.str() == expectedOutput);
     }
 
-    SUBCASE("add_edge") {
+    SECTION("add_edge") {
       dotFile.add_edge("A", "B");
       dotFile.add_edge("B", "C");
 
@@ -34,7 +34,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(oss.str() == expectedOutput);
     }
 
-    SUBCASE("add_record_node") {
+    SECTION("add_record_node") {
       RecordFormatter rf;
 
       rf << "Field1";
@@ -54,7 +54,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(oss.str() == expectedOutput);
     }
 
-    SUBCASE("add_node_to_subgraph") {
+    SECTION("add_node_to_subgraph") {
       size_t subgraph1 = dotFile.add_subgraph();
       size_t subgraph2 = dotFile.add_subgraph(subgraph1);
 
@@ -76,4 +76,3 @@ node1;
       CHECK(oss.str() == expectedOutput);
     }
   }
-}

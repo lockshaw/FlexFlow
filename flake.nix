@@ -51,9 +51,13 @@
       proj = proj-repo.packages.${system}.proj;
     in 
     {
-      packages = {
+      packages = rec {
+        libdwarf-lite = pkgs.callPackage ./.flake/pkgs/libdwarf-lite.nix { };
+        cpptrace = pkgs.callPackage ./.flake/pkgs/cpptrace.nix { inherit libdwarf-lite; };
+        libassert = pkgs.callPackage ./.flake/pkgs/libassert.nix { inherit cpptrace; };
         legion = pkgs.callPackage ./.flake/pkgs/legion.nix { };
         ffdb = pkgs.callPackage ./.flake/pkgs/ffdb { inherit proj; };
+        bencher-cli = pkgs.callPackage ./.flake/pkgs/bencher-cli.nix { };
         hpp2plantuml = pkgs.python3Packages.callPackage ./.flake/pkgs/hpp2plantuml.nix { };
         rapidcheckFull = pkgs.symlinkJoin {
           name = "rapidcheckFull";
@@ -71,6 +75,15 @@
             ./.flake/patches/doctest-template-test.patch
           ];
         });
+        catch2_3 = pkgs.catch2_3.overrideAttrs ( old: rec {
+          version = "3.7.1";
+          src = pkgs.fetchFromGitHub {
+            owner = "catchorg";
+            repo = "Catch2";
+            rev = "v${version}";
+            sha256 = "sha256-Zt53Qtry99RAheeh7V24Csg/aMW25DT/3CN/h+BaeoM=";
+          };
+        });
       };
 
       devShells = rec {
@@ -87,9 +100,11 @@
                                 -DFF_USE_EXTERNAL_RAPIDCHECK=ON \
                                 -DFF_USE_EXTERNAL_EXPECTED=ON \
                                 -DFF_USE_EXTERNAL_GBENCHMARK=ON \
+                                -DFF_USE_EXTERNAL_CATCH2=ON \
                                 -DFF_USE_EXTERNAL_RANGEV3=ON \
                                 -DFF_USE_EXTERNAL_BOOST_PREPROCESSOR=ON \
-                                -DFF_USE_EXTERNAL_TYPE_INDEX=ON"
+                                -DFF_USE_EXTERNAL_TYPE_INDEX=ON \
+                                -DFF_USE_EXTERNAL_LIBASSERT=ON"
           '';
           
           buildInputs = builtins.concatLists [
@@ -123,6 +138,8 @@
               legion
               rapidcheckFull
               doctest
+              libassert
+              catch2_3
             ])
           ];
         };
@@ -173,6 +190,7 @@
             (with self.packages.${system}; [
               ffdb
               hpp2plantuml
+              bencher-cli
             ])
           ];
         };

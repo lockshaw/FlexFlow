@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Replicate shape inference") {
     ReplicateAttrs attrs = ReplicateAttrs{
         /*replicate_degree=*/4_n,

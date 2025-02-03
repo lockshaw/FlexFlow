@@ -1,12 +1,12 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("nonnegative_range(nonnegative_int)") {
-    SUBCASE("bound is greater than zero") {
+    SECTION("bound is greater than zero") {
       std::vector<nonnegative_int> result =
           nonnegative_range(nonnegative_int{3});
       std::vector<nonnegative_int> correct = {
@@ -18,7 +18,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("bound is zero") {
+    SECTION("bound is zero") {
       std::vector<nonnegative_int> result =
           nonnegative_range(nonnegative_int{0});
       std::vector<nonnegative_int> correct = {};
@@ -39,4 +39,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

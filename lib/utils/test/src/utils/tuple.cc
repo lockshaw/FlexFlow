@@ -1,15 +1,15 @@
 #include "utils/tuple.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
 #include <utility>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get function") {
     std::tuple<int, float, double> t(42, 3.14f, 2.71828);
 
-    SUBCASE("get mutable reference") {
+    SECTION("get mutable reference") {
       int &result = get<int>(t);
       CHECK(result == 42);
 
@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(std::get<0>(t) == 100);
     }
 
-    SUBCASE("get rvalue reference") {
+    SECTION("get rvalue reference") {
       int &&result = get<int>(std::move(t));
       CHECK(result == 42);
 
@@ -25,12 +25,12 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(std::get<0>(t) == 42); // Uncomment this line to check the behavior
     }
 
-    SUBCASE("get const reference") {
+    SECTION("get const reference") {
       int const &result = get<int>(t);
       CHECK(result == 42);
     }
 
-    SUBCASE("get const rvalue reference") {
+    SECTION("get const rvalue reference") {
       int const &&result = get<int>(std::move(t));
       CHECK(result == 42);
     }
@@ -77,4 +77,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(get<double>(tup) == 3.14);
     CHECK(get<char>(tup) == 'a');
   }
-}

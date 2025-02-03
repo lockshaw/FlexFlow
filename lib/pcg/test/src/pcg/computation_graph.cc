@@ -5,7 +5,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_incoming_inputs(ComputationGraph, layer_guid_t)") {
     SUBCASE("layer has no inputs") {
       std::string input_name = "input";

@@ -4,11 +4,11 @@
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/nary_sp_tree_from_binary.h"
 #include "utils/graph/series_parallel/series_parallel_decomposition.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("left_associative_binary_sp_tree_from_nary("
             "SeriesParallelDecomposition)") {
     Node n1 = Node{1};
@@ -30,7 +30,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_leaf = [](Node const &n) { return BinarySPDecompositionTree{n}; };
 
-    SUBCASE("only node") {
+    SECTION("only node") {
       SeriesParallelDecomposition input = SeriesParallelDecomposition{n1};
 
       BinarySPDecompositionTree result =
@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("only serial") {
+    SECTION("only serial") {
       SeriesParallelDecomposition input = SeriesParallelDecomposition{
           SeriesSplit{{n1, n2, n3}},
       };
@@ -54,7 +54,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("only parallel") {
+    SECTION("only parallel") {
       SeriesParallelDecomposition input = SeriesParallelDecomposition{
           ParallelSplit{{n1, n2, n3}},
       };
@@ -73,7 +73,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result_nodes == correct_nodes);
     }
 
-    SUBCASE("nested") {
+    SECTION("nested") {
       SeriesParallelDecomposition input = SeriesParallelDecomposition{
           ParallelSplit{{
               n1,
@@ -103,4 +103,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result_nodes == correct_nodes);
     }
   }
-}

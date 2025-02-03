@@ -6,7 +6,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_linear_incoming_tensor_roles(LinearAttrs)") {
     auto make_attrs = [](bool use_bias) {
       return LinearAttrs{

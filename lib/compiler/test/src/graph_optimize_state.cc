@@ -1,10 +1,10 @@
 #include "compiler/graph_optimize_state.h"
-#include "doctest/doctest.h"
+#include "catch2/catch_test_macros.hpp"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("GraphOptimizeState::operator==") {
     ParallelComputationGraphBuilder builder;
 
@@ -80,4 +80,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     bool correct2 = false;
     CHECK(result2 == correct2);
   }
-}

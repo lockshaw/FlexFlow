@@ -1,6 +1,6 @@
-ff_add_benchmark_executable(
+ff_add_benchmarks(
   NAME
-    compiler-benchmarks
+    compiler
   SRC_PATTERNS
     src/*.cc
   PRIVATE_INCLUDE
@@ -9,4 +9,5 @@ ff_add_benchmark_executable(
     utils
     compiler
     models
+    utils-benchmark-common
 )

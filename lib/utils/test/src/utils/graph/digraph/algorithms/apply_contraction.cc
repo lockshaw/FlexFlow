@@ -2,11 +2,11 @@
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("apply_contraction") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
@@ -33,13 +33,13 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                {n.at(1), n.at(4)},
                                            });
 
-    SUBCASE("nodes") {
+    SECTION("nodes") {
       std::unordered_set<Node> result_nodes = get_nodes(result);
       std::unordered_set<Node> correct_nodes = {n.at(2), n.at(4), n.at(5)};
       CHECK(result_nodes == correct_nodes);
     }
 
-    SUBCASE("edges") {
+    SECTION("edges") {
       std::unordered_set<DirectedEdge> result_edges = get_edges(result);
       std::unordered_set<DirectedEdge> correct_edges = {
           DirectedEdge{n.at(2), n.at(4)},
@@ -51,4 +51,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result_edges == correct_edges);
     }
   }
-}

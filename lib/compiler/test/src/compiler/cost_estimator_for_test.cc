@@ -53,4 +53,4 @@ CostEstimator make_fake_constant_cost_estimator(float forward_op_cost,
       [=](TensorSetMovement const &op) { return comm_cost; });
 }
 
-} // namespace FlexFlow
+}

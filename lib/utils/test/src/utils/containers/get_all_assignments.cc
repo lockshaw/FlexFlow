@@ -1,13 +1,13 @@
 #include "utils/containers/get_all_assignments.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_all_assignments") {
-    SUBCASE("empty input") {
+    SECTION("empty input") {
       std::unordered_map<std::string, std::unordered_set<int>> input = {};
 
       std::unordered_set<std::unordered_map<std::string, int>> result =
@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("non-empty input") {
+    SECTION("non-empty input") {
       std::unordered_map<std::string, std::unordered_set<int>> input = {
           {"a", {1, 2, 3}},
           {"b", {2, 3}},
@@ -37,7 +37,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("one possible-values set is empty") {
+    SECTION("one possible-values set is empty") {
       std::unordered_map<std::string, std::unordered_set<int>> input = {
           {"a", {}},
           {"b", {2, 3}},
@@ -50,4 +50,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

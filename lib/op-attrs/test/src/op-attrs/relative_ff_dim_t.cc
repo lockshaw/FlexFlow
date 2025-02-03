@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("ff_dim_t_from_relative_ff_dim_t") {
     nonnegative_int input_dim = 5_n;
 

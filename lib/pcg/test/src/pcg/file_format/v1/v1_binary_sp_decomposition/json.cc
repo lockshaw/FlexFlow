@@ -3,7 +3,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("adl_serializer<V1BinarySPDecomposition>") {
     V1BinarySPDecomposition example_tree = V1BinarySPDecomposition{
         V1BinarySeriesSplit{

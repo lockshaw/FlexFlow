@@ -2,14 +2,14 @@
 #include "test/utils/doctest/fmt/unordered_multiset.h"
 #include "test/utils/doctest/fmt/vector.h"
 #include "utils/hash/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
 
   TEST_CASE("get_all_permutations_with_repetition") {
-    SUBCASE("output vector has only one element") {
+    SECTION("output vector has only one element") {
       std::vector<int> input = {1, 2, 3};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -23,7 +23,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input vector has only one element") {
+    SECTION("input vector has only one element") {
       std::vector<int> input = {1};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input, output vectors have more than 1 element") {
+    SECTION("input, output vectors have more than 1 element") {
       std::vector<int> input = {1, 2};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -54,7 +54,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("duplicate elements") {
+    SECTION("duplicate elements") {
       std::vector<int> input = {1, 2, 2};
 
       std::unordered_multiset<std::vector<int>> result =
@@ -72,4 +72,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

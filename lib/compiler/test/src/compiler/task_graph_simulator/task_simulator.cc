@@ -28,14 +28,14 @@
 #include "utils/deduplicated_priority_queue.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_source_nodes.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace FlexFlow {
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("task_simulator_estimate_forward_pass_time") {
     MachineSpecification machine_spec =
         MachineSpecification{/*num_nodes=*/3_n,
@@ -44,7 +44,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                              /*inter_node_bandwidth=*/1.0f,
                              /*intra_node_bandwidth=*/1.0f};
 
-    SUBCASE("linear graph") {
+    SECTION("linear graph") {
       ParallelComputationGraphBuilder b;
       ParallelTensorShape input_shape = ParallelTensorShape{
           ParallelTensorDims{
@@ -79,7 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           {layer1, mv2},
       }};
 
-      SUBCASE("constant op, comm cost") {
+      SECTION("constant op, comm cost") {
         CostEstimator estimator = make_fake_constant_cost_estimator(
             /*forward_op_cost=*/10.0f,
             /*backward_op_cost=*/10.0f,
@@ -93,7 +93,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("variable op, comm cost") {
+      SECTION("variable op, comm cost") {
         CostEstimator cost_estimator = make_fake_cost_estimator(
             [](OpCostEstimateKey const &op) {
               if (op.op_attrs.has<InputAttrs>()) {
@@ -119,7 +119,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("rhomboidal graph") {
+    SECTION("rhomboidal graph") {
       ParallelComputationGraphBuilder b;
 
       ParallelTensorShape input_shape = ParallelTensorShape{
@@ -153,7 +153,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                MachineSpecificationDimension::INTER_NODE},
       };
 
-      SUBCASE("all different devices") {
+      SECTION("all different devices") {
         MachineView mv0 = MachineView{
             MachineSpaceCoordinate{0_n, 0_n, DeviceType::GPU}, dims};
         MachineView mv1 = MachineView{
@@ -169,7 +169,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             {layer2, mv2},
             {layer3, mv3},
         }};
-        SUBCASE("constant op, comm cost") {
+        SECTION("constant op, comm cost") {
           CostEstimator estimator = make_fake_constant_cost_estimator(
               /*forward_op_cost=*/10.0f,
               /*backward_op_cost=*/10.0f,
@@ -181,7 +181,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           float correct = 10 + 1 + 10 + 1 + 10;
           CHECK(result == correct);
         }
-        SUBCASE("variable op, comm cost") {
+        SECTION("variable op, comm cost") {
           CostEstimator cost_estimator = make_fake_cost_estimator(
               [](OpCostEstimateKey const &op) {
                 if (op.op_attrs.has<InputAttrs>()) {
@@ -207,7 +207,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         }
       }
 
-      SUBCASE("all the same device") {
+      SECTION("all the same device") {
         MachineView mv = MachineView{
             MachineSpaceCoordinate{0_n, 0_n, DeviceType::GPU}, dims};
         MachineMapping device_mapping = MachineMapping{{
@@ -216,7 +216,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             {layer2, mv},
             {layer3, mv},
         }};
-        SUBCASE("constant op, cost cost") {
+        SECTION("constant op, cost cost") {
           CostEstimator cost_estimator = make_fake_constant_cost_estimator(
               /*forward_op_cost=*/10.0f,
               /*backward_op_cost=*/10.0f,
@@ -228,7 +228,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           float correct = 10 + 10 + 10 + 10 + 1 + 1;
           CHECK(result == correct);
         }
-        SUBCASE("variable op, cost cost") {
+        SECTION("variable op, cost cost") {
           CostEstimator cost_estimator = make_fake_cost_estimator(
               [](OpCostEstimateKey const &op) {
                 if (op.op_attrs.has<InputAttrs>()) {
@@ -260,4 +260,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 }
-} // namespace FlexFlow

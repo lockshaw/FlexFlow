@@ -2,11 +2,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/instances/unordered_set_labelled_open_dataflow_graph.h"
 #include "utils/graph/labelled_dataflow_graph/labelled_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("labelled_dataflow_graphs_are_isomorphic(LabelledDataflowGraphView,"
             " LabelledDataflowGraphView)") {
     auto g1 = LabelledDataflowGraph<std::string, int>::create<
@@ -14,7 +14,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto g2 = LabelledDataflowGraph<std::string, int>::create<
         UnorderedSetLabelledOpenDataflowGraph<std::string, int>>();
 
-    SUBCASE("duplicate labels") {
+    SECTION("duplicate labels") {
       std::string node_label = "n";
       int value_label = 1;
 
@@ -49,7 +49,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("non-duplicate labels") {
+    SECTION("non-duplicate labels") {
       std::string n1_label = "n1";
       std::string n2_label = "n2";
       std::string n3_label = "n3";
@@ -72,7 +72,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           n3_label, {g1_n1_output, g1_n2_output}, {n3_output_label});
       Node g1_n3_node = g1_n3_added.node;
 
-      SUBCASE("input graphs are isomorphic") {
+      SECTION("input graphs are isomorphic") {
         NodeAddedResult g2_n1_added =
             g2.add_node(n1_label, {}, {n1_output_label});
         Node g2_n1_node = g2_n1_added.node;
@@ -94,7 +94,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("input graphs are not isomorphic (mismatched node labels)") {
+      SECTION("input graphs are not isomorphic (mismatched node labels)") {
         std::string mismatched_node_label = "mismatched_node_label";
 
         NodeAddedResult g2_n1_added =
@@ -118,7 +118,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("input graphs are not isomorphic (mismatched output label)") {
+      SECTION("input graphs are not isomorphic (mismatched output label)") {
         int mismatched_output_label = 20000;
 
         NodeAddedResult g2_n1_added =
@@ -142,7 +142,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("input graphs are not isomorphic (underlying unlabelled graphs "
+      SECTION("input graphs are not isomorphic (underlying unlabelled graphs "
               "not isomorphic)") {
         NodeAddedResult g2_n1_added =
             g2.add_node(n1_label, {}, {n1_output_label});
@@ -166,4 +166,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}

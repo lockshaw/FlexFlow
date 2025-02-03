@@ -4,11 +4,11 @@
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/binary_sp_decomposition_tree.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_transitive_reduced_outputs_across_split") {
     auto make_series_split = [](BinarySPDecompositionTree const &lhs,
                                 BinarySPDecompositionTree const &rhs) {
@@ -49,4 +49,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

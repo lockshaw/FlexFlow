@@ -1,13 +1,13 @@
 #include "utils/expected.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include "test/utils/doctest/fmt/optional.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("optional_from_expected(tl::expected<T, E>)") {
-    SUBCASE("has value") {
+    SECTION("has value") {
       tl::expected<int, std::string> input = 1;
 
       std::optional<int> result = optional_from_expected(input);
@@ -16,7 +16,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("has unexpected") {
+    SECTION("has unexpected") {
       tl::expected<int, std::string> input =
           tl::make_unexpected("error message");
 
@@ -26,4 +26,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

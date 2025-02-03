@@ -12,7 +12,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("evaluate_substitution_output") {
     // Currently Substitution creation is very verbose.
     // This is being addressed in

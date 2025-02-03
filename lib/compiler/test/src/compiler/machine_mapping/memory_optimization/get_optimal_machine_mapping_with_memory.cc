@@ -10,11 +10,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/full_binary_tree/binary_tree_path.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_optimal_machine_mapping_with_memory") {
     auto make_leaf = [](UnmappedOpCostEstimateKey const &k) {
       return MachineMappingProblemTree{k};
@@ -184,7 +184,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     MachineMappingWithMemoryCache cache =
         empty_machine_mapping_with_memory_cache();
 
-    SUBCASE("single layer") {
+    SECTION("single layer") {
       MachineMappingProblemTree problem_tree = make_leaf(k1);
 
       MachineMappingConstraints constraints =
@@ -216,7 +216,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("pair of layers in sequence") {
+    SECTION("pair of layers in sequence") {
       MachineMappingProblemTree problem_tree =
           make_series_split(movement1, make_leaf(k1), make_leaf(k2));
 
@@ -273,7 +273,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("pair of layers in parallel") {
+    SECTION("pair of layers in parallel") {
       MachineMappingProblemTree problem_tree =
           make_parallel_split(make_leaf(k1), make_leaf(k2));
 
@@ -309,4 +309,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

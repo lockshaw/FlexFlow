@@ -3,13 +3,13 @@
 #include "utils/graph/instances/adjacency_multidigraph.h"
 #include "utils/graph/multidigraph/multidiedge_query.h"
 #include "utils/graph/query_set.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <unordered_set>
 #include <vector>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("MultiDiGraph") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
@@ -24,15 +24,15 @@ TEST_SUITE(FF_TEST_SUITE) {
     MultiDiEdge e5 = g.add_edge(n2, n0);
     MultiDiEdge e6 = g.add_edge(n2, n2);
 
-    SUBCASE("add_node") {
+    SECTION("add_node") {
       Node n3 = g.add_node();
       std::unordered_set<Node> result = g.query_nodes(NodeQuery{{n3}});
       std::unordered_set<Node> correct = {n3};
       CHECK(result == correct);
     }
 
-    SUBCASE("add_edge") {
-      SUBCASE("non-duplicate edge") {
+    SECTION("add_edge") {
+      SECTION("non-duplicate edge") {
         MultiDiEdge e7 = g.add_edge(n2, n1);
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n2}, {n1}));
@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("duplicate edge") {
+      SECTION("duplicate edge") {
         MultiDiEdge e7 = g.add_edge(n2, n1);
         MultiDiEdge e8 = g.add_edge(n2, n1);
 
@@ -51,7 +51,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("remove_node") {
+    SECTION("remove_node") {
       g.remove_node(n0);
 
       std::unordered_set<Node> node_result = g.query_nodes(NodeQuery{{n0}});
@@ -64,14 +64,14 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(edge_result == edge_correct);
     }
 
-    SUBCASE("remove_edge") {
+    SECTION("remove_edge") {
       g.remove_edge(e3);
       std::unordered_set<MultiDiEdge> result =
           g.query_edges(MultiDiEdgeQuery({n1}, {n2}));
       std::unordered_set<MultiDiEdge> correct = {e4};
       CHECK(result == correct);
 
-      SUBCASE("remove non-duplicate edge") {
+      SECTION("remove non-duplicate edge") {
         g.remove_edge(e0);
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n0}, {n2}));
@@ -79,7 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("remove duplicate edge") {
+      SECTION("remove duplicate edge") {
         g.remove_edge(e1);
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n1}, {n0}));
@@ -88,28 +88,28 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("query_nodes") {
-      SUBCASE("all nodes") {
+    SECTION("query_nodes") {
+      SECTION("all nodes") {
         std::unordered_set<Node> result =
             g.query_nodes(NodeQuery{{n0, n1, n2}});
         std::unordered_set<Node> correct = {n0, n1, n2};
         CHECK(result == correct);
       }
 
-      SUBCASE("specific nodes") {
+      SECTION("specific nodes") {
         std::unordered_set<Node> result = g.query_nodes(NodeQuery{{n0, n2}});
         std::unordered_set<Node> correct = {n0, n2};
         CHECK(result == correct);
       }
 
-      SUBCASE("matchall") {
+      SECTION("matchall") {
         std::unordered_set<Node> result =
             g.query_nodes(NodeQuery{matchall<Node>()});
         std::unordered_set<Node> correct = {n0, n1, n2};
         CHECK(result == correct);
       }
 
-      SUBCASE("nodes not in graph") {
+      SECTION("nodes not in graph") {
         Node n3 = Node(3);
         Node n4 = Node(4);
         std::unordered_set<Node> result = g.query_nodes(NodeQuery{{n3, n4}});
@@ -118,36 +118,36 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("query_edges") {
-      SUBCASE("all edges") {
+    SECTION("query_edges") {
+      SECTION("all edges") {
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n0, n1, n2}, {n0, n1, n2}));
         std::unordered_set<MultiDiEdge> correct = {e0, e1, e2, e3, e4, e5, e6};
         CHECK(result == correct);
       }
 
-      SUBCASE("edges from n1") {
+      SECTION("edges from n1") {
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n1}, {n0, n1, n2}));
         std::unordered_set<MultiDiEdge> correct = {e1, e2, e3, e4};
         CHECK(result == correct);
       }
 
-      SUBCASE("edges to n2") {
+      SECTION("edges to n2") {
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery({n0, n1, n2}, {n2}));
         std::unordered_set<MultiDiEdge> correct = {e0, e3, e4, e6};
         CHECK(result == correct);
       }
 
-      SUBCASE("matchall") {
+      SECTION("matchall") {
         std::unordered_set<MultiDiEdge> result =
             g.query_edges(MultiDiEdgeQuery(matchall<Node>(), matchall<Node>()));
         std::unordered_set<MultiDiEdge> correct = {e0, e1, e2, e3, e4, e5, e6};
         CHECK(result == correct);
       }
 
-      SUBCASE("nodes that don't exist") {
+      SECTION("nodes that don't exist") {
         Node n3 = Node(3);
         Node n4 = Node(4);
         std::unordered_set<MultiDiEdge> result =
@@ -156,16 +156,15 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
     }
-    SUBCASE("get_multidiedge_src") {
+    SECTION("get_multidiedge_src") {
       Node result = g.get_multidiedge_src(e0);
       Node correct = n0;
       CHECK(result == correct);
     }
 
-    SUBCASE("get_multidiedge_dst") {
+    SECTION("get_multidiedge_dst") {
       Node result = g.get_multidiedge_dst(e0);
       Node correct = n2;
       CHECK(result == correct);
     }
   }
-}

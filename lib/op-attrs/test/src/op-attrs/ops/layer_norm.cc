@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_layer_norm_incoming_tensor_roles(LayerNormAttrs)") {
     auto make_attrs = [](bool elementwise_affine) {
       return LayerNormAttrs{

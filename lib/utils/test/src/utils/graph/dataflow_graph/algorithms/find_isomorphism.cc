@@ -2,11 +2,11 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("find_isomorphism(DataflowGraphView, DataflowGraphView)") {
     auto g1 = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -19,7 +19,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto g2 = DataflowGraph::create<UnorderedSetDataflowGraph>();
 
-    SUBCASE("input graphs are isomorphic") {
+    SECTION("input graphs are isomorphic") {
       NodeAddedResult g2_n1_added = g2.add_node({}, 1_n);
       Node g2_n1_node = g2_n1_added.node;
       DataflowOutput g2_n1_output = get_only(g2_n1_added.outputs);
@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct_isomorphism);
     }
 
-    SUBCASE("input graphs are not isomorphic (different connectivity)") {
+    SECTION("input graphs are not isomorphic (different connectivity)") {
       NodeAddedResult g2_n1_added = g2.add_node({}, 1_n);
       Node g2_n1_node = g2_n1_added.node;
       DataflowOutput g2_n1_output = get_only(g2_n1_added.outputs);
@@ -57,7 +57,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct_isomorphism);
     }
 
-    SUBCASE("input graphs are not isomorphic (different number of src and sink "
+    SECTION("input graphs are not isomorphic (different number of src and sink "
             "nodes)") {
       NodeAddedResult g2_n1_added = g2.add_node({}, 1_n);
       Node g2_n1_node = g2_n1_added.node;
@@ -77,7 +77,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct_isomorphism);
     }
 
-    SUBCASE("input graphs are not isomorphic (different number of internal "
+    SECTION("input graphs are not isomorphic (different number of internal "
             "nodes)") {
       NodeAddedResult g2_n1_added = g2.add_node({}, 1_n);
       Node g2_n1_node = g2_n1_added.node;
@@ -98,4 +98,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct_isomorphism);
     }
   }
-}

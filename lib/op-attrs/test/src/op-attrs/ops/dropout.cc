@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_output_shape(DropoutAttrs, TensorShape)") {
     DropoutAttrs attrs = DropoutAttrs{
         /*rate=*/0.5,

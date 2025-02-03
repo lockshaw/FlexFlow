@@ -1,5 +1,5 @@
 #include "utils/graph/cow_ptr_t.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,7 +22,7 @@ struct TestObjectDerived : public TestObject {
   }
 };
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("cow_ptr_t constructor") {
     std::shared_ptr<TestObject> sp = std::make_shared<TestObject>(1);
     cow_ptr_t<TestObject> p1(sp);
@@ -59,4 +59,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     p2.get_mutable()->x = 2;
     CHECK(p1->x == 3);
   }
-}

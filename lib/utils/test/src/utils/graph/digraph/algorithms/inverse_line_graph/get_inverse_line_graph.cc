@@ -9,15 +9,15 @@
 #include "utils/graph/multidigraph/algorithms/get_directed_edge.h"
 #include "utils/graph/multidigraph/algorithms/get_edge_counts.h"
 #include "utils/graph/node/algorithms.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_inverse_line_graph") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
-    SUBCASE("diamond-ish") {
+    SECTION("diamond-ish") {
       // Tests that inverse line graph of the diamond graph
       //   b-d
       //  /   \
@@ -59,7 +59,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       std::vector<Node> inv = get_topological_ordering(result.graph);
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_map<DirectedEdge, int> result_edges =
             get_edge_counts(result.graph);
         std::unordered_map<DirectedEdge, int> correct_edges = {
@@ -72,7 +72,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result_edges == correct_edges);
       }
 
-      SUBCASE("inverse_edge_to_line_node_bidict") {
+      SECTION("inverse_edge_to_line_node_bidict") {
         std::unordered_map<Node, DirectedEdge> result_bidict =
             map_values(result.inverse_edge_to_line_node_bidict.reversed()
                            .as_unordered_map(),
@@ -90,7 +90,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("duplicate edges") {
+    SECTION("duplicate edges") {
       // Tests that inverse line graph of the two-node graph
       //
       // a b  (no edges)
@@ -117,7 +117,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       std::vector<Node> inv = get_topological_ordering(result.graph);
 
-      SUBCASE("edges") {
+      SECTION("edges") {
         std::unordered_map<DirectedEdge, int> result_edges =
             get_edge_counts(result.graph);
         std::unordered_map<DirectedEdge, int> correct_edges = {
@@ -126,7 +126,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result_edges == correct_edges);
       }
 
-      SUBCASE("inverse_edge_to_line_node_bidict") {
+      SECTION("inverse_edge_to_line_node_bidict") {
         std::unordered_map<Node, DirectedEdge> result_bidict =
             map_values(result.inverse_edge_to_line_node_bidict.reversed()
                            .as_unordered_map(),
@@ -141,7 +141,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("sp n-graph (inverse line graph does not exist)") {
+    SECTION("sp n-graph (inverse line graph does not exist)") {
       // Tests that the inverse line graph of the sp n-graph
       //
       // a-b
@@ -163,4 +163,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_FALSE(result.has_value());
     }
   }
-}

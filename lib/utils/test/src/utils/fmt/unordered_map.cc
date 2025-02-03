@@ -1,11 +1,11 @@
 #include "utils/fmt/unordered_map.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
 #include "utils/containers/get_element_counts.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("fmt::to_string(std::unordered_map<int, int>)") {
     std::unordered_map<int, int> input = {{0, 10}, {1, 1}, {3, 5}, {2, 8}};
     std::string result = fmt::to_string(input);
@@ -16,4 +16,3 @@ TEST_SUITE(FF_TEST_SUITE) {
         get_element_counts(correct);
     CHECK(result_char_counts == correct_char_counts);
   }
-}

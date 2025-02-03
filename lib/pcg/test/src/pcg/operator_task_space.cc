@@ -4,7 +4,7 @@
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_task_space_coordinates") {
 
     SUBCASE("OperatorTaskSpace has 0 dimensions") {

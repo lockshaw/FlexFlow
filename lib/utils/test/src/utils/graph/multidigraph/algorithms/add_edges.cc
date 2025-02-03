@@ -2,11 +2,11 @@
 #include "utils/graph/instances/adjacency_multidigraph.h"
 #include "utils/graph/multidigraph/algorithms/add_nodes.h"
 #include "utils/graph/multidigraph/multidiedge_query.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("add_edges(MultiDiGraph &, std::vector<std::pair<Node, Node>>)") {
     MultiDiGraph g = MultiDiGraph::create<AdjacencyMultiDiGraph>();
 
@@ -25,39 +25,38 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto dst = [&](MultiDiEdge const &e) { return g.get_multidiedge_dst(e); };
 
-    SUBCASE("adds only those edges") {
+    SECTION("adds only those edges") {
       std::unordered_set<MultiDiEdge> added =
           g.query_edges(multidiedge_query_all());
       std::unordered_set<MultiDiEdge> returned = unordered_set_of(result);
       CHECK(returned == added);
     }
 
-    SUBCASE("returns correct number of edges") {
+    SECTION("returns correct number of edges") {
       CHECK(result.size() == 4);
     }
 
-    SUBCASE("returns unique edges") {
+    SECTION("returns unique edges") {
       CHECK(unordered_set_of(result).size() == result.size());
     }
 
-    SUBCASE("edge 0") {
+    SECTION("edge 0") {
       CHECK(src(result.at(0)) == n.at(0));
       CHECK(dst(result.at(0)) == n.at(1));
     }
 
-    SUBCASE("edge 1") {
+    SECTION("edge 1") {
       CHECK(src(result.at(1)) == n.at(0));
       CHECK(dst(result.at(1)) == n.at(1));
     }
 
-    SUBCASE("edge 2") {
+    SECTION("edge 2") {
       CHECK(src(result.at(2)) == n.at(1));
       CHECK(dst(result.at(2)) == n.at(1));
     }
 
-    SUBCASE("edge 3") {
+    SECTION("edge 3") {
       CHECK(src(result.at(3)) == n.at(0));
       CHECK(dst(result.at(3)) == n.at(0));
     }
   }
-}

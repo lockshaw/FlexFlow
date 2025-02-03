@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test Partition Forward and Backward") {
     ManagedPerDeviceFFHandle managed_handle{};
     ManagedFFStream managed_stream{};

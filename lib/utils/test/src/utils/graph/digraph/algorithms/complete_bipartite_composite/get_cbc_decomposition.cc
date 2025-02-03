@@ -4,11 +4,11 @@
 #include "utils/graph/algorithms.h"
 #include "utils/graph/digraph/algorithms/transitive_reduction.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_cbc_decomposition") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
@@ -31,7 +31,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result1 == result2);
         };
 
-    SUBCASE("six-node diamond graph") {
+    SECTION("six-node diamond graph") {
       std::vector<Node> n = add_nodes(g, 6);
       add_edges(g,
                 {
@@ -58,7 +58,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       check_cbc_decomposition_is_edge_order_invariant(g);
     }
 
-    SUBCASE("graph without any edges") {
+    SECTION("graph without any edges") {
       std::vector<Node> n = add_nodes(g, 4);
 
       std::optional<CompleteBipartiteCompositeDecomposition> result =
@@ -71,7 +71,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       check_cbc_decomposition_is_edge_order_invariant(g);
     }
 
-    SUBCASE("irreducible n-graph (non-cbc graph)") {
+    SECTION("irreducible n-graph (non-cbc graph)") {
       std::vector<Node> n = add_nodes(g, 4);
       add_edges(g,
                 {
@@ -90,4 +90,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       check_cbc_decomposition_is_edge_order_invariant(g);
     }
   }
-}

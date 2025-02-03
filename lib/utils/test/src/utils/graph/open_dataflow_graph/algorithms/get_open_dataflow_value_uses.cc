@@ -2,14 +2,14 @@
 #include "utils/containers/get_only.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
 #include "utils/graph/open_dataflow_graph/open_dataflow_graph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_open_dataflow_value_uses(OpenDataflowGraphView, "
             "OpenDataflowValue)") {
-    SUBCASE("value is a DataflowGraphInput") {
+    SECTION("value is a DataflowGraphInput") {
       OpenDataflowGraph g =
           OpenDataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -39,7 +39,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("value is a DataflowOutput") {
+    SECTION("value is a DataflowOutput") {
       OpenDataflowGraph g =
           OpenDataflowGraph::create<UnorderedSetDataflowGraph>();
 
@@ -71,4 +71,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

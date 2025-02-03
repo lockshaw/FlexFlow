@@ -4,7 +4,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_candle_uno_computation_graph") {
     CandleUnoConfig config = get_default_candle_uno_config();
 

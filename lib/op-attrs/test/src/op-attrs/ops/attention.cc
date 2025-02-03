@@ -6,7 +6,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_attention_incoming_tensor_roles(MultiHeadAttentionAttrs)") {
     auto make_attrs = [](bool bias) {
       return MultiHeadAttentionAttrs{

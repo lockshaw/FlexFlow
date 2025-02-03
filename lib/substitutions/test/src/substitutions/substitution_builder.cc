@@ -10,7 +10,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("SubstitutionBuilder") {
     OperatorAttributePattern relu_pattern = OperatorAttributePattern{{
         op_type_equals_constraint(OperatorType::RELU),

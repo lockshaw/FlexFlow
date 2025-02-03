@@ -3,7 +3,7 @@
 #include "test_utils.h"
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test Gather Forward and Backward Kernel") {
     ManagedPerDeviceFFHandle managed_handle{};
     ManagedFFStream managed_stream{};

@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_output_shape(SoftmaxAttrs, TensorShape)") {
     TensorShape input = TensorShape{
         TensorDims{FFOrdered<nonnegative_int>{

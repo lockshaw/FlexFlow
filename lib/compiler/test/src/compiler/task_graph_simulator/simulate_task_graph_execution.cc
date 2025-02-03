@@ -5,15 +5,15 @@
 #include "utils/graph/algorithms.h"
 #include "utils/graph/digraph/directed_edge.dtg.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <optional>
 
 namespace FlexFlow {
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("simulate_task_graph_execution") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
-    SUBCASE("linear graph") {
+    SECTION("linear graph") {
       std::vector<Node> n = add_nodes(g, 4);
       add_edges(g,
                 {
@@ -44,7 +44,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(correct == result);
     }
 
-    SUBCASE("rhomboidal graph") {
+    SECTION("rhomboidal graph") {
       std::vector<Node> n = add_nodes(g, 4);
 
       add_edges(g,
@@ -56,7 +56,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       auto cost_function = lookup_in_map<Node, float>(
           {{n.at(0), 10}, {n.at(1), 15}, {n.at(2), 20}, {n.at(3), 25}});
 
-      SUBCASE("no processing constraints") {
+      SECTION("no processing constraints") {
         auto is_allowed_to_run =
             [&](Node const &n,
                 std::unordered_set<Node> const &in_progress_tasks,
@@ -77,7 +77,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(correct == result);
       }
 
-      SUBCASE("one node at a time") {
+      SECTION("one node at a time") {
         auto is_allowed_to_run =
             [&](Node const &n,
                 std::unordered_set<Node> const &in_progress_tasks,
@@ -99,7 +99,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("diamond graph with crossing") {
+    SECTION("diamond graph with crossing") {
       std::vector<Node> n = add_nodes(g, 6);
 
       add_edges(g,
@@ -120,7 +120,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                        {n.at(4), 30},
                                                        {n.at(5), 35}});
 
-      SUBCASE("no processing constraints") {
+      SECTION("no processing constraints") {
         auto is_allowed_to_run =
             [&](Node const &n,
                 std::unordered_set<Node> const &in_progress_tasks,
@@ -143,7 +143,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(correct == result);
       }
 
-      SUBCASE("one node at a time") {
+      SECTION("one node at a time") {
         auto is_allowed_to_run =
             [&](Node const &n,
                 std::unordered_set<Node> const &in_progress_tasks,
@@ -167,7 +167,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("all-to-all intermediate") {
+    SECTION("all-to-all intermediate") {
       std::vector<Node> n = add_nodes(g, 5);
 
       add_edges(g,
@@ -184,7 +184,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                        {n.at(3), 100},
                                                        {n.at(4), 20}});
 
-      SUBCASE("at most two nodes at a time") {
+      SECTION("at most two nodes at a time") {
         auto is_allowed_to_run =
             [&](Node const &n,
                 std::unordered_set<Node> const &in_progress_tasks,
@@ -208,4 +208,3 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 }
-} // namespace FlexFlow

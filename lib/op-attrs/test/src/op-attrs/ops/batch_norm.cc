@@ -7,7 +7,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_batch_norm_incoming_tensor_roles(BatchNormAttrs)") {
     auto make_attrs = [](bool affine) {
       return BatchNormAttrs{

@@ -1,11 +1,11 @@
 #include "utils/graph/digraph/algorithms/get_imm_dominators_map.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_imm_dominators_map") {
     // example from
     // https://en.wikipedia.org/w/index.php?title=Dominator_(graph_theory)&oldid=1189814332
@@ -39,4 +39,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

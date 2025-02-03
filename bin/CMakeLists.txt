@@ -1,3 +1,7 @@
+if(FF_BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
+endif()
+
 if(FF_BUILD_SUBSTITUTION_TOOL)
   add_subdirectory(protobuf-to-json)
 endif()

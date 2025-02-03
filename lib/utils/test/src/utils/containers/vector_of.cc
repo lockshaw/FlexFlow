@@ -1,11 +1,11 @@
 #include "utils/containers/vector_of.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <set>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("vector_of(std::set<T>)") {
     std::set<int> input = {2, 3, 1, 4};
 
@@ -14,4 +14,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

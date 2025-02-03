@@ -2,11 +2,11 @@
 #include "compiler/machine_mapping/machine_mapping_problem_tree/machine_mapping_problem_tree.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "utils/containers/get_only.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_machine_mapping_problem_tree") {
     auto pcg_make_leaf = [](parallel_layer_guid_t const &l) {
       return PCGBinarySPDecomposition{l};
@@ -103,7 +103,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
         };
 
-    SUBCASE("single layer") {
+    SECTION("single layer") {
       ParallelLayerAddedResult input_added = add_parallel_layer(
           pcg,
           /*layer_attrs=*/make_layer_attrs(input_attrs),
@@ -123,7 +123,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("two layers in series") {
+    SECTION("two layers in series") {
       ParallelLayerAddedResult input_added = add_parallel_layer(
           pcg,
           /*layer_attrs=*/make_layer_attrs(input_attrs),
@@ -182,7 +182,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("two layers in parallel") {
+    SECTION("two layers in parallel") {
       ParallelLayerAddedResult input1_added =
           pcg_add_input_layer(pcg, input_shape);
       parallel_layer_guid_t input1_layer = input1_added.parallel_layer;
@@ -206,7 +206,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("multiple tensors across split") {
+    SECTION("multiple tensors across split") {
       ParallelLayerAddedResult input1_added =
           pcg_add_input_layer(pcg, input_shape);
       parallel_layer_guid_t input1_layer = input1_added.parallel_layer;
@@ -286,4 +286,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

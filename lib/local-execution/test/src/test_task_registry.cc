@@ -9,7 +9,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Task Registry") {
     TaskRegistry task_registry = empty_task_registry();
 

@@ -5,7 +5,7 @@
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("StartInvariantMachineView - utility functions") {
     StartInvariantMachineView simv = StartInvariantMachineView{
         {MachineViewDimension{stride_t{2_n},

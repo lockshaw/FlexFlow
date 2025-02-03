@@ -6,7 +6,7 @@
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_output_shape(FlatAttrs, TensorShape)") {
     TensorShape input_shape = TensorShape{
         TensorDims{FFOrdered<nonnegative_int>{

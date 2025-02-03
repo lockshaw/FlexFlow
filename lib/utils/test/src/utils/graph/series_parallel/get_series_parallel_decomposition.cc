@@ -1,11 +1,11 @@
 #include "utils/graph/series_parallel/get_series_parallel_decomposition.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("get_series_parallel_decomposition (base case)") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
     Node n = g.add_node();
@@ -189,4 +189,3 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
-}

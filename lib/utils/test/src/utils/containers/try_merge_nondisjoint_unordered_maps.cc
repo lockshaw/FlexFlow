@@ -1,11 +1,11 @@
 #include "utils/containers/try_merge_nondisjoint_unordered_maps.h"
 #include "test/utils/doctest/fmt/optional.h"
 #include "test/utils/doctest/fmt/unordered_map.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace ::FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("try_merge_nondisjoing_unordered_maps(std::unordered_map<K, V>, "
             "std::unordered_map<K, V>)") {
     std::unordered_map<int, std::string> d1 = {
@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         {2, "two"},
     };
 
-    SUBCASE("compatible neither superset") {
+    SECTION("compatible neither superset") {
       std::optional<std::unordered_map<int, std::string>> result =
           try_merge_nondisjoint_unordered_maps(d1, d2);
       std::optional<std::unordered_map<int, std::string>> correct = {{
@@ -28,7 +28,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("mismatched key") {
+    SECTION("mismatched key") {
       d1.insert({2, "three"});
       std::optional<std::unordered_map<int, std::string>> result =
           try_merge_nondisjoint_unordered_maps(d1, d2);
@@ -37,7 +37,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("repeated value") {
+    SECTION("repeated value") {
       d1.insert({3, "one"});
       std::optional<std::unordered_map<int, std::string>> result =
           try_merge_nondisjoint_unordered_maps(d1, d2);
@@ -50,7 +50,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("left superset") {
+    SECTION("left superset") {
       d1.insert({2, "two"});
       std::optional<std::unordered_map<int, std::string>> result =
           try_merge_nondisjoint_unordered_maps(d1, d2);
@@ -58,7 +58,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("right superset") {
+    SECTION("right superset") {
       d2.insert({1, "one"});
       std::optional<std::unordered_map<int, std::string>> result =
           try_merge_nondisjoint_unordered_maps(d1, d2);
@@ -66,7 +66,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("equal") {
+    SECTION("equal") {
       d1.insert({2, "two"});
       d2.insert({1, "one"});
       std::optional<std::unordered_map<int, std::string>> result =
@@ -75,4 +75,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
-}

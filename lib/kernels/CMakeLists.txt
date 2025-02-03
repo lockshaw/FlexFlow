@@ -41,3 +41,4 @@ set_target_properties(
 )
 
 add_subdirectory(test)
+add_subdirectory(benchmark)

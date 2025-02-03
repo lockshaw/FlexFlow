@@ -3,7 +3,7 @@
 #include "test_utils.h"
 
 using namespace ::FlexFlow;
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("Test Replicate Kernel") {
     nonnegative_int num_replicas = 10_n;
 

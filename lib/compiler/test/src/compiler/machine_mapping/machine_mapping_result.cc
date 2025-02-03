@@ -1,10 +1,10 @@
 #include "compiler/machine_mapping/machine_mapping_result.h"
 #include "pcg/machine_view.h"
-#include <doctest/doctest.h>
+#include <catch2/catch_test_macros.hpp>
 
 using namespace FlexFlow;
 
-TEST_SUITE(FF_TEST_SUITE) {
+
   TEST_CASE("series_combine") {
     MachineView machine_view_0 = MachineView{
         /*start=*/MachineSpaceCoordinate{
@@ -76,7 +76,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     float comm_cost = 3.0;
 
-    SUBCASE("pre is infeasible") {
+    SECTION("pre is infeasible") {
       MachineMappingResult result = series_combine(
           comm_cost, infeasible, post, ParallelSplitTransformation::LthenR);
       MachineMappingResult correct = infeasible;
@@ -84,7 +84,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("post is infeasible") {
+    SECTION("post is infeasible") {
       MachineMappingResult result = series_combine(
           comm_cost, pre, infeasible, ParallelSplitTransformation::LthenR);
       MachineMappingResult correct = infeasible;
@@ -92,7 +92,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("both are infeasible") {
+    SECTION("both are infeasible") {
       MachineMappingResult result =
           series_combine(comm_cost,
                          infeasible,
@@ -103,7 +103,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("both are feasible") {
+    SECTION("both are feasible") {
       MachineMappingResult no_parallel_split_transform = MachineMappingResult{
           FeasibleMachineMappingResult{
               /*runtime=*/pre_cost + comm_cost + post_cost,
@@ -133,7 +133,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
       };
 
-      SUBCASE("parallel_split_transformation = std::nullopt") {
+      SECTION("parallel_split_transformation = std::nullopt") {
         MachineMappingResult result =
             series_combine(comm_cost, pre, post, std::nullopt);
         MachineMappingResult correct = no_parallel_split_transform;
@@ -141,7 +141,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("parallel_split_transformation = LthenR") {
+      SECTION("parallel_split_transformation = LthenR") {
         MachineMappingResult result = series_combine(
             comm_cost, pre, post, ParallelSplitTransformation::LthenR);
         MachineMappingResult correct = no_parallel_split_transform;
@@ -149,7 +149,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         CHECK(result == correct);
       }
 
-      SUBCASE("parallel_split_transformation = RthenL") {
+      SECTION("parallel_split_transformation = RthenL") {
         MachineMappingResult result = series_combine(
             comm_cost, pre, post, ParallelSplitTransformation::RthenL);
         MachineMappingResult correct = MachineMappingResult{
@@ -253,28 +253,28 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     MachineMappingResult infeasible = infeasible_machine_mapping_result();
 
-    SUBCASE("lhs is infeasible") {
+    SECTION("lhs is infeasible") {
       MachineMappingResult result = parallel_combine(infeasible, rhs);
       MachineMappingResult correct = infeasible;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("rhs is infeasible") {
+    SECTION("rhs is infeasible") {
       MachineMappingResult result = parallel_combine(lhs, infeasible);
       MachineMappingResult correct = infeasible;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("both are infeasible") {
+    SECTION("both are infeasible") {
       MachineMappingResult result = parallel_combine(infeasible, infeasible);
       MachineMappingResult correct = infeasible;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("both are feasible") {
+    SECTION("both are feasible") {
       MachineMappingResult result = parallel_combine(lhs, rhs);
       MachineMappingResult correct = MachineMappingResult{
           FeasibleMachineMappingResult{
@@ -376,43 +376,43 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     MachineMappingResult infeasible = infeasible_machine_mapping_result();
 
-    SUBCASE("lhs is infeasible") {
+    SECTION("lhs is infeasible") {
       MachineMappingResult result = minimize_runtime(infeasible, slower);
       MachineMappingResult correct = slower;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("rhs is infeasible") {
+    SECTION("rhs is infeasible") {
       MachineMappingResult result = minimize_runtime(slower, infeasible);
       MachineMappingResult correct = slower;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("both are infeasible") {
+    SECTION("both are infeasible") {
       MachineMappingResult result = minimize_runtime(infeasible, infeasible);
       MachineMappingResult correct = infeasible;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("both are feasible") {
-      SUBCASE("lhs is faster") {
+    SECTION("both are feasible") {
+      SECTION("lhs is faster") {
         MachineMappingResult result = minimize_runtime(faster, slower);
         MachineMappingResult correct = faster;
 
         CHECK(result == correct);
       }
 
-      SUBCASE("rhs is faster") {
+      SECTION("rhs is faster") {
         MachineMappingResult result = minimize_runtime(slower, faster);
         MachineMappingResult correct = faster;
 
         CHECK(result == correct);
       }
 
-      SUBCASE("lhs and rhs have the same speed") {
+      SECTION("lhs and rhs have the same speed") {
         MachineMappingResult result = minimize_runtime(slower, slower);
         MachineMappingResult correct = slower;
 
@@ -420,4 +420,3 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
   }
-}
