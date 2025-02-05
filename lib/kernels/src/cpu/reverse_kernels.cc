@@ -11,9 +11,10 @@ struct CPUReverseForwardKernel {
                   GenericTensorAccessorW &output) {
     assert(input.data_type == DT && output.data_type == DT);
 
-    int num_out_blocks = input.shape.at(legion_dim_t(0));
-    int reverse_dim_size = input.shape.at(legion_dim_t(1));
-    int in_block_size = input.shape.at(legion_dim_t(2));
+    int num_out_blocks = input.shape.at(legion_dim_t(0_n)).unwrap_nonnegative();
+    int reverse_dim_size =
+        input.shape.at(legion_dim_t(1_n)).unwrap_nonnegative();
+    int in_block_size = input.shape.at(legion_dim_t(2_n)).unwrap_nonnegative();
 
     for (int block_idx = 0; block_idx < num_out_blocks; block_idx++) {
       for (int rev_idx = 0; rev_idx < reverse_dim_size; rev_idx++) {

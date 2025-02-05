@@ -17,17 +17,18 @@ inline int calculate_accessor_offset(std::vector<int> const &indices,
   int multiplier = 1;
 
   for (int i = 0; i < shape.num_dims(); i++) {
-    if (indices.at(i) >= shape.at(legion_dim_t{i})) {
+    if (indices.at(i) >= shape.at(legion_dim_t{nonnegative_int{i}})) {
       throw mk_runtime_error(
           fmt::format("In {} dimension, attempting to access index {} "
                       "when only {} indexes exist",
                       i,
                       indices.at(i),
-                      shape.at(legion_dim_t{i})));
+                      shape.at(legion_dim_t{nonnegative_int{i}})));
     }
 
     offset += indices.at(i) * multiplier;
-    multiplier *= shape.at(legion_dim_t{i});
+    multiplier *=
+        shape.at(legion_dim_t{nonnegative_int{i}}).unwrap_nonnegative();
   }
 
   return offset;

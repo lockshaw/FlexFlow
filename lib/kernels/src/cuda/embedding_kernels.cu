@@ -342,26 +342,28 @@ struct ForwardKernel<DataType::INT32, DataType::FLOAT> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<float><<<GET_BLOCKS(output.shape.get_volume()),
-                                     CUDA_NUM_THREADS,
-                                     0,
-                                     stream>>>(input.get<DataType::INT32>(),
-                                               output.get<DataType::FLOAT>(),
-                                               weight.get<DataType::FLOAT>(),
-                                               out_dim,
-                                               batch_size);
+      embed_forward_no_aggr<float>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT32>(),
+                       output.get<DataType::FLOAT>(),
+                       weight.get<DataType::FLOAT>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
-      embed_forward_with_aggr<float><<<GET_BLOCKS(output.shape.get_volume()),
-                                       CUDA_NUM_THREADS,
-                                       0,
-                                       stream>>>(input.get<DataType::INT32>(),
-                                                 output.get<DataType::FLOAT>(),
-                                                 weight.get<DataType::FLOAT>(),
-                                                 out_dim,
-                                                 in_dim,
-                                                 batch_size,
-                                                 aggr.value());
+      embed_forward_with_aggr<float>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT32>(),
+                       output.get<DataType::FLOAT>(),
+                       weight.get<DataType::FLOAT>(),
+                       out_dim,
+                       in_dim,
+                       batch_size,
+                       aggr.value());
     }
   }
 };
@@ -377,26 +379,28 @@ struct ForwardKernel<DataType::INT32, DataType::HALF> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<half><<<GET_BLOCKS(output.shape.get_volume()),
-                                    CUDA_NUM_THREADS,
-                                    0,
-                                    stream>>>(input.get<DataType::INT32>(),
-                                              output.get<DataType::HALF>(),
-                                              weight.get<DataType::HALF>(),
-                                              out_dim,
-                                              batch_size);
+      embed_forward_no_aggr<half>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT32>(),
+                       output.get<DataType::HALF>(),
+                       weight.get<DataType::HALF>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
-      embed_forward_with_aggr<half><<<GET_BLOCKS(output.shape.get_volume()),
-                                      CUDA_NUM_THREADS,
-                                      0,
-                                      stream>>>(input.get<DataType::INT32>(),
-                                                output.get<DataType::HALF>(),
-                                                weight.get<DataType::HALF>(),
-                                                out_dim,
-                                                in_dim,
-                                                batch_size,
-                                                aggr.value());
+      embed_forward_with_aggr<half>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT32>(),
+                       output.get<DataType::HALF>(),
+                       weight.get<DataType::HALF>(),
+                       out_dim,
+                       in_dim,
+                       batch_size,
+                       aggr.value());
     }
   }
 };
@@ -412,18 +416,19 @@ struct ForwardKernel<DataType::INT32, DataType::DOUBLE> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<double><<<GET_BLOCKS(output.shape.get_volume()),
-                                      CUDA_NUM_THREADS,
-                                      0,
-                                      stream>>>(input.get<DataType::INT32>(),
-                                                output.get<DataType::DOUBLE>(),
-                                                weight.get<DataType::DOUBLE>(),
-                                                out_dim,
-                                                batch_size);
+      embed_forward_no_aggr<double>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT32>(),
+                       output.get<DataType::DOUBLE>(),
+                       weight.get<DataType::DOUBLE>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
       embed_forward_with_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -448,26 +453,28 @@ struct ForwardKernel<DataType::INT64, DataType::FLOAT> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<float><<<GET_BLOCKS(output.shape.get_volume()),
-                                     CUDA_NUM_THREADS,
-                                     0,
-                                     stream>>>(input.get<DataType::INT64>(),
-                                               output.get<DataType::FLOAT>(),
-                                               weight.get<DataType::FLOAT>(),
-                                               out_dim,
-                                               batch_size);
+      embed_forward_no_aggr<float>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT64>(),
+                       output.get<DataType::FLOAT>(),
+                       weight.get<DataType::FLOAT>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
-      embed_forward_with_aggr<float><<<GET_BLOCKS(output.shape.get_volume()),
-                                       CUDA_NUM_THREADS,
-                                       0,
-                                       stream>>>(input.get<DataType::INT64>(),
-                                                 output.get<DataType::FLOAT>(),
-                                                 weight.get<DataType::FLOAT>(),
-                                                 out_dim,
-                                                 in_dim,
-                                                 batch_size,
-                                                 aggr.value());
+      embed_forward_with_aggr<float>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT64>(),
+                       output.get<DataType::FLOAT>(),
+                       weight.get<DataType::FLOAT>(),
+                       out_dim,
+                       in_dim,
+                       batch_size,
+                       aggr.value());
     }
   }
 };
@@ -483,26 +490,28 @@ struct ForwardKernel<DataType::INT64, DataType::HALF> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<half><<<GET_BLOCKS(output.shape.get_volume()),
-                                    CUDA_NUM_THREADS,
-                                    0,
-                                    stream>>>(input.get<DataType::INT64>(),
-                                              output.get<DataType::HALF>(),
-                                              weight.get<DataType::HALF>(),
-                                              out_dim,
-                                              batch_size);
+      embed_forward_no_aggr<half>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT64>(),
+                       output.get<DataType::HALF>(),
+                       weight.get<DataType::HALF>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
-      embed_forward_with_aggr<half><<<GET_BLOCKS(output.shape.get_volume()),
-                                      CUDA_NUM_THREADS,
-                                      0,
-                                      stream>>>(input.get<DataType::INT64>(),
-                                                output.get<DataType::HALF>(),
-                                                weight.get<DataType::HALF>(),
-                                                out_dim,
-                                                in_dim,
-                                                batch_size,
-                                                aggr.value());
+      embed_forward_with_aggr<half>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT64>(),
+                       output.get<DataType::HALF>(),
+                       weight.get<DataType::HALF>(),
+                       out_dim,
+                       in_dim,
+                       batch_size,
+                       aggr.value());
     }
   }
 };
@@ -518,18 +527,19 @@ struct ForwardKernel<DataType::INT64, DataType::DOUBLE> {
                   int out_dim,
                   int batch_size) {
     if (!aggr.has_value()) {
-      embed_forward_no_aggr<double><<<GET_BLOCKS(output.shape.get_volume()),
-                                      CUDA_NUM_THREADS,
-                                      0,
-                                      stream>>>(input.get<DataType::INT64>(),
-                                                output.get<DataType::DOUBLE>(),
-                                                weight.get<DataType::DOUBLE>(),
-                                                out_dim,
-                                                batch_size);
+      embed_forward_no_aggr<double>
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
+             CUDA_NUM_THREADS,
+             0,
+             stream>>>(input.get<DataType::INT64>(),
+                       output.get<DataType::DOUBLE>(),
+                       weight.get<DataType::DOUBLE>(),
+                       out_dim,
+                       batch_size);
     } else {
       assert(aggr == AggregateOp::AVG || aggr == AggregateOp::SUM);
       embed_forward_with_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -570,7 +580,7 @@ struct BackwardKernel<DataType::INT32, DataType::FLOAT> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<float>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -580,7 +590,7 @@ struct BackwardKernel<DataType::INT32, DataType::FLOAT> {
                        batch_size);
     } else {
       embed_backward_with_aggr<float>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -606,7 +616,7 @@ struct BackwardKernel<DataType::INT32, DataType::DOUBLE> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -616,7 +626,7 @@ struct BackwardKernel<DataType::INT32, DataType::DOUBLE> {
                        batch_size);
     } else {
       embed_backward_with_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -642,7 +652,7 @@ struct BackwardKernel<DataType::INT32, DataType::HALF> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<half>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -652,7 +662,7 @@ struct BackwardKernel<DataType::INT32, DataType::HALF> {
                        batch_size);
     } else {
       embed_backward_with_aggr<half>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT32>(),
@@ -678,7 +688,7 @@ struct BackwardKernel<DataType::INT64, DataType::FLOAT> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<float>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -688,7 +698,7 @@ struct BackwardKernel<DataType::INT64, DataType::FLOAT> {
                        batch_size);
     } else {
       embed_backward_with_aggr<float>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -714,7 +724,7 @@ struct BackwardKernel<DataType::INT64, DataType::DOUBLE> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -724,7 +734,7 @@ struct BackwardKernel<DataType::INT64, DataType::DOUBLE> {
                        batch_size);
     } else {
       embed_backward_with_aggr<double>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -750,7 +760,7 @@ struct BackwardKernel<DataType::INT64, DataType::HALF> {
                   int batch_size) {
     if (!aggr.has_value()) {
       embed_backward_no_aggr<half>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),
@@ -760,7 +770,7 @@ struct BackwardKernel<DataType::INT64, DataType::HALF> {
                        batch_size);
     } else {
       embed_backward_with_aggr<half>
-          <<<GET_BLOCKS(output.shape.get_volume()),
+          <<<GET_BLOCKS(output.shape.get_volume().unwrap_nonnegative()),
              CUDA_NUM_THREADS,
              0,
              stream>>>(input.get<DataType::INT64>(),

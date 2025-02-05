@@ -48,9 +48,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({10, 2}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({10_n, 2_n}, DataType::FLOAT);
     TensorShape output_shape =
-        make_tensor_shape_from_legion_dims({10, 2}, DataType::DOUBLE);
+        make_tensor_shape_from_legion_dims({10_n, 2_n}, DataType::DOUBLE);
 
     // Only calling forward kernel as backward kernel is exactly the same
     SUBCASE("forward_kernel") {

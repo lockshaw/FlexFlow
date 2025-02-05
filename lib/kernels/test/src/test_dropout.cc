@@ -27,10 +27,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     DropoutPerDeviceState state = Kernels::Dropout::init_kernel(
         managed_handle.raw_handle(), dropout_rate, seed, shape, allocator);
 
-    auto get_zero_count = [](std::vector<float> const &data) {
-      return count(data, [](float x) { return x == 0.0f; });
-    };
-
     SUBCASE("forward_kernel") {
       GenericTensorAccessorR input_accessor =
           create_random_filled_accessor_r(input_shape, allocator);

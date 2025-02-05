@@ -9,7 +9,8 @@ struct CPUForwardKernel {
                   GenericTensorAccessorW &output) {
     memcpy(output.get<DT>(),
            input.get<DT>(),
-           input.shape.num_elements() * size_of_datatype(DT));
+           input.shape.num_elements().unwrap_nonnegative() *
+               size_of_datatype(DT).unwrap_nonnegative());
   }
 };
 
@@ -19,7 +20,7 @@ struct CPUBackwardKernel {
                   GenericTensorAccessorW &input,
                   size_t num_replicas) {
     using T = real_type_t<DT>;
-    for (int i = 0; i < input.shape.num_elements(); i++) {
+    for (int i = 0; i < input.shape.num_elements().unwrap_nonnegative(); i++) {
       T cur_sum = 0;
       for (int j = 0; j < num_replicas; j++) {
         cur_sum += output.at<DT>({i, j});

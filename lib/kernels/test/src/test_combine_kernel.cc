@@ -50,7 +50,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     TensorShape input_shape =
-        make_tensor_shape_from_legion_dims({5, 5}, DataType::FLOAT);
+        make_tensor_shape_from_legion_dims({5_n, 5_n}, DataType::FLOAT);
     TensorShape output_shape = input_shape;
 
     SUBCASE("forward_kernel") {

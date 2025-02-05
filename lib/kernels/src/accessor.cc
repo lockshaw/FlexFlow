@@ -7,8 +7,9 @@ namespace FlexFlow {
 void copy_accessor_data_to_l_from_r(
     GenericTensorAccessorW &dst_accessor,
     GenericTensorAccessorR const &src_accessor) {
-  size_t num_bytes = dst_accessor.shape.get_volume() *
-                     size_of_datatype(dst_accessor.data_type);
+  size_t num_bytes =
+      dst_accessor.shape.get_volume().unwrap_nonnegative() *
+      size_of_datatype(dst_accessor.data_type).unwrap_nonnegative();
 
   DeviceType dst_device_type = dst_accessor.device_type;
   DeviceType src_device_type = src_accessor.device_type;

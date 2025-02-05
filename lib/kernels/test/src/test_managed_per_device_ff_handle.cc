@@ -28,13 +28,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*allowTensorOpMathConversion=*/true};
         new_handle = std::move(base_handle);
 
-      CHECK(&base_handle.raw_handle() == nullptr);
-      CHECK(&new_handle.raw_handle() == base_handle_ptr);
-    }
+        CHECK(&base_handle.raw_handle() == nullptr);
+        CHECK(&new_handle.raw_handle() == base_handle_ptr);
+      }
 
-    SUBCASE("move assign to self") {
+      SUBCASE("move assign to self") {
         base_handle = std::move(base_handle);
         CHECK(&base_handle.raw_handle() == base_handle_ptr);
+      }
     }
   }
 }

@@ -41,7 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       Kernels::Replicate::backward_kernel(managed_stream.raw_stream(),
                                           output_grad_accessor,
                                           input_grad_accessor,
-                                          num_replicas);
+                                          num_replicas.unwrap_nonnegative());
 
       CHECK(contains_non_zero(input_grad_accessor));
     }
@@ -52,8 +52,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     TensorShape input_shape =
         make_tensor_shape_from_legion_dims({5_n}, DataType::FLOAT);
-    TensorShape output_shape =
-        make_tensor_shape_from_legion_dims({5_n, num_replicas}, DataType::FLOAT);
+    TensorShape output_shape = make_tensor_shape_from_legion_dims(
+        {5_n, num_replicas}, DataType::FLOAT);
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,
@@ -95,7 +95,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       Kernels::Replicate::backward_kernel(managed_stream.raw_stream(),
                                           output_grad_accessor_gpu,
                                           input_grad_accessor_gpu,
-                                          num_replicas);
+                                          num_replicas.unwrap_nonnegative());
 
       // Run CPU Replicate Backward Kernel
       GenericTensorAccessorR output_grad_accessor_cpu =
@@ -104,7 +104,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           create_zero_filled_accessor_w(input_shape, cpu_allocator);
 
       Kernels::Replicate::cpu_backward_kernel(
-          output_grad_accessor_cpu, input_grad_accessor_cpu, num_replicas);
+          output_grad_accessor_cpu,
+          input_grad_accessor_cpu,
+          num_replicas.unwrap_nonnegative());
 
       CHECK(accessors_are_equal(input_grad_accessor_gpu,
                                 input_grad_accessor_cpu));

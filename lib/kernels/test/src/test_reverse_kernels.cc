@@ -88,13 +88,14 @@ TEST_SUITE(FF_TEST_SUITE) {
       GenericTensorAccessorW output_accessor_gpu =
           create_zero_filled_accessor_w(output_shape, gpu_allocator);
 
-      Kernels::Reverse::forward_kernel(managed_stream.raw_stream(),
-                                       input_accessor_gpu.get_float_ptr(),
-                                       output_accessor_gpu.get_float_ptr(),
-                                       num_out_blks.unwrap_nonnegative(),
-                                       reverse_dim_size.unwrap_nonnegative(),
-                                       in_blk_size.unwrap_nonnegative(),
-                                       input_accessor_gpu.shape.num_elements().unwrap_nonnegative());
+      Kernels::Reverse::forward_kernel(
+          managed_stream.raw_stream(),
+          input_accessor_gpu.get_float_ptr(),
+          output_accessor_gpu.get_float_ptr(),
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative(),
+          input_accessor_gpu.shape.num_elements().unwrap_nonnegative());
 
       // Run CPU Cast Forward Kernel
       GenericTensorAccessorR input_accessor_cpu =

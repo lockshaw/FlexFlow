@@ -3,7 +3,7 @@
 #include "utils/join_strings.h"
 #include <random>
 
-using namespace ::FlexFlow;
+namespace FlexFlow {
 
 GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
                                                      Allocator &allocator) {
@@ -12,12 +12,11 @@ GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
   return result_accessor;
 }
 
-TensorShape
-    make_tensor_shape_from_legion_dims(LegionOrdered<size_t> const &dims,
-                                       DataType DT) {
+TensorShape make_tensor_shape_from_legion_dims(FFOrdered<nonnegative_int> dims,
+                                               DataType DT) {
   return TensorShape{
       TensorDims{
-          ff_ordered_from_legion_ordered(dims),
+          dims,
       },
       DT,
   };
@@ -35,7 +34,7 @@ struct CreateRandomFilledAccessorW {
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    size_t num_elements = get_num_elements(shape);
+    size_t num_elements = get_num_elements(shape).unwrap_nonnegative();
     if constexpr (std::is_same<T, bool>::value) {
       std::bernoulli_distribution dist(0.5);
       for (size_t i = 0; i < num_elements; i++) {
@@ -80,10 +79,14 @@ struct FillWithZeros {
     using T = real_type_t<DT>;
 
     if (accessor.device_type == DeviceType::CPU) {
-      memset(accessor.ptr, 0, accessor.shape.get_volume() * sizeof(T));
+      memset(accessor.ptr,
+             0,
+             accessor.shape.get_volume().unwrap_nonnegative() * sizeof(T));
     } else {
-      checkCUDA(
-          cudaMemset(accessor.ptr, 0, accessor.shape.get_volume() * sizeof(T)));
+      checkCUDA(cudaMemset(accessor.ptr,
+                           0,
+                           accessor.shape.get_volume().unwrap_nonnegative() *
+                               sizeof(T)));
     }
   }
 };
@@ -142,8 +145,8 @@ template <DataType DT>
 struct Print2DCPUAccessorR {
   void operator()(GenericTensorAccessorR const &accessor,
                   std::ostream &stream) {
-    int rows = accessor.shape.at(legion_dim_t{0});
-    int cols = accessor.shape.at(legion_dim_t{1});
+    int rows = accessor.shape.at(legion_dim_t{0_n});
+    int cols = accessor.shape.at(legion_dim_t{1_n});
 
     std::vector<int> indices(cols);
     std::iota(indices.begin(), indices.end(), 0);
@@ -246,3 +249,4 @@ GenericTensorAccessorR create_filled_accessor_r(TensorShape const &shape,
       create_filled_accessor_w(shape, allocator, val);
   return read_only_accessor_from_write_accessor(w_accessor);
 }
+} // namespace FlexFlow

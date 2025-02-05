@@ -20,7 +20,6 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("forward_kernel") {
       TensorShape output_shape =
-         
           make_tensor_shape_from_legion_dims({10_n}, DataType::FLOAT);
 
       GenericTensorAccessorR input_accessor =

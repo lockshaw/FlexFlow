@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-using namespace ::FlexFlow;
+namespace FlexFlow {
 
 GenericTensorAccessorW create_random_filled_accessor_w(TensorShape const &shape,
                                                        Allocator &allocator);
@@ -26,9 +26,8 @@ GenericTensorAccessorR create_random_filled_accessor_r(TensorShape const &shape,
 GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
                                                      Allocator &allocator);
 
-TensorShape
-    make_tensor_shape_from_legion_dims(LegionOrdered<size_t> const &dims,
-                                       DataType DT);
+TensorShape make_tensor_shape_from_legion_dims(FFOrdered<nonnegative_int> dims,
+                                               DataType DT);
 
 bool contains_non_zero(GenericTensorAccessorR const &accessor);
 
@@ -64,6 +63,8 @@ std::vector<T> repeat(std::size_t n, Func &&func) {
   }
   return result;
 }
+
+} // namespace FlexFlow
 
 // Specialize doctest's StringMaker for std::vector<float>
 template <>

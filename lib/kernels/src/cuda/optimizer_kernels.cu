@@ -89,8 +89,7 @@ __host__ void SGDOptimizer::nccl_update_task_gpu(SGDOptimizer const *op,
         using T = std::decay_t<decltype(s)>;
         if constexpr (std::is_same_v<T, FlexFlow::ElementUnaryPerDeviceState> ||
                       std::is_same_v<T, FlexFlow::ReshapePerDeviceState> ||
-                      std::is_same_v<T, FlexFlow::TopKPerDeviceState> ||
-                      std::is_same_v<T, FlexFlow::TransposePerDeviceState>) {
+                      std::is_same_v<T, FlexFlow::TopKPerDeviceState>) {
           throw mk_runtime_error("State type does not support NCCL operations");
         } else {
           return s.handle.ncclComm;
@@ -209,8 +208,7 @@ __host__ void AdamOptimizer::nccl_update_task_gpu(AdamOptimizer const *op,
         using T = std::decay_t<decltype(s)>;
         if constexpr (std::is_same_v<T, FlexFlow::ElementUnaryPerDeviceState> ||
                       std::is_same_v<T, FlexFlow::ReshapePerDeviceState> ||
-                      std::is_same_v<T, FlexFlow::TopKPerDeviceState> ||
-                      std::is_same_v<T, FlexFlow::TransposePerDeviceState>) {
+                      std::is_same_v<T, FlexFlow::TopKPerDeviceState>) {
           throw mk_runtime_error("State type does not support NCCL operations");
         } else {
           return s.handle.ncclComm;
