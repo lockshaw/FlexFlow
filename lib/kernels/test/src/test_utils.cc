@@ -5,13 +5,6 @@
 
 namespace FlexFlow {
 
-GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
-                                                     Allocator &allocator) {
-  GenericTensorAccessorW result_accessor = allocator.allocate_tensor(shape);
-  fill_with_zeros(result_accessor);
-  return result_accessor;
-}
-
 TensorShape make_tensor_shape_from_legion_dims(FFOrdered<nonnegative_int> dims,
                                                DataType DT) {
   return TensorShape{
@@ -20,6 +13,20 @@ TensorShape make_tensor_shape_from_legion_dims(FFOrdered<nonnegative_int> dims,
       },
       DT,
   };
+}
+
+GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
+                                                     Allocator &allocator) {
+  GenericTensorAccessorW result_accessor = allocator.allocate_tensor(shape);
+  fill_with_zeros(result_accessor);
+  return result_accessor;
+}
+
+GenericTensorAccessorR create_zero_filled_accessor_r(TensorShape const &shape,
+                                                     Allocator &allocator) {
+  GenericTensorAccessorW accessor =
+      create_zero_filled_accessor_w(shape, allocator);
+  return read_only_accessor_from_write_accessor(accessor);
 }
 
 template <DataType DT>
@@ -46,7 +53,7 @@ struct CreateRandomFilledAccessorW {
         data_ptr[i] = dist(gen);
       }
     } else if constexpr (std::is_integral<T>::value) {
-      std::uniform_int_distribution<T> dist(0, 100);
+      std::uniform_int_distribution<T> dist(0, 99);
       for (size_t i = 0; i < num_elements; i++) {
         data_ptr[i] = dist(gen);
       }
@@ -145,15 +152,19 @@ template <DataType DT>
 struct Print2DCPUAccessorR {
   void operator()(GenericTensorAccessorR const &accessor,
                   std::ostream &stream) {
-    int rows = accessor.shape.at(legion_dim_t{0_n});
-    int cols = accessor.shape.at(legion_dim_t{1_n});
+    int const dims = accessor.shape.num_dims();
+    int const cols = accessor.shape.at(legion_dim_t{0_n});
+    int const rows = (dims == 2) ? accessor.shape.at(legion_dim_t{1_n}) : 1_n;
+
+    auto get_element = [dims, &accessor](int j, int i) {
+      return (dims == 1) ? accessor.at<DT>({j}) : accessor.at<DT>({j, i});
+    };
 
     std::vector<int> indices(cols);
     std::iota(indices.begin(), indices.end(), 0);
-
-    for (int i = 0; i < rows; i++) {
-      stream << join_strings(indices, " ", [&](int k) {
-        return accessor.at<DT>({i, k});
+    for (int i = 0; i < rows; ++i) {
+      stream << join_strings(indices, " ", [=](int j) {
+        return get_element(j, i);
       }) << std::endl;
     }
   }
@@ -165,7 +176,7 @@ void print_2d_tensor_accessor_contents(GenericTensorAccessorR const &accessor,
   GenericTensorAccessorR cpu_accessor =
       copy_accessor_r_to_cpu_if_necessary(accessor, cpu_allocator);
   DataTypeDispatch1<Print2DCPUAccessorR>{}(
-      accessor.data_type, accessor, stream);
+      accessor.data_type, cpu_accessor, stream);
 }
 
 template <DataType DT>

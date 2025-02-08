@@ -26,6 +26,9 @@ GenericTensorAccessorR create_random_filled_accessor_r(TensorShape const &shape,
 GenericTensorAccessorW create_zero_filled_accessor_w(TensorShape const &shape,
                                                      Allocator &allocator);
 
+GenericTensorAccessorR create_zero_filled_accessor_r(TensorShape const &shape,
+                                                     Allocator &allocator);
+
 TensorShape make_tensor_shape_from_legion_dims(FFOrdered<nonnegative_int> dims,
                                                DataType DT);
 
@@ -41,7 +44,8 @@ GenericTensorAccessorR
     copy_accessor_r_to_cpu_if_necessary(GenericTensorAccessorR const &accessor,
                                         Allocator &allocator);
 
-void print_2d_tensor_accessor_contents(GenericTensorAccessorR const &accessor);
+void print_2d_tensor_accessor_contents(GenericTensorAccessorR const &accessor,
+                                       std::ostream &stream);
 
 bool accessors_are_equal(GenericTensorAccessorR const &accessor_a,
                          GenericTensorAccessorR const &accessor_b);

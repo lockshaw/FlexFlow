@@ -53,7 +53,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape input_shape =
         make_tensor_shape_from_legion_dims({5_n}, DataType::FLOAT);
     TensorShape output_shape = make_tensor_shape_from_legion_dims(
-        {5_n, num_replicas}, DataType::FLOAT);
+        {num_replicas, 5_n}, DataType::FLOAT);
 
     ManagedPerDeviceFFHandle managed_handle{
         /*workSpaceSize=*/1024 * 1024,

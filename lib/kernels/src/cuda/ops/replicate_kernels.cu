@@ -22,8 +22,8 @@ namespace Kernels {
 namespace Replicate {
 
 template <typename T>
-__global__ void replicate_backward_kernel(T *input_ptr,
-                                          T const *output_ptr,
+__global__ void replicate_backward_kernel(T const *output_ptr,
+                                          T *input_ptr,
                                           size_t num_elements,
                                           size_t num_replicas) {
   CUDA_KERNEL_LOOP(i, num_elements) {
@@ -38,7 +38,6 @@ struct ForwardKernel {
   void operator()(cudaStream_t stream,
                   GenericTensorAccessorR const &input,
                   GenericTensorAccessorW const &output) {
-
     checkCUDA(cudaMemcpyAsync((void *)output.get<T>(),
                               (void *)input.get<T>(),
                               input.shape.num_elements().unwrap_nonnegative() *
@@ -58,8 +57,8 @@ struct BackwardKernel {
         input.shape.num_elements().unwrap_nonnegative() * num_replicas;
     replicate_backward_kernel<real_type_t<T>>
         <<<GET_BLOCKS(total_elements), CUDA_NUM_THREADS, 0, stream>>>(
-            input.get<T>(),
             output.get<T>(),
+            input.get<T>(),
             input.shape.num_elements().unwrap_nonnegative(),
             num_replicas);
   }

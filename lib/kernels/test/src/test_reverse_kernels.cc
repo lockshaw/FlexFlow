@@ -7,9 +7,9 @@
 using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("Call Reverse Forward and Backward Kernels") {
+    nonnegative_int num_out_blks = 1_n;
     nonnegative_int reverse_dim_size = 10_n;
     nonnegative_int in_blk_size = 10_n;
-    nonnegative_int num_out_blks = 1_n;
 
     TensorShape input_shape = make_tensor_shape_from_legion_dims(
         {num_out_blks, reverse_dim_size, in_blk_size}, DataType::FLOAT);
@@ -61,9 +61,9 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("Check Reverse Forward and Backward Kernels against CPU Kernels") {
-    nonnegative_int num_out_blks = 4_n;
-    nonnegative_int reverse_dim_size = 3_n;
-    nonnegative_int in_blk_size = 2_n;
+    nonnegative_int num_out_blks = 1_n;
+    nonnegative_int reverse_dim_size = 4_n;
+    nonnegative_int in_blk_size = 3_n;
 
     TensorShape input_shape = make_tensor_shape_from_legion_dims(
         {num_out_blks, reverse_dim_size, in_blk_size}, DataType::FLOAT);
@@ -78,10 +78,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     SUBCASE("forward_kernel") {
-      auto transform = [counter = 0.0f](float val) mutable {
-        return counter++;
-      };
-
       // Run GPU Cast Forward Kernel
       GenericTensorAccessorR input_accessor_gpu =
           create_random_filled_accessor_r(input_shape, gpu_allocator);
@@ -103,8 +99,12 @@ TEST_SUITE(FF_TEST_SUITE) {
       GenericTensorAccessorW output_accessor_cpu =
           create_zero_filled_accessor_w(output_shape, cpu_allocator);
 
-      Kernels::Reverse::cpu_forward_kernel(input_accessor_cpu,
-                                           output_accessor_cpu);
+      Kernels::Reverse::cpu_forward_kernel(
+          input_accessor_cpu,
+          output_accessor_cpu,
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative());
 
       CHECK(accessors_are_equal(output_accessor_cpu, output_accessor_cpu));
     }
@@ -113,6 +113,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       // Run GPU Cast Backward Kernel
       GenericTensorAccessorR output_grad_accessor_gpu =
           create_random_filled_accessor_r(output_shape, gpu_allocator);
+
       GenericTensorAccessorW input_grad_accessor_gpu =
           create_zero_filled_accessor_w(input_shape, gpu_allocator);
 
@@ -131,8 +132,12 @@ TEST_SUITE(FF_TEST_SUITE) {
       GenericTensorAccessorW input_grad_accessor_cpu =
           create_zero_filled_accessor_w(input_shape, cpu_allocator);
 
-      Kernels::Reverse::cpu_backward_kernel(output_grad_accessor_cpu,
-                                            input_grad_accessor_cpu);
+      Kernels::Reverse::cpu_backward_kernel(
+          output_grad_accessor_cpu,
+          input_grad_accessor_cpu,
+          num_out_blks.unwrap_nonnegative(),
+          reverse_dim_size.unwrap_nonnegative(),
+          in_blk_size.unwrap_nonnegative());
 
       CHECK(accessors_are_equal(input_grad_accessor_gpu,
                                 input_grad_accessor_cpu));
