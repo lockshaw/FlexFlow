@@ -8,7 +8,8 @@
 
 using namespace ::FlexFlow;
 
-static void benchmark_get_computation_graph_series_parallel_decomposition(benchmark::State &state, ComputationGraph const &cg) {
+static void
+benchmark_get_computation_graph_series_parallel_decomposition(benchmark::State &state, ComputationGraph const &cg) {
   // ComputationGraph cg = state.range(0);
       // get_split_test_computation_graph(/*batch_size=*/8);
 
@@ -20,7 +21,7 @@ static void benchmark_get_computation_graph_series_parallel_decomposition(benchm
 BENCHMARK_CAPTURE(
   benchmark_get_computation_graph_series_parallel_decomposition,
   split_test,
-  get_split_test_computation_graph(/*batch_size=*/8)
+  get_split_test_computation_graph(/*batch_size=*/8_n)
 );
 
 BENCHMARK_CAPTURE(

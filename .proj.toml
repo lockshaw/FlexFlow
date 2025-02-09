@@ -15,7 +15,6 @@ build_targets = [
   "models",
   "export-model-arch",
   "substitution-to-dot",
-  "compiler-benchmarks",
 ]
 
 test_targets = [
@@ -28,6 +27,11 @@ test_targets = [
   "substitution-generator-tests",
   "local-execution-tests",
   "models-tests",
+]
+
+benchmark_targets = [
+  "utils-benchmarks",
+  "compiler-benchmarks",
 ]
 
 [cmake_flags_extra]

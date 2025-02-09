@@ -130,7 +130,7 @@ function(ff_add_test_executable)
     ${FF_TEST_EXEC_NAME}
     ${FF_TEST_EXEC_DEPS})
 
-  target_compile_definitions(${FF_TEST_EXEC_NAME} PRIVATE FF_TEST_SUITE="${FF_TEST_EXEC_NAME}" FF_CUDA_TEST_SUITE="cuda-${FF_TEST_EXEC_NAME}")
+  target_compile_definitions(${FF_TEST_EXEC_NAME} PRIVATE FF_TEST_SUITE=${FF_TEST_EXEC_NAME} FF_CUDA_TEST_SUITE=cuda-${FF_TEST_EXEC_NAME})
 
   define_ff_vars(${FF_TEST_EXEC_NAME})
   ff_set_cxx_properties(${FF_TEST_EXEC_NAME})
@@ -140,7 +140,7 @@ endfunction()
 function(ff_add_benchmark_executable)
   ff_parse_args(
     PREFIX 
-      FF_TEST_EXEC
+      FF_BENCHMARK_EXEC
     ARGS
       NAME
     VARIADIC_ARGS
@@ -151,24 +151,29 @@ function(ff_add_benchmark_executable)
       ${ARGN}
   )
 
-  project(${FF_TEST_EXEC_NAME})
+  if(NOT FF_BENCHMARK_EXEC_NAME MATCHES "^(.*)-benchmarks\$")
+    message(FATAL_ERROR "Benchmark name ${FF_BENCHMARK_EXEC_NAME} must end with -benchmarks")
+  endif()
+  set(FF_LIBRARY_NAME ${CMAKE_MATCH_1})
+
+  project(${FF_BENCHMARK_EXEC_NAME})
   file(GLOB_RECURSE SRC
        CONFIGURE_DEPENDS
        LIST_DIRECTORIES False
-       ${FF_TEST_EXEC_SRC_PATTERNS})
+       ${FF_BENCHMARK_EXEC_SRC_PATTERNS})
 
   add_executable(
-    ${FF_TEST_EXEC_NAME}
+    ${FF_BENCHMARK_EXEC_NAME}
     ${SRC})
 
   target_link_libraries(
-    ${FF_TEST_EXEC_NAME}
-    ${FF_TEST_EXEC_DEPS}
+    ${FF_BENCHMARK_EXEC_NAME}
+    ${FF_BENCHMARK_EXEC_DEPS}
     gbenchmark
     gbenchmark-main)
 
-  define_ff_vars(${FF_TEST_EXEC_NAME})
-  ff_set_cxx_properties(${FF_TEST_EXEC_NAME})
+  define_ff_vars(${FF_BENCHMARK_EXEC_NAME})
+  ff_set_cxx_properties(${FF_BENCHMARK_EXEC_NAME})
 endfunction()
 
 function(ff_add_executable)
