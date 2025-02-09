@@ -8,7 +8,6 @@ namespace FlexFlow {
 
 DiGraphView random_dag(nonnegative_int num_nodes, float edges_fraction);
 
-
 } // namespace FlexFlow
 
 #endif

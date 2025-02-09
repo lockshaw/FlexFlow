@@ -1,9 +1,9 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ARCHETYPES_VALUE_TYPE_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ARCHETYPES_VALUE_TYPE_H
 
-#include <libassert/assert.hpp>
 #include <fmt/format.h>
 #include <functional>
+#include <libassert/assert.hpp>
 #include <ostream>
 #include <sstream>
 

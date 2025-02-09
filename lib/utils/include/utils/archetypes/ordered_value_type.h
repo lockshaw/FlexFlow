@@ -1,8 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ARCHETYPES_ORDERED_VALUE_TYPE_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ARCHETYPES_ORDERED_VALUE_TYPE_H
 
-#include <libassert/assert.hpp>
 #include <functional>
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
