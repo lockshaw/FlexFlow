@@ -18,7 +18,7 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     proj-repo = {
-      url = "github:lockshaw/proj";
+      url = "git+file:///home/lockshaw/x/proj/proj";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -120,6 +120,7 @@
               lcov # for code coverage
               compdb
               gbenchmark
+              linuxPackages_latest.perf
             ])
             (with proj-repo.packages.${system}; [
               proj
@@ -162,6 +163,7 @@
               ruff
               jq
               gh
+              hotspot
             ])
             (with pkgs.python3Packages; [
               gitpython

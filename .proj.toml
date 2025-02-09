@@ -3,6 +3,23 @@ testsuite_macro = "FF_TEST_SUITE"
 namespace_name = "FlexFlow"
 header_extension = ".h"
 
+bin_targets = [
+  "export-model-arch",
+  "substitution-to-dot",
+]
+
+lib_targets = [
+  "utils",
+  "op-attrs",
+  "kernels",
+  "pcg",
+  "substitutions",
+  "compiler",
+  "substitution-generator",
+  "local-execution",
+  "models",
+]
+
 build_targets = [
   "utils",
   "op-attrs",
