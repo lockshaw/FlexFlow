@@ -1,3 +1,6 @@
+# nix build results
+/result
+
 # gdb history
 .gdb_history
 
