@@ -1,4 +1,5 @@
 #include "op-attrs/ops/element_binary.h"
+#include "utils/exception.h"
 
 namespace FlexFlow {
 

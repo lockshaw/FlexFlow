@@ -17,6 +17,8 @@
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/ops/replicate.h"
 #include "op-attrs/ops/weight.h"
+#include "utils/exception.h"
+#include "utils/not_implemented.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {

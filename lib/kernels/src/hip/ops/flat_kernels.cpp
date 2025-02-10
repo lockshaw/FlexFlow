@@ -14,7 +14,7 @@
  */
 
 #include "kernels/flat_kernels.h"
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/accessor.h"
 #include <hip/hip_runtime.h>
 

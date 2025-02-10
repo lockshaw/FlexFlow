@@ -1,4 +1,4 @@
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/conv_2d_kernels.h"
 
 namespace FlexFlow {

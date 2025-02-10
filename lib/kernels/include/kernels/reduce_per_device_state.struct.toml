@@ -1,0 +1,33 @@
+namespace = "FlexFlow"
+name = "ReducePerDeviceState"
+features = []
+
+includes = [
+  "op-attrs/operator_type.dtg.h",
+  "kernels/device.h",
+  "kernels/ff_handle.h",
+]
+
+[[fields]]
+name = "handle"
+type = "::FlexFlow::PerDeviceFFHandle"
+
+[[fields]]
+name = "inputTensor"
+type = "ffTensorDescriptor_t"
+
+[[fields]]
+name = "outputTensor"
+type = "ffTensorDescriptor_t"
+
+[[fields]]
+name = "reduceDesc"
+type = "ffTensorDescriptor_t"
+
+[[fields]]
+name = "op_type"
+type = "::FlexFlow::OperatorType"
+
+[[fields]]
+name = "reduction_size"
+type = "size_t"

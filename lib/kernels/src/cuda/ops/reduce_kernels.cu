@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/reduce_kernels.h"
 
 namespace FlexFlow {

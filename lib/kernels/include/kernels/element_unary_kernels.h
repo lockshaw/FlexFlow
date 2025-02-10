@@ -1,24 +1,14 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_ELEMENT_UNARY_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_ELEMENT_UNARY_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/accessor.h"
 #include "kernels/ff_handle.h"
 #include "op-attrs/ops/element_unary.h"
+#include "kernels/element_unary_per_device_state.dtg.h"
 #include <cstddef>
 
 namespace FlexFlow {
-
-struct ElementUnaryPerDeviceState {
-  ffTensorDescriptor_t inputTensor, outputTensor;
-  req<ffActivationDescriptor_t> actiDesc;
-};
-
-FF_VISITABLE_STRUCT_NO_EQ(ElementUnaryPerDeviceState,
-                          inputTensor,
-                          outputTensor,
-                          actiDesc);
-
 namespace Kernels {
 namespace ElementUnary {
 

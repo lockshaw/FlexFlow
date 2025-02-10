@@ -1,20 +1,11 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_GATHER_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_GATHER_KERNELS_H
 
-#include "accessor.h"
+#include "kernels/accessor.h"
 #include "kernels/device.h"
+#include "kernels/gather_per_device_state.dtg.h"
 
 namespace FlexFlow {
-
-struct GatherPerDeviceState {
-  PerDeviceFFHandle handle;
-  legion_dim_t legion_dim;
-};
-
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(GatherPerDeviceState,
-                                             handle,
-                                             legion_dim);
-
 namespace Kernels {
 namespace Gather {
 

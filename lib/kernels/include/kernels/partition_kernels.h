@@ -1,18 +1,11 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_PARTITION_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_PARTITION_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/accessor.h"
+#include "kernels/repartition_per_device_state.dtg.h"
 
 namespace FlexFlow {
-
-struct RepartitionPerDeviceState {
-  PerDeviceFFHandle handle;
-  req<DataType> data_type;
-};
-
-FF_VISITABLE_STRUCT_NO_EQ(RepartitionPerDeviceState, handle, data_type);
-
 namespace Kernels {
 namespace Repartition {
 

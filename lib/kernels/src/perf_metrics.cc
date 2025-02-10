@@ -18,6 +18,38 @@ PerfMetrics::PerfMetrics(int _train_all,
       mse_loss(_mse_loss), rmse_loss(_rmse_loss), mae_loss(_mae_loss),
       start_time(_start_time_micro), current_time(_current_time_micro) {}
 
+bool PerfMetrics::operator==(PerfMetrics const &other) const {
+  return this->tie() == other.tie();
+}
+
+bool PerfMetrics::operator!=(PerfMetrics const &other) const {
+  return this->tie() != other.tie();
+}
+
+std::tuple<
+  int const &,
+  std::optional<int> const &,
+  std::optional<float> const &,
+  std::optional<float> const &,
+  std::optional<float> const &,
+  std::optional<float> const &,
+  std::optional<float> const &,
+  double const &,
+  double const &,
+> PerfMetrics::tie() const {
+  return std::tie(
+    this->train_all,
+    this->train_correct,
+    this->cce_loss,
+    this->sparse_cc_loss,
+    this->mse_loss,
+    this->rmse_loss,
+    this->mae_loss,
+    this->start_time,
+    this->current_time,
+  );
+}
+
 float get_throughput(PerfMetrics const &m) {
   return m.train_all / (m.current_time - m.start_time);
 }

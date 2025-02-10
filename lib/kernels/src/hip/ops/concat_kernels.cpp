@@ -14,7 +14,7 @@
  */
 
 #include "kernels/concat_kernels.h"
-#include "device.h"
+#include "kernels/device.h"
 #include <cassert>
 #include <hip/hip_runtime.h>
 

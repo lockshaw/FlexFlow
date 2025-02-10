@@ -1,39 +1,13 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_CONV_2D_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_CONV_2D_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/accessor.h"
 #include "kernels/ff_handle.h"
 #include "op-attrs/activation.dtg.h"
-#include "utils/visitable.h"
+#include "kernels/conv_2d_per_device_state.dtg.h"
 
 namespace FlexFlow {
-
-struct Conv2DPerDeviceState {
-  PerDeviceFFHandle handle;
-  ffTensorDescriptor_t inputTensor;
-  ffTensorDescriptor_t biasTensor;
-  ffTensorDescriptor_t outputTensor;
-  ffFilterDescriptor_t filterDesc;
-  ffActivationDescriptor_t actiDesc;
-  ffConvolutionDescriptor_t convDesc;
-  ffConvolutionFwdAlgo_t fwdAlgo;
-  ffConvolutionBwdFilterAlgo_t bwdFilterAlgo;
-  req<ffConvolutionBwdDataAlgo_t> bwdDataAlgo;
-};
-
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(Conv2DPerDeviceState,
-                                             handle,
-                                             inputTensor,
-                                             biasTensor,
-                                             outputTensor,
-                                             filterDesc,
-                                             actiDesc,
-                                             convDesc,
-                                             fwdAlgo,
-                                             bwdFilterAlgo,
-                                             bwdDataAlgo);
-
 namespace Kernels {
 namespace Conv2D {
 

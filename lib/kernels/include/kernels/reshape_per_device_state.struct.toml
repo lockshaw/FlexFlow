@@ -1,0 +1,11 @@
+namespace = "FlexFlow"
+name = "ReshapePerDeviceState"
+features = []
+
+includes = [
+  "op-attrs/datatype.dtg.h",
+]
+
+[[fields]]
+name = "data_type"
+type = "::FlexFlow::DataType"

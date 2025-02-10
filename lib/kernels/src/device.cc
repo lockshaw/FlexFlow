@@ -1,4 +1,4 @@
-#include "device.h"
+#include "kernels/device.h"
 
 namespace FlexFlow {
 

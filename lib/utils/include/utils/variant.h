@@ -31,14 +31,6 @@ bool is(std::variant<Args...> const &v) {
   return std::holds_alternative<T>(v) || is<TRest...>(v);
 }
 
-/* template <typename T> */
-/* using visit = mpark::visit<T>; */
-
-/* template <class ...Args1, class ...Args2> */
-/* struct variant_join_helper<mpark::variant<Args1...>,
- * mpark::variant<Args2...>> { */
-/*     using type = mpark::variant<Args1..., Args2...>; */
-/* }; */
 template <template <typename...> class Cond, typename... Ts>
 struct elements_satisfy<Cond, std::variant<Ts...>>
     : elements_satisfy_impl<Cond, Ts...> {};
@@ -193,7 +185,7 @@ template <typename TypeOut,
           typename VariantIn = typename Container::value_type,
           typename = std::enable_if_t<is_in_variant<TypeOut, VariantIn>::value>>
 auto narrow(Container const &c) {
-  return transform(c, [](VariantIn const &e) { return get<TypeOut>(e); });
+  return transform(c, [](VariantIn const &e) { return std::get<TypeOut>(e); });
 }
 
 template <

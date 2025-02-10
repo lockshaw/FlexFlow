@@ -46,6 +46,17 @@
                                     # for more details, see the following (long-running) nixpkgs github issues: 
                                     # - https://github.com/NixOS/nixpkgs/issues/18995
                                     # - https://github.com/NixOS/nixpkgs/issues/60919
+        RC_PARAMS = "max_discard_ratio=100";
+        CMAKE_FLAGS = lib.concatStringsSep " " [
+          "-DFF_USE_EXTERNAL_LEGION=ON"
+          "-DFF_USE_EXTERNAL_NCCL=ON"
+          "-DFF_USE_EXTERNAL_JSON=OFF"
+          "-DFF_USE_EXTERNAL_FMT=OFF"
+          "-DFF_USE_EXTERNAL_SPDLOG=OFF"
+          "-DFF_USE_EXTERNAL_DOCTEST=ON"
+          "-DFF_USE_EXTERNAL_RAPIDCHECK=OFF"
+          "-DFF_USE_EXTERNAL_EXPECTED=OFF"
+        ];
       });
 
       proj = proj-repo.packages.${system}.proj;
@@ -77,18 +88,6 @@
         ci = mkShell {
           shellHook = ''
             export PATH="$HOME/ff/.scripts/:$PATH"
-            export RC_PARAMS="max_discard_ratio=100"
-            export CMAKE_FLAGS="-DFF_USE_EXTERNAL_LEGION=ON \
-                                -DFF_USE_EXTERNAL_NCCL=ON \
-                                -DFF_USE_EXTERNAL_JSON=ON \
-                                -DFF_USE_EXTERNAL_FMT=ON \
-                                -DFF_USE_EXTERNAL_SPDLOG=ON \
-                                -DFF_USE_EXTERNAL_DOCTEST=ON \
-                                -DFF_USE_EXTERNAL_RAPIDCHECK=ON \
-                                -DFF_USE_EXTERNAL_EXPECTED=ON \
-                                -DFF_USE_EXTERNAL_RANGEV3=ON \
-                                -DFF_USE_EXTERNAL_BOOST_PREPROCESSOR=ON \
-                                -DFF_USE_EXTERNAL_TYPE_INDEX=ON"
           '';
           
           buildInputs = builtins.concatLists [
@@ -127,7 +126,6 @@
 
         gpu-ci = mkShell {
           inputsFrom = [ ci ];
-          hardeningDisable = [ "all" ];
 
           buildInputs = builtins.concatLists [
             (with nixGL.packages.${system}; [
@@ -139,11 +137,12 @@
         default = mkShell {
           inputsFrom = [ ci ];
 
+          inherit (ci) shellHook;
+
           VIMPLUGINS = lib.strings.concatStringsSep "," [
             "${proj-repo.packages.${system}.proj-nvim}"
           ];
 
-          hardeningDisable = [ "all" ];
 
           buildInputs = builtins.concatLists [
             (with pkgs; [

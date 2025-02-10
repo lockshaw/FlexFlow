@@ -1,17 +1,11 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_RESHAPE_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_RESHAPE_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/accessor.h"
-#include "utils/required_core.h"
+#include "kernels/reshape_per_device_state.dtg.h"
 
 namespace FlexFlow {
-
-struct ReshapePerDeviceState {
-  req<DataType> data_type;
-};
-
-FF_VISITABLE_STRUCT(ReshapePerDeviceState, data_type);
 
 namespace Kernels {
 namespace Reshape {

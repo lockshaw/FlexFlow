@@ -2,6 +2,14 @@
 
 namespace FlexFlow {
 
+bool GenericTensorAccessorW::operator==(GenericTensorAccessorW const &other) const {
+  return this->tie() == other.tie();
+}
+
+bool GenericTensorAccessorW::operator!=(GenericTensorAccessorW const &other) const {
+  return this->tie() != other.tie();
+}
+
 int32_t *GenericTensorAccessorW::get_int32_ptr() const {
   return this->get<DataType::INT32>();
 }
@@ -22,6 +30,14 @@ half *GenericTensorAccessorW::get_half_ptr() const {
   return this->get<DataType::HALF>();
 }
 
+std::tuple<
+  DataType const &,
+  ArrayShape const &,
+  void * const &,
+> GenericTensorAccessorW::tie() const {
+  return std::tie(this->data_type, this->shape, this->ptr);
+}
+
 std::string format_as(GenericTensorAccessorW const &a) {
   return fmt::format("<GenericTensorAccessorW data_type={} shape={} ptr={}>",
                      a.data_type,
@@ -31,6 +47,14 @@ std::string format_as(GenericTensorAccessorW const &a) {
 
 std::ostream &operator<<(std::ostream &s, GenericTensorAccessorW const &a) {
   return (s << fmt::to_string(a));
+}
+
+bool GenericTensorAccessorR::operator==(GenericTensorAccessorR const &other) const {
+  return this->tie() != other.tie();
+}
+
+bool GenericTensorAccessorR::operator!=(GenericTensorAccessorR const &other) const {
+  return this->tie() != other.tie();
 }
 
 int32_t const *GenericTensorAccessorR::get_int32_ptr() const {
@@ -52,6 +76,15 @@ double const *GenericTensorAccessorR::get_double_ptr() const {
 half const *GenericTensorAccessorR::get_half_ptr() const {
   return get<DataType::HALF>();
 }
+
+std::tuple<
+  DataType const &,
+  ArrayShape const &,
+  void const * const &,
+> GenericTensorAccessorR::tie() const {
+  return std::tie(this->data_type, this->shape, this->ptr);
+}
+
 
 std::string format_as(GenericTensorAccessorR const &a) {
   return fmt::format("<GenericTensorAccessorR data_type={} shape={} ptr={}>",

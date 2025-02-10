@@ -4,6 +4,7 @@
 #include "utils/bidict/bidict.h"
 #include "utils/containers/get_element_type.h"
 #include "utils/containers/transform.h"
+#include "utils/type_traits_core.h"
 #include <type_traits>
 
 namespace FlexFlow {
@@ -13,9 +14,9 @@ template <typename F,
           typename K = get_element_type_t<C>,
           typename V = std::invoke_result_t<F, K>>
 bidict<K, V> generate_bidict(C const &c, F const &f) {
-  static_assert(is_hashable<K>::value,
+  static_assert(is_hashable_v<K>,
                 "Key type should be hashable (but is not)");
-  static_assert(is_hashable<V>::value,
+  static_assert(is_hashable_v<V>,
                 "Value type should be hashable (but is not)");
 
   auto transformed = transform(c, [&](K const &k) -> std::pair<K, V> {

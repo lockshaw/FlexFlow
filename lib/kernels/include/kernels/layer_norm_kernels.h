@@ -1,35 +1,12 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_LAYER_NORM_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_LAYER_NORM_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 #include "kernels/allocation.h"
 #include "kernels/ff_handle.h"
+#include "kernels/layer_norm_per_device_state.dtg.h"
 
 namespace FlexFlow {
-
-struct LayerNormPerDeviceState {
-  PerDeviceFFHandle handle;
-  bool elementwise_affine;
-  int64_t effective_batch_size, effective_num_elements;
-  float eps;
-  float *mean, *rstd, *ds, *db, *scale, *bias;
-  DataType data_type;
-};
-
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(LayerNormPerDeviceState,
-                                             handle,
-                                             elementwise_affine,
-                                             effective_batch_size,
-                                             effective_num_elements,
-                                             eps,
-                                             mean,
-                                             rstd,
-                                             ds,
-                                             db,
-                                             scale,
-                                             bias,
-                                             data_type);
-
 namespace Kernels {
 namespace LayerNorm {
 

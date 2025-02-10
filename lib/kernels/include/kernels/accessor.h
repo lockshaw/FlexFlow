@@ -1,12 +1,11 @@
 #ifndef _FLEXFLOW_KERNELS_ACCESSOR_H
 #define _FLEXFLOW_KERNELS_ACCESSOR_H
 
-#include "array_shape.h"
-#include "device.h"
+#include "kernels/array_shape.h"
+#include "kernels/device.h"
 #include "kernels/ff_handle.h"
 #include "op-attrs/datatype.h"
 #include "utils/exception.h"
-#include "utils/required.h"
 
 namespace FlexFlow {
 
@@ -31,12 +30,14 @@ public:
 public:
   DataType data_type;
   ArrayShape shape;
-  req<void *> ptr;
+  void *ptr;
+private:
+  std::tuple<
+    decltype(data_type) const &,
+    decltype(shape) const &,
+    decltype(ptr) const &,
+  > tie() const;
 };
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(GenericTensorAccessorW,
-                                             data_type,
-                                             shape,
-                                             ptr);
 
 std::string format_as(GenericTensorAccessorW const &);
 std::ostream &operator<<(std::ostream &, GenericTensorAccessorW const &);
@@ -59,15 +60,20 @@ public:
   double const *get_double_ptr() const;
   half const *get_half_ptr() const;
 
+  bool operator==(GenericTensorAccessorR const &) const;
+  bool operator!=(GenericTensorAccessorR const &) const;
 public:
   DataType data_type;
   ArrayShape shape;
-  req<void const *> ptr;
+  void const *ptr;
+private:
+  std::tuple<
+    decltype(data_type) const &,
+    decltype(shape) const &,
+    decltype(ptr) const &,
+  > tie() const;
+
 };
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(GenericTensorAccessorR,
-                                             data_type,
-                                             shape,
-                                             ptr);
 
 std::string format_as(GenericTensorAccessorR const &);
 std::ostream &operator<<(std::ostream &, GenericTensorAccessorR const &);

@@ -2,13 +2,13 @@
 #define _FLEXFLOW_KERNELS_INCLUDE_KERNELS_PERF_METRICS_H
 
 #include "utils/fmt.h"
-#include "utils/visitable.h"
 
 namespace FlexFlow {
 
-struct PerfMetrics : public use_visitable_cmp<PerfMetrics> {
+struct PerfMetrics {
+public:
   PerfMetrics() = delete;
-  PerfMetrics(double start_time);
+  explicit PerfMetrics(double start_time);
   PerfMetrics(int train_all,
               std::optional<int> train_correct,
               std::optional<float> cce_loss,
@@ -19,6 +19,10 @@ struct PerfMetrics : public use_visitable_cmp<PerfMetrics> {
               double start_time_micro,
               double current_time_micro);
 
+  bool operator==(PerfMetrics const &) const;
+  bool operator!=(PerfMetrics const &) const;
+
+public:
   int train_all = 0;                    // measure_accuracy_denominator
   std::optional<int> train_correct = 0; // measure_accuracy numerator
   std::optional<float> cce_loss =
@@ -30,6 +34,18 @@ struct PerfMetrics : public use_visitable_cmp<PerfMetrics> {
   std::optional<float> mae_loss = 0.0f;  // measure_mean_absolute_error
   double start_time;
   double current_time;
+private:
+  std::tuple<
+    decltype(train_all) const &,
+    decltype(train_correct) const &,
+    decltype(cce_loss) const &,
+    decltype(sparse_cce_loss) const &,
+    decltype(mse_loss) const &,
+    decltype(rmse_loss) const &,
+    decltype(mae_loss) const &,
+    decltype(start_time) const &,
+    decltype(current_time) const &,
+  > tie() const;
 };
 
 float get_throughput(PerfMetrics const &);
@@ -39,16 +55,6 @@ PerfMetrics update(PerfMetrics const &, PerfMetrics const &);
 PerfMetrics apply_scale(PerfMetrics const &, float scale);
 
 } // namespace FlexFlow
-
-VISITABLE_STRUCT(::FlexFlow::PerfMetrics,
-                 train_all,
-                 train_correct,
-                 cce_loss,
-                 sparse_cce_loss,
-                 mse_loss,
-                 rmse_loss,
-                 mae_loss,
-                 start_time);
 
 namespace fmt {
 

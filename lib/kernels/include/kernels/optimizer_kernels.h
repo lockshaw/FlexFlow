@@ -1,7 +1,7 @@
 #ifndef _FLEXFLOW_KERNELS_INCLUDE_KERNELS_OPTIMIZER_KERNELS_H
 #define _FLEXFLOW_KERNELS_INCLUDE_KERNELS_OPTIMIZER_KERNELS_H
 
-#include "device.h"
+#include "kernels/device.h"
 
 namespace FlexFlow {
 

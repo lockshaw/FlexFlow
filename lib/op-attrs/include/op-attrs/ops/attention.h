@@ -5,7 +5,6 @@
 #include "op-attrs/ops/attention/multihead_attention_inputs.dtg.h"
 #include "op-attrs/ops/attention/multihead_attention_parallel_inputs.dtg.h"
 #include "op-attrs/ops/attention_attrs.dtg.h"
-#include "op-attrs/ops/core.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include <tl/expected.hpp>
@@ -99,7 +98,6 @@ tl::expected<ParallelTensorShape, std::string>
                      ParallelTensorShape const &input_k,
                      ParallelTensorShape const &input_v);
 
-CHECK_VALID_OP_ATTR(MultiHeadAttentionAttrs);
 } // namespace FlexFlow
 
 #endif

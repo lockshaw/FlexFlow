@@ -98,7 +98,6 @@ include(json)
 include(expected)
 include(spdlog)
 include(doctestlib) # named doctestlib to avoid a name collision with doctest.cmake in rapidcheck
-include(visit_struct)
 include(CTest)
 include(fmt)
 include(legion)

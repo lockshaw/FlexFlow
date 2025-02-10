@@ -1,4 +1,5 @@
-#include "utils/exception.h"
+#include "utils/not_implemented.h"
+#include <fmt/format.h>
 
 namespace FlexFlow {
 
@@ -10,4 +11,4 @@ not_implemented::not_implemented(std::string const &function_name,
                                    file_name,
                                    line)){};
 
-}
+} // namespace FlexFlow
