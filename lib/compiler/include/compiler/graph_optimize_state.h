@@ -6,7 +6,7 @@
 namespace FlexFlow {
 
 struct GraphOptimizeState {
-  GraphOptimizeState(GraphOptimizeResult const &graph_optimize_result,
+  explicit GraphOptimizeState(GraphOptimizeResult const &graph_optimize_result,
                      float runtime);
 
   GraphOptimizeResult graph_optimize_result;
@@ -16,6 +16,9 @@ struct GraphOptimizeState {
   bool operator!=(GraphOptimizeState const &other) const;
   bool operator<(GraphOptimizeState const &other) const;
 };
+
+std::string format_as(GraphOptimizeState const &);
+std::ostream &operator<<(std::ostream &, GraphOptimizeState const &);
 
 } // namespace FlexFlow
 

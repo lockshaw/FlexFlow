@@ -1,5 +1,5 @@
 #include "substitutions/apply_substitution/perform_shape_inference.h"
-#include "op-attrs/get_output_shapes.h"
+#include "op-attrs/shape_inference.h"
 #include "utils/containers/map_keys.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip.h"

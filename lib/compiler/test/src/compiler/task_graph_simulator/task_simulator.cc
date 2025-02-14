@@ -46,15 +46,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("linear graph") {
       ParallelComputationGraphBuilder b;
-      ParallelTensorShape input_shape = ParallelTensorShape{
-          ParallelTensorDims{
-              FFOrdered<ShardParallelDim>{},
-              ReplicaParallelDimSet{
-                  SumDegree{1_n},
-                  DiscardCopyDegree{1_n},
-              },
+      TensorShape input_shape = TensorShape{
+        TensorDims{
+          FFOrdered<nonnegative_int>{
+            10_n,
+            7_n,
           },
-          DataType::FLOAT,
+        },
+        DataType::FLOAT,
       };
       parallel_tensor_guid_t tensor0 = b.create_input_tensor(input_shape);
       parallel_tensor_guid_t tensor1 = b.relu(tensor0);
@@ -122,15 +121,14 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("rhomboidal graph") {
       ParallelComputationGraphBuilder b;
 
-      ParallelTensorShape input_shape = ParallelTensorShape{
-          ParallelTensorDims{
-              FFOrdered<ShardParallelDim>{ShardParallelDim{10_n, 1_n}},
-              ReplicaParallelDimSet{
-                  SumDegree{1_n},
-                  DiscardCopyDegree{1_n},
-              },
+      TensorShape input_shape = TensorShape{
+        TensorDims{
+          FFOrdered<nonnegative_int>{
+            10_n,
+            1_n,
           },
-          DataType::FLOAT,
+        },
+        DataType::FLOAT,
       };
 
       parallel_tensor_guid_t tensor0 = b.create_input_tensor(input_shape);
