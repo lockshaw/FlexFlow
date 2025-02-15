@@ -79,6 +79,20 @@ LayerAddedResult add_layer(ComputationGraph &computation_graph,
   };
 }
 
+LayerAddedResult add_input_layer(ComputationGraph &cg,
+                                 TensorShape const &tensor_shape) {
+  LayerAttrs layer_attrs = LayerAttrs{
+    /*op_attrs=*/ComputationGraphOpAttrs{InputAttrs{tensor_shape}},
+    /*name=*/std::nullopt,
+  };
+
+  return add_layer(cg, 
+                   layer_attrs,
+                   /*inputs=*/{},
+                   /*weights=*/{},
+                   /*outputs=*/std::vector{CreateGrad::NO});
+}
+
 TensorAttrs get_tensor_attrs(ComputationGraph const &cg,
                              tensor_guid_t const &t) {
   return cg.raw_graph.at(t.raw_graph_output);

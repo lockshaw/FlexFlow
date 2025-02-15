@@ -29,13 +29,17 @@ std::optional<SeriesParallelDecomposition>
     return is_parallel_op(op_attrs);
   };
 
-  std::cout << as_dot(pcg) << std::endl;
-
   std::function<parallel_layer_guid_t(parallel_layer_guid_t const &)> follow_to_last_parallel_op 
     = [&](parallel_layer_guid_t const &starting_point) -> parallel_layer_guid_t {
 
     assert (layer_is_weight_or_input(starting_point) || layer_is_parallel_op(starting_point));
      
+    std::unordered_set<parallel_layer_guid_t> successors = get_successors(pcg, starting_point);
+
+    if (successors.size() != 1) {
+      return starting_point;
+    }
+
     parallel_layer_guid_t successor = get_only(get_successors(pcg, starting_point));
 
     assert (!layer_is_weight_or_input(successor));
@@ -54,7 +58,7 @@ std::optional<SeriesParallelDecomposition>
         transform(weight_and_input_layers, follow_to_last_parallel_op);
 
     std::unordered_set<parallel_layer_guid_t> par_chain_endpoint_successors =
-        get_subgraph_successors(pcg, weight_and_input_layers);
+        get_subgraph_successors(pcg, par_chain_endpoints);
 
     DiGraph digraph = materialize_digraph_view<AdjacencyDiGraph>(pcg.raw_graph);
     for (parallel_layer_guid_t const &src : par_chain_endpoints) {

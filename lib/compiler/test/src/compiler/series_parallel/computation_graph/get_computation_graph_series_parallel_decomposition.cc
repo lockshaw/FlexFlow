@@ -170,6 +170,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                   op2_added.layer.raw_node,
               }},
           }}};
+
+      CHECK(result == correct);
     }
 
     ElementUnaryAttrs relu_attrs = ElementUnaryAttrs{
@@ -212,6 +214,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                   op2_added.layer.raw_node,
               }},
           }}};
+
+      CHECK(result == correct);
     }
 
     SUBCASE("not SP with or without weight nodes") {
@@ -252,6 +256,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::optional<SeriesParallelDecomposition> result =
           get_computation_graph_series_parallel_decomposition(cg);
       std::optional<SeriesParallelDecomposition> correct = std::nullopt;
+
+      CHECK(result == correct);
     }
 
     SUBCASE("real models") {

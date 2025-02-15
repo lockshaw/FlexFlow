@@ -1,6 +1,7 @@
 #include "utils/containers/transform_until.h"
 #include "utils/exception.h"
 #include <doctest/doctest.h>
+#include "test/utils/doctest/fmt/vector.h"
 
 using namespace ::FlexFlow;
 

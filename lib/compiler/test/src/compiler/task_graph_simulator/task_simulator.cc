@@ -66,6 +66,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                                MachineSpecificationDimension::INTER_NODE},
           MachineViewDimension{stride_t{1_n},
                                MachineSpecificationDimension::INTER_NODE},
+          MachineViewDimension{stride_t{1_n},
+                               MachineSpecificationDimension::INTER_NODE},
+          MachineViewDimension{stride_t{1_n},
+                               MachineSpecificationDimension::INTER_NODE},
       };
       ParallelComputationGraph pcg = b.pcg;
       MachineView mv1 =
@@ -143,6 +147,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelComputationGraph pcg = b.pcg;
       std::vector<MachineViewDimension> dims = {
+          MachineViewDimension{stride_t{1_n},
+                               MachineSpecificationDimension::INTER_NODE},
           MachineViewDimension{stride_t{1_n},
                                MachineSpecificationDimension::INTER_NODE},
           MachineViewDimension{stride_t{1_n},
