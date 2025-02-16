@@ -21,7 +21,8 @@ tl::expected<TensorShape, std::string>
     get_beta_weights_shape(LayerNormAttrs const &, TensorShape const &);
 
 tl::expected<std::vector<TensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs, TensorShape const &input_shape); 
+    get_weight_shapes(LayerNormAttrs const &attrs,
+                      TensorShape const &input_shape);
 
 tl::expected<ParallelTensorShape, std::string>
     get_output_shape(LayerNormAttrs const &, ParallelTensorShape const &);
@@ -32,12 +33,14 @@ tl::expected<ParallelTensorShape, std::string>
     get_beta_weights_shape(LayerNormAttrs const &, ParallelTensorShape const &);
 
 tl::expected<std::vector<ParallelTensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs, ParallelTensorShape const &input_shape); 
+    get_weight_shapes(LayerNormAttrs const &attrs,
+                      ParallelTensorShape const &input_shape);
 
 /**
  * @brief Chosen to match pytorch
  *
- * see https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/normalization.py#L210-L214
+ * see
+ * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/normalization.py#L210-L214
  */
 std::vector<InitializerAttrs> get_initializers(LayerNormAttrs const &attrs);
 

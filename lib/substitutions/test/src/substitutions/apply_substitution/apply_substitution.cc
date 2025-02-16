@@ -69,17 +69,18 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::string relu_match = "relu_match";
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          batch_size, in_channels,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                batch_size,
+                in_channels,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     SubParallelComputationGraph pcg = [&] {
       ParallelComputationGraphBuilder b;
-      
+
       parallel_tensor_guid_t t = b.create_input_tensor(input_shape);
       t = b.parallel_partition(t, ff_dim_t{0_n}, batch_degree);
       t = b.dense(t,

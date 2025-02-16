@@ -12,11 +12,10 @@ using namespace ::FlexFlow;
 template <typename T>
 static ParallelLayerAttrs make_layer_attrs(T const &op_attrs) {
   return ParallelLayerAttrs{
-    /*op_attrs=*/PCGOperatorAttrs{op_attrs},
-    /*name=*/std::nullopt,
+      /*op_attrs=*/PCGOperatorAttrs{op_attrs},
+      /*name=*/std::nullopt,
   };
 };
-
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("topological_ordering") {
@@ -28,12 +27,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          12_n, 16_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                12_n,
+                16_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ElementUnaryAttrs relu_attrs = make_relu_attrs();
@@ -63,16 +63,15 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n, 12_n
+        TensorDims{
+            FFOrdered<nonnegative_int>{10_n, 12_n},
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     SUBCASE("layer has no inputs") {
-      ParallelLayerAddedResult input_added = pcg_add_input_layer(pcg, input_shape);
+      ParallelLayerAddedResult input_added =
+          pcg_add_input_layer(pcg, input_shape);
 
       std::vector<parallel_tensor_guid_t> result =
           get_incoming_inputs(pcg, input_added.parallel_layer);
@@ -85,33 +84,43 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::string my_op_name = "my op";
 
       LinearAttrs linear_attrs = LinearAttrs{
-        /*out_channels=*/14_n,
-        /*use_bias=*/true,
-        /*data_type=*/DataType::FLOAT,
-        /*activation=*/Activation::RELU,
-        /*regularizer=*/std::nullopt,
+          /*out_channels=*/14_n,
+          /*use_bias=*/true,
+          /*data_type=*/DataType::FLOAT,
+          /*activation=*/Activation::RELU,
+          /*regularizer=*/std::nullopt,
       };
 
       WeightAttrs projection_weight_attrs = WeightAttrs{
-        /*tensor_shape=*/throw_if_unexpected(get_projection_shape(linear_attrs, input_shape)),
-        /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
-      };
-      
-      WeightAttrs bias_weight_attrs = WeightAttrs{
-        /*tensor_shape=*/throw_if_unexpected(get_bias_shape(linear_attrs, input_shape)),
-        /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
+          /*tensor_shape=*/throw_if_unexpected(
+              get_projection_shape(linear_attrs, input_shape)),
+          /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
       };
 
-      ParallelLayerAddedResult input_added = pcg_add_input_layer(pcg, input_shape);
+      WeightAttrs bias_weight_attrs = WeightAttrs{
+          /*tensor_shape=*/throw_if_unexpected(
+              get_bias_shape(linear_attrs, input_shape)),
+          /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
+      };
+
+      ParallelLayerAddedResult input_added =
+          pcg_add_input_layer(pcg, input_shape);
       parallel_tensor_guid_t t_input = get_only(input_added.outputs);
 
-      ParallelLayerAddedResult projection_weight_added = add_parallel_layer(pcg, make_layer_attrs(projection_weight_attrs), {}, {});
-      parallel_tensor_guid_t t_projection = get_only(projection_weight_added.outputs);
+      ParallelLayerAddedResult projection_weight_added = add_parallel_layer(
+          pcg, make_layer_attrs(projection_weight_attrs), {}, {});
+      parallel_tensor_guid_t t_projection =
+          get_only(projection_weight_added.outputs);
 
-      ParallelLayerAddedResult bias_weight_added = add_parallel_layer(pcg, make_layer_attrs(bias_weight_attrs), {}, {});
+      ParallelLayerAddedResult bias_weight_added =
+          add_parallel_layer(pcg, make_layer_attrs(bias_weight_attrs), {}, {});
       parallel_tensor_guid_t t_bias = get_only(bias_weight_added.outputs);
 
-      ParallelLayerAddedResult linear_added = add_parallel_layer(pcg, make_layer_attrs(linear_attrs), {t_input}, {t_projection, t_bias});
+      ParallelLayerAddedResult linear_added =
+          add_parallel_layer(pcg,
+                             make_layer_attrs(linear_attrs),
+                             {t_input},
+                             {t_projection, t_bias});
 
       std::vector<parallel_tensor_guid_t> result =
           get_incoming_inputs(pcg, linear_added.parallel_layer);
@@ -124,12 +133,13 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE(
       "get_source_layer(ParallelComputationGraph, parallel_tensor_guid_t)") {
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n, 12_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                12_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -194,18 +204,20 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE(
       "get_incoming_weights(ParallelComputationGraph, parallel_layer_guid_t)") {
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n, 12_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                12_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
     SUBCASE("layer has no inputs or weights") {
-      ParallelLayerAddedResult input_added = pcg_add_input_layer(pcg, input_shape);
+      ParallelLayerAddedResult input_added =
+          pcg_add_input_layer(pcg, input_shape);
 
       std::vector<parallel_tensor_guid_t> result =
           get_incoming_weights(pcg, input_added.parallel_layer);
@@ -215,10 +227,12 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("layer has inputs but no weights") {
-      ParallelLayerAddedResult input_added = pcg_add_input_layer(pcg, input_shape);
+      ParallelLayerAddedResult input_added =
+          pcg_add_input_layer(pcg, input_shape);
       parallel_tensor_guid_t t_input = get_only(input_added.outputs);
 
-      ParallelLayerAddedResult relu_added = add_parallel_layer(pcg, make_layer_attrs(make_relu_attrs()), {t_input}, {});
+      ParallelLayerAddedResult relu_added = add_parallel_layer(
+          pcg, make_layer_attrs(make_relu_attrs()), {t_input}, {});
 
       std::vector<parallel_tensor_guid_t> result =
           get_incoming_weights(pcg, relu_added.parallel_layer);
@@ -241,36 +255,52 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*regularizer=*/std::nullopt,
       };
 
-      ParallelLayerAddedResult input_added = pcg_add_input_layer(pcg, input_shape);
+      ParallelLayerAddedResult input_added =
+          pcg_add_input_layer(pcg, input_shape);
       parallel_tensor_guid_t t_input = get_only(input_added.outputs);
 
       RepartitionAttrs partition_input_attrs = RepartitionAttrs{
-        /*repartition_dim=*/ff_dim_t{0_n},
-        /*repartition_degree=*/2_n,
+          /*repartition_dim=*/ff_dim_t{0_n},
+          /*repartition_degree=*/2_n,
       };
 
-      ParallelLayerAddedResult partition_input_added = add_parallel_layer(pcg, make_layer_attrs(partition_input_attrs), {t_input}, {});
-      parallel_tensor_guid_t t_partitioned_input = get_only(partition_input_added.outputs);
+      ParallelLayerAddedResult partition_input_added = add_parallel_layer(
+          pcg, make_layer_attrs(partition_input_attrs), {t_input}, {});
+      parallel_tensor_guid_t t_partitioned_input =
+          get_only(partition_input_added.outputs);
 
       WeightAttrs projection_weight_attrs = WeightAttrs{
-        /*tensor_shape=*/throw_if_unexpected(get_projection_shape(linear_attrs, input_shape)),
-        /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
+          /*tensor_shape=*/throw_if_unexpected(
+              get_projection_shape(linear_attrs, input_shape)),
+          /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
       };
-      
-      ParallelLayerAddedResult projection_weight_added = add_parallel_layer(pcg, make_layer_attrs(projection_weight_attrs), {}, {});
-      parallel_tensor_guid_t t_projection_weight = get_only(projection_weight_added.outputs);
+
+      ParallelLayerAddedResult projection_weight_added = add_parallel_layer(
+          pcg, make_layer_attrs(projection_weight_attrs), {}, {});
+      parallel_tensor_guid_t t_projection_weight =
+          get_only(projection_weight_added.outputs);
 
       ReplicateAttrs replicate_projection_attrs = ReplicateAttrs{
-        /*replicate_degree=*/2_n,
+          /*replicate_degree=*/2_n,
       };
-      ParallelLayerAddedResult replicate_projection_added = add_parallel_layer(pcg, make_layer_attrs(replicate_projection_attrs), {t_projection_weight}, {});
-      parallel_tensor_guid_t t_replicated_projection_weight = get_only(replicate_projection_added.outputs);
+      ParallelLayerAddedResult replicate_projection_added =
+          add_parallel_layer(pcg,
+                             make_layer_attrs(replicate_projection_attrs),
+                             {t_projection_weight},
+                             {});
+      parallel_tensor_guid_t t_replicated_projection_weight =
+          get_only(replicate_projection_added.outputs);
 
-      ParallelLayerAddedResult linear_added = add_parallel_layer(pcg, make_layer_attrs(linear_attrs), {t_partitioned_input}, {t_replicated_projection_weight});
+      ParallelLayerAddedResult linear_added =
+          add_parallel_layer(pcg,
+                             make_layer_attrs(linear_attrs),
+                             {t_partitioned_input},
+                             {t_replicated_projection_weight});
 
       std::vector<parallel_tensor_guid_t> result =
           get_incoming_weights(pcg, linear_added.parallel_layer);
-      std::vector<parallel_tensor_guid_t> correct = {t_replicated_projection_weight};
+      std::vector<parallel_tensor_guid_t> correct = {
+          t_replicated_projection_weight};
 
       CHECK(result == correct);
     }
@@ -278,12 +308,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
   TEST_CASE("pcg_add_input_layer") {
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          12_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                12_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ParallelComputationGraph result = [&] {

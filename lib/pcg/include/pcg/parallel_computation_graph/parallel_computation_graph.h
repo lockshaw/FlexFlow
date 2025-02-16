@@ -17,16 +17,15 @@ std::unordered_set<parallel_layer_guid_t>
 std::unordered_set<parallel_tensor_guid_t>
     get_parallel_tensors(ParallelComputationGraph const &);
 
-ParallelLayerAddedResult
-    add_parallel_layer(ParallelComputationGraph &pcg,
-                       ParallelLayerAttrs const &layer_attrs,
-                       std::vector<parallel_tensor_guid_t> const &inputs,
-                       std::vector<parallel_tensor_guid_t> const &weights,
-                       std::optional<std::vector<CreateGrad>> const &outputs = std::nullopt);
+ParallelLayerAddedResult add_parallel_layer(
+    ParallelComputationGraph &pcg,
+    ParallelLayerAttrs const &layer_attrs,
+    std::vector<parallel_tensor_guid_t> const &inputs,
+    std::vector<parallel_tensor_guid_t> const &weights,
+    std::optional<std::vector<CreateGrad>> const &outputs = std::nullopt);
 
-ParallelLayerAddedResult
-    pcg_add_input_layer(ParallelComputationGraph &pcg,
-                        TensorShape const &tensor_shape);
+ParallelLayerAddedResult pcg_add_input_layer(ParallelComputationGraph &pcg,
+                                             TensorShape const &tensor_shape);
 
 std::unordered_set<ParallelComputationGraphEdge>
     get_pcg_edges_from_layer_to_layer(ParallelComputationGraph const &,

@@ -112,15 +112,16 @@ tl::expected<std::vector<ParallelTensorShape>, std::string>
                       ParallelTensorShape const &input_k,
                       ParallelTensorShape const &input_v);
 
-tl::expected<std::vector<InitializerAttrs>, std::string>
-    get_initializers(MultiHeadAttentionAttrs const &,
-                     TensorShape const &input_q,
-                     TensorShape const &input_k,
-                     TensorShape const &input_v,
-                     std::optional<InitializerAttrs> const &weights_initializer = std::nullopt,
-                     std::optional<InitializerAttrs> const &input_bias_initializer = std::nullopt,
-                     std::optional<InitializerAttrs> const &output_bias_initializer = std::nullopt);
-
+tl::expected<std::vector<InitializerAttrs>, std::string> get_initializers(
+    MultiHeadAttentionAttrs const &,
+    TensorShape const &input_q,
+    TensorShape const &input_k,
+    TensorShape const &input_v,
+    std::optional<InitializerAttrs> const &weights_initializer = std::nullopt,
+    std::optional<InitializerAttrs> const &input_bias_initializer =
+        std::nullopt,
+    std::optional<InitializerAttrs> const &output_bias_initializer =
+        std::nullopt);
 
 CHECK_VALID_OP_ATTR(MultiHeadAttentionAttrs);
 } // namespace FlexFlow

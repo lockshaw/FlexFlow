@@ -96,14 +96,17 @@ tl::expected<TensorShape, std::string>
 }
 
 tl::expected<std::vector<TensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs, TensorShape const &input_shape) {
-  
-  TensorShape gamma_shape = PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
-  TensorShape beta_shape = PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+    get_weight_shapes(LayerNormAttrs const &attrs,
+                      TensorShape const &input_shape) {
+
+  TensorShape gamma_shape =
+      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+  TensorShape beta_shape =
+      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
   return std::vector{
-    gamma_shape,
-    beta_shape,
+      gamma_shape,
+      beta_shape,
   };
 }
 
@@ -207,14 +210,17 @@ tl::expected<ParallelTensorShape, std::string>
 }
 
 tl::expected<std::vector<ParallelTensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs, ParallelTensorShape const &input_shape) {
+    get_weight_shapes(LayerNormAttrs const &attrs,
+                      ParallelTensorShape const &input_shape) {
 
-  ParallelTensorShape gamma_shape = PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
-  ParallelTensorShape beta_shape = PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+  ParallelTensorShape gamma_shape =
+      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+  ParallelTensorShape beta_shape =
+      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
   return std::vector{
-    gamma_shape,
-    beta_shape,
+      gamma_shape,
+      beta_shape,
   };
 }
 

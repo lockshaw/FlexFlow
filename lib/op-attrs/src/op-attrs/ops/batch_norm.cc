@@ -90,14 +90,17 @@ tl::expected<TensorShape, std::string>
 }
 
 tl::expected<std::vector<TensorShape>, std::string>
-  get_weight_shapes(BatchNormAttrs const &attrs, TensorShape const &input_shape) {
-  
-  TensorShape gamma_shape = PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
-  TensorShape beta_shape = PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+    get_weight_shapes(BatchNormAttrs const &attrs,
+                      TensorShape const &input_shape) {
+
+  TensorShape gamma_shape =
+      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+  TensorShape beta_shape =
+      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
   return std::vector{
-    gamma_shape,
-    beta_shape,
+      gamma_shape,
+      beta_shape,
   };
 }
 
@@ -195,17 +198,20 @@ tl::expected<ParallelTensorDimDegrees, std::string>
 }
 
 tl::expected<std::vector<ParallelTensorDimDegrees>, std::string>
-  get_weight_parallel_dim_degrees(BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
-  
-  ParallelTensorDimDegrees gamma_degrees = PROPAGATE_ERR(get_gamma_weights_parallel_dim_degrees(attrs, input_degrees));
-  ParallelTensorDimDegrees beta_degrees = PROPAGATE_ERR(get_beta_weights_parallel_dim_degrees(attrs, input_degrees));
+    get_weight_parallel_dim_degrees(
+        BatchNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+
+  ParallelTensorDimDegrees gamma_degrees = PROPAGATE_ERR(
+      get_gamma_weights_parallel_dim_degrees(attrs, input_degrees));
+  ParallelTensorDimDegrees beta_degrees = PROPAGATE_ERR(
+      get_beta_weights_parallel_dim_degrees(attrs, input_degrees));
 
   return std::vector{
-    gamma_degrees,
-    beta_degrees,
+      gamma_degrees,
+      beta_degrees,
   };
 }
-
 
 tl::expected<ParallelTensorShape, std::string>
     get_output_shape(BatchNormAttrs const &attrs,
@@ -285,19 +291,22 @@ tl::expected<ParallelTensorShape, std::string>
 }
 
 tl::expected<std::vector<ParallelTensorShape>, std::string>
-  get_weight_shapes(BatchNormAttrs const &attrs, ParallelTensorShape const &input_shape) {
-  
-  ParallelTensorShape gamma_shape = PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
-  ParallelTensorShape beta_shape = PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+    get_weight_shapes(BatchNormAttrs const &attrs,
+                      ParallelTensorShape const &input_shape) {
+
+  ParallelTensorShape gamma_shape =
+      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+  ParallelTensorShape beta_shape =
+      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
   return std::vector{
-    gamma_shape,
-    beta_shape,
+      gamma_shape,
+      beta_shape,
   };
 }
 
 tl::expected<std::vector<InitializerAttrs>, std::string>
-  get_initializers(BatchNormAttrs const &attrs) {
+    get_initializers(BatchNormAttrs const &attrs) {
   if (attrs.affine) {
     InitializerAttrs gamma_initializer =
         InitializerAttrs{ConstantInitializerAttrs{DataTypeValue{float{1}}}};

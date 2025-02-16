@@ -7,7 +7,7 @@ namespace FlexFlow {
 
 struct GraphOptimizeState {
   explicit GraphOptimizeState(GraphOptimizeResult const &graph_optimize_result,
-                     float runtime);
+                              float runtime);
 
   GraphOptimizeResult graph_optimize_result;
   float runtime;

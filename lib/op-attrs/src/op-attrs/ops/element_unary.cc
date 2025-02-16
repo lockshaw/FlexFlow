@@ -5,8 +5,8 @@ namespace FlexFlow {
 
 ElementUnaryAttrs make_relu_attrs() {
   return ElementUnaryAttrs{
-    /*op_type=*/OperatorType::RELU,
-    /*scalar=*/std::nullopt,
+      /*op_type=*/OperatorType::RELU,
+      /*scalar=*/std::nullopt,
   };
 }
 

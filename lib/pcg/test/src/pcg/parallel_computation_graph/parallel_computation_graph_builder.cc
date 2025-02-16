@@ -30,13 +30,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ShardParallelDim d2 = ShardParallelDim{15_n, 3_n};
 
     TensorShape lhs_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n,
-          15_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                15_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     // ParallelTensorShape lhs_shape = ParallelTensorShape{
@@ -87,25 +87,25 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape a_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          4_n,
-          10_n,
-          15_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                4_n,
+                10_n,
+                15_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     TensorShape b_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          4_n,
-          15_n,
-          10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                4_n,
+                15_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t a_tensor = b.create_input_tensor(a_shape);
@@ -140,12 +140,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n, 12_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                12_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     DataType output_datatype = DataType::DOUBLE;
@@ -182,9 +183,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
-    parallel_tensor_guid_t par_input = b.parallel_partition(input, ff_dim_t{0_n}, 2_n);
+    parallel_tensor_guid_t par_input =
+        b.parallel_partition(input, ff_dim_t{0_n}, 2_n);
 
     ParallelTensorShape par_input_shape = b.get_shape(par_input);
 
@@ -296,12 +297,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n, 16_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                16_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
     nonnegative_int outDim = 14_n;
 
@@ -333,13 +335,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          12_n,
-          10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                12_n,
+                10_n,
+            },
         },
-      },
-      DataType::INT32,
+        DataType::INT32,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
@@ -370,12 +372,14 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape query_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          12_n, 16_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                12_n,
+                16_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     TensorShape key_shape = query_shape;
@@ -412,13 +416,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          18_n,
-          32_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                18_n,
+                32_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
@@ -447,12 +451,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ShardParallelDim feature_dim = ShardParallelDim{10_n, 1_n};
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          18_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                18_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
@@ -479,12 +484,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          18_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                18_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
@@ -512,12 +518,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          18_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                18_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
@@ -543,17 +550,21 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraphBuilder b;
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          18_n, 10_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                18_n,
+                10_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
     input = b.parallel_partition(input, ff_dim_t{1_n}, 2_n);
-    input = b.dense(input, /*out_dim=*/12_n, /*activation=*/std::nullopt, /*use_bias=*/false);
+    input = b.dense(input,
+                    /*out_dim=*/12_n,
+                    /*activation=*/std::nullopt,
+                    /*use_bias=*/false);
     parallel_tensor_guid_t output = b.parallel_reduce(input, 2_n);
     parallel_layer_guid_t layer = get_source_layer(output);
 

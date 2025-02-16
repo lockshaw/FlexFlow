@@ -28,9 +28,12 @@ tl::expected<ParallelTensorShape, std::string>
 /**
  * @brief Chosen to match pytorch
  *
- * see https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/sparse.py#L180-L182
+ * see
+ * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/sparse.py#L180-L182
  */
-std::vector<InitializerAttrs> get_initializers(EmbeddingAttrs const &, std::optional<InitializerAttrs> const &initializer_attrs = std::nullopt);
+std::vector<InitializerAttrs> get_initializers(
+    EmbeddingAttrs const &,
+    std::optional<InitializerAttrs> const &initializer_attrs = std::nullopt);
 
 } // namespace FlexFlow
 

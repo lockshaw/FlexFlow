@@ -39,13 +39,15 @@ tl::expected<ParallelTensorShape, std::string>
                      ParallelTensorShape const &input);
 
 tl::expected<std::vector<ParallelTensorShape>, std::string>
-    get_weight_shapes(LinearAttrs const &attrs, ParallelTensorShape const &input_shape);
+    get_weight_shapes(LinearAttrs const &attrs,
+                      ParallelTensorShape const &input_shape);
 
-tl::expected<std::vector<InitializerAttrs>, std::string> 
-  get_initializers(LinearAttrs const &, 
-                   TensorShape const &input_shape,
-                   std::optional<InitializerAttrs> const &projection_initializer = std::nullopt,
-                   std::optional<InitializerAttrs> const &kernel_initializer = std::nullopt);
+tl::expected<std::vector<InitializerAttrs>, std::string> get_initializers(
+    LinearAttrs const &,
+    TensorShape const &input_shape,
+    std::optional<InitializerAttrs> const &projection_initializer =
+        std::nullopt,
+    std::optional<InitializerAttrs> const &kernel_initializer = std::nullopt);
 
 } // namespace FlexFlow
 

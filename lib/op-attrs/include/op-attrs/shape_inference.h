@@ -20,7 +20,7 @@ std::vector<ParallelTensorShape>
     get_output_shapes(PCGOperatorAttrs const &,
                       std::vector<ParallelTensorShape> const &input_shapes);
 
-std::vector<ParallelTensorShape> 
+std::vector<ParallelTensorShape>
     get_weight_shapes(PCGOperatorAttrs const &,
                       std::vector<ParallelTensorShape> const &input_shapes);
 

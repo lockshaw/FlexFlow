@@ -7,13 +7,13 @@ using namespace FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("GraphOptimizeState::operator==") {
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          32_n,
-          16_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                32_n,
+                16_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
     // ParallelTensorShape input_shape =
     //     ParallelTensorShape{ParallelTensorDims{
@@ -70,13 +70,13 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelComputationGraph pcg2 = create_pcg();
 
       GraphOptimizeState state1 = GraphOptimizeState{
-        GraphOptimizeResult{pcg1, empty_machine_mapping},
-        0,
+          GraphOptimizeResult{pcg1, empty_machine_mapping},
+          0,
       };
 
       GraphOptimizeState state2 = GraphOptimizeState{
-        GraphOptimizeResult{pcg2, empty_machine_mapping},
-        0,
+          GraphOptimizeResult{pcg2, empty_machine_mapping},
+          0,
       };
 
       CHECK(state1 == state2);
@@ -89,24 +89,24 @@ TEST_SUITE(FF_TEST_SUITE) {
           builder_.create_input_tensor(input_shape, "input0");
       parallel_tensor_guid_t dense0_ =
           builder_.dense(/*input=*/input0_,
-                        /*outDim=*/8_n,
-                        /*activation=*/Activation::RELU,
-                        /*use_bias=*/true,
-                        /*data_type=*/DataType::FLOAT,
-                        /*projection_initializer=*/zero_init,
-                        /*bias_initializer=*/zero_init,
-                        /*name=*/"dense0");
+                         /*outDim=*/8_n,
+                         /*activation=*/Activation::RELU,
+                         /*use_bias=*/true,
+                         /*data_type=*/DataType::FLOAT,
+                         /*projection_initializer=*/zero_init,
+                         /*bias_initializer=*/zero_init,
+                         /*name=*/"dense0");
 
       ParallelComputationGraph pcg_ = builder_.pcg;
 
       GraphOptimizeState state1 = GraphOptimizeState{
-        GraphOptimizeResult{pcg1, empty_machine_mapping},
-        0,
+          GraphOptimizeResult{pcg1, empty_machine_mapping},
+          0,
       };
 
       GraphOptimizeState state_ = GraphOptimizeState{
-        GraphOptimizeResult{pcg_, empty_machine_mapping},
-        0,
+          GraphOptimizeResult{pcg_, empty_machine_mapping},
+          0,
       };
 
       CHECK_FALSE(state1 == state_);

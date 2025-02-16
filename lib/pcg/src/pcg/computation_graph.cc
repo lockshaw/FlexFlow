@@ -35,19 +35,24 @@ std::unordered_set<layer_guid_t> get_layers(ComputationGraph const &cg) {
                    [&](Node const &n) { return layer_guid_t{n}; });
 }
 
-LayerAddedResult add_layer(ComputationGraph &computation_graph,
-                           LayerAttrs const &layer_attrs,
-                           std::vector<tensor_guid_t> const &inputs,
-                           std::vector<tensor_guid_t> const &weights,
-                           std::optional<std::vector<CreateGrad>> const &maybe_output_flags) {
-  std::vector<TensorShape> input_shapes 
-    = transform(inputs, [&](tensor_guid_t const &i) { return get_tensor_attrs(computation_graph, i).shape; });
+LayerAddedResult add_layer(
+    ComputationGraph &computation_graph,
+    LayerAttrs const &layer_attrs,
+    std::vector<tensor_guid_t> const &inputs,
+    std::vector<tensor_guid_t> const &weights,
+    std::optional<std::vector<CreateGrad>> const &maybe_output_flags) {
+  std::vector<TensorShape> input_shapes =
+      transform(inputs, [&](tensor_guid_t const &i) {
+        return get_tensor_attrs(computation_graph, i).shape;
+      });
 
-  std::vector<TensorShape> provided_weight_shapes
-    = transform(weights, [&](tensor_guid_t const &w) { return get_tensor_attrs(computation_graph, w).shape; });
+  std::vector<TensorShape> provided_weight_shapes =
+      transform(weights, [&](tensor_guid_t const &w) {
+        return get_tensor_attrs(computation_graph, w).shape;
+      });
 
-  std::vector<TensorShape> expected_weight_shapes
-    = get_weight_shapes(layer_attrs.op_attrs, input_shapes);
+  std::vector<TensorShape> expected_weight_shapes =
+      get_weight_shapes(layer_attrs.op_attrs, input_shapes);
 
   std::vector<DataflowOutput> raw_inputs = transform(
       inputs, [](tensor_guid_t const &t) { return t.raw_graph_output; });
@@ -55,22 +60,24 @@ LayerAddedResult add_layer(ComputationGraph &computation_graph,
   std::vector<DataflowOutput> raw_weights = transform(
       weights, [](tensor_guid_t const &t) { return t.raw_graph_output; });
 
-  std::vector<TensorShape> output_shapes = get_output_shapes(layer_attrs.op_attrs, input_shapes);
+  std::vector<TensorShape> output_shapes =
+      get_output_shapes(layer_attrs.op_attrs, input_shapes);
 
-  std::vector<CreateGrad> output_flags = maybe_output_flags.value_or(repeat_element(num_elements(output_shapes), CreateGrad::YES));
+  std::vector<CreateGrad> output_flags = maybe_output_flags.value_or(
+      repeat_element(num_elements(output_shapes), CreateGrad::YES));
 
-  std::vector<TensorAttrs> output_attrs = 
-    zip_with_strict(output_shapes, output_flags,
-             [](TensorShape const &shape, CreateGrad const &create_grad) {
-               return TensorAttrs{
-                 /*shape=*/shape,
-                 /*create_grad=*/create_grad,
-               };
-             });
+  std::vector<TensorAttrs> output_attrs = zip_with_strict(
+      output_shapes,
+      output_flags,
+      [](TensorShape const &shape, CreateGrad const &create_grad) {
+        return TensorAttrs{
+            /*shape=*/shape,
+            /*create_grad=*/create_grad,
+        };
+      });
 
-
-  NodeAddedResult added =
-      computation_graph.raw_graph.add_node(layer_attrs, concat_vectors(raw_inputs, raw_weights), output_attrs);
+  NodeAddedResult added = computation_graph.raw_graph.add_node(
+      layer_attrs, concat_vectors(raw_inputs, raw_weights), output_attrs);
 
   return LayerAddedResult{
       layer_guid_t{added.node},
@@ -82,11 +89,11 @@ LayerAddedResult add_layer(ComputationGraph &computation_graph,
 LayerAddedResult add_input_layer(ComputationGraph &cg,
                                  TensorShape const &tensor_shape) {
   LayerAttrs layer_attrs = LayerAttrs{
-    /*op_attrs=*/ComputationGraphOpAttrs{InputAttrs{tensor_shape}},
-    /*name=*/std::nullopt,
+      /*op_attrs=*/ComputationGraphOpAttrs{InputAttrs{tensor_shape}},
+      /*name=*/std::nullopt,
   };
 
-  return add_layer(cg, 
+  return add_layer(cg,
                    layer_attrs,
                    /*inputs=*/{},
                    /*weights=*/{},

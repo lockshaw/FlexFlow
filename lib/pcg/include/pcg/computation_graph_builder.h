@@ -241,10 +241,10 @@ public:
                    CreateGrad,
                    std::optional<std::string> const &name = std::nullopt);
 
-  tensor_guid_t create_weight(
-      TensorShape const &shape,
-      InitializerAttrs const &initializer,
-      std::optional<std::string> const &name = std::nullopt);
+  tensor_guid_t
+      create_weight(TensorShape const &shape,
+                    InitializerAttrs const &initializer,
+                    std::optional<std::string> const &name = std::nullopt);
   tensor_guid_t
       create_weight(TensorAttrs const &,
                     std::optional<std::string> const &name = std::nullopt);
@@ -255,11 +255,11 @@ public:
   TensorShape get_shape(tensor_guid_t const &) const;
 
 private:
-  std::vector<tensor_guid_t>
-      add_layer(LayerAttrs const &layer,
-                std::vector<tensor_guid_t> const &inputs,
-                std::vector<InitializerAttrs> const &weights,
-                std::optional<std::vector<CreateGrad>> const &outputs = std::nullopt);
+  std::vector<tensor_guid_t> add_layer(
+      LayerAttrs const &layer,
+      std::vector<tensor_guid_t> const &inputs,
+      std::vector<InitializerAttrs> const &weights,
+      std::optional<std::vector<CreateGrad>> const &outputs = std::nullopt);
 
   tensor_guid_t
       broadcast(tensor_guid_t const &, TensorDims const &, std::string const &);

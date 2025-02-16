@@ -166,43 +166,53 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       auto make_layer_attrs = [](auto const &op_attrs) {
         return LayerAttrs{
-          /*op_attrs=*/ComputationGraphOpAttrs{op_attrs},
-          /*name=*/std::nullopt,
+            /*op_attrs=*/ComputationGraphOpAttrs{op_attrs},
+            /*name=*/std::nullopt,
         };
       };
 
       LinearAttrs linear_attrs = LinearAttrs{
-        /*out_channels=*/14_n,
-        /*use_bias=*/true,
-        /*data_type=*/DataType::FLOAT,
-        /*activation=*/Activation::RELU,
-        /*regularizer=*/std::nullopt,
+          /*out_channels=*/14_n,
+          /*use_bias=*/true,
+          /*data_type=*/DataType::FLOAT,
+          /*activation=*/Activation::RELU,
+          /*regularizer=*/std::nullopt,
       };
 
       InitializerAttrs zero_init = InitializerAttrs{ZeroInitializerAttrs{}};
 
       WeightAttrs projection_weight_attrs = WeightAttrs{
-        /*tensor_shape=*/throw_if_unexpected(get_projection_shape(linear_attrs, input_shape)),
-        /*initializer=*/zero_init,
+          /*tensor_shape=*/throw_if_unexpected(
+              get_projection_shape(linear_attrs, input_shape)),
+          /*initializer=*/zero_init,
       };
 
       WeightAttrs bias_weight_attrs = WeightAttrs{
-        /*tensor_shape=*/throw_if_unexpected(get_bias_shape(linear_attrs, input_shape)),
-        /*initializer=*/zero_init,
+          /*tensor_shape=*/throw_if_unexpected(
+              get_bias_shape(linear_attrs, input_shape)),
+          /*initializer=*/zero_init,
       };
 
       LayerAddedResult input_added = add_input_layer(cg, input_shape);
       tensor_guid_t t_input = get_only(input_added.outputs);
 
-      LayerAddedResult projection_weight_added = add_layer(cg, make_layer_attrs(projection_weight_attrs), {}, {});
-      tensor_guid_t t_projection_weight = get_only(projection_weight_added.outputs);
+      LayerAddedResult projection_weight_added =
+          add_layer(cg, make_layer_attrs(projection_weight_attrs), {}, {});
+      tensor_guid_t t_projection_weight =
+          get_only(projection_weight_added.outputs);
 
-      LayerAddedResult bias_weight_added = add_layer(cg, make_layer_attrs(bias_weight_attrs), {}, {});
+      LayerAddedResult bias_weight_added =
+          add_layer(cg, make_layer_attrs(bias_weight_attrs), {}, {});
       tensor_guid_t t_bias_weight = get_only(bias_weight_added.outputs);
 
-      LayerAddedResult linear_added = add_layer(cg, make_layer_attrs(linear_attrs), {t_input}, {t_projection_weight, t_bias_weight});
+      LayerAddedResult linear_added =
+          add_layer(cg,
+                    make_layer_attrs(linear_attrs),
+                    {t_input},
+                    {t_projection_weight, t_bias_weight});
 
-      std::vector<tensor_guid_t> result = get_incoming_weights(cg, linear_added.layer);
+      std::vector<tensor_guid_t> result =
+          get_incoming_weights(cg, linear_added.layer);
       std::vector<tensor_guid_t> correct = {
           t_projection_weight,
           t_bias_weight,

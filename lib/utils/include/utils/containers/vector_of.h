@@ -1,8 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_VECTOR_OF_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_VECTOR_OF_H
 
-#include <vector>
 #include <optional>
+#include <vector>
 
 namespace FlexFlow {
 

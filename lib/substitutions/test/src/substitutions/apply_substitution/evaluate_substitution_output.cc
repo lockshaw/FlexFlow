@@ -118,12 +118,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::string relu_match = "relu_match";
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          batch_size, in_channels,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                batch_size,
+                in_channels,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     SubParallelComputationGraph pcg = [&] {

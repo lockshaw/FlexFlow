@@ -31,13 +31,15 @@ ParallelTensorShape get_bias_shape(Conv2DAttrs const &attrs,
 ParallelTensorShape get_output_shape(Conv2DAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
 
-std::vector<ParallelTensorShape> get_weight_shapes(Conv2DAttrs const &attrs,
-                                                   ParallelTensorShape const &input_shape);
+std::vector<ParallelTensorShape>
+    get_weight_shapes(Conv2DAttrs const &attrs,
+                      ParallelTensorShape const &input_shape);
 
-std::vector<InitializerAttrs> get_initializers(Conv2DAttrs const &attrs, 
-                                               TensorShape const &input_shape,
-                                               std::optional<InitializerAttrs> kernel_initializer = std::nullopt,
-                                               std::optional<InitializerAttrs> bias_initializer = std::nullopt);
+std::vector<InitializerAttrs> get_initializers(
+    Conv2DAttrs const &attrs,
+    TensorShape const &input_shape,
+    std::optional<InitializerAttrs> kernel_initializer = std::nullopt,
+    std::optional<InitializerAttrs> bias_initializer = std::nullopt);
 
 } // namespace FlexFlow
 

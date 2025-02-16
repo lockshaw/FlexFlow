@@ -47,13 +47,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("linear graph") {
       ParallelComputationGraphBuilder b;
       TensorShape input_shape = TensorShape{
-        TensorDims{
-          FFOrdered<nonnegative_int>{
-            10_n,
-            7_n,
+          TensorDims{
+              FFOrdered<nonnegative_int>{
+                  10_n,
+                  7_n,
+              },
           },
-        },
-        DataType::FLOAT,
+          DataType::FLOAT,
       };
       parallel_tensor_guid_t tensor0 = b.create_input_tensor(input_shape);
       parallel_tensor_guid_t tensor1 = b.relu(tensor0);
@@ -126,13 +126,13 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelComputationGraphBuilder b;
 
       TensorShape input_shape = TensorShape{
-        TensorDims{
-          FFOrdered<nonnegative_int>{
-            10_n,
-            1_n,
+          TensorDims{
+              FFOrdered<nonnegative_int>{
+                  10_n,
+                  1_n,
+              },
           },
-        },
-        DataType::FLOAT,
+          DataType::FLOAT,
       };
 
       parallel_tensor_guid_t tensor0 = b.create_input_tensor(input_shape);

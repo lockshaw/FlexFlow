@@ -98,7 +98,8 @@ nonnegative_int get_num_samples(MultiHeadAttentionInputs const &inputs) {
 
 static void check_attrs(MultiHeadAttentionAttrs const &attrs) {
   if (attrs.add_bias_kv) {
-    throw mk_runtime_error("add_bias_kv is not yet supported. If you need this functionality, please create an issue.");
+    throw mk_runtime_error("add_bias_kv is not yet supported. If you need this "
+                           "functionality, please create an issue.");
   }
 }
 
@@ -240,12 +241,14 @@ tl::expected<std::vector<TensorShape>, std::string>
                       TensorShape const &input_v) {
 
   std::vector<TensorShape> weight_shapes = {
-    PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
+      PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
   };
 
   if (attrs.bias) {
-    weight_shapes.push_back(PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)));
-    weight_shapes.push_back(PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)));
+    weight_shapes.push_back(
+        PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)));
+    weight_shapes.push_back(
+        PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)));
   }
 
   return weight_shapes;
@@ -329,7 +332,7 @@ tl::expected<ParallelTensorShape, std::string>
                           ParallelTensorShape const &input_k,
                           ParallelTensorShape const &input_v) {
   check_attrs(attrs);
-  
+
   MultiHeadAttentionParallelInputs parsed = ({
     tl::expected<MultiHeadAttentionParallelInputs, std::string> parse_result =
         parse_attention_parallel_input_shape(input_q, input_k, input_v);
@@ -413,69 +416,75 @@ tl::expected<std::vector<ParallelTensorShape>, std::string>
                       ParallelTensorShape const &input_v) {
 
   std::vector<ParallelTensorShape> weight_shapes = {
-    PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
+      PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
   };
 
   if (attrs.bias) {
-    weight_shapes.push_back(PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)));
-    weight_shapes.push_back(PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)));
+    weight_shapes.push_back(
+        PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)));
+    weight_shapes.push_back(
+        PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)));
   }
 
   return weight_shapes;
 }
 
-
-tl::expected<std::vector<InitializerAttrs>, std::string>
-    get_initializers(MultiHeadAttentionAttrs const &attrs,
-                     TensorShape const &input_q,
-                     TensorShape const &input_k,
-                     TensorShape const &input_v,
-                     std::optional<InitializerAttrs> const &maybe_weights_initializer,
-                     std::optional<InitializerAttrs> const &maybe_input_bias_initializer,
-                     std::optional<InitializerAttrs> const &maybe_output_bias_initializer) {
+tl::expected<std::vector<InitializerAttrs>, std::string> get_initializers(
+    MultiHeadAttentionAttrs const &attrs,
+    TensorShape const &input_q,
+    TensorShape const &input_k,
+    TensorShape const &input_v,
+    std::optional<InitializerAttrs> const &maybe_weights_initializer,
+    std::optional<InitializerAttrs> const &maybe_input_bias_initializer,
+    std::optional<InitializerAttrs> const &maybe_output_bias_initializer) {
   check_attrs(attrs);
 
   if (!attrs.bias && maybe_input_bias_initializer.has_value()) {
-    return tl::unexpected(fmt::format("Expected input_bias_initializer=std::nullopt since bias=false, but received input_bias_initializer: {}", maybe_input_bias_initializer.value()));
+    return tl::unexpected(
+        fmt::format("Expected input_bias_initializer=std::nullopt since "
+                    "bias=false, but received input_bias_initializer: {}",
+                    maybe_input_bias_initializer.value()));
   }
 
   if (!attrs.bias && maybe_output_bias_initializer.has_value()) {
-    return tl::unexpected(fmt::format("Expected output_bias_initializer=std::nullopt since bias=false, but received output_bias_initializer: {}", maybe_output_bias_initializer.value()));
+    return tl::unexpected(
+        fmt::format("Expected output_bias_initializer=std::nullopt since "
+                    "bias=false, but received output_bias_initializer: {}",
+                    maybe_output_bias_initializer.value()));
   }
 
   InitializerAttrs default_weights_initializer = InitializerAttrs{
-    GlorotUniformAttrs{
-      /*seed=*/0,
-    },
+      GlorotUniformAttrs{
+          /*seed=*/0,
+      },
   };
 
   InitializerAttrs default_input_bias_initializer = InitializerAttrs{
-    ZeroInitializerAttrs{},
+      ZeroInitializerAttrs{},
   };
 
   InitializerAttrs default_output_bias_initializer = InitializerAttrs{
-    ZeroInitializerAttrs{},
+      ZeroInitializerAttrs{},
   };
 
-  InitializerAttrs weights_initializer = 
+  InitializerAttrs weights_initializer =
       maybe_weights_initializer.value_or(default_weights_initializer);
-  InitializerAttrs input_bias_initializer = 
+  InitializerAttrs input_bias_initializer =
       maybe_input_bias_initializer.value_or(default_input_bias_initializer);
-  InitializerAttrs output_bias_initializer = 
+  InitializerAttrs output_bias_initializer =
       maybe_output_bias_initializer.value_or(default_output_bias_initializer);
 
   if (attrs.bias) {
     return std::vector{
-      weights_initializer,
-      input_bias_initializer,
-      output_bias_initializer,
+        weights_initializer,
+        input_bias_initializer,
+        output_bias_initializer,
     };
   } else {
     return std::vector{
-      weights_initializer,
+        weights_initializer,
     };
   }
 }
-
 
 } // namespace FlexFlow

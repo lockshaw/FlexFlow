@@ -11,7 +11,8 @@ RecordFormatter as_dot(RepartitionAttrs const &attrs) {
     return rr;
   };
 
-  r << kv("dim", attrs.repartition_dim) << kv("degree", attrs.repartition_degree);
+  r << kv("dim", attrs.repartition_dim)
+    << kv("degree", attrs.repartition_degree);
 
   return r;
 }

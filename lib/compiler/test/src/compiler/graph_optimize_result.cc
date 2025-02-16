@@ -3,7 +3,9 @@
 namespace FlexFlow {
 
 std::string format_as(GraphOptimizeResult const &r) {
-  return fmt::format("<GraphOptimizeResult\npcg={}\nmachine_mapping={}>", as_dot(r.pcg), r.machine_mapping);
+  return fmt::format("<GraphOptimizeResult\npcg={}\nmachine_mapping={}>",
+                     as_dot(r.pcg),
+                     r.machine_mapping);
 }
 
 std::ostream &operator<<(std::ostream &s, GraphOptimizeResult const &r) {

@@ -100,13 +100,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape tensor_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n,
-          8_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                8_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     UnmappedOpCostEstimateKey k1 = UnmappedOpCostEstimateKey{

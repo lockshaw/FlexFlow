@@ -100,17 +100,16 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape tensor_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          12_n,
-          8_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                12_n,
+                8_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ParallelTensorShape par_tensor_shape = lift_to_parallel(tensor_shape);
-
 
     UnmappedOpCostEstimateKey k1 = UnmappedOpCostEstimateKey{
         /*op_attrs=*/PCGOperatorAttrs{InputAttrs{tensor_shape}},

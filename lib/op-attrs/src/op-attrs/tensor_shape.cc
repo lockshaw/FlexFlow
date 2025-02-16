@@ -28,10 +28,12 @@ nonnegative_int get_size_in_bytes(TensorShape const &s) {
   return get_num_elements(s) * size_of_datatype(s.data_type);
 }
 
-TensorShape slice_tensor_shape(TensorShape const &shape, std::optional<relative_ff_dim_t> const &start, std::optional<relative_ff_dim_t> const &stop) {
+TensorShape slice_tensor_shape(TensorShape const &shape,
+                               std::optional<relative_ff_dim_t> const &start,
+                               std::optional<relative_ff_dim_t> const &stop) {
   return TensorShape{
-    slice_tensor_dims(shape.dims, start, stop),
-    shape.data_type,
+      slice_tensor_dims(shape.dims, start, stop),
+      shape.data_type,
   };
 }
 

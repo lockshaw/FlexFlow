@@ -1,4 +1,5 @@
 #include "op-attrs/tensor_dims.h"
+#include "op-attrs/dim_ordered/slice.h"
 #include "op-attrs/dim_ordered/zip.h"
 #include "op-attrs/replica_parallel_dim_set.h"
 #include "op-attrs/shard_parallel_dim.dtg.h"
@@ -10,7 +11,6 @@
 #include "utils/containers/zip.h"
 #include "utils/integer_conversions.h"
 #include "utils/nonnegative_int/num_elements.h"
-#include "op-attrs/dim_ordered/slice.h"
 
 namespace FlexFlow {
 
@@ -66,9 +66,11 @@ std::optional<TensorDims>
   return std::nullopt;
 }
 
-TensorDims slice_tensor_dims(TensorDims const &dims, std::optional<relative_ff_dim_t> const &start, std::optional<relative_ff_dim_t> const &stop) {
+TensorDims slice_tensor_dims(TensorDims const &dims,
+                             std::optional<relative_ff_dim_t> const &start,
+                             std::optional<relative_ff_dim_t> const &stop) {
   return TensorDims{
-    slice(dims.ff_ordered, start, stop),
+      slice(dims.ff_ordered, start, stop),
   };
 }
 

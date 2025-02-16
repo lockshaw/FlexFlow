@@ -1,6 +1,6 @@
 #include "compiler/graph_optimize_state.h"
-#include "pcg/parallel_computation_graph/parallel_tensor_guid_t.h"
 #include "compiler/graph_optimize_result.h"
+#include "pcg/parallel_computation_graph/parallel_tensor_guid_t.h"
 
 namespace FlexFlow {
 
@@ -56,7 +56,9 @@ bool GraphOptimizeState::operator<(GraphOptimizeState const &other) const {
 }
 
 std::string format_as(GraphOptimizeState const &st) {
-  return fmt::format("<GraphOptimizeState graph_optimize_result={} runtime={}>", st.graph_optimize_result, st.runtime);
+  return fmt::format("<GraphOptimizeState graph_optimize_result={} runtime={}>",
+                     st.graph_optimize_result,
+                     st.runtime);
 }
 
 std::ostream &operator<<(std::ostream &s, GraphOptimizeState const &st) {

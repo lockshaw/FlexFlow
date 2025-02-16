@@ -1,13 +1,13 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_TRANSFORM_UNTIL_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_TRANSFORM_UNTIL_H
 
-#include <vector>
-#include <type_traits>
 #include <optional>
+#include <type_traits>
+#include <vector>
 
 namespace FlexFlow {
 
-template <typename T, 
+template <typename T,
           typename F,
           typename T2 = typename std::invoke_result_t<F, T>::value_type>
 std::vector<T2> transform_until(std::vector<T> const &ts, F &&f) {

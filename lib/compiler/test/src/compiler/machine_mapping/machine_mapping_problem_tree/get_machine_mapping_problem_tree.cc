@@ -64,13 +64,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n,
-          1_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                1_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
     ParallelTensorShape par_input_shape = lift_to_parallel(input_shape);
 
@@ -101,11 +101,11 @@ TEST_SUITE(FF_TEST_SUITE) {
         };
 
     SUBCASE("single layer") {
-      ParallelLayerAddedResult input_added = add_parallel_layer(
-          pcg,
-          /*layer_attrs=*/make_layer_attrs(input_attrs),
-          /*inputs=*/{},
-          /*output_labels=*/{});
+      ParallelLayerAddedResult input_added =
+          add_parallel_layer(pcg,
+                             /*layer_attrs=*/make_layer_attrs(input_attrs),
+                             /*inputs=*/{},
+                             /*output_labels=*/{});
       parallel_layer_guid_t input_layer = input_added.parallel_layer;
 
       UnmappedOpCostEstimateKey input_key = make_input_key(par_input_shape);
@@ -121,11 +121,11 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("two layers in series") {
-      ParallelLayerAddedResult input_added = add_parallel_layer(
-          pcg,
-          /*layer_attrs=*/make_layer_attrs(input_attrs),
-          /*inputs=*/{},
-          /*output_labels=*/{});
+      ParallelLayerAddedResult input_added =
+          add_parallel_layer(pcg,
+                             /*layer_attrs=*/make_layer_attrs(input_attrs),
+                             /*inputs=*/{},
+                             /*output_labels=*/{});
       parallel_layer_guid_t input_layer = input_added.parallel_layer;
       parallel_tensor_guid_t input = get_only(input_added.outputs);
 
@@ -139,10 +139,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
       ParallelTensorShape relu_output_shape = par_input_shape;
       ParallelLayerAddedResult relu_added =
-          add_parallel_layer(pcg,
-                             make_layer_attrs(relu_attrs),
-                             {input},
-                             {});
+          add_parallel_layer(pcg, make_layer_attrs(relu_attrs), {input}, {});
       parallel_layer_guid_t relu_layer = relu_added.parallel_layer;
       parallel_tensor_guid_t relu_output = get_only(relu_added.outputs);
 

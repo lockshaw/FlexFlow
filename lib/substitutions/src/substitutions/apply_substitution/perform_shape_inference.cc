@@ -31,26 +31,32 @@ LabelledOpenDataflowGraphView<ParallelLayerAttrs, ParallelTensorShape>
 
     ParallelLayerAttrs n_attrs = g.at(n);
 
-    std::vector<IncomingTensorRole> incoming_tensor_roles = get_incoming_tensor_roles(n_attrs.op_attrs, incoming_shapes.size());
+    std::vector<IncomingTensorRole> incoming_tensor_roles =
+        get_incoming_tensor_roles(n_attrs.op_attrs, incoming_shapes.size());
 
-    auto incoming_shapes_with_role = [&](IncomingTensorRole role) -> std::vector<ParallelTensorShape> {
-     return filtrans(zip(incoming_shapes, incoming_tensor_roles),
-                     [&](std::pair<ParallelTensorShape, IncomingTensorRole> const &t) -> std::optional<ParallelTensorShape> {
-                       if (t.second == role) {
-                         return t.first;
-                       } else {
-                         return std::nullopt;
-                       }
-                     });
+    auto incoming_shapes_with_role =
+        [&](IncomingTensorRole role) -> std::vector<ParallelTensorShape> {
+      return filtrans(
+          zip(incoming_shapes, incoming_tensor_roles),
+          [&](std::pair<ParallelTensorShape, IncomingTensorRole> const &t)
+              -> std::optional<ParallelTensorShape> {
+            if (t.second == role) {
+              return t.first;
+            } else {
+              return std::nullopt;
+            }
+          });
     };
 
-    std::vector<ParallelTensorShape> input_shapes = incoming_shapes_with_role(IncomingTensorRole::INPUT);
-    std::vector<ParallelTensorShape> weight_shapes = incoming_shapes_with_role(IncomingTensorRole::WEIGHT);
+    std::vector<ParallelTensorShape> input_shapes =
+        incoming_shapes_with_role(IncomingTensorRole::INPUT);
+    std::vector<ParallelTensorShape> weight_shapes =
+        incoming_shapes_with_role(IncomingTensorRole::WEIGHT);
 
-    std::vector<ParallelTensorShape> inferred_weight_shapes = 
+    std::vector<ParallelTensorShape> inferred_weight_shapes =
         get_weight_shapes(n_attrs.op_attrs, input_shapes);
 
-    assert (weight_shapes == inferred_weight_shapes);
+    assert(weight_shapes == inferred_weight_shapes);
 
     std::vector<ParallelTensorShape> output_shapes =
         get_output_shapes(n_attrs.op_attrs, input_shapes);

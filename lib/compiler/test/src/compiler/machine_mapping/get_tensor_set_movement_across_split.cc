@@ -11,16 +11,15 @@
 using namespace ::FlexFlow;
 
 bool isDebuggerActive() {
-    std::ifstream in("/proc/self/status");
-    for(std::string line; std::getline(in, line);) {
-        static const int PREFIX_LEN = 11;
-        if(line.compare(0, PREFIX_LEN, "TracerPid:\t") == 0) {
-            return line.length() > PREFIX_LEN && line[PREFIX_LEN] != '0';
-        }
+  std::ifstream in("/proc/self/status");
+  for (std::string line; std::getline(in, line);) {
+    static int const PREFIX_LEN = 11;
+    if (line.compare(0, PREFIX_LEN, "TracerPid:\t") == 0) {
+      return line.length() > PREFIX_LEN && line[PREFIX_LEN] != '0';
     }
-    return false;
+  }
+  return false;
 }
-
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("get_tensor_set_movement_across_split") {
@@ -41,31 +40,34 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          10_n,
-          12_n,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                10_n,
+                12_n,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
     parallel_tensor_guid_t t_input = get_only(input.outputs);
 
     ParallelLayerAttrs partition_attrs = ParallelLayerAttrs{
-      /*op_attrs=*/PCGOperatorAttrs{
-        RepartitionAttrs{
-          /*repartition_dim=*/ff_dim_t{0_n},
-          /*repartition_degree=*/2_n,
+        /*op_attrs=*/PCGOperatorAttrs{
+            RepartitionAttrs{
+                /*repartition_dim=*/ff_dim_t{0_n},
+                /*repartition_degree=*/2_n,
+            },
         },
-      },
-      /*name=*/std::nullopt,
+        /*name=*/std::nullopt,
     };
-    ParallelLayerAddedResult partition_input = add_parallel_layer(pcg, partition_attrs, {t_input}, {});
-    parallel_tensor_guid_t t_partition_input = get_only(partition_input.outputs);
+    ParallelLayerAddedResult partition_input =
+        add_parallel_layer(pcg, partition_attrs, {t_input}, {});
+    parallel_tensor_guid_t t_partition_input =
+        get_only(partition_input.outputs);
 
-    ParallelTensorShape partitioned_input_shape = get_parallel_tensor_shape(pcg, t_partition_input);
+    ParallelTensorShape partitioned_input_shape =
+        get_parallel_tensor_shape(pcg, t_partition_input);
 
     ParallelLayerAttrs relu_attrs = ParallelLayerAttrs{
         /*op_attrs=*/PCGOperatorAttrs{
@@ -80,20 +82,20 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelLayerAttrs ew_add_attrs = ParallelLayerAttrs{
         /*op_attrs=*/PCGOperatorAttrs{
             ElementBinaryAttrs{
-              /*type=*/OperatorType::EW_ADD,
-              /*compute_type=*/DataType::FLOAT,
-              /*should_broadcast_lhs=*/false,
-              /*should_broadcast_rhs=*/false,
+                /*type=*/OperatorType::EW_ADD,
+                /*compute_type=*/DataType::FLOAT,
+                /*should_broadcast_lhs=*/false,
+                /*should_broadcast_rhs=*/false,
             },
         },
         /*name=*/std::nullopt,
     };
 
-    ParallelLayerAddedResult relu_1 = add_parallel_layer(
-        pcg, relu_attrs, {t_partition_input}, {});
+    ParallelLayerAddedResult relu_1 =
+        add_parallel_layer(pcg, relu_attrs, {t_partition_input}, {});
     parallel_tensor_guid_t t_relu_1 = get_only(relu_1.outputs);
-    ParallelLayerAddedResult relu_2 = add_parallel_layer(
-        pcg, relu_attrs, {t_relu_1}, {});
+    ParallelLayerAddedResult relu_2 =
+        add_parallel_layer(pcg, relu_attrs, {t_relu_1}, {});
 
     MachineView pre_mv1 = MachineView{
         /*start=*/MachineSpaceCoordinate{
@@ -158,10 +160,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("single edge across split") {
       PCGBinarySeriesSplit split = PCGBinarySeriesSplit{
           make_pcg_series_split(
-            make_pcg_series_split(
-              make_pcg_leaf_node(input.parallel_layer),
-              make_pcg_leaf_node(partition_input.parallel_layer)),
-            make_pcg_leaf_node(relu_1.parallel_layer)),
+              make_pcg_series_split(
+                  make_pcg_leaf_node(input.parallel_layer),
+                  make_pcg_leaf_node(partition_input.parallel_layer)),
+              make_pcg_leaf_node(relu_1.parallel_layer)),
           make_pcg_leaf_node(relu_2.parallel_layer),
       };
 
@@ -197,14 +199,15 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("does not include edges removed by transitive reduction") {}
 
     SUBCASE("single tensor, multiple consumers across split") {
-      ParallelLayerAddedResult relu_3 = add_parallel_layer(
-          pcg, relu_attrs, {get_only(relu_1.outputs)}, {});
+      ParallelLayerAddedResult relu_3 =
+          add_parallel_layer(pcg, relu_attrs, {get_only(relu_1.outputs)}, {});
 
       PCGBinarySeriesSplit split = PCGBinarySeriesSplit{
           make_pcg_series_split(
-            make_pcg_series_split(make_pcg_leaf_node(input.parallel_layer),
-                                  make_pcg_leaf_node(partition_input.parallel_layer)),
-            make_pcg_leaf_node(relu_1.parallel_layer)),
+              make_pcg_series_split(
+                  make_pcg_leaf_node(input.parallel_layer),
+                  make_pcg_leaf_node(partition_input.parallel_layer)),
+              make_pcg_leaf_node(relu_1.parallel_layer)),
           make_pcg_parallel_split(make_pcg_leaf_node(relu_2.parallel_layer),
                                   make_pcg_leaf_node(relu_3.parallel_layer)),
       };
@@ -309,12 +312,13 @@ TEST_SUITE(FF_TEST_SUITE) {
           {});
 
       PCGBinarySeriesSplit split = PCGBinarySeriesSplit{
-          make_pcg_series_split(make_pcg_series_split(
-                                  make_pcg_leaf_node(input.parallel_layer),
-                                  make_pcg_leaf_node(partition_input.parallel_layer)),
-                                make_pcg_parallel_split(
-                                    make_pcg_leaf_node(relu_1.parallel_layer),
-                                    make_pcg_leaf_node(relu_3.parallel_layer))),
+          make_pcg_series_split(
+              make_pcg_series_split(
+                  make_pcg_leaf_node(input.parallel_layer),
+                  make_pcg_leaf_node(partition_input.parallel_layer)),
+              make_pcg_parallel_split(
+                  make_pcg_leaf_node(relu_1.parallel_layer),
+                  make_pcg_leaf_node(relu_3.parallel_layer))),
           make_pcg_parallel_split(make_pcg_leaf_node(relu_2.parallel_layer),
                                   make_pcg_leaf_node(relu_4.parallel_layer)),
       };

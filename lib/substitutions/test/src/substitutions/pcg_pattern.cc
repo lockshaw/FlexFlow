@@ -20,19 +20,20 @@ TEST_SUITE(FF_TEST_SUITE) {
     nonnegative_int num_channels = 24_n;
 
     TensorShape a_shape = TensorShape{
-      TensorDims{
-        FFOrdered<nonnegative_int>{
-          batch_size, num_channels,
+        TensorDims{
+            FFOrdered<nonnegative_int>{
+                batch_size,
+                num_channels,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
     std::string a_name = "a";
 
-    parallel_tensor_guid_t a_tensor =
-        builder.create_input_tensor(a_shape);
-    a_tensor = builder.parallel_partition(a_tensor, ff_dim_t{0_n}, batch_degree);
+    parallel_tensor_guid_t a_tensor = builder.create_input_tensor(a_shape);
+    a_tensor =
+        builder.parallel_partition(a_tensor, ff_dim_t{0_n}, batch_degree);
 
     nonnegative_int outDim = 16_n;
     std::string x_matmul_name = "x_matmul";
