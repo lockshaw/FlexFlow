@@ -135,13 +135,11 @@ public:
                       nonnegative_int degree,
                       std::optional<std::string> const &name = std::nullopt);
 
+  ParallelTensorShape get_shape(parallel_tensor_guid_t const &) const;
 private:
   parallel_tensor_guid_t as_type(parallel_tensor_guid_t const &,
                                  DataType,
                                  std::string const &name);
-
-private:
-  ParallelTensorShape get_shape(parallel_tensor_guid_t const &) const;
 
 private:
   std::vector<parallel_tensor_guid_t>

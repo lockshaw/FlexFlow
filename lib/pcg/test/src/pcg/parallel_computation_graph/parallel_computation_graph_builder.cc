@@ -101,8 +101,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       TensorDims{
         FFOrdered<nonnegative_int>{
           4_n,
-          10_n,
           15_n,
+          10_n,
         },
       },
       DataType::FLOAT,
@@ -184,6 +184,9 @@ TEST_SUITE(FF_TEST_SUITE) {
 
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
+    parallel_tensor_guid_t par_input = b.parallel_partition(input, ff_dim_t{0_n}, 2_n);
+
+    ParallelTensorShape par_input_shape = b.get_shape(par_input);
 
     nonnegative_int outChannels = 6_n;
     nonnegative_int kernelH = 5_n;
@@ -192,7 +195,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     nonnegative_int strideW = 2_n;
     nonnegative_int paddingH = 1_n;
     nonnegative_int paddingW = 0_n;
-    parallel_tensor_guid_t output = b.conv2d(input,
+    parallel_tensor_guid_t output = b.conv2d(par_input,
                                              /*outChannels=*/outChannels,
                                              /*kernelH=*/kernelH,
                                              /*kernelW=*/kernelW,
@@ -206,7 +209,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                      [&](parallel_layer_guid_t const &l) {
                        return get_parallel_layer_attrs(b.pcg, l);
                      });
-    CHECK_MESSAGE(layers.size() == 6, "Incorrect layers ", layers);
+    CHECK_MESSAGE(layers.size() == 7, "Incorrect layers ", layers);
 
     auto num_attrs_of_type = [&](OperatorType op_type) -> int {
       return count(values(layers), [&](ParallelLayerAttrs const &l) {
@@ -225,6 +228,9 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     int num_replicate_attrs = num_attrs_of_type(OperatorType::REPLICATE);
     CHECK(num_replicate_attrs == 2);
+
+    int num_partition_attrs = num_attrs_of_type(OperatorType::REPARTITION);
+    CHECK(num_partition_attrs == 1);
 
     parallel_layer_guid_t conv_guid = get_only(without_nullopts(transform(
         vector_of(items(layers)),
@@ -252,11 +258,11 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(conv_attrs == correct_attrs);
 
     ParallelTensorShape correct_output_shape =
-        get_output_shape(correct_attrs, lift_to_parallel(input_shape));
+        get_output_shape(correct_attrs, par_input_shape);
     ParallelTensorShape correct_kernel_shape =
-        get_kernel_shape(correct_attrs, lift_to_parallel(input_shape));
+        get_kernel_shape(correct_attrs, par_input_shape);
     ParallelTensorShape correct_bias_shape =
-        get_bias_shape(correct_attrs, lift_to_parallel(input_shape));
+        get_bias_shape(correct_attrs, par_input_shape);
 
     std::vector<parallel_tensor_guid_t> conv_incoming =
         get_incoming_tensors(b.pcg, conv_guid);
@@ -264,7 +270,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     parallel_tensor_guid_t conv_input = conv_incoming.at(0);
     ParallelTensorShape conv_input_shape =
         get_parallel_tensor_attrs(b.pcg, conv_input).shape;
-    CHECK(conv_input_shape == lift_to_parallel(input_shape));
+    CHECK(conv_input_shape == par_input_shape);
 
     parallel_tensor_guid_t conv_kernel = conv_incoming.at(1);
     ParallelTensorShape conv_kernel_shape =
@@ -546,7 +552,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
-    input = b.parallel_replicate(input, 2_n);
+    input = b.parallel_partition(input, ff_dim_t{1_n}, 2_n);
+    input = b.dense(input, /*out_dim=*/12_n, /*activation=*/std::nullopt, /*use_bias=*/false);
     parallel_tensor_guid_t output = b.parallel_reduce(input, 2_n);
     parallel_layer_guid_t layer = get_source_layer(output);
 

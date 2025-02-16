@@ -239,6 +239,9 @@ std::vector<ParallelTensorShape>
       [&](Pool2DAttrs const &attrs) -> std::vector<ParallelTensorShape> {
         return {throw_if_unexpected(get_output_shape(attrs, get_only(input_shapes)))};
       },
+      [&](ReductionAttrs const &attrs) -> std::vector<ParallelTensorShape> {
+        return {throw_if_unexpected(get_output_shape(attrs, get_only(input_shapes)))};
+      },
       [&](RepartitionAttrs const &attrs) -> std::vector<ParallelTensorShape> {
         return {throw_if_unexpected(get_output_shape(attrs, get_only(input_shapes)))};
       },

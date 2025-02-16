@@ -200,7 +200,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       LayerAddedResult bias_weight_added = add_layer(cg, make_layer_attrs(bias_weight_attrs), {}, {});
       tensor_guid_t t_bias_weight = get_only(bias_weight_added.outputs);
 
-      LayerAddedResult linear_added = add_layer(cg, make_layer_attrs(linear_attrs), {}, {});
+      LayerAddedResult linear_added = add_layer(cg, make_layer_attrs(linear_attrs), {t_input}, {t_projection_weight, t_bias_weight});
 
       std::vector<tensor_guid_t> result = get_incoming_weights(cg, linear_added.layer);
       std::vector<tensor_guid_t> correct = {
