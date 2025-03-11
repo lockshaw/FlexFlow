@@ -2,7 +2,6 @@ namespace = "FlexFlow"
 name = "OpenDataflowEdgeQuery"
 features = [
   "eq",
-  "ord",
   "hash",
   "fmt",
 ]

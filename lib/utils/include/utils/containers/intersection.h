@@ -8,15 +8,10 @@
 namespace FlexFlow {
 
 template <typename T>
-std::unordered_set<T> intersection(std::unordered_set<T> const &l,
-                                   std::unordered_set<T> const &r) {
-  std::unordered_set<T> result;
-  for (T const &ll : l) {
-    if (contains(r, ll)) {
-      result.insert(ll);
-    }
-  }
-  return result;
+std::unordered_set<T> intersection(std::unordered_set<T> l,
+                                   std::unordered_set<T> r) {
+  l.merge(r);
+  return r;
 }
 
 template <typename C, typename T = typename C::value_type>

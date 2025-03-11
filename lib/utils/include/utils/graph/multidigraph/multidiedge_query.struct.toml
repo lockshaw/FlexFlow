@@ -2,7 +2,6 @@ namespace = "FlexFlow"
 name = "MultiDiEdgeQuery"
 features = [
   "eq",
-  "ord",
   "hash",
   "fmt",
 ]

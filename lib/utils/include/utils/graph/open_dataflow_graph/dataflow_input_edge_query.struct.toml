@@ -2,7 +2,6 @@ namespace = "FlexFlow"
 name = "DataflowInputEdgeQuery"
 features = [
   "eq",
-  "ord",
   "hash",
   "fmt",
 ]

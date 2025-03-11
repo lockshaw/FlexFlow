@@ -17,20 +17,21 @@
 #include <optional>
 #include <set>
 #include <unordered_set>
+#include "utils/hash/unordered_set.h"
 
 namespace FlexFlow {
 
 template <typename T>
 struct query_set {
   query_set() = delete;
-  query_set(T const &t) : query(std::set<T>{t}) {}
+  query_set(T const &t) : query(std::unordered_set<T>{t}) {}
 
   query_set(std::unordered_set<T> const &query)
-      : query(std::set<T>{query.cbegin(), query.cend()}) {}
+      : query(std::unordered_set<T>{query.cbegin(), query.cend()}) {}
 
   query_set(std::optional<std::unordered_set<T>> const &query)
       : query(transform(query, [](std::unordered_set<T> const &s) {
-          return std::set<T>{s.cbegin(), s.cend()};
+          return std::unordered_set<T>{s.cbegin(), s.cend()};
         })) {}
 
   query_set(std::initializer_list<T> const &l)
@@ -44,17 +45,29 @@ struct query_set {
     return lhs.query != rhs.query;
   }
 
-  friend bool operator<(query_set const &lhs, query_set const &rhs) {
-    return lhs.query < rhs.query;
-  }
-
+  // friend bool operator<(query_set const &lhs, query_set const &rhs) {
+  //   return lhs.query < rhs.query;
+  // }
+  //
   friend bool is_matchall(query_set const &q) {
     return !q.query.has_value();
   }
 
+  bool includes(T const &t) const {
+    return !query.has_value() || contains(query.value(), t);
+  }
+
+  std::unordered_set<T> apply(std::unordered_set<T> input) {
+    if (!this->query.has_value()) {
+      return input;
+    }
+
+    return intersection(input, this->query.value());
+  }
+
   friend std::unordered_set<T> allowed_values(query_set const &q) {
     assert(!is_matchall(q));
-    std::set<T> query_value = q.query.value();
+    std::unordered_set<T> query_value = q.query.value();
     return std::unordered_set<T>{query_value.begin(), query_value.end()};
   }
 
@@ -66,12 +79,12 @@ struct query_set {
     return {std::unordered_set<T>{}};
   }
 
-  std::optional<std::set<T>> const &value() const {
+  std::optional<std::unordered_set<T>> const &value() const {
     return this->query;
   }
 
 private:
-  std::optional<std::set<T>> query;
+  std::optional<std::unordered_set<T>> query;
 };
 
 template <typename T>
@@ -93,17 +106,17 @@ query_set<T> matchall() {
 
 template <typename T>
 bool includes(query_set<T> const &q, T const &v) {
-  return is_matchall(q) || contains(allowed_values(q), v);
+  return q.includes(v);
 }
 
 template <typename T, typename C>
 std::unordered_set<T> apply_query(query_set<T> const &q, C const &c) {
+  std::unordered_set<T> c_set = unordered_set_of(c);
   if (is_matchall(q)) {
-    return unordered_set_of(c);
+    return c_set;
   }
 
-  return filter(unordered_set_of(c),
-                [&](T const &t) { return includes(q, t); });
+  return q.apply(c_set);
 }
 
 template <typename C,
