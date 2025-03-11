@@ -6,32 +6,9 @@
 #include "kernels/array_shape.h"
 #include "kernels/ff_handle.h"
 #include <cstddef>
+#include "kernels/dropout_per_device_state.dtg.h"
 
-namespace FlexFlow {
-
-struct DropoutPerDeviceState {
-public:
-  PerDeviceFFHandle handle;
-  ffTensorDescriptor_t inputTensor;
-  ffTensorDescriptor_t outputTensor;
-  ffDropoutDescriptor_t dropoutDesc;
-  void *reserveSpace;
-  void *dropoutStates;
-  size_t reserveSpaceSize;
-  req<size_t> dropoutStateSize;
-};
-
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(DropoutPerDeviceState,
-                                             handle,
-                                             inputTensor,
-                                             outputTensor,
-                                             dropoutDesc,
-                                             reserveSpace,
-                                             dropoutStates,
-                                             reserveSpaceSize,
-                                             dropoutStateSize);
-
-namespace Kernels::Dropout {
+namespace FlexFlow::Kernels::Dropout {
 
 DropoutPerDeviceState init_kernel(PerDeviceFFHandle handle,
                                   float rate,
@@ -55,7 +32,6 @@ void cleanup_kernel(Allocator allocator,
                     ffDropoutDescriptor_t dropoutDesc,
                     void *dropoutStates);
 
-} // namespace Kernels::Dropout
-} // namespace FlexFlow
+} // namespace FlexFlow::Kernels::Dropout
 
 #endif // _FLEXFLOW_OPS_KERNELS_DROPOUT_KERNELS_H

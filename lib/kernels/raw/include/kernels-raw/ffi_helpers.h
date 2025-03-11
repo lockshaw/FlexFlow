@@ -1,0 +1,16 @@
+#ifndef _FLEXFLOW_LIB_KERNELS_RAW_INCLUDE_KERNELS_RAW_FFI_HELPERS_H
+#define _FLEXFLOW_LIB_KERNELS_RAW_INCLUDE_KERNELS_RAW_FFI_HELPERS_H
+
+#ifdef __cplusplus
+#define FLEXFLOW_KERNELS_FFI_BEGIN() extern "C" {
+#else
+#define FLEXFLOW_KERNELS_FFI_BEGIN()
+#endif
+
+#ifdef __cplusplus
+#define FLEXFLOW_KERNELS_FFI_END() }
+#else
+#define FLEXFLOW_KERNELS_FFI_END()
+#endif
+
+#endif

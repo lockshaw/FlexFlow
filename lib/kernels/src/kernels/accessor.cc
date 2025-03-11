@@ -4,6 +4,35 @@
 
 namespace FlexFlow {
 
+nonnegative_int calculate_accessor_offset(LegionOrdered<nonnegative_int> const &indices,
+                                          ArrayShape const &shape) {
+  if (indices.size() != num_dims(shape)) {
+    throw mk_runtime_error(fmt::format("Number of indices ({}) does not "
+                                       "match the number of dimensions ({}).",
+                                       indices.size(),
+                                       num_dims(shape)));
+  }
+
+  nonnegative_int offset = 0_n;
+  nonnegative_int multiplier = 1_n;
+
+  for (legion_dim_t i : key_range(indices)) {
+    if (indices.at(i) >= shape.dims.at(i)) {
+      throw mk_runtime_error(
+          fmt::format("In {} dimension, attempting to access index {} "
+                      "when only {} indexes exist",
+                      i,
+                      indices.at(i),
+                      shape.dims.at(i)));
+    }
+
+    offset += indices.at(i) * multiplier;
+    multiplier *= shape.dims.at(i);
+  }
+
+  return offset;
+}
+
 void copy_accessor_data_to_l_from_r(
     GenericTensorAccessorW &dst_accessor,
     GenericTensorAccessorR const &src_accessor) {

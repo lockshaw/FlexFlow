@@ -13,15 +13,12 @@
  * limitations under the License.
  */
 
-#include "device.h"
-#include "kernels/batch_matmul_kernels.h"
-
-namespace FlexFlow {
-namespace Kernels {
-namespace BatchMatmul {
+#include "kernels-raw/batch_matmul.h"
+#include <cassert>
 
 void forward_kernel(cudaStream_t stream,
-                    PerDeviceFFHandle const &handle,
+                    ffHandle_t dnn,
+                    ffblasHandle_t blas,
                     float *output_ptr,
                     float const *a_input_ptr,
                     float const *b_input_ptr,
@@ -32,8 +29,8 @@ void forward_kernel(cudaStream_t stream,
                     int a_seq_length_dim,
                     int b_seq_length_dim,
                     int seq_length) {
-  checkCUBLAS(cublasSetStream(handle.blas, stream));
-  checkCUDNN(cudnnSetStream(handle.dnn, stream));
+  checkCUBLAS(cublasSetStream(blas, stream));
+  checkCUDNN(cudnnSetStream(dnn, stream));
   int lda = k;
   int ldb = m;
   int ldo = m;
@@ -63,7 +60,7 @@ void forward_kernel(cudaStream_t stream,
   }
 
   float alpha = 1.0f, beta = 0.0f;
-  checkCUBLAS(cublasSgemmStridedBatched(handle.blas,
+  checkCUBLAS(cublasSgemmStridedBatched(blas,
                                         CUBLAS_OP_N,
                                         CUBLAS_OP_N,
                                         m,
@@ -84,7 +81,8 @@ void forward_kernel(cudaStream_t stream,
 }
 
 void backward_kernel(cudaStream_t stream,
-                     PerDeviceFFHandle const &handle,
+                     ffHandle_t dnn,
+                     ffblasHandle_t blas,
                      float const *o_ptr,
                      float const *o_grad_ptr,
                      float const *a_ptr,
@@ -95,14 +93,14 @@ void backward_kernel(cudaStream_t stream,
                      int n,
                      int k,
                      int batch) {
-  checkCUBLAS(cublasSetStream(handle.blas, stream));
-  checkCUDNN(cudnnSetStream(handle.dnn, stream));
+  checkCUBLAS(cublasSetStream(blas, stream));
+  checkCUDNN(cudnnSetStream(dnn, stream));
 
   int a_stride = n * k;
   int b_stride = m * k;
   int o_stride = n * m;
   float alpha = 1.0f;
-  checkCUBLAS(cublasSgemmStridedBatched(handle.blas,
+  checkCUBLAS(cublasSgemmStridedBatched(blas,
                                         CUBLAS_OP_T,
                                         CUBLAS_OP_N,
                                         k,
@@ -120,7 +118,7 @@ void backward_kernel(cudaStream_t stream,
                                         k,
                                         a_stride,
                                         batch));
-  checkCUBLAS(cublasSgemmStridedBatched(handle.blas,
+  checkCUBLAS(cublasSgemmStridedBatched(blas,
                                         CUBLAS_OP_N,
                                         CUBLAS_OP_T,
                                         m,
@@ -139,7 +137,3 @@ void backward_kernel(cudaStream_t stream,
                                         b_stride,
                                         batch));
 }
-
-} // namespace BatchMatmul
-} // namespace Kernels
-} // namespace FlexFlow

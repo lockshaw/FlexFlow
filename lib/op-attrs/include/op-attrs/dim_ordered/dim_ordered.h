@@ -7,10 +7,11 @@
 #include "utils/fmt/vector.h"
 #include "utils/stack_vector/stack_vector.h"
 #include <nlohmann/json.hpp>
+#include "op-attrs/dim_ordered/idx_type.h"
 
 namespace FlexFlow {
 
-template <typename Idx, typename T>
+template <typename Idx, typename T, typename IdxInstance = IdxType<Idx>>
 struct DimOrdered {
   DimOrdered() {}
 
@@ -32,12 +33,12 @@ struct DimOrdered {
       : contents(contents.begin(), contents.end()) {}
 
   T const &at(Idx idx) const {
-    nonnegative_int raw = idx.value;
+    nonnegative_int raw = IdxInstance::unwrap_idx(idx);
     return this->contents.at(raw.unwrap_nonnegative());
   }
 
   T &at(Idx idx) {
-    nonnegative_int raw = idx.value;
+    nonnegative_int raw = IdxInstance::unwrap_idx(idx);
     return this->contents.at(raw.unwrap_nonnegative());
   }
 
@@ -50,7 +51,7 @@ struct DimOrdered {
   }
 
   bool idx_is_valid(Idx const &idx) const {
-    nonnegative_int raw = idx.value;
+    nonnegative_int raw = IdxInstance::unwrap_idx(idx);
     return (raw < this->contents.size());
   }
 
@@ -127,16 +128,12 @@ struct DimOrdered {
     return this->contents.crend();
   }
 
-  size_t size() const {
+  nonnegative_int size() const {
     return this->contents.size();
   }
 
-  size_t empty() const {
+  bool empty() const {
     return this->contents.empty();
-  }
-
-  size_t num_dims() const {
-    return this->size();
   }
 
   friend struct ::std::hash<DimOrdered>;

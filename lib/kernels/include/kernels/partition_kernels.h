@@ -3,17 +3,9 @@
 
 #include "device.h"
 #include "kernels/accessor.h"
+#include "kernels/repartition_per_device_state.dtg.h"
 
-namespace FlexFlow {
-
-struct RepartitionPerDeviceState {
-  PerDeviceFFHandle handle;
-  req<DataType> data_type;
-};
-
-FF_VISITABLE_STRUCT_NO_EQ(RepartitionPerDeviceState, handle, data_type);
-
-namespace Kernels::Repartition {
+namespace FlexFlow::Kernels::Repartition {
 
 RepartitionPerDeviceState init_kernel(PerDeviceFFHandle const &handle,
                                       DataType data_type);
@@ -28,7 +20,6 @@ void backward_kernel(ffStream_t stream,
                      GenericTensorAccessorR const &output_grad,
                      GenericTensorAccessorW const &input_grad);
 
-} // namespace Kernels::Repartition
-} // namespace FlexFlow
+} // namespace FlexFlow::Kernels::Repartition
 
 #endif // _FLEXFLOW_OPS_KERNELS_PARTITION_KERNELS_H

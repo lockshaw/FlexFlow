@@ -14,6 +14,12 @@ template <typename T>
 using LegionOrdered = DimOrdered<legion_dim_t, T>;
 
 template <typename T>
+std::set<legion_dim_t> key_range(LegionOrdered<T> const &d) {
+  return transform(nonnegative_range(num_elements(d)),
+                   [](nonnegative_int i) { return legion_dim_t{i}; });
+}
+
+template <typename T>
 FFOrdered<T>
     ff_ordered_from_legion_ordered(LegionOrdered<T> const &legion_ordered) {
   return FFOrdered<T>(legion_ordered.rbegin(), legion_ordered.rend());

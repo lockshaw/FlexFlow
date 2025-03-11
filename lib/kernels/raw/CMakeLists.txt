@@ -1,0 +1,38 @@
+set(project_target kernels-raw)
+
+project(${project_target} 
+	LANGUAGES CXX CUDA)
+
+file(GLOB_RECURSE SRC
+     CONFIGURE_DEPENDS
+     LIST_DIRECTORIES False
+     src/*.cc
+     src/cuda/*.cu
+     )
+
+add_library(
+  ${project_target}
+  SHARED
+  ${SRC}
+)
+target_include_directories(
+  ${project_target}
+  PRIVATE
+    src/
+  PUBLIC
+    include/
+)
+target_link_libraries(
+  ${project_target}
+  cuda
+  cudnn
+  nccl
+)
+
+define_ff_vars(${project_target})
+
+set_target_properties(
+  ${project_target} 
+  PROPERTIES 
+  CUDA_STANDARD 17
+)

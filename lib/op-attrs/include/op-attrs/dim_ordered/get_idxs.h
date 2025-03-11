@@ -5,13 +5,15 @@
 #include "op-attrs/ff_dim_t.h"
 #include "utils/containers/count.h"
 #include "utils/containers/transform.h"
+#include "utils/nonnegative_int/num_elements.h"
+#include "utils/nonnegative_int/nonnegative_range.h"
 
 namespace FlexFlow {
 
 template <typename T>
 std::vector<ff_dim_t> get_idxs(FFOrdered<T> const &d) {
-  return transform(count(d.size()),
-                   [](int i) { return ff_dim_t{nonnegative_int{i}}; });
+  return transform(nonnegative_range(num_elements(d)),
+                   [](nonnegative_int i) { return ff_dim_t{i}; });
 }
 
 } // namespace FlexFlow

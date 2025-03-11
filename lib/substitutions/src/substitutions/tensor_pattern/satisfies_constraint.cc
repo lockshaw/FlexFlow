@@ -1,5 +1,6 @@
 #include "substitutions/tensor_pattern/satisfies_constraint.h"
 #include "substitutions/tensor_pattern/tensor_attribute_expr.h"
+#include "utils/exception.h"
 
 namespace FlexFlow {
 
@@ -14,8 +15,7 @@ bool parallel_tensor_satisfies_constraint(
       return expr_val == constraint.attribute_value;
     default:
       throw mk_runtime_error(
-          fmt::format("Unknown constraint type {}",
-                      static_cast<int>(constraint.constraint_type)));
+          fmt::format("Unknown constraint type {}", constraint.constraint_type));
   }
 }
 

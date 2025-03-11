@@ -1,5 +1,6 @@
 #include "substitutions/output_graph/materialize_operator_from_attrs_map.h"
 #include "utils/containers/contains_key.h"
+#include "utils/exception.h"
 #include "utils/fmt/unordered_map.h"
 
 namespace FlexFlow {

@@ -5,6 +5,7 @@
 #include "utils/containers/product.h"
 #include "utils/containers/range.h"
 #include "utils/containers/transform.h"
+#include "utils/exception.h"
 #include "utils/hash-utils.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/overload.h"

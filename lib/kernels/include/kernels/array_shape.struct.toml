@@ -1,0 +1,18 @@
+namespace = "FlexFlow"
+name = "ArrayShape"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "fmt",
+  "json",
+]
+
+includes = [
+  "kernels/legion_dim.h",
+  "utils/nonnegative_int/nonnegative_int.h",
+]
+
+[[fields]]
+name = "dims"
+type = "::FlexFlow::LegionOrdered<::FlexFlow::nonnegative_int>"

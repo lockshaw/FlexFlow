@@ -1,6 +1,7 @@
 #include "compiler/machine_mapping/machine_mapping_cache.h"
 #include "utils/containers/contains_key.h"
 #include "utils/containers/try_at.h"
+#include "utils/exception.h"
 
 namespace FlexFlow {
 

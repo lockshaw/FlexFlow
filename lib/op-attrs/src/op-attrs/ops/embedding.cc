@@ -33,8 +33,8 @@ static std::optional<std::string> basic_check(EmbeddingAttrs const &attrs,
   }
 
   if (attrs.aggr != AggregateOp::SUM) {
-    return fmt::format(fmt::format(
-        "Currently unsupported aggregation op for embedding: {}", attrs.aggr));
+    return fmt::format(
+        "Currently unsupported aggregation op for embedding: {}", attrs.aggr);
   }
 
   return std::nullopt;

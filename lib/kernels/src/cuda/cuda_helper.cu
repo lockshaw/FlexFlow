@@ -1,6 +1,7 @@
 #include "device.h"
 #include "kernels/datatype_dispatch.h"
 #include "utils/containers/reversed.h"
+#include "op-attrs/dim_ordered/dim_ordered.h"
 
 namespace FlexFlow {
 
@@ -224,10 +225,10 @@ ffStatus_t
       tensor,
       CUDNN_TENSOR_NCHW,
       CUDNN_DATA_FLOAT,
-      shape.at_maybe(legion_dim_t{0_n}).value_or(1_n).unwrap_nonnegative(),
-      shape.at_maybe(legion_dim_t{1_n}).value_or(1_n).unwrap_nonnegative(),
-      shape.at_maybe(legion_dim_t{2_n}).value_or(1_n).unwrap_nonnegative(),
-      shape.at_maybe(legion_dim_t{3_n}).value_or(1_n).unwrap_nonnegative());
+      try_at(shape.dims, legion_dim_t{0_n}).value_or(1_n).unwrap_nonnegative(),
+      try_at(shape.dims, legion_dim_t{1_n}).value_or(1_n).unwrap_nonnegative(),
+      try_at(shape.dims, legion_dim_t{2_n}).value_or(1_n).unwrap_nonnegative(),
+      try_at(shape.dims, legion_dim_t{3_n}).value_or(1_n).unwrap_nonnegative());
 }
 
 cudnnDataType_t ff_to_cudnn_datatype(DataType type) {

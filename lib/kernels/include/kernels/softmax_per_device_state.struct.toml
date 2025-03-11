@@ -1,0 +1,20 @@
+namespace = "FlexFlow"
+name = "SoftmaxPerDeviceState"
+features = []
+
+includes = [
+  "kernels/per_device_ff_handle.h",
+  "kernels/device.h",
+]
+
+[[fields]]
+name = "handle"
+type = "::FlexFlow::PerDeviceFFHandle"
+
+[[fields]]
+name = "inputTensor"
+type = "ffTensorDescriptor_t"
+
+[[fields]]
+name = "dim"
+type = "int"

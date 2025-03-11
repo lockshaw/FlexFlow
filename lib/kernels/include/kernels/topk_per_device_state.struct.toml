@@ -1,0 +1,9 @@
+namespace = "FlexFlow"
+name = "TopKPerDeviceState"
+features = []
+
+includes = []
+
+[[fields]]
+name = "sorted"
+type = "bool"

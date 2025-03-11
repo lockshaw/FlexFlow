@@ -12,6 +12,9 @@ namespace FlexFlow {
 template <typename T>
 using is_fmtable = ::fmt::is_formattable<T>;
 
+template <typename T>
+inline constexpr bool is_fmtable_v = is_fmtable<T>::value;
+
 } // namespace FlexFlow
 
 #endif

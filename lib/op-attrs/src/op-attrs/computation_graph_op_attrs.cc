@@ -6,6 +6,7 @@
 #include "op-attrs/ops/linear.h"
 #include "op-attrs/ops/weight.h"
 #include "utils/overload.h"
+#include "utils/exception.h"
 
 namespace FlexFlow {
 

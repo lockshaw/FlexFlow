@@ -12,6 +12,7 @@
 #include <optional>
 #include <rapidcheck.h>
 #include <type_traits>
+#include "utils/concepts/fmtable.h"
 
 namespace FlexFlow {
 
@@ -292,9 +293,7 @@ public:
     return (this->m_size == 0);
   }
 
-  friend std::string format_as(stack_vector<T, MAXSIZE> const &v) {
-    CHECK_FMTABLE(T);
-
+  friend std::string format_as(stack_vector<T, MAXSIZE> const &v) requires Fmtable<T> {
     std::string result =
         ::FlexFlow::join_strings(v.cbegin(), v.cend(), ", ", [](T const &t) {
           return fmt::to_string(t);

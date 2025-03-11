@@ -1,14 +1,15 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_BATCH_MATMUL_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_BATCH_MATMUL_KERNELS_H
 
-#include "device.h"
-#include "kernels/allocation.h"
-#include "kernels/ff_handle.h"
+#include "kernels-raw/device.h"
 
-namespace FlexFlow::Kernels::BatchMatmul {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void forward_kernel(ffStream_t stream,
-                    PerDeviceFFHandle const &handle,
+void ff_batch_matmul_forward_kernel(ffStream_t stream,
+                    ffHandle_t dnn_handle,
+                    ffblasHandle_t blas,
                     float *output_ptr,
                     float const *a_input_ptr,
                     float const *b_input_ptr,
@@ -20,8 +21,9 @@ void forward_kernel(ffStream_t stream,
                     int a_seq_length_dim,
                     int b_seq_length_dim);
 
-void backward_kernel(ffStream_t stream,
-                     PerDeviceFFHandle const &handle,
+void ff_batch_matmul_backward_kernel(ffStream_t stream,
+                     ffHandle_t dnn_handle,
+                     ffblasHandle_t blas,
                      float const *o_ptr,
                      float const *o_grad_ptr,
                      float const *a_ptr,
@@ -33,6 +35,8 @@ void backward_kernel(ffStream_t stream,
                      int k,
                      int batch);
 
-} // namespace FlexFlow::Kernels::BatchMatmul
+#ifdef __cplusplus
+}
+#endif
 
 #endif

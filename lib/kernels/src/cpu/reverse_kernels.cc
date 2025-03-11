@@ -1,5 +1,6 @@
 #include "kernels/datatype_dispatch.h"
 #include "kernels/reverse_kernels_cpu.h"
+#include "utils/nonnegative_int/nonnegative_range.h"
 #include <vector>
 
 namespace FlexFlow::Kernels::Reverse {
@@ -11,11 +12,15 @@ struct CPUReverseForwardKernel {
                   int num_out_blks,
                   int reverse_dim_size,
                   int in_blk_size) {
-    for (int blk_idx = 0; blk_idx < num_out_blks; blk_idx++) {
-      for (int rev_idx = 0; rev_idx < reverse_dim_size; rev_idx++) {
-        for (int inner_idx = 0; inner_idx < in_blk_size; inner_idx++) {
+    for (nonnegative_int blk_idx : nonnegative_range(nonnegative_int{num_out_blks})) {
+      for (nonnegative_int rev_idx : nonnegative_range(nonnegative_range{reverse_dim_size})) {
+        for (nonnegative_int inner_idx : nonnegative_range(nonnegative_range{in_blk_size})) {
+          nonnegative_int reversed_idx = nonnegative_int{
+            reverse_dim_size - 1 - rev_idx.unwrap_nonnegative()
+          };
+
           output.at<DT>({inner_idx, rev_idx, blk_idx}) = input.at<DT>(
-              {inner_idx, reverse_dim_size - 1 - rev_idx, blk_idx});
+              {inner_idx, reversed_idx, blk_idx});
         }
       }
     }

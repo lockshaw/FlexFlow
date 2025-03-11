@@ -3,6 +3,7 @@
 #include "utils/containers/at_idx.h"
 #include "utils/containers/make.h"
 #include "utils/containers/transform.h"
+#include "utils/exception.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
@@ -28,7 +29,7 @@ std::optional<OperatorAttributeValue>
           return transform(at_idx(v, acc.index),
                            make<OperatorAttributeValue>());
         } else {
-          throw mk_runtime_error("Invalid operand");
+          throw mk_runtime_error(fmt::format("Invalid operand {}", from_attr.value()));
         }
       });
 }

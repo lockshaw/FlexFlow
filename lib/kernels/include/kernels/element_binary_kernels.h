@@ -1,32 +1,14 @@
 #ifndef _FLEXFLOW_OPS_KERNELS_ELEMENT_BINARY_KERNELS_H
 #define _FLEXFLOW_OPS_KERNELS_ELEMENT_BINARY_KERNELS_H
 
-#include "device.h"
-#include "ff_handle.h"
+#include "kernels/device.h"
+#include "kernels/ff_handle.h"
 #include "kernels/array_shape.h"
 #include "op-attrs/datatype.h"
 #include "op-attrs/operator_type.h"
+#include "kernels/element_binary_per_device_state.dtg.h"
 
-namespace FlexFlow {
-
-struct ElementBinaryPerDeviceState {
-  PerDeviceFFHandle handle;
-  ffTensorDescriptor_t inputLHSTensor;
-  ffTensorDescriptor_t inputRHSTensor;
-  ffTensorDescriptor_t outputTensor;
-  ffOpTensorDescriptor_t opDesc;
-  ffReduceTensorDescriptor_t reduceAddDesc;
-};
-
-FF_VISITABLE_STRUCT_NONSTANDARD_CONSTRUCTION(ElementBinaryPerDeviceState,
-                                             handle,
-                                             inputLHSTensor,
-                                             inputRHSTensor,
-                                             outputTensor,
-                                             opDesc,
-                                             reduceAddDesc);
-
-namespace Kernels::ElementBinary {
+namespace FlexFlow::Kernels::ElementBinary {
 
 ElementBinaryPerDeviceState init_kernel(PerDeviceFFHandle handle,
                                         OperatorType op_type,
@@ -57,7 +39,6 @@ void backward_kernel(ffStream_t stream,
                      bool broadcast_inputRHS,
                      PerDeviceFFHandle handle);
 
-} // namespace Kernels::ElementBinary
-} // namespace FlexFlow
+} // namespace FlexFlow::Kernels::ElementBinary
 
 #endif

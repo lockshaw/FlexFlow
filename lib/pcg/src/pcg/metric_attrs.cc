@@ -1,4 +1,5 @@
 #include "pcg/metric_attrs.h"
+#include "utils/exception.h"
 
 namespace FlexFlow {
 MetricsAttrs::MetricsAttrs(LossFunction _loss_type,

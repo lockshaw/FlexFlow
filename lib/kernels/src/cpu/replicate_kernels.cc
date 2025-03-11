@@ -9,7 +9,7 @@ struct CPUForwardKernel {
                   GenericTensorAccessorW &output) {
     memcpy(output.get<DT>(),
            input.get<DT>(),
-           input.shape.num_elements().unwrap_nonnegative() *
+           get_volume(input.shape).unwrap_nonnegative() *
                size_of_datatype(DT).unwrap_nonnegative());
   }
 };
@@ -26,7 +26,7 @@ struct CPUBackwardKernel {
       for (int j = 0; j < num_replicas; j++) {
         cur_sum += output.at<DT>({i, j});
       }
-      input.at<DT>({i}) = cur_sum;
+      input.at<DT>(nonnegative_int{i}) = cur_sum;
     }
   }
 };
@@ -39,7 +39,7 @@ void cpu_forward_kernel(GenericTensorAccessorR const &input,
 void cpu_backward_kernel(GenericTensorAccessorR const &output,
                          GenericTensorAccessorW &input,
                          size_t num_replicas) {
-  size_t num_elements = input.shape.num_elements().unwrap_nonnegative();
+  size_t num_elements = get_volume(input.shape).unwrap_nonnegative();
   DataTypeDispatch1<CPUBackwardKernel>{}(
       input.data_type, output, input, num_elements, num_replicas);
 }
