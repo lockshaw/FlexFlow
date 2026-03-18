@@ -17,7 +17,7 @@ std::unordered_set<Node> get_dominators(DiGraphView const &g,
     throw mk_runtime_error("Cannot find dominators of no nodes");
   }
   std::optional<std::unordered_set<Node>> result =
-      intersection(values(restrict_keys(get_dominators_map(g), n)));
+      set_intersection(values(restrict_keys(get_dominators_map(g), n)));
   assert(result.has_value());
 
   return result.value();

@@ -6,6 +6,7 @@
 #include "op-attrs/ops/linear.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "op-attrs/tensor_slot_name.h"
+#include "utils/containers/filter_values.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
@@ -162,6 +163,39 @@ std::unordered_map<TensorSlotName, IncomingTensorRole>
             return std::unordered_map<TensorSlotName, IncomingTensorRole>{};
           },
       });
+}
+
+std::unordered_set<TensorSlotName> get_incoming_tensor_slots_with_role(
+  ComputationGraphOpAttrs const &cg_op_attrs, IncomingTensorRole role)
+{
+  return get_incoming_tensor_slots_with_role(
+      pcg_op_attrs_from_compgraph_op_attrs(cg_op_attrs), role);
+}
+
+std::unordered_set<TensorSlotName> get_incoming_tensor_slots_with_role(
+  PCGOperatorAttrs const &pcg_op_attrs, IncomingTensorRole role)
+{
+  return keys(
+      filter_values(get_incoming_tensor_roles(pcg_op_attrs),
+                    [&](IncomingTensorRole r) {
+                      return r == role;
+                    }));
+}
+
+std::unordered_set<TensorSlotName> get_input_tensor_slots(ComputationGraphOpAttrs const &cg_op_attrs) {
+  return get_incoming_tensor_slots_with_role(cg_op_attrs, IncomingTensorRole::INPUT);
+}
+
+std::unordered_set<TensorSlotName> get_input_tensor_slots(PCGOperatorAttrs const &pcg_op_attrs) {
+  return get_incoming_tensor_slots_with_role(pcg_op_attrs, IncomingTensorRole::INPUT);
+}
+
+std::unordered_set<TensorSlotName> get_weight_tensor_slots(ComputationGraphOpAttrs const &cg_op_attrs) {
+  return get_incoming_tensor_slots_with_role(cg_op_attrs, IncomingTensorRole::WEIGHT);
+}
+
+std::unordered_set<TensorSlotName> get_weight_tensor_slots(PCGOperatorAttrs const &pcg_op_attrs) {
+  return get_incoming_tensor_slots_with_role(pcg_op_attrs, IncomingTensorRole::WEIGHT);
 }
 
 } // namespace FlexFlow

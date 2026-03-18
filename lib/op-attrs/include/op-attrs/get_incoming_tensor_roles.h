@@ -13,6 +13,17 @@ std::unordered_map<TensorSlotName, IncomingTensorRole>
 std::unordered_map<TensorSlotName, IncomingTensorRole>
     get_incoming_tensor_roles(PCGOperatorAttrs const &);
 
+std::unordered_set<TensorSlotName> get_incoming_tensor_slots_with_role(
+  ComputationGraphOpAttrs const &, IncomingTensorRole);
+std::unordered_set<TensorSlotName> get_incoming_tensor_slots_with_role(
+  PCGOperatorAttrs const &, IncomingTensorRole);
+
+std::unordered_set<TensorSlotName> get_input_tensor_slots(ComputationGraphOpAttrs const &);
+std::unordered_set<TensorSlotName> get_input_tensor_slots(PCGOperatorAttrs const &);
+
+std::unordered_set<TensorSlotName> get_weight_tensor_slots(ComputationGraphOpAttrs const &);
+std::unordered_set<TensorSlotName> get_weight_tensor_slots(PCGOperatorAttrs const &);
+
 } // namespace FlexFlow
 
 #endif

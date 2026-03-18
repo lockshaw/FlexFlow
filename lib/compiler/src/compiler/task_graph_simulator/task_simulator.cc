@@ -63,7 +63,7 @@ milliseconds_t task_simulator_estimate_forward_pass_time(
     std::unordered_set<device_id_t> devices_occupied =
         set_union(transform(in_progress_tasks, get_devices));
     std::unordered_set<device_id_t> required_devices = get_devices(task);
-    return intersection(devices_occupied, required_devices).empty();
+    return set_intersection(devices_occupied, required_devices).empty();
   };
 
   TaskExecutionConstraint constraint =

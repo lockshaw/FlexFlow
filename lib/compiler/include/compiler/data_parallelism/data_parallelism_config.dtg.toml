@@ -12,4 +12,4 @@ includes = [
 
 [[fields]]
 name = "degree"
-type = "int"
+type = "::FlexFlow::int_ge_two"

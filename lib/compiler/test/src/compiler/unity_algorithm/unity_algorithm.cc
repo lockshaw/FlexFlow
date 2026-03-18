@@ -14,7 +14,7 @@
 using namespace FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("graph_optimize") {
+  TEST_CASE("optimize_with_unity_algorithm") {
     ComputationGraph cg = [&] {
       ComputationGraphBuilder b;
       TensorShape input_tensor_shape = TensorShape{
@@ -74,7 +74,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*max_num_ops=*/100,
       };
       SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+          optimize_with_unity_algorithm(pcg, cost_estimator, full_machine_spec, search_config);
       CHECK(pcgs_are_isomorphic(pcg, result.pcg));
     }
 
@@ -85,7 +85,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*max_num_ops=*/100,
       };
       SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+          optimize_with_unity_algorithm(pcg, cost_estimator, full_machine_spec, search_config);
     }
   }
 }

@@ -4,6 +4,7 @@
 #include "op-attrs/computation_graph_op_attrs.dtg.h"
 #include "op-attrs/computation_graph_op_attrs.h"
 #include "op-attrs/pcg_operator_attrs.dtg.h"
+#include "op-attrs/tensor_slot_name.dtg.h"
 
 namespace FlexFlow {
 
