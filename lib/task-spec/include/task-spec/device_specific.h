@@ -57,11 +57,6 @@ std::ostream &operator<<(std::ostream &s, DeviceSpecific<T> const &d) {
   return (s << fmt::to_string(d));
 }
 
-// manually force serialization to make DeviceSpecific trivially
-// serializable
-// template <typename T>
-// struct is_trivially_serializable<DeviceSpecific<T>> : std::true_type {};
-
 } // namespace FlexFlow
 
 namespace std {
