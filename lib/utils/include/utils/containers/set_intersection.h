@@ -10,7 +10,7 @@ namespace FlexFlow {
 
 template <typename T>
 std::unordered_set<T> set_intersection(std::unordered_set<T> const &l,
-                                   std::unordered_set<T> const &r) {
+                                       std::unordered_set<T> const &r) {
   std::unordered_set<T> result;
   for (T const &ll : l) {
     if (contains(r, ll)) {

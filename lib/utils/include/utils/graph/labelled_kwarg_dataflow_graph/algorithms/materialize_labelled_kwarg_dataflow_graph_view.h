@@ -7,13 +7,15 @@ namespace FlexFlow {
 
 template <typename NodeLabel, typename ValueLabel, typename SlotName>
 LabelledKwargDataflowGraph<NodeLabel, ValueLabel, SlotName>
-  materialize_labelled_kwarg_dataflow_graph_view(
-    LabelledKwargDataflowGraphView<NodeLabel, ValueLabel, SlotName> const &view)
-{
-  return LabelledKwargDataflowGraph<
-    NodeLabel, ValueLabel, SlotName>::template create_copy_of<
-      UnorderedSetLabelledOpenKwargDataflowGraph<NodeLabel, ValueLabel, std::monostate, SlotName>
-    >(view);
+    materialize_labelled_kwarg_dataflow_graph_view(
+        LabelledKwargDataflowGraphView<NodeLabel, ValueLabel, SlotName> const
+            &view) {
+  return LabelledKwargDataflowGraph<NodeLabel, ValueLabel, SlotName>::
+      template create_copy_of<
+          UnorderedSetLabelledOpenKwargDataflowGraph<NodeLabel,
+                                                     ValueLabel,
+                                                     std::monostate,
+                                                     SlotName>>(view);
 }
 
 } // namespace FlexFlow

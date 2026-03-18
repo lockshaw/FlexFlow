@@ -4,9 +4,7 @@
 namespace FlexFlow {
 
 template <typename T, typename F>
-T repeat_until_converged(T const &initial,
-                         F &&f)
-{
+T repeat_until_converged(T const &initial, F &&f) {
   T previous = initial;
   T current = initial;
   do {

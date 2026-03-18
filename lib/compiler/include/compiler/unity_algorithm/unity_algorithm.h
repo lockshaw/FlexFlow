@@ -10,10 +10,11 @@
 
 namespace FlexFlow {
 
-SearchResult optimize_with_unity_algorithm(ParallelComputationGraph &pcg,
-                            RuntimeOnlyCostEstimator const &cost_estimator,
-                            MachineComputeSpecification const &resources,
-                            UnitySearchConfig const &search_config);
+SearchResult optimize_with_unity_algorithm(
+    ParallelComputationGraph &pcg,
+    RuntimeOnlyCostEstimator const &cost_estimator,
+    MachineComputeSpecification const &resources,
+    UnitySearchConfig const &search_config);
 
 } // namespace FlexFlow
 

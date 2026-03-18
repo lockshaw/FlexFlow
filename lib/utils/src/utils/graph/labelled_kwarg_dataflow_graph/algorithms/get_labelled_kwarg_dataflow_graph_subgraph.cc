@@ -8,10 +8,10 @@ using NodeLabel = value_type<0>;
 using OutputLabel = value_type<1>;
 using SlotName = ordered_value_type<2>;
 
-template
-  LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName>
+template LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName>
     get_labelled_kwarg_dataflow_graph_subgraph(
-      LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName> const &,
-      std::unordered_set<Node> const &);
+        LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName> const
+            &,
+        std::unordered_set<Node> const &);
 
 } // namespace FlexFlow

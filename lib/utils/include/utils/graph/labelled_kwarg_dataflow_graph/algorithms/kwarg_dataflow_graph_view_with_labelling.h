@@ -7,20 +7,16 @@
 
 namespace FlexFlow {
 
-template <typename NodeLabel,
-          typename OutputLabel,
-          typename SlotName>
+template <typename NodeLabel, typename OutputLabel, typename SlotName>
 struct KwargDataflowGraphLabellingWrapper final
-    : public ILabelledKwargDataflowGraphView<NodeLabel,
-                                                 OutputLabel,
-                                                 SlotName> {
+    : public ILabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName> {
 public:
   KwargDataflowGraphLabellingWrapper() = delete;
   KwargDataflowGraphLabellingWrapper(
       KwargDataflowGraphView<SlotName> const &unlabelled,
       std::unordered_map<Node, NodeLabel> const &node_labels,
-      std::unordered_map<KwargDataflowOutput<SlotName>,
-                         OutputLabel> const &output_labels)
+      std::unordered_map<KwargDataflowOutput<SlotName>, OutputLabel> const
+          &output_labels)
       : unlabelled(unlabelled), node_labels(node_labels),
         output_labels(output_labels) {}
 
@@ -29,8 +25,7 @@ public:
   }
 
   std::unordered_set<KwargDataflowEdge<SlotName>>
-      query_edges(KwargDataflowEdgeQuery<SlotName> const &q)
-          const override {
+      query_edges(KwargDataflowEdgeQuery<SlotName> const &q) const override {
     return this->unlabelled.query_edges(q);
   }
 
@@ -43,8 +38,7 @@ public:
     return this->node_labels.at(n);
   }
 
-  OutputLabel at(KwargDataflowOutput<SlotName> const &v)
-      const override {
+  OutputLabel at(KwargDataflowOutput<SlotName> const &v) const override {
     return this->output_labels.at(v);
   }
 
@@ -59,28 +53,19 @@ public:
 private:
   KwargDataflowGraphView<SlotName> unlabelled;
   std::unordered_map<Node, NodeLabel> node_labels;
-  std::unordered_map<KwargDataflowOutput<SlotName>,
-                     OutputLabel>
-      output_labels;
+  std::unordered_map<KwargDataflowOutput<SlotName>, OutputLabel> output_labels;
 };
 
-template <typename NodeLabel,
-          typename OutputLabel,
-          typename SlotName>
-LabelledKwargDataflowGraphView<NodeLabel,
-                                   OutputLabel,
-                                   SlotName>
+template <typename NodeLabel, typename OutputLabel, typename SlotName>
+LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName>
     kwarg_dataflow_graph_view_with_labelling(
         KwargDataflowGraphView<SlotName> const &g,
         std::unordered_map<Node, NodeLabel> const &node_labels,
-        std::unordered_map<KwargDataflowOutput<SlotName>,
-                           OutputLabel> const &value_labels) {
-  return LabelledKwargDataflowGraphView<NodeLabel,
-                                            OutputLabel,
-                                            SlotName>::
-      template create<KwargDataflowGraphLabellingWrapper<NodeLabel,
-                                                             OutputLabel,
-                                                             SlotName>>(
+        std::unordered_map<KwargDataflowOutput<SlotName>, OutputLabel> const
+            &value_labels) {
+  return LabelledKwargDataflowGraphView<NodeLabel, OutputLabel, SlotName>::
+      template create<
+          KwargDataflowGraphLabellingWrapper<NodeLabel, OutputLabel, SlotName>>(
           g, node_labels, value_labels);
 }
 } // namespace FlexFlow

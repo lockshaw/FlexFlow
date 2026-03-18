@@ -50,10 +50,11 @@ static std::vector<ParallelComputationGraph>
 }
 //! [apply_substitution example]
 
-SearchResult optimize_with_unity_algorithm(ParallelComputationGraph &pcg,
-                            RuntimeOnlyCostEstimator const &cost_estimator,
-                            MachineComputeSpecification const &resources,
-                            UnitySearchConfig const &search_config) {
+SearchResult optimize_with_unity_algorithm(
+    ParallelComputationGraph &pcg,
+    RuntimeOnlyCostEstimator const &cost_estimator,
+    MachineComputeSpecification const &resources,
+    UnitySearchConfig const &search_config) {
 
   std::vector<Substitution> substitutions = get_substitution_set(resources);
 

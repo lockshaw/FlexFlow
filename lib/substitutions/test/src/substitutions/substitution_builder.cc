@@ -172,7 +172,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }();
 
     Substitution result = [&] {
-//! [SubstitutionBuilder example]
+      //! [SubstitutionBuilder example]
       SubstitutionBuilder b;
 
       auto [p_input, o_input] =
@@ -252,7 +252,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       b.equate_outputs(p_relu_output, o_fused_output);
 
       return b.get_substitution();
-//! [SubstitutionBuilder example]
+      //! [SubstitutionBuilder example]
     }();
 
     CHECK(is_isomorphic_to(result, correct));

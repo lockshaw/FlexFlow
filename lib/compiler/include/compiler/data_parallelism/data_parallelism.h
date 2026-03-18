@@ -6,10 +6,8 @@
 
 namespace FlexFlow {
 
-SearchResult
-  apply_data_parallelism(ComputationGraph const &pcg,
-                         int_ge_two degree);
-
+SearchResult apply_data_parallelism(ComputationGraph const &pcg,
+                                    int_ge_two degree);
 
 } // namespace FlexFlow
 
