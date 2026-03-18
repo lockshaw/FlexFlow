@@ -144,8 +144,7 @@ query_set<T> query_intersection(query_set<T> const &lhs,
   } else if (is_matchall(rhs)) {
     return lhs;
   } else {
-    return query_set<T>::match_values_in(
-        set_of(set_intersection(allowed_values(lhs), allowed_values(rhs))));
+    return set_intersection(allowed_values(lhs), allowed_values(rhs));
   }
 }
 

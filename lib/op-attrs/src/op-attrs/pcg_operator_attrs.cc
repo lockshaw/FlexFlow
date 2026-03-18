@@ -1,4 +1,5 @@
 #include "op-attrs/pcg_operator_attrs.h"
+#include "op-attrs/get_incoming_tensor_roles.h"
 #include "op-attrs/get_op_type.h"
 #include "op-attrs/ops/broadcast.h"
 #include "op-attrs/ops/cast.h"
