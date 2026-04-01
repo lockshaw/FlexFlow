@@ -1,5 +1,8 @@
 #include "pcg/machine_compute_specification.h"
+#include "pcg/device_id.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "utils/containers/transform.h"
+#include "utils/overload.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -34,6 +37,28 @@ positive_int get_num_devices_per_node(MachineComputeSpecification const &ms,
     default:
       PANIC("Unknown DeviceType", device_type);
   }
+}
+
+bool is_valid_machine_space_coordinate(MachineComputeSpecification const &ms,
+                                       MachineSpaceCoordinate const &coord) {
+  return is_valid_machine_space_coordinate_in_slice(
+      compute_slice_from_specification(ms), coord);
+}
+
+device_id_t get_device_id(MachineComputeSpecification const &ms,
+                          MachineSpaceCoordinate const &coord) {
+  ASSERT(is_valid_machine_space_coordinate(ms, coord));
+
+  return coord.visit<device_id_t>(overload{
+      [](MachineSpace1dCoordinate const &c) -> device_id_t {
+        return device_id_from_index(c.idx, DeviceType::GPU);
+      },
+      [&](MachineSpace2dCoordinate const &c) -> device_id_t {
+        nonnegative_int raw_idx =
+            c.node_idx * ms.num_gpus_per_node + c.device_idx;
+        return device_id_from_index(raw_idx, DeviceType::GPU);
+      },
+  });
 }
 
 } // namespace FlexFlow

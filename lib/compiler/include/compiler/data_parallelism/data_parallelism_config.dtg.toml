@@ -9,6 +9,7 @@ features = [
 ]
 
 includes = [
+  "utils/int_ge_two/int_ge_two.h",
 ]
 
 [[fields]]

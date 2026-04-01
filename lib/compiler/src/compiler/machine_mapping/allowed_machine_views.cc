@@ -135,7 +135,7 @@ static std::set<MachineView>
       for (std::vector<MachineSpecificationDimension> const &dims :
            candidate_dimensions) {
         machine_views.insert(
-            machine_view_from_strides_and_machine_spec_dimensions(
+            machine_view_2d_from_strides_and_machine_spec_dimensions(
                 start, strides.raw_strides, dims));
       }
     }
