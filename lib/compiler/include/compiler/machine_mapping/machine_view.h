@@ -25,7 +25,7 @@ std::vector<MachineSpecificationDimension>
     get_dimensions(MachineView const &mv);
 
 MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
-    MachineSpace2dCoordinate const &start,
+    MachineSpaceCoordinate const &start,
     std::vector<stride_t> const &strides,
     std::vector<MachineSpecificationDimension> const &dims);
 

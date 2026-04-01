@@ -241,9 +241,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
 
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
             /*node_idx=*/0_n,
-            /*device_idx=*/1_n);
+            /*device_idx=*/1_n,
+        };
 
         CHECK(result == correct);
       }
@@ -254,9 +255,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
 
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
             /*node_idx=*/0_n,
-            /*device_idx=*/3_n);
+            /*device_idx=*/3_n,
+        };
 
         CHECK(result == correct);
       }
@@ -267,9 +269,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
 
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
             /*node_idx=*/0_n,
-            /*device_idx=*/5_n);
+            /*device_idx=*/5_n,
+        };
 
         CHECK(result == correct);
       }
@@ -309,9 +312,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           }},
       };
       MachineView mv = MachineView{
-          make_machine_space_2d_coordinate(
+          MachineSpaceCoordinate{
               /*node_idx=*/1_n,
-              /*device_idx=*/2_n),
+              /*device_idx=*/2_n,
+          },
           StartInvariantMachineView{
               MachineView2dProjection{
                   {
@@ -331,9 +335,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("Task with TaskSpaceCoordinate = (0,0)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 0_n});
 
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
             /*node_idx=*/1_n,
-            /*device_idx=*/2_n);
+            /*device_idx=*/2_n,
+        };
 
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
@@ -343,8 +348,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,1)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/4_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/1_n,
+            /*device_idx=*/4_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -352,8 +359,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (1,0)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 0_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/2_n, /*device_idx=*/2_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/2_n,
+            /*device_idx=*/2_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -361,8 +370,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (1,1)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/2_n, /*device_idx=*/4_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/2_n,
+            /*device_idx=*/4_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -391,9 +402,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           }},
       };
       MachineView mv = MachineView{
-          make_machine_space_2d_coordinate(
+          MachineSpaceCoordinate{
               /*node_idx=*/1_n,
-              /*device_idx=*/0_n),
+              /*device_idx=*/0_n,
+          },
           StartInvariantMachineView{
               MachineView2dProjection{
                   {
@@ -412,8 +424,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,0)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 0_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/0_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/1_n,
+            /*device_idx=*/0_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -421,8 +435,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,1)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/4_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/1_n,
+            /*device_idx=*/4_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -430,8 +446,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (1,0)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 0_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/1_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/1_n,
+            /*device_idx=*/1_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -439,8 +457,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("Task with TaskSpaceCoordinate = (1,1)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/5_n);
+        MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+            /*node_idx=*/1_n,
+            /*device_idx=*/5_n,
+        };
         MachineSpaceCoordinate result =
             get_machine_space_coordinate(task, mv, coord);
         CHECK(correct == result);
@@ -476,63 +496,69 @@ TEST_SUITE(FF_TEST_SUITE) {
               2_ge2,
           }},
       };
-      MachineView mv = MachineView{
-          make_machine_space_2d_coordinate(
+      MachineView mv = MachineView {
+        MachineSpaceCoordinate{
               /*node_idx=*/0_n,
               /*device_idx=*/1_n),
-          StartInvariantMachineView{
-              MachineView2dProjection{
-                  {
-                      MachineViewDimension{
-                          stride_t{1_p},
-                          MachineSpecificationDimension::INTER_NODE,
-                      },
-                      MachineViewDimension{
-                          stride_t{2_p},
-                          MachineSpecificationDimension::INTRA_NODE,
-                      },
-                      MachineViewDimension{
-                          stride_t{1_p},
-                          MachineSpecificationDimension::INTRA_NODE,
-                      },
-                  },
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            {
+              MachineViewDimension{
+                stride_t{1_p},
+                MachineSpecificationDimension::INTER_NODE,
               },
+              MachineViewDimension{
+                stride_t{2_p},
+                MachineSpecificationDimension::INTRA_NODE,
+              },
+              MachineViewDimension{
+                stride_t{1_p},
+                MachineSpecificationDimension::INTRA_NODE,
+              },
+            },
           },
+        },
       };
 
-      SUBCASE("Task with TaskSpaceCoordinate = (0,0,1)") {
-        TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 1_n, 0_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/0_n, /*device_idx=*/3_n);
+        SUBCASE("Task with TaskSpaceCoordinate = (0,0,1)") {
+          TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 1_n, 0_n});
+          MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
+              /*node_idx=*/0_n, /*device_idx=*/3_n);
 
-        MachineSpaceCoordinate result =
-            get_machine_space_coordinate(task, mv, coord);
-        CHECK(correct == result);
-      }
+          MachineSpaceCoordinate result =
+              get_machine_space_coordinate(task, mv, coord);
+          CHECK(correct == result);
+        }
 
-      SUBCASE("Task with TaskSpaceCoordinate = (1,1,0)") {
-        TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 0_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/5_n);
-        MachineSpaceCoordinate result =
-            get_machine_space_coordinate(task, mv, coord);
-        CHECK(correct == result);
-      }
+        SUBCASE("Task with TaskSpaceCoordinate = (1,1,0)") {
+          TaskSpaceCoordinate coord =
+              make_task_space_coordinate({1_n, 0_n, 1_n});
+          MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+              /*node_idx=*/1_n,
+              /*device_idx=*/5_n,
+          };
+          MachineSpaceCoordinate result =
+              get_machine_space_coordinate(task, mv, coord);
+          CHECK(correct == result);
+        }
 
-      SUBCASE("Task with TaskSpaceCoordinate = (1,1,1)") {
-        TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 1_n, 1_n});
-        MachineSpaceCoordinate correct = make_machine_space_2d_coordinate(
-            /*node_idx=*/1_n, /*device_idx=*/7_n);
-        MachineSpaceCoordinate result =
-            get_machine_space_coordinate(task, mv, coord);
-        CHECK(correct == result);
+        SUBCASE("Task with TaskSpaceCoordinate = (1,1,1)") {
+          TaskSpaceCoordinate coord =
+              make_task_space_coordinate({1_n, 1_n, 1_n});
+          MachineSpaceCoordinate correct = MachineSpaceCoordinate{
+              /*node_idx=*/1_n,
+              /*device_idx=*/7_n,
+          };
+          MachineSpaceCoordinate result =
+              get_machine_space_coordinate(task, mv, coord);
+          CHECK(correct == result);
+        }
       }
     }
-  }
 
-  TEST_CASE("get_device_ids") {
-    SUBCASE("1D to 2D machine view") {
-      /**
+    TEST_CASE("get_device_ids") {
+      SUBCASE("1D to 2D machine view") {
+        /**
        * This operator has shape (3,), and thus 3 tasks.
        * The (only) dimension is projected onto the INTRA (device) dimension
        * with a stride of 2. The start of the projection defined by MachineView
@@ -546,45 +572,46 @@ TEST_SUITE(FF_TEST_SUITE) {
        * Where the integers are the device ids and ((x)) are the devices we
        * select
        */
-      MachineComputeSpecification ms = MachineComputeSpecification{
-          /*num_nodes=*/1_p,
-          /*num_cpus_per_node=*/6_p,
-          /*num_gpus_per_node=*/6_p,
-      };
+        MachineComputeSpecification ms = MachineComputeSpecification{
+            /*num_nodes=*/1_p,
+            /*num_cpus_per_node=*/6_p,
+            /*num_gpus_per_node=*/6_p,
+        };
 
-      OperatorTaskSpace task = OperatorTaskSpace{
-          MinimalOrthotope{{
-              3_ge2,
-          }},
-      };
+        OperatorTaskSpace task = OperatorTaskSpace{
+            MinimalOrthotope{{
+                3_ge2,
+            }},
+        };
 
-      MachineView mv = MachineView{
-          make_machine_space_2d_coordinate(
-              /*node_idx=*/0_n,
-              /*device_idx=*/1_n),
-          StartInvariantMachineView{
-              MachineView2dProjection{
-                  {
-                      MachineViewDimension{
-                          stride_t{2_p},
-                          MachineSpecificationDimension::INTRA_NODE,
-                      },
-                  },
-              },
-          },
-      };
+        MachineView mv = MachineView{
+            MachineSpaceCoordinate{
+                /*node_idx=*/0_n,
+                /*device_idx=*/1_n,
+            },
+            StartInvariantMachineView{
+                MachineView2dProjection{
+                    {
+                        MachineViewDimension{
+                            stride_t{2_p},
+                            MachineSpecificationDimension::INTRA_NODE,
+                        },
+                    },
+                },
+            },
+        };
 
-      std::unordered_set<device_id_t> correct = {
-          device_id_t{gpu_id_t{1_n}},
-          device_id_t{gpu_id_t{3_n}},
-          device_id_t{gpu_id_t{5_n}},
-      };
-      std::unordered_set<device_id_t> result = get_device_ids(task, mv, ms);
-      CHECK(result == correct);
-    }
+        std::unordered_set<device_id_t> correct = {
+            device_id_t{gpu_id_t{1_n}},
+            device_id_t{gpu_id_t{3_n}},
+            device_id_t{gpu_id_t{5_n}},
+        };
+        std::unordered_set<device_id_t> result = get_device_ids(task, mv, ms);
+        CHECK(result == correct);
+      }
 
-    SUBCASE("2D to 2D machine view") {
-      /**
+      SUBCASE("2D to 2D machine view") {
+        /**
        * This operator has shape (2, 2), and thus 2 * 2 = 4 tasks.
        * - The first dimension is projected onto the INTER (node) dimension with
        * stride 1,
@@ -605,46 +632,47 @@ TEST_SUITE(FF_TEST_SUITE) {
        * select
        */
 
-      MachineComputeSpecification ms = MachineComputeSpecification{
-          /*num_nodes=*/3_p,
-          /*num_cpus_per_node=*/5_p,
-          /*num_gpus_per_node=*/5_p,
-      };
+        MachineComputeSpecification ms = MachineComputeSpecification{
+            /*num_nodes=*/3_p,
+            /*num_cpus_per_node=*/5_p,
+            /*num_gpus_per_node=*/5_p,
+        };
 
-      OperatorTaskSpace task = OperatorTaskSpace{
-          MinimalOrthotope{{
-              2_ge2,
-              2_ge2,
-          }},
-      };
-      MachineView mv = MachineView{
-          make_machine_space_2d_coordinate(
-              /*node_idx=*/1_n,
-              /*device_idx=*/2_n),
-          StartInvariantMachineView{
-              MachineView2dProjection{
-                  {
-                      MachineViewDimension{
-                          stride_t{1_p},
-                          MachineSpecificationDimension::INTER_NODE,
-                      },
-                      MachineViewDimension{
-                          stride_t{2_p},
-                          MachineSpecificationDimension::INTRA_NODE,
-                      },
-                  },
-              },
-          },
-      };
+        OperatorTaskSpace task = OperatorTaskSpace{
+            MinimalOrthotope{{
+                2_ge2,
+                2_ge2,
+            }},
+        };
+        MachineView mv = MachineView{
+            MachineSpaceCoordinate{
+                /*node_idx=*/1_n,
+                /*device_idx=*/2_n,
+            },
+            StartInvariantMachineView{
+                MachineView2dProjection{
+                    {
+                        MachineViewDimension{
+                            stride_t{1_p},
+                            MachineSpecificationDimension::INTER_NODE,
+                        },
+                        MachineViewDimension{
+                            stride_t{2_p},
+                            MachineSpecificationDimension::INTRA_NODE,
+                        },
+                    },
+                },
+            },
+        };
 
-      std::unordered_set<device_id_t> correct = {
-          device_id_t{gpu_id_t{7_n}},
-          device_id_t{gpu_id_t{9_n}},
-          device_id_t{gpu_id_t{12_n}},
-          device_id_t{gpu_id_t{14_n}},
-      };
-      std::unordered_set<device_id_t> result = get_device_ids(task, mv, ms);
-      CHECK(result == correct);
+        std::unordered_set<device_id_t> correct = {
+            device_id_t{gpu_id_t{7_n}},
+            device_id_t{gpu_id_t{9_n}},
+            device_id_t{gpu_id_t{12_n}},
+            device_id_t{gpu_id_t{14_n}},
+        };
+        std::unordered_set<device_id_t> result = get_device_ids(task, mv, ms);
+        CHECK(result == correct);
+      }
     }
   }
-}
