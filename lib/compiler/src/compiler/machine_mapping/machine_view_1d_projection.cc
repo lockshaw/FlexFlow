@@ -11,7 +11,7 @@ std::vector<stride_t>
   return projection.strides;
 }
 
-MachineSpace1dOffset projection_1d_get_machine_space_offset(
+FlatMachineSpaceOffset projection_1d_get_machine_space_offset(
     OperatorTaskSpace const &task_space,
     MachineView1dProjection const &projection,
     TaskSpaceCoordinate const &coord) {
@@ -36,7 +36,7 @@ MachineSpace1dOffset projection_1d_get_machine_space_offset(
       [](positive_int coeff, nonnegative_int coord_point, positive_int stride)
           -> nonnegative_int { return coeff * coord_point * stride; }));
 
-  return MachineSpace1dOffset{index_1d.unwrap_nonnegative()};
+  return FlatMachineSpaceOffset{index_1d.unwrap_nonnegative()};
 }
 
 } // namespace FlexFlow

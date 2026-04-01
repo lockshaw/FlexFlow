@@ -5,6 +5,7 @@
 #include "compiler/machine_mapping/start_invariant_machine_view.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
+#include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/machine_space_offset.h"
 #include <optional>
@@ -13,7 +14,7 @@ namespace FlexFlow {
 
 MachineView
     machine_view_from_start_invariant(StartInvariantMachineView const &mv,
-                                      MachineSpace2dCoordinate const &start);
+                                      MachineSpaceCoordinate const &start);
 StartInvariantMachineView
     start_invariant_from_machine_view(MachineView const &mv);
 
@@ -31,11 +32,13 @@ StartInvariantMachineView
 MachineSpaceOffset
     get_machine_space_offset(OperatorTaskSpace const &task,
                              StartInvariantMachineView const &mv,
+                             MachineComputeResourceSlice const &machine_space,
                              TaskSpaceCoordinate const &coordinates);
 
 std::set<MachineSpaceOffset>
     get_machine_space_offsets(OperatorTaskSpace const &task,
-                              StartInvariantMachineView const &mv);
+                              StartInvariantMachineView const &mv,
+                              MachineComputeResourceSlice const &machine_space);
 
 } // namespace FlexFlow
 

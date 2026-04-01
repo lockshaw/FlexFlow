@@ -25,7 +25,7 @@ std::vector<stride_t>
       [](MachineViewDimension const &d) -> stride_t { return d.stride; });
 }
 
-MachineSpace2dOffset projection_2d_get_machine_space_offset(
+MachineSpaceOffset projection_2d_get_machine_space_offset(
     OperatorTaskSpace const &task_space,
     MachineView2dProjection const &projection,
     TaskSpaceCoordinate const &coord) {
@@ -87,7 +87,7 @@ MachineSpace2dOffset projection_2d_get_machine_space_offset(
 
   nonnegative_int node_idx = compute_index(inter_dimension_indices);
   nonnegative_int device_idx = compute_index(intra_dimension_indices);
-  MachineSpace2dOffset offset = MachineSpace2dOffset{
+  MachineSpaceOffset offset = MachineSpaceOffset{
       /*node_offset=*/node_idx.unwrap_nonnegative(),
       /*device_offset=*/device_idx.unwrap_nonnegative(),
   };
