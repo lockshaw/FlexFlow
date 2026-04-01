@@ -1,0 +1,21 @@
+namespace = "FlexFlow"
+name = "MachineSpace2dOffset"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  # "rapidcheck",
+  "fmt",
+]
+
+includes = []
+
+[[fields]]
+name = "node_offset"
+type = "int"
+
+[[fields]]
+name = "device_offset"
+type = "int"

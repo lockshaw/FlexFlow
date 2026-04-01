@@ -19,7 +19,7 @@ SearchResult optimize(ComputationGraph const &computation_graph,
       [&](UnitySearchConfig const &config) {
         ParallelComputationGraph pcg =
             pcg_from_computation_graph(computation_graph);
-        return graph_optimize(
+        return optimize_with_unity_algorithm(
             pcg,
             runtime_only_cost_estimator_from_cost_estimator(cost_estimator),
             machine_specification.compute_specification,

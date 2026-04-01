@@ -1,0 +1,24 @@
+namespace = "FlexFlow"
+name = "MachineView1dProjection"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "rapidcheck",
+  "fmt",
+]
+
+includes = [
+  "compiler/machine_mapping/stride_t.dtg.h",
+]
+
+src_includes = [
+  "utils/fmt/vector.h",
+  "utils/hash/vector.h"
+]
+
+[[fields]]
+name = "strides"
+type = "std::vector<::FlexFlow::stride_t>"
