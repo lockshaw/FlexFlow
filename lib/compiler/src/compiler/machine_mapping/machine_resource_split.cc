@@ -80,24 +80,22 @@ std::unordered_set<MachineResourceSplit>
   return result;
 }
 
-MachineSpaceCoordinate
-    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &coord,
+MachineSpace2dCoordinate
+    offset_machine_space_coordinate_by(MachineSpace2dCoordinate const &coord,
                                        MachineResourceSplit const &split) {
   if (split.dimension == MachineSpecificationDimension::INTER_NODE) {
-    return MachineSpaceCoordinate{
+    return MachineSpace2dCoordinate{
         /*node_idx=*/(coord.node_idx + split.offset)
             .nonnegative_int_from_positive_int(),
         /*device_idx=*/coord.device_idx,
-        /*device_type=*/coord.device_type,
     };
   } else {
     ASSERT(split.dimension == MachineSpecificationDimension::INTRA_NODE);
 
-    return MachineSpaceCoordinate{
+    return MachineSpace2dCoordinate{
         /*node_idx=*/coord.node_idx,
         /*device_idx=*/
         (coord.device_idx + split.offset).nonnegative_int_from_positive_int(),
-        /*device_type=*/coord.device_type,
     };
   }
 }
@@ -106,7 +104,7 @@ MachineView offset_machine_view_by(MachineView const &machine_view,
                                    MachineResourceSplit const &split) {
   return MachineView{
       /*start=*/offset_machine_space_coordinate_by(machine_view.start, split),
-      /*dimensions=*/machine_view.dimensions,
+      /*start_invariant=*/machine_view.start_invariant,
   };
 }
 

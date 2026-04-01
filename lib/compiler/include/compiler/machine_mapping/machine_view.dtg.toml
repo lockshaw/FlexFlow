@@ -6,25 +6,19 @@ features = [
   "ord",
   "hash",
   "json",
-  "rapidcheck",
+  # "rapidcheck",
   "fmt",
 ]
 
 includes = [
-  "compiler/machine_mapping/machine_view_dimension.dtg.h",
-  "pcg/machine_space_coordinate.dtg.h"
+  "pcg/machine_space_2d_coordinate.dtg.h",
+  "compiler/machine_mapping/start_invariant_machine_view.dtg.h"
 ]
-
-src_includes = [
-  "utils/fmt/vector.h",
-  "utils/hash/vector.h"
-]
-
 
 [[fields]]
 name = "start"
-type = "::FlexFlow::MachineSpaceCoordinate"
+type = "::FlexFlow::MachineSpace2dCoordinate"
 
 [[fields]]
-name = "dimensions"
-type = "std::vector<::FlexFlow::MachineViewDimension>"
+name = "start_invariant"
+type = "::FlexFlow::StartInvariantMachineView"

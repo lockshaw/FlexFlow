@@ -119,6 +119,7 @@
               gbenchmark
               libtorch-bin
               graphviz # for documentation
+              texliveBasic # for documentation
             ])
             (with proj-repo.packages.${system}; [
               proj

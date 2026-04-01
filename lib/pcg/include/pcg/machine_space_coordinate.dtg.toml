@@ -1,6 +1,6 @@
 namespace = "FlexFlow"
 name = "MachineSpaceCoordinate"
-type = "struct"
+type = "variant"
 features = [
   "eq",
   "ord",
@@ -10,19 +10,15 @@ features = [
   "fmt",
 ]
 
-includes = [ 
-  "pcg/device_type.dtg.h",
-  "utils/nonnegative_int/nonnegative_int.h",
+includes = [
+  "pcg/machine_space_1d_coordinate.dtg.h",
+  "pcg/machine_space_2d_coordinate.dtg.h",
 ]
 
-[[fields]]
-name = "node_idx"
-type = "::FlexFlow::nonnegative_int"
+[[values]]
+type = "::FlexFlow::MachineSpace1dCoordinate"
+key = "1d"
 
-[[fields]]
-name = "device_idx"
-type = "::FlexFlow::nonnegative_int"
-
-[[fields]]
-name = "device_type"
-type = "::FlexFlow::DeviceType"
+[[values]]
+type = "::FlexFlow::MachineSpace2dCoordinate"
+key = "2d"

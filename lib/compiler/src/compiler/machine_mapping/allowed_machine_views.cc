@@ -100,7 +100,7 @@ static std::unordered_set<MachineView>
       for (nonnegative_int device_idx :
            nonnegative_range(slice.num_gpus_per_node)) {
         result.insert(
-            MachineSpaceCoordinate{node_idx, device_idx, device_type});
+            MachineSpaceCoordinate{node_idx, device_idx});
       }
     }
     return result;
@@ -141,7 +141,7 @@ static std::unordered_set<MachineView>
       for (std::vector<MachineSpecificationDimension> const &dims :
            candidate_dimensions) {
         machine_views.insert(
-            machine_view_from_strides_and_machine_spec_dimensions(
+            machine_view_2d_from_strides_and_machine_spec_dimensions(
                 start, strides.raw_strides, dims));
       }
     }

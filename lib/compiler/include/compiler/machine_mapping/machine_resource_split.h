@@ -15,8 +15,8 @@ std::pair<MachineComputeResourceSlice, MachineComputeResourceSlice>
 std::unordered_set<MachineResourceSplit>
     get_machine_resource_splits(MachineComputeResourceSlice const &);
 
-MachineSpaceCoordinate
-    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &,
+MachineSpace2dCoordinate
+    offset_machine_space_coordinate_by(MachineSpace2dCoordinate const &,
                                        MachineResourceSplit const &);
 
 MachineView offset_machine_view_by(MachineView const &,

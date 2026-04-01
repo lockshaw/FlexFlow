@@ -13,18 +13,13 @@ namespace FlexFlow {
 
 MachineView
     machine_view_from_start_invariant(StartInvariantMachineView const &mv,
-                                      MachineSpaceCoordinate const &start);
+                                      MachineSpace2dCoordinate const &start);
 StartInvariantMachineView
     start_invariant_from_machine_view(MachineView const &mv);
 
-nonnegative_int num_dims(StartInvariantMachineView const &mv);
+nonnegative_int get_expected_task_space_num_dims(StartInvariantMachineView const &mv);
 
-DeviceType get_device_type(StartInvariantMachineView const &mv);
-
-std::vector<stride_t> get_strides(StartInvariantMachineView const &mv);
-
-std::vector<MachineSpecificationDimension>
-    get_dimensions(StartInvariantMachineView const &mv);
+std::vector<stride_t> start_invariant_mv_get_strides(StartInvariantMachineView const &mv);
 
 StartInvariantMachineView
     start_invariant_machine_view_from_strides_and_machine_spec_dimensions(

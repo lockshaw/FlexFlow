@@ -5,15 +5,15 @@
 #include "compiler/search_result.dtg.h"
 
 namespace FlexFlow {
+
 std::optional<MachineMapping>
     get_random_mapping(ParallelComputationGraph const &pcg,
-                       MachineComputeSpecification const &resources,
-                       DeviceType const &device_type);
+                       MachineComputeSpecification const &resources);
 
 std::optional<MachineMapping>
     get_random_mutation(SearchResult const &mapped_pcg,
-                        MachineComputeSpecification const &resource,
-                        DeviceType const &device_type);
+                        MachineComputeSpecification const &resource);
+
 } // namespace FlexFlow
 
 #endif

@@ -20,18 +20,46 @@ namespace FlexFlow {
 
 nonnegative_int mv_get_expected_task_space_num_dims(MachineView const &mv);
 
-DeviceType get_device_type(MachineView const &mv);
+std::vector<stride_t> mv_get_strides(MachineView const &mv);
 
-std::vector<stride_t> get_strides(MachineView const &mv);
-
-std::vector<MachineSpecificationDimension>
-    get_dimensions(MachineView const &mv);
-
-MachineView machine_view_from_strides_and_machine_spec_dimensions(
-    MachineSpaceCoordinate const &start,
+MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
+    MachineSpace2dCoordinate const &start,
     std::vector<stride_t> const &strides,
     std::vector<MachineSpecificationDimension> const &dims);
 
+/**
+ * \brief Compute the device (i.e., \ref MachineSpaceCoordinate) where the given
+ * subtask (represented by \ref TaskSpaceCoordinate) should be mapped according
+ * to the given \ref MachineView.
+ *
+ * The primary source of complexity here is that we want these mappings to be
+ * bijective, i.e., every subtask should map to a unique device so they can all
+ * execute in parallel. A naive choice of a propection, such as the following,
+ * could yield to a non-bijective mapping: given a \ref MachineMapping with
+ * start coordinate \f$zf$ and strides \f$\vec{s}\f$ (we assume for
+ * simplicity that the machine space is one-dimensional our start coordinate is
+ * just a single integer and so we don't also have to specify the \ref
+ * MachineSpecificationDimension), and a \ref TaskSpaceCoordinate
+ * \f$\vec{c'}\f$, we could propose computing the \ref MachineSpaceCoordinate
+ * \f$c\f$ as $c = z + \vec{c'} \cdot \vec{s}\f$. However,
+ * for \f$\vec{s} = (1, 1)\f$, \f$\vec{c'} = (1, 0)\f$ and \f$\vec{c'} = (0,
+ * 1)\f$ then both map to the same device!
+ *
+ * To fix the issue, we can instead multiply each stride by the sizes of all of
+ * the prior dimensions. Unfortunately this requires that we are given not only
+ * the \ref MachineSpaceCoordinate of the subtask, but also the dimensions of
+ * the \ref OperatorTaskSpace it comes from. Letting \f$\vec{d}\f$ denote the
+ * dimensions of the \ref OperatorTaskSpace, we get the actual definition used:
+ *
+ * \f[
+ *  c = z + c'_n s_n + c'_{n-1} s_{n-1} d_n s_n + \cdots
+ * \f]
+ * or more concisely,
+ * \f[
+ *   \mu_i = s_i \prod_{j=i+1}^{n} d_j s_j
+ *   c = z + \vec{c'} \cdot \vec{\mu}
+ * \f]
+ */
 MachineSpaceCoordinate get_machine_space_coordinate(
     OperatorTaskSpace const &operator_task_space,
     MachineView const &machine_view,
@@ -55,7 +83,7 @@ std::unordered_set<device_id_t>
                    MachineView const &mv,
                    MachineComputeSpecification const &ms);
 
-MachineView make_1d_machine_view(MachineSpaceCoordinate const &start,
+MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
                                  MachineSpecificationDimension const &dim,
                                  stride_t stride);
 

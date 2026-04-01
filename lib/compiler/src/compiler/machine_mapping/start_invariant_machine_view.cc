@@ -7,68 +7,96 @@
 #include "utils/containers/scanl.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip.h"
+#include "utils/containers/zip3.h"
+#include "utils/containers/zip3_strict.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/overload.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "compiler/machine_mapping/machine_view_1d_projection.h"
+#include "compiler/machine_mapping/machine_view_2d_projection.h"
+
 namespace FlexFlow {
 
 MachineView machine_view_from_start_invariant(
     StartInvariantMachineView const &start_inv_mv,
-    MachineSpaceCoordinate const &start) {
-  return MachineView{start, start_inv_mv.dimensions};
+    MachineSpace2dCoordinate const &start) {
+  return MachineView{
+    start,
+    start_inv_mv,
+  };
 }
 
 StartInvariantMachineView
     start_invariant_from_machine_view(MachineView const &mv) {
-  return StartInvariantMachineView{mv.dimensions, get_device_type(mv)};
+  return StartInvariantMachineView{mv.start_invariant};
 }
 
-nonnegative_int num_dims(StartInvariantMachineView const &start_inv_mv) {
-  return num_elements(start_inv_mv.dimensions);
-}
-
-DeviceType get_device_type(StartInvariantMachineView const &start_inv_mv) {
-  return start_inv_mv.device_type;
+nonnegative_int get_expected_task_space_num_dims(StartInvariantMachineView const &start_inv_mv) {
+  return start_inv_mv.visit<nonnegative_int>(overload {
+    [](MachineView1dProjection const &p) -> nonnegative_int {
+      return num_elements(p.strides);
+    },
+    [](MachineView2dProjection const &p) -> nonnegative_int {
+      return num_elements(p.dimensions);
+    },
+  });
 }
 
 std::vector<stride_t>
-    get_strides(StartInvariantMachineView const &start_inv_mv) {
-  return transform(start_inv_mv.dimensions,
-                   [](MachineViewDimension const &dim) { return dim.stride; });
-}
+    start_invariant_get_strides(StartInvariantMachineView const &start_inv_mv) {
 
-std::vector<MachineSpecificationDimension>
-    get_dimensions(StartInvariantMachineView const &start_inv_mv) {
-  return transform(
-      start_inv_mv.dimensions,
-      [](MachineViewDimension const &dim) { return dim.projection; });
+  return start_inv_mv.visit<std::vector<stride_t>>(overload {
+    [](MachineView1dProjection const &p) -> std::vector<stride_t> {
+      return p.strides;
+    },
+    [](MachineView2dProjection const &p) -> std::vector<stride_t> {
+      return transform(p.dimensions,
+                       [](MachineViewDimension const &dim) { return dim.stride; });
+    },
+  });
 }
 
 StartInvariantMachineView
     start_invariant_machine_view_from_strides_and_machine_spec_dimensions(
         std::vector<stride_t> const &strides,
-        std::vector<MachineSpecificationDimension> const &dims,
-        DeviceType device_type) {
+        std::vector<MachineSpecificationDimension> const &dims) {
   std::vector<MachineViewDimension> dimensions =
       transform(zip(strides, dims), [&](auto const &p) {
         return MachineViewDimension{p.first, p.second};
       });
-  return StartInvariantMachineView{dimensions, device_type};
+  return StartInvariantMachineView{
+    MachineView2dProjection{
+      dimensions
+    },
+  };
 }
 
 MachineSpaceOffset get_machine_space_offset(
-    OperatorTaskSpace const &task,
+    OperatorTaskSpace const &task_space,
     StartInvariantMachineView const &start_inv_machine_view,
     TaskSpaceCoordinate const &coord) {
 
-  MachineSpaceCoordinate dummy_start =
-      MachineSpaceCoordinate{0_n, 0_n, get_device_type(start_inv_machine_view)};
+  ASSERT(get_expected_task_space_num_dims(start_inv_machine_view) ==
+             op_task_space_num_dims(task_space),
+         "Dimension of StartInvariantMachineView must match dimension of OperatorTaskSpace",
+         start_inv_machine_view,
+         task_space);
+  ASSERT(op_task_space_num_dims(task_space) ==
+         task_space_coord_num_dims(coord));
+  ASSERT(operator_task_space_contains_coord(task_space, coord));
 
-  MachineView mv =
-      machine_view_from_start_invariant(start_inv_machine_view, dummy_start);
-
-  MachineSpaceCoordinate ms_coord =
-      get_machine_space_coordinate(task, mv, coord);
-
-  return get_machine_space_offset_from_coordinate(dummy_start, ms_coord);
+  return start_inv_machine_view.visit<MachineSpaceOffset>(overload {
+    [&](MachineView1dProjection const &p) -> MachineSpaceOffset {
+      return MachineSpaceOffset{
+        projection_1d_get_machine_space_offset(task_space, p, coord),
+      };
+    },
+    [&](MachineView2dProjection const &p) -> MachineSpaceOffset {
+      return MachineSpaceOffset{
+        projection_2d_get_machine_space_offset(task_space, p, coord),
+      };
+    },
+  });
 }
 
 std::unordered_set<MachineSpaceOffset> get_machine_space_offsets(
