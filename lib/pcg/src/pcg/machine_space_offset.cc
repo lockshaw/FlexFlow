@@ -1,52 +1,40 @@
 #include "pcg/machine_space_offset.h"
-#include "pcg/machine_space_1d_offset.h"
-#include "pcg/machine_space_2d_offset.h"
+#include "pcg/machine_space_offset.h"
 #include "utils/exception.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
 
 MachineSpaceOffset get_machine_space_offset_from_coordinate(
-    MachineSpaceCoordinate const &start, MachineSpaceCoordinate const &coord) {
+    MachineSpaceCoordinate const &start, MachineSpaceCoordinate const &coord)
+{
+  ASSERT(start.device_idx <= coord.device_idx,
+         "The start device_idx is greater than one of the coord device_idx."
+         "Are you sure you didn't swap them?");
 
-  ASSERT(start.is_1d() == coord.is_1d());
+  ASSERT(start.node_idx <= coord.device_idx,
+         "The start node_idx is greater than one of the coord node_idx."
+         "Are you sure you didn't swap them?");
 
-  return start.visit<MachineSpaceOffset>(overload {
-    [&](MachineSpace1dCoordinate const &start_1d) -> MachineSpaceOffset {
-      return MachineSpaceOffset{
-        get_machine_space_1d_offset_from_coordinate(
-          start_1d, coord.require_1d()),
-      };
-    },
-    [&](MachineSpace2dCoordinate const &start_2d) -> MachineSpaceOffset {
-      return MachineSpaceOffset{
-        get_machine_space_2d_offset_from_coordinate(
-          start_2d, coord.require_2d()),
-      };
-    },
-  });
+  return MachineSpaceOffset{
+      /*node_offset=*/coord.node_idx.unwrap_nonnegative() -
+          start.node_idx.unwrap_nonnegative(),
+      /*device_offset=*/coord.device_idx.unwrap_nonnegative() -
+          start.device_idx.unwrap_nonnegative(),
+  };
 }
 
 MachineSpaceCoordinate offset_machine_space_coordinate_by(
     MachineSpaceCoordinate const &start, MachineSpaceOffset const &offset)
 {
-  ASSERT(start.is_1d() == offset.is_1d());
-
-  return start.visit<MachineSpaceCoordinate>(overload {
-    [&](MachineSpace1dCoordinate const &start_1d) -> MachineSpaceCoordinate {
-      return MachineSpaceCoordinate{
-        offset_machine_space_1d_coordinate_by(
-          start_1d, offset.require_1d()),
-      };
+  return MachineSpaceCoordinate{
+    /*node_idx=*/nonnegative_int{
+      start.node_idx.unwrap_nonnegative() + offset.node_offset,
     },
-    [&](MachineSpace2dCoordinate const &start_2d) -> MachineSpaceCoordinate {
-      return MachineSpaceCoordinate{
-        offset_machine_space_2d_coordinate_by(
-          start_2d, offset.require_2d()),
-      };
+    /*device_idx=*/nonnegative_int{
+      start.node_idx.unwrap_nonnegative() + offset.device_offset,
     },
-  });
+  };
 }
-
 
 } // namespace FlexFlow

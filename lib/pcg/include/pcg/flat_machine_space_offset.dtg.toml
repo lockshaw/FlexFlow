@@ -1,5 +1,5 @@
 namespace = "FlexFlow"
-name = "MachineSpace2dOffset"
+name = "FlatMachineSpaceOffset"
 type = "struct"
 features = [
   "eq",
@@ -13,9 +13,5 @@ features = [
 includes = []
 
 [[fields]]
-name = "node_offset"
-type = "int"
-
-[[fields]]
-name = "device_offset"
+name = "offset"
 type = "int"

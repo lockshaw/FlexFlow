@@ -19,7 +19,7 @@ namespace FlexFlow {
 
 MachineView machine_view_from_start_invariant(
     StartInvariantMachineView const &start_inv_mv,
-    MachineSpace2dCoordinate const &start) {
+    MachineSpaceCoordinate const &start) {
   return MachineView{
     start,
     start_inv_mv,
@@ -74,6 +74,7 @@ StartInvariantMachineView
 MachineSpaceOffset get_machine_space_offset(
     OperatorTaskSpace const &task_space,
     StartInvariantMachineView const &start_inv_machine_view,
+    MachineComputeResourceSlice const &machine_space,
     TaskSpaceCoordinate const &coord) {
 
   ASSERT(get_expected_task_space_num_dims(start_inv_machine_view) ==
@@ -87,9 +88,8 @@ MachineSpaceOffset get_machine_space_offset(
 
   return start_inv_machine_view.visit<MachineSpaceOffset>(overload {
     [&](MachineView1dProjection const &p) -> MachineSpaceOffset {
-      return MachineSpaceOffset{
-        projection_1d_get_machine_space_offset(task_space, p, coord),
-      };
+      // TODO(@lockshaw)(#pr):
+      NOT_IMPLEMENTED();
     },
     [&](MachineView2dProjection const &p) -> MachineSpaceOffset {
       return MachineSpaceOffset{
@@ -101,10 +101,11 @@ MachineSpaceOffset get_machine_space_offset(
 
 std::unordered_set<MachineSpaceOffset> get_machine_space_offsets(
     OperatorTaskSpace const &task,
-    StartInvariantMachineView const &start_inv_machine_view) {
+    StartInvariantMachineView const &start_inv_machine_view,
+    MachineComputeResourceSlice const &machine_space) {
   return transform(
       get_task_space_coordinates(task), [&](TaskSpaceCoordinate const &coord) {
-        return get_machine_space_offset(task, start_inv_machine_view, coord);
+        return get_machine_space_offset(task, start_inv_machine_view, machine_space, coord);
       });
 }
 

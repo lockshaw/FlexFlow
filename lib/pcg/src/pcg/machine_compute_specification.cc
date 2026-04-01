@@ -50,18 +50,10 @@ device_id_t get_device_id(MachineComputeSpecification const &ms,
                           MachineSpaceCoordinate const &coord) {
   ASSERT(is_valid_machine_space_coordinate(ms, coord));
 
-  return coord.visit<device_id_t>(overload {
-    [](MachineSpace1dCoordinate const &c) -> device_id_t {
-      return device_id_from_index(c.idx, DeviceType::GPU);
-    },
-    [&](MachineSpace2dCoordinate const &c) -> device_id_t {
-      nonnegative_int raw_idx =
-          c.node_idx * ms.num_gpus_per_node +
-          c.device_idx;
-      return device_id_from_index(raw_idx, DeviceType::GPU);
-    },
-  });
-
+  nonnegative_int raw_idx =
+      coord.node_idx * ms.num_gpus_per_node +
+      coord.device_idx;
+  return device_id_from_index(raw_idx, DeviceType::GPU);
 }
 
 } // namespace FlexFlow

@@ -80,11 +80,11 @@ std::unordered_set<MachineResourceSplit>
   return result;
 }
 
-MachineSpace2dCoordinate
-    offset_machine_space_coordinate_by(MachineSpace2dCoordinate const &coord,
+MachineSpaceCoordinate
+    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &coord,
                                        MachineResourceSplit const &split) {
   if (split.dimension == MachineSpecificationDimension::INTER_NODE) {
-    return MachineSpace2dCoordinate{
+    return MachineSpaceCoordinate{
         /*node_idx=*/(coord.node_idx + split.offset)
             .nonnegative_int_from_positive_int(),
         /*device_idx=*/coord.device_idx,
@@ -92,7 +92,7 @@ MachineSpace2dCoordinate
   } else {
     ASSERT(split.dimension == MachineSpecificationDimension::INTRA_NODE);
 
-    return MachineSpace2dCoordinate{
+    return MachineSpaceCoordinate{
         /*node_idx=*/coord.node_idx,
         /*device_idx=*/
         (coord.device_idx + split.offset).nonnegative_int_from_positive_int(),

@@ -4,7 +4,7 @@
 #include "compiler/machine_mapping/machine_view_2d_projection.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
-#include "pcg/machine_space_2d_offset.dtg.h"
+#include "pcg/machine_space_offset.dtg.h"
 
 namespace FlexFlow {
 
@@ -13,7 +13,7 @@ std::vector<MachineSpecificationDimension>
 
 std::vector<stride_t> projection_2d_get_strides(MachineView2dProjection const &);
 
-MachineSpace2dOffset
+MachineSpaceOffset
     projection_2d_get_machine_space_offset(OperatorTaskSpace const &task_space,
                              MachineView2dProjection const &projection,
                              TaskSpaceCoordinate const &coord);

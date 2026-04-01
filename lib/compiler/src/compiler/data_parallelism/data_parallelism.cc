@@ -17,7 +17,7 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
   MachineMapping machine_mapping = MachineMapping{{}};
 
   MachineView data_parallel_mv = MachineView{
-    /*start=*/MachineSpace2dCoordinate{
+    /*start=*/MachineSpaceCoordinate{
       /*node_idx=*/0_n,
       /*device_idx=*/0_n,
     },

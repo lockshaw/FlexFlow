@@ -21,15 +21,8 @@ positive_int
 bool is_valid_machine_space_coordinate_in_slice(
     MachineComputeResourceSlice const &slice,
     MachineSpaceCoordinate const &coord) {
-  return coord.visit<bool>(overload {
-    [&](MachineSpace1dCoordinate const &c) -> bool {
-      return (c.idx < get_total_num_devices_in_slice(slice));
-    },
-    [&](MachineSpace2dCoordinate const &c) -> bool {
-      return (c.node_idx < slice.num_nodes) &&
-        (c.device_idx < slice.num_gpus_per_node);
-    }
-  });
+  return (coord.node_idx < slice.num_nodes) &&
+    (coord.device_idx < slice.num_gpus_per_node);
 }
 
 } // namespace FlexFlow

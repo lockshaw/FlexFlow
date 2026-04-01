@@ -1,6 +1,6 @@
 namespace = "FlexFlow"
 name = "MachineSpaceOffset"
-type = "variant"
+type = "struct"
 features = [
   "eq",
   "ord",
@@ -10,15 +10,12 @@ features = [
   "fmt",
 ]
 
-includes = [
-  "pcg/machine_space_1d_offset.dtg.h",
-  "pcg/machine_space_2d_offset.dtg.h",
-]
+includes = []
 
-[[values]]
-type = "::FlexFlow::MachineSpace1dOffset"
-key = "1d"
+[[fields]]
+name = "node_offset"
+type = "int"
 
-[[values]]
-type = "::FlexFlow::MachineSpace2dOffset"
-key = "2d"
+[[fields]]
+name = "device_offset"
+type = "int"
