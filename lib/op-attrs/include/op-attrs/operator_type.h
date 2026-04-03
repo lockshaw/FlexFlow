@@ -7,6 +7,7 @@ namespace FlexFlow {
 
 std::string get_operator_type_name(OperatorType);
 bool is_parallel_op(OperatorType);
+bool should_be_mapped(OperatorType);
 
 } // namespace FlexFlow
 

@@ -31,7 +31,7 @@ MachineSpaceCoordinate
       },
       /*device_idx=*/
       nonnegative_int{
-          start.node_idx.unwrap_nonnegative() + offset.device_offset,
+          start.device_idx.unwrap_nonnegative() + offset.device_offset,
       },
   };
 }

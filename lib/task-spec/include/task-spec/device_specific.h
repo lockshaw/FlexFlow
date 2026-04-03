@@ -3,6 +3,7 @@
 
 #include "task-spec/global_device_id_t.dtg.h"
 #include "utils/exception.h"
+#include "pcg/device_id_t.dtg.h"
 #include "utils/hash/tuple.h"
 #include <libassert/assert.hpp>
 #include <nlohmann/json.hpp>
