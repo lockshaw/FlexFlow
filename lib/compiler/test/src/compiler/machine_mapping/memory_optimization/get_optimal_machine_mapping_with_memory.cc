@@ -52,23 +52,28 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/{},
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{},
+          },
+        },
     };
 
     MachineView mv2 = MachineView{
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                /*stride=*/stride_t{1_p},
-                /*projection=*/MachineSpecificationDimension::INTER_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+              MachineViewDimension{
+                  /*stride=*/stride_t{1_p},
+                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
+              },
             },
+          },
         },
     };
 
@@ -76,14 +81,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                /*stride=*/stride_t{2_p},
-                /*projection=*/MachineSpecificationDimension::INTER_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+              MachineViewDimension{
+                  /*stride=*/stride_t{2_p},
+                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
+              },
             },
+          },
         },
     };
 
@@ -91,14 +98,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/1_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                /*stride=*/stride_t{1_p},
-                /*projection=*/MachineSpecificationDimension::INTER_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+              MachineViewDimension{
+                  /*stride=*/stride_t{1_p},
+                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
+              },
             },
+          },
         },
     };
 
@@ -447,11 +456,13 @@ TEST_SUITE(FF_TEST_SUITE) {
                                         MachineView const &dst_mv) {
         MachineSpaceStencil src_stencil = MachineSpaceStencil{
             /*operator_task_space=*/get_corresponding_task_space(src_mv),
+            /*machine_space=*/four_nodes_resources,
             /*machine_view=*/src_mv,
         };
 
         MachineSpaceStencil dst_stencil = MachineSpaceStencil{
             /*operator_task_space=*/get_corresponding_task_space(dst_mv),
+            /*machine_space=*/four_nodes_resources,
             /*machine_view=*/dst_mv,
         };
 
@@ -724,14 +735,16 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*start=*/MachineSpaceCoordinate{
               /*node_idx=*/2_n,
               /*device_idx=*/0_n,
-              /*device_type=*/DeviceType::GPU,
           },
-          /*dimensions=*/
-          {
-              MachineViewDimension{
-                  /*stride=*/stride_t{1_p},
-                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
+          StartInvariantMachineView{
+            MachineView2dProjection{
+              /*dimensions=*/{
+                  MachineViewDimension{
+                      /*stride=*/stride_t{1_p},
+                      /*projection=*/MachineSpecificationDimension::INTER_NODE,
+                  },
               },
+            },
           },
       };
 

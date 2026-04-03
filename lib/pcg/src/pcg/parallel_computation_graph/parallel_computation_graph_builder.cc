@@ -648,7 +648,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::add_weight(
       TensorSlotName::OUTPUT);
 
   for (ParallelOpAttrs const &parallel_op_attr :
-       generate_weight_transform(unpar_weight_shape, par_weight_shape)) {
+       generate_weight_transform(get_parallel_degrees(par_weight_shape))) {
 
     ParallelLayerAttrs layer_attrs = ParallelLayerAttrs{
         pcg_op_attrs_from_parallel_op_attrs(parallel_op_attr),

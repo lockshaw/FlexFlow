@@ -7,6 +7,7 @@
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "pcg/device_id_t.dtg.h"
+#include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
 #include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
@@ -27,6 +28,7 @@ MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
     std::vector<stride_t> const &strides,
     std::vector<MachineSpecificationDimension> const &dims);
 
+// TODO(@lockshaw)(#pr): Update docs for new design
 /**
  * \brief Compute the device (i.e., \ref MachineSpaceCoordinate) where the given
  * subtask (represented by \ref TaskSpaceCoordinate) should be mapped according
@@ -63,19 +65,23 @@ MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
 MachineSpaceCoordinate get_machine_space_coordinate(
     OperatorTaskSpace const &operator_task_space,
     MachineView const &machine_view,
+    MachineComputeResourceSlice const &machine_space,
     TaskSpaceCoordinate const &task_space_coordinate);
 
 TaskSpaceCoordinate
-    mv_task_space_coord_for_machine_space_coord(MachineView const &,
+    mv_task_space_coord_for_machine_space_coord(MachineComputeResourceSlice const &machine_space,
+                                                MachineView const &,
                                                 OperatorTaskSpace const &,
                                                 MachineSpaceCoordinate const &);
 
 OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
     OperatorTaskSpace const &operator_task_space,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view);
 
 std::unordered_set<MachineSpaceCoordinate>
     get_machine_space_coordinates(OperatorTaskSpace const &task,
+                                  MachineComputeResourceSlice const &machine_space,
                                   MachineView const &mv);
 
 std::unordered_set<device_id_t>
@@ -99,6 +105,7 @@ OperatorAtomicTaskShardBinding
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
     ComputationGraphOpAttrs const &,
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const &,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &);
 
 bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>

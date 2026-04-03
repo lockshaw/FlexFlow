@@ -1,6 +1,7 @@
 #include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/machine_view.h"
 #include "op-attrs/operator_task_space.h"
+#include "pcg/flat_machine_space_offset.h"
 #include "pcg/machine_space_offset.h"
 #include "utils/containers/count.h"
 #include "utils/containers/filter.h"
@@ -43,7 +44,7 @@ nonnegative_int get_expected_task_space_num_dims(StartInvariantMachineView const
 }
 
 std::vector<stride_t>
-    start_invariant_get_strides(StartInvariantMachineView const &start_inv_mv) {
+    start_invariant_mv_get_strides(StartInvariantMachineView const &start_inv_mv) {
 
   return start_inv_mv.visit<std::vector<stride_t>>(overload {
     [](MachineView1dProjection const &p) -> std::vector<stride_t> {
@@ -71,10 +72,9 @@ StartInvariantMachineView
   };
 }
 
-MachineSpaceOffset get_machine_space_offset(
+UnresolvedMachineSpaceOffset get_machine_space_offset(
     OperatorTaskSpace const &task_space,
     StartInvariantMachineView const &start_inv_machine_view,
-    MachineComputeResourceSlice const &machine_space,
     TaskSpaceCoordinate const &coord) {
 
   ASSERT(get_expected_task_space_num_dims(start_inv_machine_view) ==
@@ -86,26 +86,27 @@ MachineSpaceOffset get_machine_space_offset(
          task_space_coord_num_dims(coord));
   ASSERT(operator_task_space_contains_coord(task_space, coord));
 
-  return start_inv_machine_view.visit<MachineSpaceOffset>(overload {
-    [&](MachineView1dProjection const &p) -> MachineSpaceOffset {
-      // TODO(@lockshaw)(#pr):
-      NOT_IMPLEMENTED();
+  return start_inv_machine_view.visit<UnresolvedMachineSpaceOffset>(overload {
+    [&](MachineView1dProjection const &p) -> UnresolvedMachineSpaceOffset {
+      FlatMachineSpaceOffset flat_offset =
+        projection_1d_get_flat_machine_space_offset(task_space, p, coord);
+
+      return UnresolvedMachineSpaceOffset{flat_offset};
     },
-    [&](MachineView2dProjection const &p) -> MachineSpaceOffset {
-      return MachineSpaceOffset{
+    [&](MachineView2dProjection const &p) -> UnresolvedMachineSpaceOffset {
+      return UnresolvedMachineSpaceOffset{
         projection_2d_get_machine_space_offset(task_space, p, coord),
       };
     },
   });
 }
 
-std::unordered_set<MachineSpaceOffset> get_machine_space_offsets(
+std::unordered_set<UnresolvedMachineSpaceOffset> get_machine_space_offsets(
     OperatorTaskSpace const &task,
-    StartInvariantMachineView const &start_inv_machine_view,
-    MachineComputeResourceSlice const &machine_space) {
+    StartInvariantMachineView const &start_inv_machine_view) {
   return transform(
       get_task_space_coordinates(task), [&](TaskSpaceCoordinate const &coord) {
-        return get_machine_space_offset(task, start_inv_machine_view, machine_space, coord);
+        return get_machine_space_offset(task, start_inv_machine_view, coord);
       });
 }
 

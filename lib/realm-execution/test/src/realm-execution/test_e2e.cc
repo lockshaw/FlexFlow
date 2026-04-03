@@ -147,8 +147,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       parallel_tensor_guid_t t_linear_2 =
           require_only_key(linear_operator_2.outputs, TensorSlotName::OUTPUT);
 
-      MachineSpaceCoordinate cpu0{0_n, 0_n, DeviceType::CPU};
-      MachineSpaceCoordinate cpu1{0_n, 1_n, DeviceType::CPU};
+      MachineSpaceCoordinate cpu0{0_n, 0_n};
+      MachineSpaceCoordinate cpu1{0_n, 1_n};
       ParallelTensorSpaceCoordinate tensor_coord0{0_n, 0_n, FFOrdered{0_n}};
       MappedParallelComputationGraph mpcg{
           pcg,
@@ -360,7 +360,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
     parallel_tensor_guid_t t_linear_2 =
         require_only_key(linear_operator_2.outputs, TensorSlotName::OUTPUT);
 
-    MachineSpaceCoordinate gpu0{0_n, 0_n, DeviceType::GPU};
+    MachineSpaceCoordinate gpu0{0_n, 0_n};
     ParallelTensorSpaceCoordinate tensor_coord0{0_n, 0_n, FFOrdered{0_n}};
     MappedParallelComputationGraph mpcg{
         pcg,

@@ -40,9 +40,12 @@ TEST_SUITE(FF_TEST_SUITE) {
               MachineSpaceCoordinate{
                   start_node_idx,
                   start_device_idx,
-                  DeviceType::GPU,
               },
-              strides,
+              StartInvariantMachineView{
+                MachineView2dProjection{
+                  strides,
+                },
+              },
           };
         };
 
@@ -65,7 +68,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       std::unordered_set<MachineView> result =
-          get_allowed_machine_views(ms, task, DeviceType::GPU);
+          get_allowed_machine_views(ms, task);
 
       CHECK(correct == result);
     }
@@ -96,7 +99,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       std::unordered_set<MachineView> result =
-          get_allowed_machine_views(ms, task, DeviceType::GPU);
+          get_allowed_machine_views(ms, task);
 
       CHECK(correct == result);
     }
@@ -110,7 +113,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       OperatorTaskSpace task = OperatorTaskSpace{MinimalOrthotope{{}}};
 
       std::unordered_set<MachineView> result =
-          get_allowed_machine_views(full_machine_spec, task, DeviceType::GPU);
+          get_allowed_machine_views(full_machine_spec, task);
 
       std::unordered_set<MachineView> correct = {
           make_machine_view(0_n, 0_n),
@@ -129,7 +132,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       OperatorTaskSpace task = OperatorTaskSpace{MinimalOrthotope{{2_ge2}}};
 
       std::unordered_set<MachineView> result =
-          get_allowed_machine_views(full_machine_spec, task, DeviceType::GPU);
+          get_allowed_machine_views(full_machine_spec, task);
 
       std::unordered_set<MachineView> correct = {
           make_machine_view(0_n, 0_n, /*stride_1=*/1_p, intra),

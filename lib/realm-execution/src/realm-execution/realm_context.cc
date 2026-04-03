@@ -5,7 +5,6 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.dtg.h"
 #include "pcg/device_id_t.h"
-#include "pcg/device_type.dtg.h"
 #include "realm-execution/realm_allocator.h"
 #include "realm-execution/tasks/task_id_t.dtg.h"
 #include "realm-execution/tasks/task_id_t.h"
@@ -34,18 +33,7 @@ static std::tuple<Realm::AddressSpace, Realm::Processor::Kind, nonnegative_int>
     convert_machine_space_coordinate(
         MachineSpaceCoordinate const &device_coord) {
   Realm::AddressSpace as = int{device_coord.node_idx};
-  Realm::Processor::Kind kind;
-  switch (device_coord.device_type) {
-    case DeviceType::CPU:
-      kind = Realm::Processor::Kind::LOC_PROC;
-      break;
-    case DeviceType::GPU:
-      kind = Realm::Processor::Kind::TOC_PROC;
-      break;
-    default:
-      PANIC("Unhandled DeviceType", fmt::to_string(device_coord.device_type));
-      break;
-  }
+  Realm::Processor::Kind kind = Realm::Processor::Kind::TOC_PROC;
   nonnegative_int proc_in_node = device_coord.device_idx;
   return std::tuple{as, kind, proc_in_node};
 }

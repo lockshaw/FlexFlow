@@ -109,6 +109,26 @@ tl::expected<std::unordered_map<TensorSlotName, TensorShape>, std::string>
   return weight_shapes;
 }
 
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
+    get_weight_parallel_dim_degrees(LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
+      {
+          TensorSlotName::WEIGHT,
+          get_projection_parallel_dim_degrees(attrs, input_degrees),
+      },
+  };
+
+  if (attrs.use_bias) {
+    weight_degrees.insert({
+        TensorSlotName::BIAS,
+        get_bias_parallel_dim_degrees(attrs, input_degrees),
+    });
+  }
+
+  return weight_degrees;
+}
+
 //! [parallel shape inference composition example]
 tl::expected<ParallelTensorShape, std::string>
     get_projection_shape(LinearAttrs const &attrs,

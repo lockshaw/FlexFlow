@@ -245,7 +245,7 @@ public:
       std::optional<std::string> const &maybe_name = std::nullopt);
   tensor_guid_t
       create_input(TensorShape const &,
-                   CreateGrad,
+                   CreateGrad create_grad = CreateGrad::NO,
                    std::optional<std::string> const &name = std::nullopt);
 
   tensor_guid_t

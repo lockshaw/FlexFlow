@@ -14,7 +14,6 @@ static MachineSpaceCoordinate mk_machine_coord(nonnegative_int node_idx,
   return MachineSpaceCoordinate{
       /*node_idx=*/node_idx,
       /*device_idx=*/device_idx,
-      /*device_type=*/DeviceType::GPU,
   };
 };
 

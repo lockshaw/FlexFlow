@@ -4,6 +4,7 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_task_space_to_operator_task_space_mapping.dtg.h"
+#include "op-attrs/parallel_op_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_edge.dtg.h"
@@ -30,9 +31,19 @@ ParallelLayerAddedResult add_parallel_layer(
         &outputs = std::nullopt);
 
 ParallelLayerAddedResult
+    pcg_add_parallel_op_layer(ParallelComputationGraph &pcg,
+                              ParallelOpAttrs const &op_attrs,
+                              parallel_tensor_guid_t input);
+
+ParallelLayerAddedResult
     pcg_add_input_layer(ParallelComputationGraph &pcg,
                         TensorShape const &tensor_shape,
                         CreateGrad create_grad = CreateGrad::NO);
+
+ParallelLayerAddedResult
+    pcg_add_weight_layer(ParallelComputationGraph &pcg,
+                         TensorShape const &tensor_shape,
+                         InitializerAttrs const &initializer_attrs);
 
 OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &layer);

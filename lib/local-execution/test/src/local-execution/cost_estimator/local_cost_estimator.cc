@@ -66,8 +66,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(
-              MachineSpaceCoordinate{0_n, 0_n, DeviceType::CPU},
+          make_1d_to_2d_machine_view(
+              MachineSpaceCoordinate{0_n, 0_n},
               MachineSpecificationDimension::INTRA_NODE,
               stride_t{1_p}),
       };
@@ -160,8 +160,8 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(
-              MachineSpaceCoordinate{0_n, 0_n, DeviceType::GPU},
+          make_1d_to_2d_machine_view(
+              MachineSpaceCoordinate{0_n, 0_n},
               MachineSpecificationDimension::INTRA_NODE,
               stride_t{1_p}),
       };

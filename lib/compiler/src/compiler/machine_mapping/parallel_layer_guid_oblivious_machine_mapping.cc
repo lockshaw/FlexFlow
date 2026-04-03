@@ -43,6 +43,7 @@ std::unordered_map<BinaryTreePath, MachineSpaceStencil>
     get_machine_stencils_for_decomposition(
         ParallelComputationGraph const &pcg,
         PCGBinarySPDecomposition const &decomposition,
+        MachineComputeResourceSlice const &machine_space,
         ParallelLayerGuidObliviousMachineMapping const &mapping) {
   std::unordered_set<BinaryTreePath> leaf_paths = require_same(
       pcg_sp_tree_get_all_leaf_paths(decomposition), keys(mapping.raw_mapping));
@@ -58,6 +59,7 @@ std::unordered_map<BinaryTreePath, MachineSpaceStencil>
       leaf_paths, [&](BinaryTreePath const &p) -> MachineSpaceStencil {
         return MachineSpaceStencil{
             /*operator_task_space=*/path_to_op_task_space_map.at(p),
+            /*machine_space=*/machine_space,
             /*machine_view=*/mapping.raw_mapping.at(p),
         };
       });
@@ -66,6 +68,7 @@ std::unordered_map<BinaryTreePath, MachineSpaceStencil>
 std::unordered_map<BinaryTreePath, std::optional<MachineSpaceStencil>>
     get_machine_stencils_for_mm_problem_tree(
         MachineMappingProblemTree const &tree,
+        MachineComputeResourceSlice const &machine_space,
         ParallelLayerGuidObliviousMachineMapping const &mapping) {
 
   std::unordered_map<BinaryTreePath, UnmappedRuntimeOnlyOpCostEstimateKey>
@@ -97,6 +100,7 @@ std::unordered_map<BinaryTreePath, std::optional<MachineSpaceStencil>>
         return MachineSpaceStencil{
             /*operator_task_space=*/get_operator_task_space(leaf_op_attrs,
                                                             leaf_input_degrees),
+            /*machine_space=*/machine_space,
             /*machine_view=*/mapping.raw_mapping.at(p),
         };
       });
@@ -105,10 +109,11 @@ std::unordered_map<BinaryTreePath, std::optional<MachineSpaceStencil>>
 std::unordered_map<BinaryTreePath, MachineSpaceStencil>
     get_machine_stencils_for_partially_mapped_mm_problem_tree(
         MachineMappingProblemTree const &tree,
+        MachineComputeResourceSlice const &machine_space,
         ParallelLayerGuidObliviousMachineMapping const &mappings) {
 
   return filtermap_values(
-      get_machine_stencils_for_mm_problem_tree(tree, mappings),
+      get_machine_stencils_for_mm_problem_tree(tree, machine_space, mappings),
       [](std::optional<MachineSpaceStencil> const &s) { return s; });
 }
 

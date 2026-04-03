@@ -192,10 +192,12 @@ MachineMappingResult
               /*pre_machine_stencils=*/
               get_machine_stencils_for_partially_mapped_mm_problem_tree(
                   series_split.get_left_child(),
+                  resources,
                   require_feasible(pre_result).machine_mapping),
               /*post_machine_stencils=*/
               get_machine_stencils_for_partially_mapped_mm_problem_tree(
                   series_split.get_right_child(),
+                  resources,
                   require_feasible(post_result).machine_mapping));
 
       milliseconds_t cost_across_split =

@@ -11,14 +11,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+                MachineViewDimension{
+                    stride_t{1_p},
+                    MachineSpecificationDimension::INTRA_NODE,
+                },
             },
+          },
         },
     };
 
@@ -26,15 +28,17 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
-            },
+        StartInvariantMachineView{
+          MachineView2dProjection{
+          /*dimensions=*/{
+              MachineViewDimension{
+                  stride_t{2_p},
+                  MachineSpecificationDimension::INTRA_NODE,
+              },
+          },
         },
+      },
     };
 
     MachineMapping machine_mapping_0 = MachineMapping({
@@ -57,29 +61,33 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
             MachineViewDimension{
                 stride_t{1_p},
                 MachineSpecificationDimension::INTRA_NODE,
             },
+          },
         },
+      },
     };
 
     MachineView machine_view_1 = MachineView{
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+                MachineViewDimension{
+                    stride_t{2_p},
+                    MachineSpecificationDimension::INTRA_NODE,
+                },
             },
+          },
         },
     };
 
@@ -92,8 +100,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
       });
 
-      bool correct = true;
       bool result = nodes_are_disjoint(machine_mapping_0, machine_mapping_1);
+
+      bool correct = true;
+
       CHECK(result == correct);
     }
 
@@ -102,8 +112,11 @@ TEST_SUITE(FF_TEST_SUITE) {
           {parallel_layer_guid_t{Node{0}}, machine_view_0},
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
       });
-      bool correct = false;
+
       bool result = nodes_are_disjoint(machine_mapping_0, machine_mapping_1);
+
+      bool correct = false;
+
       CHECK(result == correct);
     }
   }

@@ -2,28 +2,36 @@
 #include "compiler/machine_mapping/machine_view.h"
 #include "compiler/series_parallel/pcg/pcg_binary_sp_decomposition.h"
 #include "op-attrs/computation_graph_op_attrs.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "utils/bidict/algorithms/bidict_from_map.h"
 #include "utils/containers/are_disjoint.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/keys.h"
+#include "op-attrs/pcg_operator_attrs.h"
 
 namespace FlexFlow {
 
 MappedParallelComputationGraph
     mapped_pcg_from_pcg_and_mapping(ParallelComputationGraph const &pcg,
+                                    MachineComputeSpecification const &machine_compute_spec,
                                     MachineMapping const &mapping) {
 
   std::unordered_set<parallel_layer_guid_t> pcg_layers =
       get_parallel_layers(pcg);
+  std::unordered_set<parallel_layer_guid_t> expected_mapped_layers =
+    filter(pcg_layers,
+           [&](parallel_layer_guid_t l) -> bool {
+             return should_be_mapped(get_op_type(pcg_get_op_attrs(pcg, l)));
+           });
   std::unordered_set<parallel_layer_guid_t> mapped_layers =
       keys(mapping.machine_views);
-  ASSERT(pcg_layers == mapped_layers);
+  ASSERT(mapped_layers == expected_mapped_layers);
 
   return MappedParallelComputationGraph{
       /*pcg=*/pcg,
       /*mapped_tasks=*/
       generate_map(
-          get_parallel_layers(pcg),
+          expected_mapped_layers,
           [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
             ComputationGraphOpAttrs op_attrs =
                 compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l))
@@ -36,7 +44,7 @@ MappedParallelComputationGraph
             MachineView machine_view = mapping.machine_views.at(l);
 
             return mapped_operator_task_group_from_machine_view(
-                op_attrs, inputs_dim_degrees, machine_view);
+                op_attrs, inputs_dim_degrees, compute_slice_from_specification(machine_compute_spec), machine_view);
           }),
   };
 }

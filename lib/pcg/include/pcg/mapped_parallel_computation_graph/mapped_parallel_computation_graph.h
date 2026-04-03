@@ -9,6 +9,9 @@ std::string format_as(MappedParallelComputationGraph const &);
 std::ostream &operator<<(std::ostream &,
                          MappedParallelComputationGraph const &);
 
+bool mapped_pcgs_are_isomorphic(MappedParallelComputationGraph const &,
+                                MappedParallelComputationGraph const &);
+
 } // namespace FlexFlow
 
 #endif

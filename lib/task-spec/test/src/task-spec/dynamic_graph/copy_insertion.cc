@@ -17,7 +17,6 @@ TEST_SUITE(FF_TEST_SUITE) {
       return MachineSpaceCoordinate{
           /*node_idx=*/node_idx,
           /*device_idx=*/device_idx,
-          /*device_type=*/DeviceType::GPU,
       };
     };
 

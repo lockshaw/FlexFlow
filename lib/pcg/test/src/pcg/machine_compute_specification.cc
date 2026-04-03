@@ -30,20 +30,23 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("valid MachineSpaceCoordinate") {
         MachineSpaceCoordinate coord = MachineSpaceCoordinate{
             /*node_idx=*/2_n,
-            /*device_idx=*/12_n,
-            DeviceType::CPU,
+            /*device_idx=*/3_n,
         };
+
         device_id_t correct =
-            device_id_from_index(nonnegative_int{2 * 16 + 12}, DeviceType::CPU);
+            device_id_from_index(nonnegative_int{2 * 8 + 3}, DeviceType::GPU);
+
         device_id_t result = get_device_id(ms, coord);
+
         CHECK(correct == result);
       }
+
       SUBCASE("MachineSpaceCoordinate out of bounds for given machine spec") {
         MachineSpaceCoordinate coord = MachineSpaceCoordinate{
             /*node_idx=*/2_n,
             /*device_idx=*/18_n,
-            DeviceType::CPU,
         };
+
         CHECK_THROWS(get_device_id(ms, coord));
       }
     }

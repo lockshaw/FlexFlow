@@ -3,6 +3,7 @@
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_task_space_to_operator_task_space_mapping.h"
+#include "op-attrs/parallel_op_attrs.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "op-attrs/shape_inference.h"
@@ -121,6 +122,29 @@ ParallelLayerAddedResult add_parallel_layer(
                  }),
   };
 }
+
+ParallelLayerAddedResult
+    pcg_add_parallel_op_layer(ParallelComputationGraph &pcg,
+                              ParallelOpAttrs const &op_attrs,
+                              parallel_tensor_guid_t input)
+{
+  CreateGrad create_grad = get_parallel_tensor_attrs(pcg, input).create_grad;
+
+  return add_parallel_layer(
+    /*pcg=*/pcg,
+    /*layer_attrs=*/ParallelLayerAttrs{
+      /*op_attrs=*/pcg_op_attrs_from_parallel_op_attrs(op_attrs),
+      /*name=*/std::nullopt,
+    },
+    /*inputs=*/{
+      {TensorSlotName::INPUT, input},
+    },
+    /*weights=*/{},
+    /*outputs=*/std::unordered_map<TensorSlotName, CreateGrad>{
+      {TensorSlotName::OUTPUT, create_grad},
+    });
+}
+
 
 ParallelLayerAddedResult pcg_add_input_layer(ParallelComputationGraph &pcg,
                                              TensorShape const &tensor_shape,

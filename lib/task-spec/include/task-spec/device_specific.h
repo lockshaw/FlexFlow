@@ -2,7 +2,6 @@
 #define _FLEXFLOW_LOCAL_EXECUTION_DEVICE_SPECIFIC_H
 
 #include "pcg/device_id_t.dtg.h"
-#include "task-spec/serialization.h"
 #include "utils/hash/tuple.h"
 
 namespace FlexFlow {

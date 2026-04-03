@@ -38,6 +38,11 @@ ParallelTensorDimDegrees
 ParallelTensorDimDegrees
     get_bias_parallel_dim_degrees(LinearAttrs const &attrs,
                                   ParallelTensorDimDegrees const &input);
+
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
+    get_weight_parallel_dim_degrees(LinearAttrs const &attrs, ParallelTensorDimDegrees const &input);
+
+
 ParallelTensorDimDegrees
     get_output_parallel_dim_degrees(LinearAttrs const &attrs,
                                     ParallelTensorDimDegrees const &input);

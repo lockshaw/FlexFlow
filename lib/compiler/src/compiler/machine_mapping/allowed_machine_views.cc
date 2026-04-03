@@ -34,7 +34,7 @@ bool is_valid_machine_view(MachineView const &mv,
   }
 
   MachineSpaceCoordinate maximum_device_coord = get_machine_space_coordinate(
-      task_space, mv, get_task_space_maximum_coordinate(task_space));
+      task_space, mv, ms, get_task_space_maximum_coordinate(task_space));
 
   return is_valid_machine_space_coordinate_in_slice(ms, maximum_device_coord);
 }
@@ -49,8 +49,7 @@ bool is_valid_machine_view(MachineView const &mv,
  */
 static std::unordered_set<MachineView>
     get_candidate_machine_views(MachineComputeResourceSlice const &machine_spec,
-                                OperatorTaskSpace const &task_space,
-                                DeviceType const &device_type) {
+                                OperatorTaskSpace const &task_space) {
 
   auto get_max_stride_upper_bound =
       [](std::vector<positive_int> const &tensor_dims,
@@ -90,11 +89,8 @@ static std::unordered_set<MachineView>
     return strides;
   };
 
-  auto get_candidate_starts = [](MachineComputeResourceSlice const &slice,
-                                 DeviceType const &device_type)
+  auto get_candidate_starts = [](MachineComputeResourceSlice const &slice)
       -> std::unordered_set<MachineSpaceCoordinate> {
-    ASSERT(device_type == DeviceType::GPU);
-
     std::unordered_set<MachineSpaceCoordinate> result;
     for (nonnegative_int node_idx : nonnegative_range(slice.num_nodes)) {
       for (nonnegative_int device_idx :
@@ -127,7 +123,7 @@ static std::unordered_set<MachineView>
   ASSERT(candidate_strides.size() > 0);
 
   std::unordered_set<MachineSpaceCoordinate> candidate_starts =
-      get_candidate_starts(machine_spec, device_type);
+      get_candidate_starts(machine_spec);
   ASSERT(candidate_starts.size() > 0);
 
   std::unordered_multiset<std::vector<MachineSpecificationDimension>>
@@ -151,11 +147,10 @@ static std::unordered_set<MachineView>
 
 std::unordered_set<MachineView>
     get_allowed_machine_views(MachineComputeResourceSlice const &machine_spec,
-                              OperatorTaskSpace const &task_space,
-                              DeviceType device_type) {
+                              OperatorTaskSpace const &task_space) {
 
   std::unordered_set<MachineView> views =
-      get_candidate_machine_views(machine_spec, task_space, device_type);
+      get_candidate_machine_views(machine_spec, task_space);
   return filter(views, [&](MachineView const &mv) {
     return is_valid_machine_view(mv, task_space, machine_spec);
   });

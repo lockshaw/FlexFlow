@@ -879,4 +879,76 @@ std::unordered_map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
           }});
 }
 
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
+    PCGOperatorAttrs const &pcg_op_attrs,
+    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+        &input_degrees)
+{
+  return pcg_op_attrs
+      .visit<std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>>(overload{
+          [&](LinearAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            ParallelTensorDimDegrees input =
+                require_only_key(input_degrees, TensorSlotName::INPUT);
+
+            return {
+              {
+                TensorSlotName::OUTPUT,
+                get_output_parallel_dim_degrees(attrs, input),
+              }
+            };
+          },
+          [&](auto const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            NOT_IMPLEMENTED();
+          }});
+}
+
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
+    PCGOperatorAttrs const &pcg_op_attrs,
+    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+        &input_degrees)
+{
+  return pcg_op_attrs
+      .visit<std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>>(overload{
+          [&](ElementBinaryAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            require_two_keys(input_degrees,
+                             TensorSlotName::LHS_INPUT,
+                             TensorSlotName::RHS_INPUT);
+
+            return {};
+          },
+          [&](ElementUnaryAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            require_only_key(input_degrees, TensorSlotName::INPUT);
+
+            return {};
+          },
+          [&](InputAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            ASSERT(input_degrees.size() == 0);
+
+            return {};
+          },
+          [&](LinearAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            ParallelTensorDimDegrees input =
+                require_only_key(input_degrees, TensorSlotName::INPUT);
+
+            return get_weight_parallel_dim_degrees(attrs, input);
+          },
+          [&](WeightAttrs const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            ASSERT(input_degrees.size() == 0);
+
+            return {};
+          },
+          [&](auto const &attrs)
+              -> std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> {
+            NOT_IMPLEMENTED();
+          }});
+}
+
+
 } // namespace FlexFlow

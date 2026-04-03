@@ -32,7 +32,7 @@ MachineSpaceCoordinate offset_machine_space_coordinate_by(
       start.node_idx.unwrap_nonnegative() + offset.node_offset,
     },
     /*device_idx=*/nonnegative_int{
-      start.node_idx.unwrap_nonnegative() + offset.device_offset,
+      start.device_idx.unwrap_nonnegative() + offset.device_offset,
     },
   };
 }

@@ -89,33 +89,43 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelLayerAddedResult relu_2 = add_parallel_layer(
         pcg, relu_attrs, {{TensorSlotName::INPUT, t_relu_1}}, {});
 
+    MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
+      /*num_nodes=*/4_p,
+      /*num_devices=*/2_p,
+    };
+
     MachineView pre_mv1 = MachineView{
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+                MachineViewDimension{
+                    stride_t{1_p},
+                    MachineSpecificationDimension::INTRA_NODE,
+                },
             },
-        },
+          },
+        }
     };
 
     MachineView pre_mv2 = MachineView{
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/1_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/
+            {
+                MachineViewDimension{
+                    stride_t{1_p},
+                    MachineSpecificationDimension::INTRA_NODE,
+                },
             },
+          },
         },
     };
 
@@ -123,14 +133,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/2_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+                MachineViewDimension{
+                    stride_t{1_p},
+                    MachineSpecificationDimension::INTRA_NODE,
+                },
             },
+          },
         },
     };
 
@@ -138,14 +150,16 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*start=*/MachineSpaceCoordinate{
             /*node_idx=*/3_n,
             /*device_idx=*/0_n,
-            /*device_type=*/DeviceType::GPU,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+          MachineView2dProjection{
+            /*dimensions=*/{
+              MachineViewDimension{
+                  stride_t{1_p},
+                  MachineSpecificationDimension::INTRA_NODE,
+              },
             },
+          },
         },
     };
 
@@ -160,13 +174,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*src=*/MachineSpaceCoordinate{
               /*node_idx=*/src_mv.start.node_idx,
               /*device_idx=*/src_task_idx,
-              /*device_type=*/DeviceType::GPU,
           },
-          /*dst=*/
-          MachineSpaceCoordinate{
+          /*dst=*/MachineSpaceCoordinate{
               /*node_idx=*/dst_mv.start.node_idx,
               /*device_idx=*/dst_task_idx,
-              /*device_type=*/DeviceType::GPU,
           },
       };
     };
@@ -194,7 +205,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }};
 
       TensorSetMovement result = get_tensor_set_movement_across_split(
-          pcg_get_transitive_reduction(pcg), split, pre_mapping, post_mapping);
+          pcg_get_transitive_reduction(pcg), machine_space, split, pre_mapping, post_mapping);
 
       TensorSetMovement correct = TensorSetMovement{
           /*edge_to_size=*/{
@@ -254,7 +265,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }};
 
       TensorSetMovement result = get_tensor_set_movement_across_split(
-          pcg_get_transitive_reduction(pcg), split, pre_mapping, post_mapping);
+          pcg_get_transitive_reduction(pcg), machine_space, split, pre_mapping, post_mapping);
 
       TensorSetMovement correct = TensorSetMovement{
           /*edge_to_size=*/{
@@ -316,6 +327,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -361,6 +373,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -470,6 +483,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -515,6 +529,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -552,6 +567,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -588,6 +604,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -616,6 +633,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);
@@ -635,6 +653,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         TensorSetMovement result = get_tensor_set_movement_across_split(
             pcg_get_transitive_reduction(pcg),
+            machine_space,
             split,
             pre_mapping,
             post_mapping);

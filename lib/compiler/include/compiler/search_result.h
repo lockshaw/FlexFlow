@@ -6,7 +6,8 @@
 namespace FlexFlow {
 
 MappedParallelComputationGraph
-    get_mapped_pcg_from_search_result(SearchResult const &);
+    get_mapped_pcg_from_search_result(SearchResult const &,
+                                     MachineComputeSpecification const &machine_compute_specification);
 
 std::string format_as(SearchResult const &);
 std::ostream &operator<<(std::ostream &, SearchResult const &);
