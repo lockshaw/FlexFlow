@@ -16,6 +16,7 @@ namespace FlexFlow {
 
 TensorSetMovement get_tensor_set_movement_across_split(
     TransitiveReducedPCG const &tr_pcg,
+    MachineComputeResourceSlice const &machine_space,
     PCGBinarySeriesSplit const &split,
     ParallelLayerGuidObliviousMachineMapping const &pre_mapping,
     ParallelLayerGuidObliviousMachineMapping const &post_mapping) {
@@ -34,7 +35,7 @@ TensorSetMovement get_tensor_set_movement_across_split(
 
   std::map<BinaryTreePath, MachineSpaceStencil> pre_stencils =
       get_machine_stencils_for_decomposition(
-          tr_pcg.full_pcg, split.get_left_child(), pre_mapping);
+          tr_pcg.full_pcg, split.get_left_child(), machine_space, pre_mapping);
 
   std::map<BinaryTreePath, MachineSpaceStencil> post_stencils =
       get_machine_stencils_for_decomposition(

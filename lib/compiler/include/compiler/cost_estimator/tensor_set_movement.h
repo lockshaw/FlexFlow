@@ -3,6 +3,7 @@
 
 #include "compiler/cost_estimator/tensor_set_movement.dtg.h"
 #include "compiler/machine_mapping/machine_view.dtg.h"
+#include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_edge.dtg.h"
 
@@ -13,6 +14,7 @@ TensorSetMovement empty_tensor_set_movement();
 TensorSetMovement get_tensor_set_movement_from_pcg_edge(
     ParallelComputationGraphEdge const &edge,
     ParallelComputationGraph const &pcg,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &src_mv,
     MachineView const &dst_mv);
 

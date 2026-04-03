@@ -204,12 +204,32 @@ std::ostream &operator<<(std::ostream &s,
 
 bool mapped_pcgs_are_isomorphic(MappedParallelComputationGraph const &src,
                                 MappedParallelComputationGraph const &dst) {
-  std::optional<bidict<Node, Node>> maybe_isomorphism =
-      find_isomorphism_between_kwarg_dataflow_graphs(
-          mapped_pcg_without_layer_names(src).raw_graph,
-          mapped_pcg_without_layer_names(dst).raw_graph);
 
-  return maybe_isomorphism.has_value();
+  bidict<Node, Node> raw_isomorphism = ({
+    std::optional<bidict<Node, Node>> maybe_isomorphism =
+        find_isomorphism_between_kwarg_dataflow_graphs(
+            without_layer_names(src.pcg).raw_graph,
+            without_layer_names(dst.pcg).raw_graph);
+    if (!maybe_isomorphism.has_value()) {
+      return false;
+    }
+
+    maybe_isomorphism.value();
+  });
+
+  auto type_node = [](Node const &n) -> parallel_layer_guid_t {
+    return parallel_layer_guid_t{n};
+  };
+
+  bidict<parallel_layer_guid_t, parallel_layer_guid_t> typed_isomorphism =
+      transform_keys(transform_values(raw_isomorphism, type_node), type_node);
+
+  auto src_to_dst_layer =
+      [&](parallel_layer_guid_t src_layer) -> parallel_layer_guid_t {
+    return typed_isomorphism.at_l(src_layer);
+  };
+
+  return map_keys(src.mapped_tasks, src_to_dst_layer) == dst.mapped_tasks;
 }
 
 std::string mapped_pcg_as_dot(MappedParallelComputationGraph const &mpcg) {

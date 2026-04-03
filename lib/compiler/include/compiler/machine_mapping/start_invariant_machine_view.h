@@ -8,6 +8,7 @@
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/machine_space_offset.h"
+#include "pcg/unresolved_machine_space_offset.dtg.h"
 #include <optional>
 
 namespace FlexFlow {
@@ -29,16 +30,14 @@ StartInvariantMachineView
         std::vector<stride_t> const &strides,
         std::vector<MachineSpecificationDimension> const &dims);
 
-MachineSpaceOffset
+UnresolvedMachineSpaceOffset
     get_machine_space_offset(OperatorTaskSpace const &task,
                              StartInvariantMachineView const &mv,
-                             MachineComputeResourceSlice const &machine_space,
                              TaskSpaceCoordinate const &coordinates);
 
-std::set<MachineSpaceOffset>
+std::set<UnresolvedMachineSpaceOffset>
     get_machine_space_offsets(OperatorTaskSpace const &task,
-                              StartInvariantMachineView const &mv,
-                              MachineComputeResourceSlice const &machine_space);
+                              StartInvariantMachineView const &mv);
 
 } // namespace FlexFlow
 

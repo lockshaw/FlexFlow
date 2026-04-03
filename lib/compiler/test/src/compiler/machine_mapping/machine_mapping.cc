@@ -12,11 +12,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -26,11 +29,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -56,11 +62,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -70,11 +79,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -88,8 +100,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
       });
 
-      bool correct = true;
       bool result = nodes_are_disjoint(machine_mapping_0, machine_mapping_1);
+
+      bool correct = true;
+
       CHECK(result == correct);
     }
 
@@ -98,8 +112,11 @@ TEST_SUITE(FF_TEST_SUITE) {
           {parallel_layer_guid_t{Node{0}}, machine_view_0},
           {parallel_layer_guid_t{Node{1}}, machine_view_1},
       });
-      bool correct = false;
+
       bool result = nodes_are_disjoint(machine_mapping_0, machine_mapping_1);
+
+      bool correct = false;
+
       CHECK(result == correct);
     }
   }

@@ -69,9 +69,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
-                               MachineSpecificationDimension::INTRA_NODE,
-                               stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);
@@ -167,9 +167,9 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
-                               MachineSpecificationDimension::INTRA_NODE,
-                               stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);

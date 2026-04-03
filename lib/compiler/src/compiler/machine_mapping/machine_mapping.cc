@@ -12,13 +12,23 @@
 
 namespace FlexFlow {
 
-MappedParallelComputationGraph
-    mapped_pcg_from_pcg_and_mapping(ParallelComputationGraph const &pcg,
-                                    MachineMapping const &mapping) {
+MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
+    ParallelComputationGraph const &pcg,
+    MachineComputeSpecification const &machine_compute_spec,
+    MachineMapping const &mapping) {
 
   std::set<parallel_layer_guid_t> pcg_layers = pcg_get_parallel_layers(pcg);
-
   std::set<parallel_layer_guid_t> mapped_layers = keys(mapping.machine_views);
+
+  return MappedParallelComputationGraph{
+      /*pcg=*/pcg,
+      /*mapped_tasks=*/
+      generate_map(
+          expected_mapped_layers,
+          [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
+            ComputationGraphOpAttrs op_attrs =
+                compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l))
+                    .value();
 
   ASSERT(mapped_layers == pcg_layers);
 
@@ -34,7 +44,10 @@ MappedParallelComputationGraph
     MachineView machine_view = mapping.machine_views.at(l);
 
     return mapped_operator_task_group_from_machine_view(
-        op_attrs, inputs_dim_degrees, machine_view);
+        op_attrs,
+        inputs_dim_degrees,
+        compute_slice_from_specification(machine_compute_spec),
+        machine_view);
   };
 
   std::map<parallel_layer_guid_t, MappedOperatorTaskGroup>

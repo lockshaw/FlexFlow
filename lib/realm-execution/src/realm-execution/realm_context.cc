@@ -9,6 +9,7 @@
 #include "realm-execution/fmt/realm_processor_kind.h"
 #include "realm-execution/processor_kind.h"
 #include "realm-execution/processor_query.h"
+#include "pcg/device_id_t.h"
 #include "realm-execution/realm_allocator.h"
 #include "realm-execution/redops/redop_id_t.h"
 #include "realm-execution/tasks/task_id_t.dtg.h"

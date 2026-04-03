@@ -10,6 +10,7 @@ MachineSpaceCoordinate machine_space_stencil_compute_machine_coord(
   return get_machine_space_coordinate(
       /*operator_task_space=*/machine_space_stencil.operator_task_space,
       /*machine_view=*/machine_space_stencil.machine_view,
+      /*machine_space=*/machine_space_stencil.machine_space,
       /*task_space_coordinate=*/task_space_coordinate);
 }
 
