@@ -154,8 +154,6 @@
               gh
               expect
               universal-ctags
-              ninja
-              tig
             ])
             (with pkgs.python3Packages; [
               gitpython

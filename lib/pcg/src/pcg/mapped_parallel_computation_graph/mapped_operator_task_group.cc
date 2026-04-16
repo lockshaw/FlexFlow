@@ -137,6 +137,20 @@ nlohmann::json
   };
 }
 
+RecordFormatter
+    mapped_operator_task_group_as_dot(MappedOperatorTaskGroup const &m) {
+  RecordFormatter r = mk_empty_record(Orientation::VERTICAL);
+
+  for (MachineSpaceCoordinate const &c :
+       sorted(m.get_shard_bindings().left_values())) {
+    std::ostringstream oss;
+    oss << "(" << c.node_idx << ", " << c.device_idx << ")";
+    r << oss.str();
+  }
+
+  return r;
+}
+
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &m) {
   return fmt::format("<MappedOperatorTaskGroup shard_bindings={}>",
                      m.get_shard_bindings());
