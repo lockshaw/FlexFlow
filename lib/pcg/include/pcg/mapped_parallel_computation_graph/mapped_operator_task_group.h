@@ -6,6 +6,7 @@
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "utils/bidict/bidict.h"
+#include "utils/record_formatter.h"
 #include <nlohmann/json.hpp>
 
 namespace FlexFlow {

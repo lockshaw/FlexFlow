@@ -110,4 +110,34 @@ std::set<InternalDynamicSlotSite>
   return set_union(incoming_slots, output_slots);
 }
 
+std::set<DynamicNodeSlot>
+    get_dynamic_node_slots_for_invocation(DynamicNodeInvocation const &i) {
+
+  std::set<DynamicNodeSlot> input_slots =
+      transform(set_of(i.inputs),
+                [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
+                    -> DynamicNodeSlot {
+                  return DynamicNodeSlot{
+                      /*invocation=*/i,
+                      /*direction=*/TensorDirection::INCOMING,
+                      /*slot_name=*/p.first.slot_name,
+                  };
+                });
+
+  std::set<DynamicNodeSlot> output_slots =
+      transform(set_of(i.outputs),
+                [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
+                    -> DynamicNodeSlot {
+                  return DynamicNodeSlot{
+                      /*invocation=*/i,
+                      /*direction=*/TensorDirection::OUTPUT,
+                      /*slot_name=*/p.first.slot_name,
+                  };
+                });
+
+  ASSERT(are_disjoint(input_slots, output_slots));
+
+  return set_union(input_slots, output_slots);
+}
+
 } // namespace FlexFlow

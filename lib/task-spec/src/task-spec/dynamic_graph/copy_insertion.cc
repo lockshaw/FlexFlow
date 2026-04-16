@@ -77,6 +77,24 @@ void require_value_is_copy_inserted(DynamicValueAttrs const &v) {
   ASSERT(v.mapping.has_value());
 }
 
+static bool training_op_type_should_start_mapped(
+    TrainingOpType const &training_op_type) {
+  return training_op_type.visit<bool>(overload{
+      [](OperatorType const &t) -> bool { return should_be_mapped(t); },
+      [](TrainingOnlyOpType const &t) -> bool {
+        ASSERT(t == TrainingOnlyOpType::LOSS);
+
+        return true;
+      },
+  });
+}
+
+static bool
+    invocation_should_start_mapped(TrainingOpType const &training_op_type) {
+  TrainingOpType op_type = dynamic_node_invocation_get_op_type(i);
+  return training_op_type_should_start_mapped(op_type);
+}
+
 void require_invocation_is_fully_copy_inserted(DynamicNodeInvocation const &i) {
   auto require_node_is_copy_inserted = [](DynamicNodeAttrs const &) { return; };
 
@@ -263,7 +281,117 @@ std::map<InternalDynamicSlotSite, ParallelTensorMapping>
     ASSERT(resolved_slot_sites == all_internal_slot_sites);
   }
 
-  return result;
+  return map_values(result,
+                    [](std::optional<ParallelTensorMapping> const &m)
+                        -> ParallelTensorMapping { return m.value(); });
+}
+
+std::unordered_map<DynamicTensorSlot, ParallelTensorMapping>
+  get_mappings_for_invocation(
+    DynamicNodeInvocation const &i,
+    std::unordered_map<DynamicNodeSlot, ParallelTensorMapping> const &mappings)
+{
+  return filtermap_keys(
+      mappings,
+      [&](DynamicNodeSlot const &s) -> std::optional<DynamicTensorSlot> {
+        if (s.invocation == i) {
+          return s.slot_name;
+        } else {
+          return std::nullopt;
+        }
+      });
+}
+
+
+DynamicNodeInvocation apply_mappings_for_invocation(
+  DynamicNodeInvocation const &i,
+  std::unordered_map<DynamicNodeSlot, ParallelTensorMapping> const &all_mappings)
+{
+  std::unordered_map<DynamicTensorSlot, ParallelTensorMapping> i_mappings =
+      get_mappings_for_invocation(i, all_mappings);
+
+  std::unordered_map<DynamicTensorSlot, ParallelTensorMapping>
+      i_input_mappings = restrict_keys(i_mappings, keys(i.inputs));
+
+  std::unordered_map<DynamicTensorSlot, ParallelTensorMapping>
+      i_output_mappings = restrict_keys(i_mappings, keys(i.outputs));
+
+  auto apply_mapping =
+      [&](DynamicValueAttrs const &v,
+          ParallelTensorMapping const &mapping) -> DynamicValueAttrs {
+    return dynamic_value_attrs_with_mapping(v, mapping);
+  };
+
+  return DynamicNodeInvocation{
+      /*inputs=*/
+      zip_values_with(i.inputs, i_input_mappings, apply_mapping),
+      /*node_attrs=*/
+      i.node_attrs,
+      /*outputs=*/
+      zip_values_with(i.outputs, output_mappings, apply_mapping),
+  };
+}
+
+std::unordered_set<DynamicNodeInvocation>
+  copies_for_value(DynamicOpenDataflowGraph const &g,
+                   DynamicValueAttrs const &v,
+                   std::unordered_set<DynamicNodeSlot, ParallelTensorMapping> const &mappings)
+{
+  DynamicNodeSlot src = dynamic_graph_find_source_of_value(g, v);
+  std::unordered_set<DynamicNodeSlot> sinks =
+      dynamic_graph_find_sinks_of_value(g, v);
+
+  ParallelTensorMapping src_mapping = mappings.at(src);
+
+  std::unordered_map<DynamicNodeSlot, ParallelTensorMapping>
+      mappings_for_sinks = generate_map(
+          sinks, [&](DynamicNodeSlot const &s) -> ParallelTensorMapping {
+            return mappings.at(s);
+          });
+
+  std::unordered_set<ParallelTensorMapping> sink_mapping_set =
+      unordered_set_of(values(mappings_for_sinks));
+
+  std::unordered_set<ParallelTensorMapping> required_copies =
+      set_difference(sink_mapping_set, std::unordered_set{src_mapping});
+
+  auto make_copy_to = [&](ParallelTensorMapping const &sink_mapping)
+      -> DynamicNodeInvocation {
+    return DynamicNodeInvocation{
+        /*inputs=*/{{DynamicTensorSlot{
+                         TensorSlotName::INPUT,
+                         slot.slot_tensor_role,
+                     },
+                     dynamic_value_attrs_with_mapping(v, src_mapping);
+  },
+        },
+        /*node_attrs=*/
+        DynamicNodeAttrs{
+            /*task_type=*/transform(
+                slot.slot_tensor_role,
+                dynamic_task_type_from_tensor_role_for_copy),
+            /*device_coord=*/std::nullopt,
+            /*mapping=*/std::nullopt,
+            /*op_attrs*/ TrainingOperationAttrs{CopyAttrs{}},
+            /*layer_guid=*/dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
+            /*per_device_op_state=*/std::nullopt,
+        },
+        /*outputs=*/
+        {
+            {
+                DynamicTensorSlot{
+                  TensorSlotName::OUTPUT,
+                  slot.slot_tensor_role,
+                },
+                dynamic_value_attrs_with_mapping(v, sink_mapping);
+}
+,
+}
+,
+}
+;
+}
+;
 }
 
 std::map<InternalDynamicSlotSite, ParallelTensorMapping>
