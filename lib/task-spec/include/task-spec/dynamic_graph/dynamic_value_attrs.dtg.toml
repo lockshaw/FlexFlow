@@ -36,7 +36,7 @@ type = "std::optional<::FlexFlow::ParallelTensorSpaceCoordinate>"
 
 [[fields]]
 name = "mapping"
-type = "std::optional<::FlexFlow::bidict<::FlexFlow::ParallelTensorSpaceCoordinate, ::FlexFlow::MachineSpaceCoordinate>>"
+type = "std::optional<::FlexFlow::ParallelTensorMapping>"
 
 [[fields]]
 name = "accessor"

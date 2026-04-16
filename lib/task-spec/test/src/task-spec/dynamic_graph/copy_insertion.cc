@@ -155,6 +155,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                 },
             },
         };
+
     auto mk_slot = [](TensorSlotName const &slot_name) -> DynamicTensorSlot {
       return DynamicTensorSlot{
           /*slot_name=*/slot_name,

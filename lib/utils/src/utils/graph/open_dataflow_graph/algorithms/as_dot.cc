@@ -1,7 +1,7 @@
 #include "utils/graph/open_dataflow_graph/algorithms/as_dot.h"
 #include "utils/dot_file.h"
 #include "utils/graph/dataflow_graph/algorithms.h"
-#include "utils/graph/dataflow_graph/algorithms/as_dot.h"
+#include "utils/graph/dataflow_graph/algorithms/dataflow_graph_as_dot.h"
 #include "utils/graph/labelled_dataflow_graph/labelled_dataflow_graph.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_incoming_edges.h"
@@ -36,7 +36,7 @@ std::string
   std::ostringstream oss;
   DotFile<std::string> dot = DotFile<std::string>{oss};
 
-  as_dot(dot, static_cast<DataflowGraphView>(g), get_node_label);
+  dataflow_graph_as_dot(dot, static_cast<DataflowGraphView>(g), get_node_label);
 
   auto get_node_name = [](Node n) { return fmt::format("n{}", n.raw_uid); };
 

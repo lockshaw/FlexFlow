@@ -17,7 +17,6 @@ std::unordered_map<K, V2> map_values(std::unordered_map<K, V> const &m, F &&f) {
   }
   return result;
 }
-
 } // namespace FlexFlow
 
 #endif

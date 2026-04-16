@@ -79,10 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
       };
 
-      return MappedParallelComputationGraph{
-        /*pcg=*/pcg,
-        /*mapped_tasks=*/mapped_tasks,
-      };
+      return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg, mapped_tasks);
     };
 
     MappedParallelComputationGraph mpcg1 = make_mpcg();

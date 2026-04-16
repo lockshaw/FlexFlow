@@ -7,6 +7,7 @@
 #include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "utils/bidict/bidict.h"
 #include <nlohmann/json.hpp>
+#include "utils/record_formatter.h"
 
 namespace FlexFlow {
 
@@ -19,6 +20,11 @@ struct MappedOperatorTaskGroup {
 
   [[nodiscard]] bool operator==(MappedOperatorTaskGroup const &) const;
   [[nodiscard]] bool operator!=(MappedOperatorTaskGroup const &) const;
+
+  [[nodiscard]] bool operator<(MappedOperatorTaskGroup const &) const;
+  [[nodiscard]] bool operator>(MappedOperatorTaskGroup const &) const;
+  [[nodiscard]] bool operator<=(MappedOperatorTaskGroup const &) const;
+  [[nodiscard]] bool operator>=(MappedOperatorTaskGroup const &) const;
 
   [[nodiscard]] bidict<MachineSpaceCoordinate,
                        OperatorAtomicTaskShardBinding> const &
@@ -36,6 +42,8 @@ private:
 bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
     get_tensor_bindings_for_slot_name(MappedOperatorTaskGroup const &,
                                       TensorSlotName const &);
+
+RecordFormatter mapped_operator_task_group_as_dot(MappedOperatorTaskGroup const &);
 
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &);
 std::ostream &operator<<(std::ostream &,

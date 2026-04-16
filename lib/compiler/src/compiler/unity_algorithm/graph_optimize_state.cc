@@ -84,7 +84,7 @@ bool GraphOptimizeState::operator<(GraphOptimizeState const &other) const {
 
 std::string format_as(GraphOptimizeState const &s) {
   return fmt::format(
-      "<SearchResult\nruntime={}\npcg={}>", s.runtime, as_dot(s.pcg));
+      "<SearchResult\nruntime={}\npcg={}>", s.runtime, pcg_as_dot(s.pcg));
 }
 
 std::ostream &operator<<(std::ostream &s, GraphOptimizeState const &x) {

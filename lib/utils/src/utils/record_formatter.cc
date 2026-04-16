@@ -1,5 +1,15 @@
 #include "utils/record_formatter.h"
 
+namespace FlexFlow {
+
+RecordFormatter::RecordFormatter(Orientation orientation, std::vector<std::string> const &pieces)
+  : orientation(orientation), pieces(pieces)
+{ }
+
+RecordFormatter mk_empty_record(Orientation o) {
+  return RecordFormatter{o, std::vector<std::string>{}};
+}
+
 RecordFormatter &operator<<(RecordFormatter &r, std::string const &tok) {
   r.pieces.push_back(tok);
 
@@ -27,7 +37,12 @@ RecordFormatter &operator<<(RecordFormatter &r, float tok) {
 
 RecordFormatter &operator<<(RecordFormatter &r, RecordFormatter const &sub_r) {
   std::ostringstream oss;
-  oss << sub_r;
+
+  if (r.orientation == sub_r.orientation) {
+    oss << "{ " << sub_r << " }";
+  } else {
+    oss << sub_r;
+  }
   r << oss.str();
 
   return r;
@@ -50,4 +65,6 @@ std::ostream &operator<<(std::ostream &s, RecordFormatter const &r) {
   s << " }";
 
   return s;
+}
+
 }

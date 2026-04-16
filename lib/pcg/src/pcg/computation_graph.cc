@@ -29,7 +29,7 @@
 #include "utils/graph/labelled_dataflow_graph/algorithms/find_isomorphism.h"
 #include "utils/graph/labelled_dataflow_graph/algorithms/rewrite_node_labels.h"
 #include "utils/graph/labelled_dataflow_graph/algorithms/view_as_labelled_open_dataflow_graph.h"
-#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
+#include "utils/graph/labelled_open_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/rewrite_labelled_kwarg_dataflow_graph_node_labels.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/view_as_labelled_open_kwarg_dataflow_graph.h"
 #include "utils/graph/labelled_open_dataflow_graph/algorithms/as_dot.h"
@@ -328,22 +328,26 @@ bool computation_graphs_are_isomorphic(ComputationGraph const &lhs,
 std::string as_dot(ComputationGraph const &cg) {
   std::function<std::string(LayerAttrs const &)> get_node_label =
       [](LayerAttrs const &a) -> std::string {
-    RecordFormatter r = as_dot(a.op_attrs);
+    RecordFormatter result = mk_empty_record(Orientation::VERTICAL);
+
+    RecordFormatter r = cg_op_attrs_as_dot(a.op_attrs);
 
     if (a.name.has_value()) {
-      RecordFormatter rr;
+      RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
       rr << "Name" << a.name.value();
-      r << rr;
+      result << rr;
     }
 
+    result << r;
+
     std::ostringstream oss;
-    oss << r;
+    oss << result;
     return oss.str();
   };
 
   std::function<std::string(TensorAttrs const &)> get_input_label =
       [](TensorAttrs const &a) -> std::string {
-    RecordFormatter r;
+    RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
     r << fmt::to_string(a.shape);
 

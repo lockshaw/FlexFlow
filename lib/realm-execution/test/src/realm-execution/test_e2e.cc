@@ -22,6 +22,7 @@
 #include "test/utils/doctest/check_kv.h"
 #include "utils/containers/require_only_key.h"
 #include <doctest/doctest.h>
+#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 
 namespace test {
 
@@ -150,42 +151,43 @@ TEST_SUITE(FF_TEST_SUITE) {
       MachineSpaceCoordinate cpu0{0_n, 0_n};
       MachineSpaceCoordinate cpu1{0_n, 1_n};
       ParallelTensorSpaceCoordinate tensor_coord0{0_n, 0_n, FFOrdered{0_n}};
-      MappedParallelComputationGraph mpcg{
-          pcg,
-          {
-              {inputs_layer.parallel_layer,
-               MappedOperatorTaskGroup{
-                   {{cpu0,
-                     OperatorAtomicTaskShardBinding{
-                         {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-              {weights_layer_1.parallel_layer,
-               MappedOperatorTaskGroup{
-                   {{cpu0,
-                     OperatorAtomicTaskShardBinding{
-                         {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-              {weights_layer_2.parallel_layer,
-               MappedOperatorTaskGroup{
-                   {{cpu1,
-                     OperatorAtomicTaskShardBinding{
-                         {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-              {linear_operator_1.parallel_layer,
-               MappedOperatorTaskGroup{
-                   {{cpu0,
-                     OperatorAtomicTaskShardBinding{{
-                         {TensorSlotName::INPUT, tensor_coord0},
-                         {TensorSlotName::WEIGHT, tensor_coord0},
-                         {TensorSlotName::OUTPUT, tensor_coord0},
-                     }}}}}},
-              {linear_operator_2.parallel_layer,
-               MappedOperatorTaskGroup{
-                   {{cpu1,
-                     OperatorAtomicTaskShardBinding{{
-                         {TensorSlotName::INPUT, tensor_coord0},
-                         {TensorSlotName::WEIGHT, tensor_coord0},
-                         {TensorSlotName::OUTPUT, tensor_coord0},
-                     }}}}}},
-          },
+
+      std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapping = {
+          {inputs_layer.parallel_layer,
+           MappedOperatorTaskGroup{
+               {{cpu0,
+                 OperatorAtomicTaskShardBinding{
+                     {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+          {weights_layer_1.parallel_layer,
+           MappedOperatorTaskGroup{
+               {{cpu0,
+                 OperatorAtomicTaskShardBinding{
+                     {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+          {weights_layer_2.parallel_layer,
+           MappedOperatorTaskGroup{
+               {{cpu1,
+                 OperatorAtomicTaskShardBinding{
+                     {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+          {linear_operator_1.parallel_layer,
+           MappedOperatorTaskGroup{
+               {{cpu0,
+                 OperatorAtomicTaskShardBinding{{
+                     {TensorSlotName::INPUT, tensor_coord0},
+                     {TensorSlotName::WEIGHT, tensor_coord0},
+                     {TensorSlotName::OUTPUT, tensor_coord0},
+                 }}}}}},
+          {linear_operator_2.parallel_layer,
+           MappedOperatorTaskGroup{
+               {{cpu1,
+                 OperatorAtomicTaskShardBinding{{
+                     {TensorSlotName::INPUT, tensor_coord0},
+                     {TensorSlotName::WEIGHT, tensor_coord0},
+                     {TensorSlotName::OUTPUT, tensor_coord0},
+                 }}}}}},
       };
+
+      MappedParallelComputationGraph mpcg = mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg, mapping);
+
       MappedOperatorTaskGroup loss_mapping{
           {{cpu0,
             OperatorAtomicTaskShardBinding{{
@@ -362,42 +364,43 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     MachineSpaceCoordinate gpu0{0_n, 0_n};
     ParallelTensorSpaceCoordinate tensor_coord0{0_n, 0_n, FFOrdered{0_n}};
-    MappedParallelComputationGraph mpcg{
-        pcg,
-        {
-            {inputs_layer.parallel_layer,
-             MappedOperatorTaskGroup{
-                 {{gpu0,
-                   OperatorAtomicTaskShardBinding{
-                       {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-            {weights_layer_1.parallel_layer,
-             MappedOperatorTaskGroup{
-                 {{gpu0,
-                   OperatorAtomicTaskShardBinding{
-                       {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-            {weights_layer_2.parallel_layer,
-             MappedOperatorTaskGroup{
-                 {{gpu0,
-                   OperatorAtomicTaskShardBinding{
-                       {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
-            {linear_operator_1.parallel_layer,
-             MappedOperatorTaskGroup{
-                 {{gpu0,
-                   OperatorAtomicTaskShardBinding{{
-                       {TensorSlotName::INPUT, tensor_coord0},
-                       {TensorSlotName::WEIGHT, tensor_coord0},
-                       {TensorSlotName::OUTPUT, tensor_coord0},
-                   }}}}}},
-            {linear_operator_2.parallel_layer,
-             MappedOperatorTaskGroup{
-                 {{gpu0,
-                   OperatorAtomicTaskShardBinding{{
-                       {TensorSlotName::INPUT, tensor_coord0},
-                       {TensorSlotName::WEIGHT, tensor_coord0},
-                       {TensorSlotName::OUTPUT, tensor_coord0},
-                   }}}}}},
-        },
+
+    std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapping = {
+        {inputs_layer.parallel_layer,
+         MappedOperatorTaskGroup{
+             {{gpu0,
+               OperatorAtomicTaskShardBinding{
+                   {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+        {weights_layer_1.parallel_layer,
+         MappedOperatorTaskGroup{
+             {{gpu0,
+               OperatorAtomicTaskShardBinding{
+                   {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+        {weights_layer_2.parallel_layer,
+         MappedOperatorTaskGroup{
+             {{gpu0,
+               OperatorAtomicTaskShardBinding{
+                   {{TensorSlotName::OUTPUT, tensor_coord0}}}}}}},
+        {linear_operator_1.parallel_layer,
+         MappedOperatorTaskGroup{
+             {{gpu0,
+               OperatorAtomicTaskShardBinding{{
+                   {TensorSlotName::INPUT, tensor_coord0},
+                   {TensorSlotName::WEIGHT, tensor_coord0},
+                   {TensorSlotName::OUTPUT, tensor_coord0},
+               }}}}}},
+        {linear_operator_2.parallel_layer,
+         MappedOperatorTaskGroup{
+             {{gpu0,
+               OperatorAtomicTaskShardBinding{{
+                   {TensorSlotName::INPUT, tensor_coord0},
+                   {TensorSlotName::WEIGHT, tensor_coord0},
+                   {TensorSlotName::OUTPUT, tensor_coord0},
+               }}}}}},
     };
+
+    MappedParallelComputationGraph mpcg = mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg, mapping);
+
     MappedOperatorTaskGroup loss_mapping{
         {{gpu0,
           OperatorAtomicTaskShardBinding{{

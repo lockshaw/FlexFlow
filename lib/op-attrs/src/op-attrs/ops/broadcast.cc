@@ -7,10 +7,10 @@
 namespace FlexFlow {
 
 RecordFormatter as_dot(BroadcastAttrs const &attrs) {
-  RecordFormatter r;
+  RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
   auto kv = [](std::string const &label, auto const &val) {
-    RecordFormatter rr;
+    RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
     rr << label << fmt::to_string(val);
     return rr;
   };

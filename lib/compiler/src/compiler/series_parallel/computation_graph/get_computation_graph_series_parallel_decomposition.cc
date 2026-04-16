@@ -41,10 +41,10 @@ std::string render_preprocessed_computation_graph_for_sp_decomposition(
       return "FAKE";
     }
     LayerAttrs a = cg.raw_graph.at(n);
-    RecordFormatter r = as_dot(a.op_attrs);
+    RecordFormatter r = cg_op_attrs_as_dot(a.op_attrs);
 
     if (a.name.has_value()) {
-      RecordFormatter rr;
+      RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
       rr << "Name" << a.name.value();
       r << rr;
     }

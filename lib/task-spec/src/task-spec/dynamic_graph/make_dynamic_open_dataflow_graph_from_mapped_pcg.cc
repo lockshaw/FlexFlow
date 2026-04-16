@@ -10,6 +10,7 @@
 #include <optional>
 #include <unordered_map>
 #include <utility>
+#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 
 namespace FlexFlow {
 
@@ -17,23 +18,25 @@ DynamicOpenDataflowGraph make_dynamic_open_dataflow_graph_from_mapped_pcg(
     MappedParallelComputationGraph const &mpcg) {
   DynamicOpenDataflowGraph result = make_empty_dynamic_open_dataflow_graph();
 
+  ParallelComputationGraph pcg = pcg_from_mpcg(mpcg);
+
   for (auto const &[layer, attrs] :
-       get_parallel_layer_attrs_mapping(mpcg.pcg)) {
+       get_parallel_layer_attrs_mapping(pcg)) {
     DynamicNodeAttrs result_attrs{
         /*task_type=*/std::nullopt,
         /*device_coord=*/std::nullopt,
-        /*mapping=*/mpcg.mapped_tasks.at(layer),
+        /*mapping=*/mpcg_get_mapping_for_layer(mpcg, layer),
         /*op_attrs=*/TrainingOperationAttrs{attrs.op_attrs},
         /*pcg_layer_guid=*/dynamic_layer_guid_t{layer},
         /*per_device_op_state=*/std::nullopt,
     };
 
     std::unordered_map<DynamicTensorSlot, DynamicValueAttrs> result_inputs =
-        transform(get_incoming_tensors(mpcg.pcg, layer),
+        transform(get_incoming_tensors(pcg, layer),
                   [&](TensorSlotName const &slot_name,
                       parallel_tensor_guid_t const &tensor) {
                     ParallelTensorAttrs attrs =
-                        get_parallel_tensor_attrs(mpcg.pcg, tensor);
+                        get_parallel_tensor_attrs(pcg, tensor);
                     return std::pair<DynamicTensorSlot, DynamicValueAttrs>{
                         DynamicTensorSlot{
                             /*slot_name=*/slot_name,
@@ -50,11 +53,11 @@ DynamicOpenDataflowGraph make_dynamic_open_dataflow_graph_from_mapped_pcg(
                     };
                   });
     std::unordered_map<DynamicTensorSlot, DynamicValueAttrs> result_outputs =
-        transform(get_outgoing_tensors(mpcg.pcg, layer),
+        transform(get_outgoing_tensors(pcg, layer),
                   [&](TensorSlotName const &slot_name,
                       parallel_tensor_guid_t const &tensor) {
                     ParallelTensorAttrs attrs =
-                        get_parallel_tensor_attrs(mpcg.pcg, tensor);
+                        get_parallel_tensor_attrs(pcg, tensor);
                     return std::pair<DynamicTensorSlot, DynamicValueAttrs>{
                         DynamicTensorSlot{
                             /*slot_name=*/slot_name,

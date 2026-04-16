@@ -6,6 +6,8 @@
 #include "utils/containers/try_at.h"
 #include "utils/containers/unordered_set_of.h"
 #include "utils/containers/values.h"
+#include "utils/containers/transform.h"
+#include "utils/containers/items.h"
 #include "utils/exception.h"
 #include "utils/fmt/unordered_map.h"
 #include "utils/fmt/unordered_set.h"
@@ -69,6 +71,15 @@ public:
                       l,
                       found_l.value()));
     }
+  }
+
+
+  std::unordered_set<std::pair<L, R>> relation() const {
+    return transform(
+      items(this->m_r_to_l),
+      [](std::pair<R, L> const &p) -> std::pair<L, R> {
+        return {p.second, p.first};
+      });
   }
 
   std::unordered_set<R> const &at_l(L const &l) const {

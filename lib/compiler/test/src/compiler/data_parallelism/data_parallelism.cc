@@ -159,13 +159,14 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    MappedParallelComputationGraph correct_mpcg = MappedParallelComputationGraph{
-      correct_pcg,
-      correct_mapping,
-    };
+    MappedParallelComputationGraph correct_mpcg = 
+      mapped_pcg_from_pcg_and_mapped_op_task_groups(correct_pcg, correct_mapping);
 
-    ASSERT(get_parallel_layers(result.pcg).size() == get_parallel_layers(correct_mpcg.pcg).size());
-    ASSERT(pcgs_are_isomorphic(result.pcg, correct_mpcg.pcg));
+    // Extra asserts are only here to improve the error message quality on a
+    // test failure. Only the last check is actually needed to guarantee
+    // correctness, and is a strictly stronger condition thean the first two.
+    ASSERT(mpcg_get_parallel_layers(result).size() == mpcg_get_parallel_layers(correct_mpcg).size());
+    ASSERT(pcgs_are_isomorphic(pcg_from_mpcg(result), pcg_from_mpcg(correct_mpcg)));
     ASSERT(mapped_pcgs_are_isomorphic(result, correct_mpcg));
   }
 }

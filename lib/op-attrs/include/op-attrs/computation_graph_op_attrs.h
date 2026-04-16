@@ -8,7 +8,7 @@
 namespace FlexFlow {
 
 OperatorType get_op_type(ComputationGraphOpAttrs const &);
-RecordFormatter as_dot(ComputationGraphOpAttrs const &);
+RecordFormatter cg_op_attrs_as_dot(ComputationGraphOpAttrs const &);
 std::optional<ComputationGraphOpAttrs>
     compgraph_op_attrs_from_pcg_op_attrs(PCGOperatorAttrs const &);
 

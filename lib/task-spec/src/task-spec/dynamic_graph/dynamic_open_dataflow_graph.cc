@@ -15,6 +15,7 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_inputs.h"
 #include "utils/graph/open_kwarg_dataflow_graph/kwarg_dataflow_graph_input.dtg.h"
 #include "utils/many_to_one/many_to_one.h"
+#include "utils/containers/contains_value.h"
 
 namespace FlexFlow {
 
@@ -82,6 +83,80 @@ std::unordered_multiset<DynamicTensorSlot>
 std::unordered_set<DynamicNodeInvocation>
     get_dynamic_invocation_set(DynamicOpenDataflowGraph const &g) {
   return g.invocations;
+}
+
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges(DynamicOpenDataflowGraph const &g)
+{
+  return flatmap(
+    get_dynamic_invocation_set(g),
+    [&](DynamicNodeInvocation const &i)
+      -> std::unordered_set<DynamicGraphEdge>
+    {
+      return get_dynamic_graph_edges_incoming_to_invocation(g, i);
+    });
+}
+
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges_incoming_to_invocation(DynamicOpenDataflowGraph const &g,
+                                                   DynamicNodeInvocation const &i)
+{
+  return transform(
+    unordered_set_of(i.inputs),
+    [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
+      -> DynamicGraphEdge
+    {
+      DynamicNodeSlot src = dynamic_graph_find_source_of_value(g, p.second);
+
+      return DynamicGraphEdge{
+        /*src_node=*/src.invocation,
+        /*src_slot=*/src.slot_name,
+        /*dst_node=*/dst.invocation,
+        /*dst_slot=*/dst.slot_name,
+      };
+    });
+}
+
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges_outgoing_from_invocation(DynamicOpenDataflowGraph const &g,
+                                                   DynamicNodeInvocation const &i)
+{
+
+}
+
+std::unordered_set<DynamicNodeSlot>
+    get_dynamic_node_slots(DynamicOpenDataflowGraph const &g)
+{
+  return flatmap(
+    get_dynamic_invocation_set(g),
+    [](DynamicNodeInvocation const &i) -> std::unordered_set<DynamicNodeSlot> {
+      return get_dynamic_node_slots_for_invocation(i);
+    });
+}
+
+std::unordered_set<DynamicNodeSlot> dynamic_graph_find_sinks_of_value(
+  DynamicOpenDataflowGraph const &g,
+  DynamicValueAttrs const &v)
+{
+  std::unordered_set<DynamicNodeSlot> found =
+    filter(get_dynamic_node_slots(g),
+           [&](DynamicNodeSlot const &s) -> bool {
+             return dynamic_value_attrs_for_node_slot(s) == v && s.direction == TensorDirection::INCOMING;
+           });
+
+  return found;
+}
+
+DynamicNodeSlot dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph const &g,
+                                     DynamicValueAttrs const &v) {
+
+  std::unordered_set<DynamicNodeSlot> found =
+    filter(get_dynamic_node_slots(g),
+           [&](DynamicNodeSlot const &s) -> bool {
+             return dynamic_value_attrs_for_node_slot(s) == v && s.direction == TensorDirection::OUTGOING;
+           });
+
+  return get_only(found);
 }
 
 std::optional<DynamicValueAttrs>

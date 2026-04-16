@@ -24,8 +24,8 @@ OperatorType get_op_type(PCGOperatorAttrs const &attrs) {
       [](auto const &x) { return get_op_type(x); });
 }
 
-RecordFormatter as_dot(PCGOperatorAttrs const &attrs) {
-  return attrs.visit<RecordFormatter>(overload{
+RecordFormatter pcg_op_attrs_as_dot(PCGOperatorAttrs const &attrs) {
+  std::optional<RecordFormatter> attrs_record = attrs.visit<std::optional<RecordFormatter>>(overload{
       [](LinearAttrs const &l) { return as_dot(l); },
       [](CastAttrs const &a) { return as_dot(a); },
       [](EmbeddingAttrs const &a) { return as_dot(a); },
@@ -35,13 +35,20 @@ RecordFormatter as_dot(PCGOperatorAttrs const &attrs) {
       [](CombineAttrs const &a) { return as_dot(a); },
       [](ReplicateAttrs const &a) { return as_dot(a); },
       [](ReductionAttrs const &a) { return as_dot(a); },
-      [&](auto const &) {
-        RecordFormatter r;
-        r << fmt::to_string(get_op_type(attrs));
-        return r;
-      },
+      [&](auto const &) { return std::nullopt; },
   });
-}
+
+  RecordFormatter rr = mk_empty_record(Orientation::HORIZONTAL);
+  rr << "Op Type" << fmt::to_string(get_op_type(attrs));
+
+  RecordFormatter result = mk_empty_record(Orientation::VERTICAL);
+  result << rr;
+  if (attrs_record.has_value()) {
+    result << attrs_record.value();
+  }
+
+  return result;
+ }
 
 PCGOperatorAttrs pcg_op_attrs_from_compgraph_op_attrs(
     ComputationGraphOpAttrs const &cg_attrs) {

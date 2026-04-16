@@ -6,7 +6,7 @@
 namespace FlexFlow {
 
 RecordFormatter as_dot(WeightAttrs const &attrs) {
-  RecordFormatter r;
+  RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
   for (positive_int dim : attrs.tensor_shape.dims.ff_ordered) {
     r << fmt::to_string(dim);

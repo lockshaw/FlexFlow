@@ -163,6 +163,7 @@
               jq
               gh
               expect
+              universal-ctags
             ])
             (with pkgs.python3Packages; [
               gitpython

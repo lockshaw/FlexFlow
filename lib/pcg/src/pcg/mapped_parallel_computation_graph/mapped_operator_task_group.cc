@@ -11,6 +11,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/hash/tuple.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/containers/sorted.h"
 
 namespace FlexFlow {
 
@@ -56,7 +57,27 @@ bool MappedOperatorTaskGroup::operator==(
 
 bool MappedOperatorTaskGroup::operator!=(
     MappedOperatorTaskGroup const &other) const {
-  return this->tie() == other.tie();
+  return this->tie() != other.tie();
+}
+
+bool MappedOperatorTaskGroup::operator<(
+    MappedOperatorTaskGroup const &other) const {
+  return this->tie() < other.tie();
+}
+
+bool MappedOperatorTaskGroup::operator>(
+    MappedOperatorTaskGroup const &other) const {
+  return this->tie() > other.tie();
+}
+
+bool MappedOperatorTaskGroup::operator<=(
+    MappedOperatorTaskGroup const &other) const {
+  return this->tie() <= other.tie();
+}
+
+bool MappedOperatorTaskGroup::operator>=(
+    MappedOperatorTaskGroup const &other) const {
+  return this->tie() >= other.tie();
 }
 
 std::tuple<
@@ -80,6 +101,18 @@ bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
                                                                      slot_name);
                           })
       .reversed();
+}
+
+RecordFormatter mapped_operator_task_group_as_dot(MappedOperatorTaskGroup const &m) {
+  RecordFormatter r = mk_empty_record(Orientation::VERTICAL);
+
+  for (MachineSpaceCoordinate const &c : sorted(m.get_shard_bindings().left_values())) {
+    std::ostringstream oss;
+    oss << "(" << c.node_idx << ", " << c.device_idx << ")";
+    r << oss.str();
+  }
+
+  return r;
 }
 
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &m) {

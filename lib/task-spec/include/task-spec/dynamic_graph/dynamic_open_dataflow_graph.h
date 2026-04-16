@@ -32,6 +32,24 @@ std::unordered_multiset<DynamicTensorSlot>
 std::unordered_set<DynamicNodeInvocation>
     get_dynamic_invocation_set(DynamicOpenDataflowGraph const &);
 
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges(DynamicOpenDataflowGraph const &);
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges_incoming_to_invocation(DynamicOpenDataflowGraph const &,
+                                                   DynamicNodeInvocation const &);
+std::unordered_set<DynamicGraphEdge>
+    get_dynamic_graph_edges_outgoing_from_invocation(DynamicOpenDataflowGraph const &,
+                                                   DynamicNodeInvocation const &);
+
+std::unordered_set<DynamicNodeSlot>
+    get_dynamic_node_slots(DynamicOpenDataflowGraph const &);
+
+DynamicNodeSlot dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph const &, 
+                                                   DynamicValueAttrs const &);
+std::unordered_set<DynamicNodeSlot> dynamic_graph_find_sinks_of_value(
+  DynamicOpenDataflowGraph const &,
+  DynamicValueAttrs const &);
+
 std::optional<DynamicValueAttrs>
     find_output_value_attrs(DynamicOpenDataflowGraph const &,
                             dynamic_tensor_guid_t,

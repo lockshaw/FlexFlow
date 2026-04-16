@@ -31,12 +31,12 @@
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_kwarg_dataflow_edges_from_node_to_node.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_outgoing_kwarg_dataflow_edges_for_node.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_outgoing_kwarg_dataflow_outputs_for_node.h"
-#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/rewrite_labelled_kwarg_dataflow_graph_node_labels.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/node/node.dtg.h"
 #include "utils/record_formatter.h"
 #include <unordered_set>
+#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
 
 namespace FlexFlow {
 
@@ -453,25 +453,30 @@ bool pcgs_are_isomorphic(ParallelComputationGraph const &lhs,
       .has_value();
 }
 
-std::string as_dot(ParallelComputationGraph const &cg) {
-  std::function<std::string(ParallelLayerAttrs const &)> get_node_label =
+std::string pcg_as_dot(ParallelComputationGraph const &cg) {
+
+  std::function<std::string(ParallelLayerAttrs const &)> render_node_label =
       [](ParallelLayerAttrs const &a) -> std::string {
-    RecordFormatter r = as_dot(a.op_attrs);
+    RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
+
+    RecordFormatter r = pcg_op_attrs_as_dot(a.op_attrs);
 
     if (a.name.has_value()) {
-      RecordFormatter rr;
       rr << "Name" << a.name.value();
-      r << rr;
     }
 
+    rr << r;
+
     std::ostringstream oss;
-    oss << r;
+    RecordFormatter result = mk_empty_record(Orientation::HORIZONTAL);
+    result << rr;
+    oss << result;
     return oss.str();
   };
 
-  std::function<std::string(ParallelTensorAttrs const &)> get_input_label =
+  std::function<std::string(ParallelTensorAttrs const &)> render_input_label =
       [](ParallelTensorAttrs const &a) -> std::string {
-    RecordFormatter r;
+    RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
     r << fmt::to_string(a.shape);
 
@@ -480,17 +485,29 @@ std::string as_dot(ParallelComputationGraph const &cg) {
     return oss.str();
   };
 
-  return labelled_open_kwarg_dataflow_graph_view_as_dot(
-      view_as_labelled_open_kwarg_dataflow_graph<ParallelLayerAttrs,
-                                                 ParallelTensorAttrs,
-                                                 int,
-                                                 TensorSlotName>(cg.raw_graph),
-      get_node_label,
-      get_input_label);
+  std::function<std::string(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
+    -> std::string
+  {
+    return fmt::to_string(slot_name);
+  };
+
+  std::function<std::vector<TensorSlotName>(std::unordered_set<TensorSlotName> const &)> order_slots
+    = [](std::unordered_set<TensorSlotName> const &slot_names)
+      -> std::vector<TensorSlotName>
+  {
+    return sorted(slot_names);
+  };
+
+  return labelled_kwarg_dataflow_graph_view_as_dot(
+      cg.raw_graph,
+      render_node_label,
+      render_input_label,
+      render_slot_name,
+      order_slots);
 }
 
 void debug_print_dot(ParallelComputationGraph const &cg) {
-  std::cout << as_dot(cg) << std::endl;
+  std::cout << pcg_as_dot(cg) << std::endl;
 }
 
 } // namespace FlexFlow

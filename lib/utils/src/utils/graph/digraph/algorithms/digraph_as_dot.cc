@@ -16,7 +16,7 @@ std::string digraph_as_dot(
   };
 
   for (Node const &n : get_nodes(g)) {
-    RecordFormatter rec;
+    RecordFormatter rec = mk_empty_record(Orientation::HORIZONTAL);
     rec << get_node_label(n);
     dot.add_record_node(get_node_name(n), rec);
   }

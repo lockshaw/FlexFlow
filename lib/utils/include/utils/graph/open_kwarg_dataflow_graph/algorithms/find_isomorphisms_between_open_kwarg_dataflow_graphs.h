@@ -186,7 +186,7 @@ std::optional<OpenKwargDataflowGraphIsomorphism<GraphInputName>>
         dst_incoming_edges =
             get_incoming_open_kwarg_dataflow_edges_for_node(dst_g, dst_node);
 
-    if (src_incoming_edges.size() != dst_incoming_edges.size()) {
+    if (keys(src_incoming_edges) != keys(dst_incoming_edges)) {
       fail();
       return;
     }

@@ -14,19 +14,22 @@ OperatorType get_op_type(ComputationGraphOpAttrs const &attrs) {
       [](auto const &x) { return get_op_type(x); });
 }
 
-RecordFormatter as_dot(ComputationGraphOpAttrs const &attrs) {
-  RecordFormatter result = attrs.visit<RecordFormatter>(overload{
+RecordFormatter cg_op_attrs_as_dot(ComputationGraphOpAttrs const &attrs) {
+  RecordFormatter attrs_record = attrs.visit<RecordFormatter>(overload{
       [](LinearAttrs const &l) { return as_dot(l); },
       [](CastAttrs const &a) { return as_dot(a); },
       [](EmbeddingAttrs const &a) { return as_dot(a); },
       [](WeightAttrs const &a) { return as_dot(a); },
       [](BroadcastAttrs const &a) { return as_dot(a); },
-      [&](auto const &) { return RecordFormatter{}; },
+      [&](auto const &) { return mk_empty_record(Orientation::HORIZONTAL); },
   });
 
-  RecordFormatter rr;
+  RecordFormatter rr = mk_empty_record(Orientation::HORIZONTAL);
   rr << "Op Type" << fmt::to_string(get_op_type(attrs));
+
+  RecordFormatter result = mk_empty_record(Orientation::VERTICAL);
   result << rr;
+  result << attrs_record;
 
   return result;
 }
