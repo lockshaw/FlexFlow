@@ -148,7 +148,7 @@ static DynamicNodeInvocation shard_invocation_for_binding(
       [&](DynamicTensorSlot const &s,
           DynamicValueAttrs const &v) -> DynamicValueAttrs {
     ParallelTensorSpaceCoordinate parallel_tensor_coord =
-        binding.tensor_coords.at(s.slot_name);
+        binding.tensor_coords.at(s.pcg_slot_name);
 
     DynamicValueAttrs result = v;
     result.shard_coord = parallel_tensor_coord;

@@ -11,6 +11,7 @@
 #include "utils/containers/map_values.h"
 #include "utils/containers/repeat_element.h"
 #include "utils/containers/reversed.h"
+#include "utils/containers/sorted.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip_values_strict.h"
 #include "utils/containers/zip_values_strict_with.h"
@@ -372,6 +373,11 @@ std::string as_dot(ComputationGraph const &cg) {
           [](std::set<TensorSlotName> const &unordered) -> nlohmann::json {
     return sorted(unordered);
   };
+
+  std::function<std::vector<TensorSlotName>(
+      std::unordered_set<TensorSlotName> const &)>
+      order_slots = [](std::unordered_set<TensorSlotName> const &unordered)
+      -> nlohmann::json { return sorted(unordered); };
 
   return labelled_open_kwarg_dataflow_graph_view_as_dot(
       view_as_labelled_open_kwarg_dataflow_graph<LayerAttrs,

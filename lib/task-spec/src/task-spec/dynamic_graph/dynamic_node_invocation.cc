@@ -116,22 +116,22 @@ std::set<DynamicNodeSlot>
   std::set<DynamicNodeSlot> input_slots =
       transform(set_of(i.inputs),
                 [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
-                    -> DynamicNodeSlot {
-                  return DynamicNodeSlot{
+                    -> InternalDynamicSlotSite {
+                  return InternalDynamicSlotSite{
                       /*invocation=*/i,
                       /*direction=*/TensorDirection::INCOMING,
-                      /*slot_name=*/p.first.slot_name,
+                      /*slot_name=*/p.first,
                   };
                 });
 
   std::set<DynamicNodeSlot> output_slots =
       transform(set_of(i.outputs),
                 [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
-                    -> DynamicNodeSlot {
-                  return DynamicNodeSlot{
+                    -> InternalDynamicSlotSite {
+                  return InternalDynamicSlotSite{
                       /*invocation=*/i,
                       /*direction=*/TensorDirection::OUTPUT,
-                      /*slot_name=*/p.first.slot_name,
+                      /*slot_name=*/p.first,
                   };
                 });
 
