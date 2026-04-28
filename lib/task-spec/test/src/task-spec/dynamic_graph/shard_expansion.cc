@@ -61,7 +61,7 @@ DynamicValueAttrs
       /*parallel_tensor_shape=*/std::nullopt,
       /*shard_coord=*/shard_coord,
       /*mapping=*/
-      tensor_binding,
+      ParallelTensorMapping{tensor_binding},
       /*accessor=*/std::nullopt,
       /*role=*/std::nullopt,
   };

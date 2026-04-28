@@ -1,5 +1,5 @@
 #include "utils/graph/digraph/algorithms/digraph_as_dot.h"
-#include "utils/dot_file.h"
+#include "utils/dot/dot_file.h"
 #include "utils/graph/digraph/algorithms/get_edges.h"
 #include "utils/graph/node/algorithms.h"
 

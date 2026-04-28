@@ -3,6 +3,8 @@
 
 #include "task-spec/dynamic_graph/dynamic_node_invocation.dtg.h"
 #include "task-spec/dynamic_graph/training_op_type.dtg.h"
+#include "pcg/tensor_direction.dtg.h"
+#include "task-spec/dynamic_graph/dynamic_slot_site.dtg.h"
 
 namespace FlexFlow {
 
@@ -11,8 +13,8 @@ std::unordered_map<DynamicTensorSlot, DynamicValueAttrs>
 
 TrainingOpType dynamic_node_invocation_get_op_type(DynamicNodeInvocation const &);
 
-std::unordered_set<DynamicNodeSlot>
-  get_dynamic_node_slots_for_invocation(DynamicNodeInvocation const &);
+std::unordered_set<InternalDynamicSlotSite>
+  get_dynamic_slot_sites_for_invocation(DynamicNodeInvocation const &);
 
 } // namespace FlexFlow
 

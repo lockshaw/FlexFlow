@@ -25,16 +25,16 @@ TaskTensorParameter make_task_tensor_parameter_from_dynamic_slot(
           [&](FwbTensorType const &fwb_tensor) {
             switch (fwb_tensor) {
               case FwbTensorType::FORWARD:
-                return make_task_tensor_parameter_fwd(slot.slot_name);
+                return make_task_tensor_parameter_fwd(slot.pcg_slot_name);
               case FwbTensorType::GRADIENT:
-                return make_task_tensor_parameter_grad(slot.slot_name);
+                return make_task_tensor_parameter_grad(slot.pcg_slot_name);
               default:
                 PANIC("Unhandled FwbTensorType", fmt::to_string(fwb_tensor));
             }
           },
           [&](DynamicOptimizerTensorRole const &optimizer_tensor) {
             return make_task_tensor_parameter_opt(
-                slot.slot_name, optimizer_tensor.optimizer_slot_name);
+                slot.pcg_slot_name, optimizer_tensor.optimizer_slot_name);
           },
           [&](DynamicLossTensorRole const &loss_tensor) {
             return make_task_tensor_parameter_loss();

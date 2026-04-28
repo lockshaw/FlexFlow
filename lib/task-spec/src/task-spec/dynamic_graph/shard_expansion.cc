@@ -58,16 +58,18 @@ static DynamicNodeInvocation shard_invocation_for_binding(
       [&](DynamicTensorSlot const &s,
           DynamicValueAttrs const &v) -> DynamicValueAttrs {
     ParallelTensorSpaceCoordinate parallel_tensor_coord =
-        binding.tensor_coords.at(s.slot_name);
+        binding.tensor_coords.at(s.pcg_slot_name);
 
     DynamicValueAttrs result = v;
     result.shard_coord = parallel_tensor_coord;
     result.mapping = transform(
         v.mapping,
-        [&](bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate> const
-                &mapping) {
-          return restrict_tensor_mapping_keys_to_coord(mapping,
-                                                       parallel_tensor_coord);
+        [&](ParallelTensorMapping const &mapping) -> ParallelTensorMapping
+        {
+          return ParallelTensorMapping{
+            restrict_tensor_mapping_keys_to_coord(mapping.raw,
+                                                  parallel_tensor_coord),
+          };
         });
     return result;
   };
@@ -90,9 +92,9 @@ static std::unordered_set<DynamicNodeInvocation>
   auto [input_slot, input] = get_only(i.inputs);
   auto [output_slot, output] = get_only(i.outputs);
   bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate> input_mapping =
-      assert_unwrap(input.mapping);
+      assert_unwrap(input.mapping).raw;
   require_same(input_mapping.left_values(),
-               assert_unwrap(output.mapping).left_values());
+               assert_unwrap(output.mapping).raw.left_values());
 
   return transform(
       input_mapping.left_values(), [&](ParallelTensorSpaceCoordinate const &p) {
@@ -108,8 +110,8 @@ static std::unordered_set<DynamicNodeInvocation>
         return shard_invocation_for_binding(i,
                                             machine_coord,
                                             OperatorAtomicTaskShardBinding{{
-                                                {input_slot.slot_name, p},
-                                                {output_slot.slot_name, p},
+                                                {input_slot.pcg_slot_name, p},
+                                                {output_slot.pcg_slot_name, p},
                                             }});
       });
 }

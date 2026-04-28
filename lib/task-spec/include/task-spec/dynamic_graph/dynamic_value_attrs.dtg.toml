@@ -16,6 +16,7 @@ includes = [
   "utils/bidict/bidict.h",
   "task-spec/dynamic_graph/dynamic_tensor_accessor.dtg.h",
   "task-spec/dynamic_graph/dynamic_tensor_role.dtg.h",
+  "task-spec/dynamic_graph/parallel_tensor_mapping.dtg.h",
 ]
 
 src_includes = [

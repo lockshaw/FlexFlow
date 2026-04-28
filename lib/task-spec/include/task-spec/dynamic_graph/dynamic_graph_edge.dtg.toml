@@ -10,18 +10,15 @@ features = [
 includes = [
   "task-spec/dynamic_graph/dynamic_node_invocation.dtg.h",
   "task-spec/dynamic_graph/dynamic_tensor_slot.dtg.h",
+  "task-spec/dynamic_graph/dynamic_slot_site.h",
 ]
 
 src_includes = [
 ]
 
 [[fields]]
-name = "src_node"
-type = "::FlexFlow::DynamicNodeInvocation"
-
-[[fields]]
-name = "src_slot"
-type = "::FlexFlow::DynamicTensorSlot"
+name = "src"
+type = "::FlexFlow::DynamicSlotSite"
 
 [[fields]]
 name = "dst_node"

@@ -8,7 +8,7 @@ namespace FlexFlow {
 std::unordered_set<parallel_layer_guid_t> mpcg_get_parallel_layers(MappedParallelComputationGraph const &);
 std::optional<MappedOperatorTaskGroup> mpcg_get_mapping_for_layer(
   MappedParallelComputationGraph const &,
-  parallel_layer_guid_t);                                                                   
+  parallel_layer_guid_t);
 
 ParallelComputationGraph pcg_from_mpcg(MappedParallelComputationGraph const &);
 
@@ -26,6 +26,7 @@ bool mapped_pcgs_are_isomorphic(MappedParallelComputationGraph const &,
                                 MappedParallelComputationGraph const &);
 
 std::string mapped_pcg_as_dot(MappedParallelComputationGraph const &);
+void debug_print_mapped_pcg_as_dot(MappedParallelComputationGraph const &);
 
 } // namespace FlexFlow
 

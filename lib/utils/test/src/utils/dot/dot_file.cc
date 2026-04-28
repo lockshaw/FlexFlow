@@ -1,4 +1,4 @@
-#include "utils/dot_file.h"
+#include "utils/dot/dot_file.h"
 #include <doctest/doctest.h>
 #include <sstream>
 

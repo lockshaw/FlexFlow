@@ -105,9 +105,9 @@ OpenKwargDataflowGraphData<GraphInputName, SlotName>
                   /*dst_slots=*/query_set<SlotName>::match_none(),
               },
               KwargDataflowEdgeQuery<SlotName>{
-                  /*srcs=*/query_set<Node>{subgraph_nodes},
+                  /*srcs=*/query_set<Node>::match_values_in(set_of(subgraph_nodes)),
                   /*src_slots=*/query_set<SlotName>::matchall(),
-                  /*dsts=*/query_set<Node>{subgraph_nodes},
+                  /*dsts=*/query_set<Node>::match_values_in(set_of(subgraph_nodes)),
                   /*dst_slots=*/query_set<SlotName>::matchall(),
               },
           };

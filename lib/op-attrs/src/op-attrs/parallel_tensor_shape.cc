@@ -10,6 +10,7 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/overload.h"
 #include <libassert/assert.hpp>
+#include "op-attrs/ff_ordered/enumerate.h"
 
 namespace FlexFlow {
 
@@ -148,6 +149,21 @@ std::unordered_set<parallel_tensor_dim_idx_t>
   indices.insert(parallel_tensor_dim_idx_t{ReplicaType::SUM});
   indices.insert(parallel_tensor_dim_idx_t{ReplicaType::DISCARD_COPY});
   return indices;
+}
+
+RecordFormatter dot_for_parallel_tensor_shape(ParallelTensorShape const &s) {
+  RecordFormatter result = mk_empty_record(Orientation::VERTICAL);
+
+  result << mk_kv_record("sum_degree", get_sum_degree(s))
+         << mk_kv_record("discard_copy_degree", get_discard_copy_degree(s));
+
+  for (auto const &[idx, dim] : enumerate(s.dims.shard_dims)) {
+    result << mk_kv_record(fmt::to_string(idx), fmt::format("{}/{}", dim.size, dim.degree));
+  }
+
+  result << mk_kv_record("data_type", s.data_type);
+
+  return result;
 }
 
 } // namespace FlexFlow

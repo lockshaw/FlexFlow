@@ -8,8 +8,6 @@
 
 namespace FlexFlow {
 
-RecordFormatter as_dot(ReductionAttrs const &);
-
 tl::expected<ParallelTensorShape, std::string>
     get_output_shape(ReductionAttrs const &attrs,
                      ParallelTensorShape const &input_shape);

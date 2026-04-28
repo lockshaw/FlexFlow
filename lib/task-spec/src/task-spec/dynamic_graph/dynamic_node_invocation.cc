@@ -1,6 +1,10 @@
 #include "task-spec/dynamic_graph/dynamic_node_invocation.h"
 #include "task-spec/dynamic_graph/training_operation_attrs.h"
 #include "utils/optional.h"
+#include "utils/containers/are_disjoint.h"
+#include "utils/containers/unordered_set_of.h"
+#include "utils/containers/set_union.h"
+#include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.h"
 
 namespace FlexFlow {
 
@@ -23,28 +27,28 @@ TrainingOpType dynamic_node_invocation_get_op_type(DynamicNodeInvocation const &
   return training_op_attrs_get_op_type(training_op_attrs);
 }
 
-std::unordered_set<DynamicNodeSlot>
-  get_dynamic_node_slots_for_invocation(DynamicNodeInvocation const &i) {
-  
-  std::unordered_set<DynamicNodeSlot> input_slots = 
+std::unordered_set<InternalDynamicSlotSite>
+  get_dynamic_slot_sites_for_invocation(DynamicNodeInvocation const &i) {
+
+  std::unordered_set<InternalDynamicSlotSite> input_slots =
     transform(
       unordered_set_of(i.inputs),
-      [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p) -> DynamicNodeSlot {
-        return DynamicNodeSlot{
+      [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p) -> InternalDynamicSlotSite {
+        return InternalDynamicSlotSite{
           /*invocation=*/i,
           /*direction=*/TensorDirection::INCOMING,
-          /*slot_name=*/p.first.slot_name,
+          /*slot_name=*/p.first,
         };
       });
 
-  std::unordered_set<DynamicNodeSlot> output_slots = 
+  std::unordered_set<InternalDynamicSlotSite> output_slots =
     transform(
       unordered_set_of(i.outputs),
-      [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p) -> DynamicNodeSlot {
-        return DynamicNodeSlot{
+      [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p) -> InternalDynamicSlotSite {
+        return InternalDynamicSlotSite{
           /*invocation=*/i,
           /*direction=*/TensorDirection::OUTPUT,
-          /*slot_name=*/p.first.slot_name,
+          /*slot_name=*/p.first,
         };
       });
 

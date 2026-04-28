@@ -1,4 +1,6 @@
 #include "utils/record_formatter.h"
+#include "utils/archetypes/ordered_value_type.h"
+#include "utils/archetypes/value_type.h"
 
 namespace FlexFlow {
 
@@ -67,4 +69,29 @@ std::ostream &operator<<(std::ostream &s, RecordFormatter const &r) {
   return s;
 }
 
+template <>
+RecordFormatter mk_kv_record(std::string const &k, RecordFormatter const &v) {
+  RecordFormatter rr = mk_empty_record(Orientation::HORIZONTAL);
+  rr << k << v;
+  return rr;
 }
+
+}
+
+namespace FlexFlow {
+
+using T = value_type<0>;
+
+template
+  RecordFormatter mk_kv_record(std::string const &, T const &);
+
+template
+  RecordFormatter mk_kv_record(std::string const &, std::optional<T> const &);
+
+using K = ordered_value_type<0>;
+using V = value_type<0>;
+
+template
+  RecordFormatter mk_record_for_map(std::unordered_map<K, V> const &);
+
+} // namespace FlexFlow

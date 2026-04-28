@@ -1,4 +1,4 @@
-#include "utils/dot_file.h"
+#include "utils/dot/dot_file.h"
 #include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {

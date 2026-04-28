@@ -112,45 +112,29 @@ bool mapped_pcgs_are_isomorphic(MappedParallelComputationGraph const &src,
 
 std::string mapped_pcg_as_dot(MappedParallelComputationGraph const &mpcg) {
 
-  std::function<std::string(MappedParallelLayerAttrs const &)> render_node_label =
-      [](MappedParallelLayerAttrs const &a) -> std::string {
-    RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
-
-    RecordFormatter r = pcg_op_attrs_as_dot(a.op_attrs);
+  std::function<nlohmann::json(MappedParallelLayerAttrs const &)> render_node_label =
+      [](MappedParallelLayerAttrs const &a) -> nlohmann::json {
+    nlohmann::json result = pcg_op_attrs_as_dot_json(a.op_attrs);
 
     if (a.name.has_value()) {
-      rr << "Name" << a.name.value();
+      result["Name"] = a.name.value();
     }
 
-    rr << r;
+    result["Mapping"] = 
+      transform(a.mapping, mapped_operator_task_group_as_dot_json).value_or("none");
 
-    rr << "Mapping";
-    if (a.mapping.has_value()) {
-      rr << mapped_operator_task_group_as_dot(a.mapping.value());
-    } else {
-      rr << "none";
-    }
-
-    std::ostringstream oss;
-    RecordFormatter result = mk_empty_record(Orientation::HORIZONTAL);
-    result << rr;
-    oss << result;
-    return oss.str();
+    return result;
   };
 
-  std::function<std::string(ParallelTensorAttrs const &)> render_input_label =
-      [](ParallelTensorAttrs const &a) -> std::string {
-    RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
+  std::function<nlohmann::json(ParallelTensorAttrs const &)> render_input_label =
+      [](ParallelTensorAttrs const &a) -> nlohmann::json {
 
-    r << fmt::to_string(a.shape);
-
-    std::ostringstream oss;
-    oss << r;
-    return oss.str();
+    nlohmann::json result = a;
+    return result;
   };
 
-  std::function<std::string(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
-    -> std::string
+  std::function<nlohmann::json(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
+    -> nlohmann::json
   {
     return fmt::to_string(slot_name);
   };
@@ -168,6 +152,10 @@ std::string mapped_pcg_as_dot(MappedParallelComputationGraph const &mpcg) {
       render_input_label,
       render_slot_name,
       order_slots);
+}
+
+void debug_print_mapped_pcg_as_dot(MappedParallelComputationGraph const &mpcg) {
+  std::cerr << mapped_pcg_as_dot(mpcg) << std::endl;
 }
 
 } // namespace FlexFlow

@@ -16,6 +16,19 @@
 #include "utils/graph/open_kwarg_dataflow_graph/kwarg_dataflow_graph_input.dtg.h"
 #include "utils/many_to_one/many_to_one.h"
 #include "utils/containers/contains_value.h"
+#include "task-spec/dynamic_graph/dynamic_graph_edge.h"
+#include "task-spec/dynamic_graph/dynamic_node_invocation.h"
+#include "task-spec/dynamic_graph/dynamic_slot_site.h"
+#include "utils/containers/get_only.h"
+#include "utils/containers/transform.h"
+#include "op-attrs/pcg_operator_attrs.h"
+#include "op-attrs/ops/loss_functions/loss_attrs.h"
+#include "utils/containers/concat_vectors.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
+#include "task-spec/dynamic_graph/serializable_dynamic_node_attrs.h"
+#include "task-spec/dynamic_graph/serializable_dynamic_value_attrs.h"
+#include "op-attrs/ff_ordered/filtrans.h"
 
 namespace FlexFlow {
 
@@ -106,55 +119,123 @@ std::unordered_set<DynamicGraphEdge>
     [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
       -> DynamicGraphEdge
     {
-      DynamicNodeSlot src = dynamic_graph_find_source_of_value(g, p.second);
+      DynamicSlotSite src = dynamic_graph_find_source_of_value(g, p.second);
 
-      return DynamicGraphEdge{
-        /*src_node=*/src.invocation,
-        /*src_slot=*/src.slot_name,
-        /*dst_node=*/dst.invocation,
-        /*dst_slot=*/dst.slot_name,
+      InternalDynamicSlotSite dst = InternalDynamicSlotSite{
+        /*invocation=*/i,
+        /*direction=*/TensorDirection::INCOMING,
+        /*slot_name=*/p.first,
       };
+
+      return dynamic_graph_edge_from_slot_sites(src, dst);
     });
 }
 
 std::unordered_set<DynamicGraphEdge>
     get_dynamic_graph_edges_outgoing_from_invocation(DynamicOpenDataflowGraph const &g,
-                                                   DynamicNodeInvocation const &i)
-{
-
-}
-
-std::unordered_set<DynamicNodeSlot>
-    get_dynamic_node_slots(DynamicOpenDataflowGraph const &g)
+                                                     DynamicNodeInvocation const &i)
 {
   return flatmap(
-    get_dynamic_invocation_set(g),
-    [](DynamicNodeInvocation const &i) -> std::unordered_set<DynamicNodeSlot> {
-      return get_dynamic_node_slots_for_invocation(i);
+    unordered_set_of(i.outputs),
+    [&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
+      -> std::unordered_set<DynamicGraphEdge>
+    {
+      DynamicSlotSite src = DynamicSlotSite{
+        InternalDynamicSlotSite{
+          /*invocation=*/i,
+          /*direction=*/TensorDirection::OUTPUT,
+          /*slot_name=*/p.first,
+        },
+      };
+
+      return transform(
+        dynamic_graph_find_sinks_of_value(g, p.second),
+        [&](InternalDynamicSlotSite const &sink) -> DynamicGraphEdge {
+          return dynamic_graph_edge_from_slot_sites(src, sink);
+        });
     });
 }
 
-std::unordered_set<DynamicNodeSlot> dynamic_graph_find_sinks_of_value(
+std::unordered_set<InternalDynamicSlotSite>
+    get_internal_dynamic_slot_sites(DynamicOpenDataflowGraph const &g)
+{
+  return flatmap(
+    get_dynamic_invocation_set(g),
+    [](DynamicNodeInvocation const &i) -> std::unordered_set<InternalDynamicSlotSite> {
+      return get_dynamic_slot_sites_for_invocation(i);
+    });
+}
+
+std::unordered_set<DynamicSlotSite>
+    get_dynamic_slot_sites(DynamicOpenDataflowGraph const &g)
+{
+  std::unordered_set<InternalDynamicSlotSite> internal_slot_sites = 
+    get_internal_dynamic_slot_sites(g);
+
+  std::unordered_set<DynamicValueAttrs> internal_values = 
+    filtrans(internal_slot_sites,
+             [&](InternalDynamicSlotSite const &s) -> std::optional<DynamicValueAttrs> {
+               if (s.direction == TensorDirection::OUTPUT) {
+                 return dynamic_value_attrs_for_slot_site(DynamicSlotSite{s});
+               } else {
+                 return std::nullopt;
+               }
+             });
+  
+  std::unordered_set<DynamicValueAttrs> all_values = unordered_set_of(get_dynamic_values(g));
+
+  std::unordered_set<DynamicValueAttrs> external_values = 
+    set_minus(all_values, internal_values);
+
+  std::unordered_set<ExternalDynamicSlotSite> external_slot_sites = 
+    transform(external_values, 
+              [](DynamicValueAttrs const &external_value) -> ExternalDynamicSlotSite {
+                return ExternalDynamicSlotSite{external_value};
+              });
+
+  return 
+    set_union(
+      transform(internal_slot_sites,
+                [](InternalDynamicSlotSite const &s) -> DynamicSlotSite {
+                  return DynamicSlotSite{s}; 
+                }),
+      transform(external_slot_sites,
+                [](ExternalDynamicSlotSite const &s) -> DynamicSlotSite {
+                  return DynamicSlotSite{s}; 
+                }));
+}
+
+std::unordered_set<InternalDynamicSlotSite> dynamic_graph_find_sinks_of_value(
   DynamicOpenDataflowGraph const &g,
   DynamicValueAttrs const &v)
 {
-  std::unordered_set<DynamicNodeSlot> found =
-    filter(get_dynamic_node_slots(g),
-           [&](DynamicNodeSlot const &s) -> bool {
-             return dynamic_value_attrs_for_node_slot(s) == v && s.direction == TensorDirection::INCOMING;
+  std::unordered_set<InternalDynamicSlotSite> found =
+    filter(get_internal_dynamic_slot_sites(g),
+           [&](InternalDynamicSlotSite const &s) -> bool {
+             return dynamic_value_attrs_for_slot_site(DynamicSlotSite{s}) == v 
+               && s.direction == TensorDirection::INCOMING;
            });
 
   return found;
 }
 
-DynamicNodeSlot dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph const &g,
+DynamicSlotSite dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph const &g,
                                      DynamicValueAttrs const &v) {
 
-  std::unordered_set<DynamicNodeSlot> found =
-    filter(get_dynamic_node_slots(g),
-           [&](DynamicNodeSlot const &s) -> bool {
-             return dynamic_value_attrs_for_node_slot(s) == v && s.direction == TensorDirection::OUTGOING;
-           });
+  auto is_source_of_value = [&](DynamicSlotSite const &s) -> bool {
+    return s.visit<bool>(overload {
+      [&](InternalDynamicSlotSite const &internal_slot_site) -> bool {
+        return dynamic_value_attrs_for_slot_site(s) == v 
+          && internal_slot_site.direction == TensorDirection::OUTPUT;
+      },
+      [&](ExternalDynamicSlotSite const &external_slot_site) -> bool {
+        return external_slot_site.value == v;
+      },
+    });
+  };
+
+  std::unordered_set<DynamicSlotSite> found =
+    filter(get_dynamic_slot_sites(g), is_source_of_value);
 
   return get_only(found);
 }
@@ -335,6 +416,93 @@ bool dynamic_open_dataflow_graphs_are_isomorphic(
   return find_isomorphism_between_labelled_open_kwarg_dataflow_graphs(
              lhs_dataflow_graph, rhs_dataflow_graph)
       .has_value();
+}
+
+std::string dynamic_open_dataflow_graph_as_dot(DynamicOpenDataflowGraph const &g) {
+  std::pair<LabelledOpenKwargDataflowGraph<DynamicNodeAttrs,
+                                           DynamicValueAttrs,
+                                           int,
+                                           DynamicTensorSlot>,
+            bidict<Node, DynamicNodeInvocation>>
+    labelled_result = labelled_open_kwarg_dataflow_graph_from_dynamic_open_dataflow_graph(g);
+
+  LabelledOpenKwargDataflowGraph<
+    DynamicNodeAttrs,
+    DynamicValueAttrs,
+    int,
+    DynamicTensorSlot> labelled_g = labelled_result.first;
+
+  bidict<Node, DynamicNodeInvocation> invocations = labelled_result.second;
+
+  auto dot_for_training_operation_attrs = [](TrainingOperationAttrs const &training_attrs)
+    -> nlohmann::json
+  {
+    nlohmann::json result = training_attrs;
+
+    return result;
+  };
+
+  std::function<nlohmann::json(DynamicNodeAttrs const &)> render_node_label =
+      [](DynamicNodeAttrs const &a) -> nlohmann::json {
+    nlohmann::json result = dynamic_node_attrs_to_serializable(a);
+
+    return result;
+  };
+
+  auto render_parallel_tensor_space_coord =
+      [](ParallelTensorSpaceCoordinate const &c) -> std::string {
+
+    std::vector<std::string> replica_dim_entries = {
+      fmt::format("+/{}", c.sum_component),
+      fmt::format("=/{}", c.discard_copy_component),
+    };
+
+    std::vector<std::string> shard_entries
+      = transform(vector_of(c.shard_components),
+                  [](nonnegative_int x) -> std::string {
+                    return fmt::to_string(x);
+                  });
+
+    return (
+      "(" + join_strings(concat_vectors(replica_dim_entries, shard_entries), ", ") + ")"
+    );
+  };
+
+  auto render_parallel_tensor_mapping =
+    [](ParallelTensorMapping const &mapping) -> RecordFormatter {
+      return mk_record_for_map(mapping.raw.as_unordered_map());
+    };
+
+  std::function<nlohmann::json(DynamicValueAttrs const &)> render_value_label =
+      [&](DynamicValueAttrs const &a) -> nlohmann::json {
+    nlohmann::json result = dynamic_value_attrs_to_serializable(a);
+    return result;
+  };
+
+  std::function<nlohmann::json(DynamicTensorSlot const &)> render_slot_name = [](DynamicTensorSlot const &slot_name)
+    -> nlohmann::json
+  {
+    nlohmann::json result = slot_name;
+    return result;
+  };
+
+  std::function<std::vector<DynamicTensorSlot>(std::unordered_set<DynamicTensorSlot> const &)> order_slots
+    = [](std::unordered_set<DynamicTensorSlot> const &slot_names)
+      -> std::vector<DynamicTensorSlot>
+  {
+    return sorted(slot_names);
+  };
+
+  return labelled_open_kwarg_dataflow_graph_view_as_dot(
+    labelled_g,
+    render_node_label,
+    render_value_label,
+    render_slot_name,
+    order_slots);
+}
+
+void debug_print_dynamic_open_dataflow_graph_as_dot(DynamicOpenDataflowGraph const &g) {
+  std::cerr << dynamic_open_dataflow_graph_as_dot(g) << std::endl;
 }
 
 } // namespace FlexFlow

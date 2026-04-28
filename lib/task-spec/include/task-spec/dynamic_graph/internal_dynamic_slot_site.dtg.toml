@@ -1,5 +1,5 @@
 namespace = "FlexFlow"
-name = "DynamicNodeSlot"
+name = "InternalDynamicSlotSite"
 type = "struct"
 features = [
   "eq",

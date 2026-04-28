@@ -37,6 +37,7 @@
 #include "utils/record_formatter.h"
 #include <unordered_set>
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
+#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
 
 namespace FlexFlow {
 
@@ -455,27 +456,20 @@ bool pcgs_are_isomorphic(ParallelComputationGraph const &lhs,
 
 std::string pcg_as_dot(ParallelComputationGraph const &cg) {
 
-  std::function<std::string(ParallelLayerAttrs const &)> render_node_label =
-      [](ParallelLayerAttrs const &a) -> std::string {
-    RecordFormatter rr = mk_empty_record(Orientation::VERTICAL);
+  std::function<nlohmann::json(ParallelLayerAttrs const &)> render_node_label =
+      [](ParallelLayerAttrs const &a) -> nlohmann::json {
 
-    RecordFormatter r = pcg_op_attrs_as_dot(a.op_attrs);
+    nlohmann::json result = pcg_op_attrs_as_dot_json(a.op_attrs);
 
     if (a.name.has_value()) {
-      rr << "Name" << a.name.value();
+      result["Name"] = a.name.value();
     }
 
-    rr << r;
-
-    std::ostringstream oss;
-    RecordFormatter result = mk_empty_record(Orientation::HORIZONTAL);
-    result << rr;
-    oss << result;
-    return oss.str();
+    return result;
   };
 
-  std::function<std::string(ParallelTensorAttrs const &)> render_input_label =
-      [](ParallelTensorAttrs const &a) -> std::string {
+  std::function<nlohmann::json(ParallelTensorAttrs const &)> render_input_label =
+      [](ParallelTensorAttrs const &a) -> nlohmann::json {
     RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
     r << fmt::to_string(a.shape);
@@ -485,8 +479,8 @@ std::string pcg_as_dot(ParallelComputationGraph const &cg) {
     return oss.str();
   };
 
-  std::function<std::string(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
-    -> std::string
+  std::function<nlohmann::json(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
+    -> nlohmann::json
   {
     return fmt::to_string(slot_name);
   };

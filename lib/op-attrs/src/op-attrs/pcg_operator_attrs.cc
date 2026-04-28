@@ -24,28 +24,8 @@ OperatorType get_op_type(PCGOperatorAttrs const &attrs) {
       [](auto const &x) { return get_op_type(x); });
 }
 
-RecordFormatter pcg_op_attrs_as_dot(PCGOperatorAttrs const &attrs) {
-  std::optional<RecordFormatter> attrs_record = attrs.visit<std::optional<RecordFormatter>>(overload{
-      [](LinearAttrs const &l) { return as_dot(l); },
-      [](CastAttrs const &a) { return as_dot(a); },
-      [](EmbeddingAttrs const &a) { return as_dot(a); },
-      [](WeightAttrs const &a) { return as_dot(a); },
-      [](BroadcastAttrs const &a) { return as_dot(a); },
-      [](RepartitionAttrs const &a) { return as_dot(a); },
-      [](CombineAttrs const &a) { return as_dot(a); },
-      [](ReplicateAttrs const &a) { return as_dot(a); },
-      [](ReductionAttrs const &a) { return as_dot(a); },
-      [&](auto const &) { return std::nullopt; },
-  });
-
-  RecordFormatter rr = mk_empty_record(Orientation::HORIZONTAL);
-  rr << "Op Type" << fmt::to_string(get_op_type(attrs));
-
-  RecordFormatter result = mk_empty_record(Orientation::VERTICAL);
-  result << rr;
-  if (attrs_record.has_value()) {
-    result << attrs_record.value();
-  }
+nlohmann::json pcg_op_attrs_as_dot_json(PCGOperatorAttrs const &attrs) {
+  nlohmann::json result = attrs;
 
   return result;
  }

@@ -91,6 +91,8 @@ PCGInstance create_pcg_instance(
   DynamicOpenDataflowGraph dg =
       make_dynamic_open_dataflow_graph_from_mapped_pcg(mpcg);
   dg = perform_pass_expansion(dg);
+  // std::cerr << "After pass expansion insertion" << std::endl;
+  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
 
   std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> inputs =
       input_tensors;
@@ -106,8 +108,15 @@ PCGInstance create_pcg_instance(
   }
 
   dg = perform_update_insertion(dg, optimizer_attrs);
+  // std::cerr << "After update insertion" << std::endl;
+  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
   dg = perform_copy_insertion(dg);
+  std::cerr << "After copy insertion" << std::endl;
+  debug_print_dynamic_open_dataflow_graph_as_dot(dg);
   dg = perform_shard_expansion(dg);
+  // std::cerr << "After shard expansion" << std::endl;
+  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
+
   TensorInstanceBacking tensor_instance_backing =
       perform_instance_allocation(dg, inputs, ctx);
 
@@ -118,7 +127,7 @@ PCGInstance create_pcg_instance(
             continue;
           }
           for (auto const &[slot, value] : invocation.outputs) {
-            if (slot.slot_name == TensorSlotName::LOGIT &&
+            if (slot.pcg_slot_name == TensorSlotName::LOGIT &&
                 value.tensor_guid == lgv.tensor_guid &&
                 value.role == lgv.role) {
               return value;

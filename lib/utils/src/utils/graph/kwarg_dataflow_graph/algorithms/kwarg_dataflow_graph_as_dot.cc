@@ -9,9 +9,9 @@ template
 std::string
   kwarg_dataflow_graph_as_dot(
     KwargDataflowGraphView<SlotName> const &,
-    std::function<std::string(Node const &)> const &,
-    std::function<std::string(SlotName const &)> const &,
+    std::function<nlohmann::json(Node const &)> const &,
+    std::function<nlohmann::json(KwargDataflowOutput<SlotName> const &)> const &,
+    std::function<nlohmann::json(SlotName const &)> const &,
     std::function<std::vector<SlotName>(std::unordered_set<SlotName> const &)> const &);
-
 
 } // namespace FlexFlow

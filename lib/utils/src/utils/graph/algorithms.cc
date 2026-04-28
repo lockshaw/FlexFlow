@@ -23,6 +23,7 @@
 #include <iostream>
 #include <libassert/assert.hpp>
 #include <queue>
+#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
@@ -56,7 +57,11 @@ struct GetNodesFunctor {
 
 std::unordered_set<Node> query_nodes(GraphView const &g,
                                      std::unordered_set<Node> const &nodes) {
-  return g.query_nodes(NodeQuery{nodes});
+  NodeQuery query = NodeQuery{
+    query_set<Node>::match_values_in(set_of(nodes)),
+  };
+
+  return g.query_nodes(query);
 }
 
 void remove_node(DiGraph &g, Node const &n) {
@@ -130,12 +135,19 @@ void add_edges(UndirectedGraph &g,
 }
 
 bool contains_edge(DiGraphView const &g, DirectedEdge const &e) {
-  return contains(g.query_edges(DirectedEdgeQuery{e.src, e.dst}), e);
+  DirectedEdgeQuery query = DirectedEdgeQuery{
+    query_set<Node>::match_single_value(e.src),
+    query_set<Node>::match_single_value(e.dst),
+  };
+
+  return contains(g.query_edges(query), e);
 }
 
 bool contains_edge(UndirectedGraphView const &g, UndirectedEdge const &e) {
-  UndirectedEdgeQuery q =
-      UndirectedEdgeQuery{{e.endpoints.max(), e.endpoints.min()}};
+  UndirectedEdgeQuery q = UndirectedEdgeQuery{
+    query_set<Node>::match_values_in(
+      {e.endpoints.max(), e.endpoints.min()})
+  };
   return contains(g.query_edges(q), e);
 }
 
@@ -158,7 +170,11 @@ void remove_edges(UndirectedGraph &g,
 
 std::unordered_set<UndirectedEdge> get_node_edges(UndirectedGraphView const &g,
                                                   Node const &n) {
-  return g.query_edges(UndirectedEdgeQuery{n});
+  UndirectedEdgeQuery query = UndirectedEdgeQuery{
+    query_set<Node>::match_single_value(n),
+  };
+
+  return g.query_edges(query);
 }
 
 std::vector<Node> get_unchecked_dfs_ordering(

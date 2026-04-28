@@ -1,12 +1,13 @@
 #include "utils/graph/dataflow_graph/algorithms/get_outgoing_edges.h"
 #include "utils/containers/sorted_by.h"
+#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
 std::unordered_set<DataflowEdge> get_outgoing_edges(DataflowGraphView const &g,
                                                     Node const &n) {
   return g.query_edges(DataflowEdgeQuery{
-      {n},
+      query_set<Node>::match_single_value(n),
       query_set<nonnegative_int>::matchall(),
       query_set<Node>::matchall(),
       query_set<nonnegative_int>::matchall(),
@@ -17,7 +18,7 @@ std::unordered_set<DataflowEdge>
     get_outgoing_edges(DataflowGraphView const &g,
                        std::unordered_set<Node> const &ns) {
   DataflowEdgeQuery query = DataflowEdgeQuery{
-      query_set<Node>{ns},
+      query_set<Node>::match_values_in(set_of(ns)),
       query_set<nonnegative_int>::matchall(),
       query_set<Node>::matchall(),
       query_set<nonnegative_int>::matchall(),

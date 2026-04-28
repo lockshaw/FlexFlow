@@ -103,16 +103,17 @@ bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
       .reversed();
 }
 
-RecordFormatter mapped_operator_task_group_as_dot(MappedOperatorTaskGroup const &m) {
-  RecordFormatter r = mk_empty_record(Orientation::VERTICAL);
+nlohmann::json mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &m) {
 
-  for (MachineSpaceCoordinate const &c : sorted(m.get_shard_bindings().left_values())) {
-    std::ostringstream oss;
-    oss << "(" << c.node_idx << ", " << c.device_idx << ")";
-    r << oss.str();
-  }
+  std::vector<MachineSpaceCoordinate> coordinates = sorted(m.get_shard_bindings().left_values());
 
-  return r;
+  return nlohmann::json{
+    transform(
+      coordinates,
+      [&](MachineSpaceCoordinate const &c) -> std::string {
+        return fmt::format("({}, {})", c.node_idx, c.device_idx);
+      }),
+  };
 }
 
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &m) {

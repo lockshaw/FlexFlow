@@ -5,20 +5,30 @@
 #include "utils/graph/multidigraph/multidiedge_query.dtg.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/query_set.h"
+#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
 std::unordered_set<MultiDiEdge> get_incoming_edges(MultiDiGraphView const &g,
                                                    Node const &n) {
-  return g.query_edges(MultiDiEdgeQuery{query_set<Node>::matchall(), {n}});
+  MultiDiEdgeQuery query = MultiDiEdgeQuery{
+    query_set<Node>::matchall(),
+    query_set<Node>::match_single_value(n),
+  };
+
+  return g.query_edges(query);
 }
 
 std::unordered_map<Node, std::unordered_set<MultiDiEdge>>
     get_incoming_edges(MultiDiGraphView const &g,
                        std::unordered_set<Node> const &ns) {
+  MultiDiEdgeQuery query = MultiDiEdgeQuery{
+    query_set<Node>::matchall(),
+    query_set<Node>::match_values_in(set_of(ns)),
+  };
+
   std::unordered_map<Node, std::unordered_set<MultiDiEdge>> result =
-      group_by(g.query_edges(MultiDiEdgeQuery{query_set<Node>::matchall(),
-                                              query_set<Node>{ns}}),
+      group_by(g.query_edges(query),
                [&](MultiDiEdge const &e) { return g.get_multidiedge_dst(e); })
           .l_to_r();
 

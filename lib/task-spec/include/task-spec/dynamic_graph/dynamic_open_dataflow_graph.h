@@ -4,6 +4,8 @@
 #include "task-spec/dynamic_graph/dynamic_node_invocation.dtg.h"
 #include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.dtg.h"
 #include "utils/graph/labelled_open_kwarg_dataflow_graph/labelled_open_kwarg_dataflow_graph.h"
+#include "task-spec/dynamic_graph/dynamic_graph_edge.dtg.h"
+#include "task-spec/dynamic_graph/dynamic_slot_site.dtg.h"
 
 namespace FlexFlow {
 
@@ -41,12 +43,15 @@ std::unordered_set<DynamicGraphEdge>
     get_dynamic_graph_edges_outgoing_from_invocation(DynamicOpenDataflowGraph const &,
                                                    DynamicNodeInvocation const &);
 
-std::unordered_set<DynamicNodeSlot>
-    get_dynamic_node_slots(DynamicOpenDataflowGraph const &);
+std::unordered_set<InternalDynamicSlotSite>
+    get_internal_dynamic_slot_sites(DynamicOpenDataflowGraph const &);
 
-DynamicNodeSlot dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph const &, 
-                                                   DynamicValueAttrs const &);
-std::unordered_set<DynamicNodeSlot> dynamic_graph_find_sinks_of_value(
+std::unordered_set<DynamicSlotSite>
+    get_dynamic_slot_sites(DynamicOpenDataflowGraph const &);
+
+DynamicSlotSite dynamic_graph_find_source_of_value(
+    DynamicOpenDataflowGraph const &, DynamicValueAttrs const &);
+std::unordered_set<InternalDynamicSlotSite> dynamic_graph_find_sinks_of_value(
   DynamicOpenDataflowGraph const &,
   DynamicValueAttrs const &);
 
@@ -78,6 +83,9 @@ std::pair<LabelledOpenKwargDataflowGraph<DynamicNodeAttrs,
 
 bool dynamic_open_dataflow_graphs_are_isomorphic(
     DynamicOpenDataflowGraph const &, DynamicOpenDataflowGraph const &);
+
+std::string dynamic_open_dataflow_graph_as_dot(DynamicOpenDataflowGraph const &);
+void debug_print_dynamic_open_dataflow_graph_as_dot(DynamicOpenDataflowGraph const &);
 
 } // namespace FlexFlow
 

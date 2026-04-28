@@ -13,8 +13,10 @@ template std::string labelled_open_kwarg_dataflow_graph_view_as_dot(
     LabelledOpenKwargDataflowGraphView<NodeLabel,
                                        ValueLabel,
                                        GraphInputName,
-                                       SlotName> const &g,
-    std::function<std::string(NodeLabel const &)> const &,
-    std::function<std::string(ValueLabel const &)> const &);
+                                       SlotName> const &,
+    std::function<nlohmann::json(NodeLabel const &)> const &,
+    std::function<nlohmann::json(ValueLabel const &)> const &,
+    std::function<nlohmann::json(SlotName const &)> const &,
+    std::function<std::vector<SlotName>(std::unordered_set<SlotName> const &)> const &);
 
 } // namespace FlexFlow

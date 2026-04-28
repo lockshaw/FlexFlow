@@ -21,7 +21,7 @@ src_includes = [
 ]
 
 [[fields]]
-name = "slot_name"
+name = "pcg_slot_name"
 type = "::FlexFlow::TensorSlotName"
 
 [[fields]]

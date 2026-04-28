@@ -1,21 +1,23 @@
 #include "utils/graph/dataflow_graph/algorithms/dataflow_graph_as_dot.h"
 #include "utils/containers/generate_map.h"
 #include "utils/containers/map_keys.h"
-#include "utils/dot_file.h"
+#include "utils/dot/dot_file.h"
 #include "utils/graph/dataflow_graph/algorithms.h"
 #include "utils/graph/dataflow_graph/algorithms/view_as_open_dataflow_graph.h"
 #include "utils/graph/labelled_open_dataflow_graph/algorithms/with_labelling.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/render_dot.h"
 #include "utils/record_formatter.h"
+#include "utils/dot/dot_html_from_json.h"
+#include "utils/nonnegative_int/num_elements.h"
 
 namespace FlexFlow {
 
 std::string dataflow_graph_as_dot(
   DataflowGraphView const &g,
-  std::optional<std::function<std::string(Node const &)>> const &get_node_label,
-  std::optional<std::function<std::string(DataflowInput const &)>> const &get_input_label,
-  std::optional<std::function<std::string(DataflowOutput const &)>> const &get_output_label)
+  std::optional<std::function<nlohmann::json(Node const &)>> const &get_node_label,
+  std::optional<std::function<nlohmann::json(DataflowInput const &)>> const &get_input_label,
+  std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const &get_output_label)
 {
   std::ostringstream oss;
   DotFile<std::string> dot{oss};
@@ -30,20 +32,20 @@ std::string dataflow_graph_as_dot(
 void dataflow_graph_as_dot(
   DotFile<std::string> &dot,
   DataflowGraphView const &g,
-  std::optional<std::function<std::string(Node const &)>> const &get_node_label,
-  std::optional<std::function<std::string(DataflowInput const &)>> const &get_input_label,
-  std::optional<std::function<std::string(DataflowOutput const &)>> const &get_output_label)
+  std::optional<std::function<nlohmann::json(Node const &)>> const &get_node_label,
+  std::optional<std::function<nlohmann::json(DataflowInput const &)>> const &get_input_label,
+  std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const &get_output_label)
 {
 
   auto get_node_name = [](Node n) { return fmt::format("n{}", n.raw_uid); };
 
-  std::function<std::string(Node const &)> resolved_get_node_label =
+  std::function<nlohmann::json(Node const &)> resolved_get_node_label =
     get_node_label.value_or(get_node_name);
 
-  std::function<std::string(DataflowInput const &)> resolved_get_input_label =
+  std::function<nlohmann::json(DataflowInput const &)> resolved_get_input_label =
     get_input_label.value_or([](DataflowInput const &i) { return fmt::to_string(i.idx); });
 
-  std::function<std::string(DataflowOutput const &)> resolved_get_output_label =
+  std::function<nlohmann::json(DataflowOutput const &)> resolved_get_output_label =
     get_output_label.value_or([](DataflowOutput const &o) { return fmt::to_string(o.idx); });
 
   auto get_input_field = [](nonnegative_int idx) {
@@ -58,20 +60,77 @@ void dataflow_graph_as_dot(
     std::vector<DataflowInput> n_inputs = get_dataflow_inputs(g, n);
     std::vector<DataflowOutput> n_outputs = get_outputs(g, n);
 
-    RecordFormatter inputs_record = mk_empty_record(Orientation::HORIZONTAL);
-    for (DataflowInput const &i : n_inputs) {
-      inputs_record << fmt::format("<{}>{}", get_input_field(i.idx), resolved_get_input_label(i));
+    auto make_io_cell = [](nlohmann::json const &j, std::string const &port, positive_int colspan) -> DotHtmlTableCell {
+      DotHtmlTableCell cell = dot_html_cell_from_json(j);
+      cell.port = port;
+      cell.colspan = colspan;
+      return cell;
+    };
+
+    positive_int num_input_columns = positive_int{std::max(num_elements(n_inputs), 1_n)};
+    positive_int num_output_columns = positive_int{std::max(num_elements(n_outputs), 1_n)};
+
+    std::vector<DotHtmlTableCell> inputs = 
+      transform(n_inputs,
+                [&](DataflowInput const &i) -> DotHtmlTableCell {
+                  return make_io_cell(
+                    resolved_get_input_label(i),
+                    get_input_field(i.idx),
+                    num_output_columns);
+                });
+
+    if (inputs.size() == 0) {
+      inputs.push_back(DotHtmlTableCell{
+        /*content=*/DotHtmlTableCellContents{
+          "(no inputs)",
+        },
+        /*port=*/std::nullopt,
+        /*colspan=*/num_output_columns,
+      });
     }
 
-    RecordFormatter outputs_record = mk_empty_record(Orientation::HORIZONTAL);
-    for (DataflowOutput const &o : n_outputs) {
-      outputs_record << fmt::format("<{}>{}", get_output_field(o.idx), resolved_get_output_label(o));
+    DotHtmlTableCell body = dot_html_cell_from_json(resolved_get_node_label(n));
+    body.colspan = num_input_columns * num_output_columns;
+
+    std::vector<DotHtmlTableCell> outputs = 
+      transform(n_outputs,
+                [&](DataflowOutput const &o) -> DotHtmlTableCell {
+                  return make_io_cell(
+                    resolved_get_output_label(o),
+                    get_output_field(o.idx),
+                    num_input_columns);
+                });
+
+    if (outputs.size() == 0) {
+      outputs.push_back(DotHtmlTableCell{
+        /*content=*/DotHtmlTableCellContents{
+          "(no outputs)",
+        },
+        /*port=*/std::nullopt,
+        /*colspan=*/num_input_columns,
+      });
     }
 
-    RecordFormatter rec = mk_empty_record(Orientation::VERTICAL);
-    rec << inputs_record << resolved_get_node_label(n) << outputs_record;
+    DotHtmlTable table = DotHtmlTable{
+      /*border=*/0_n,
+      /*cellborder=*/1_n,
+      /*cellspacing=*/0_n,
+      /*rows=*/{
+        DotHtmlTableRow{
+          inputs,
+        },
+        DotHtmlTableRow{
+          /*cells=*/{
+            body,
+          },
+        },
+        DotHtmlTableRow{
+          outputs,
+        },
+      },
+    };
 
-    dot.add_record_node(get_node_name(n), rec);
+    dot.add_html_node(get_node_name(n), table);
   }
 
   for (DataflowEdge const &e : get_edges(g)) {

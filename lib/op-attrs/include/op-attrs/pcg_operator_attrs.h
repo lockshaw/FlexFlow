@@ -5,6 +5,7 @@
 #include "op-attrs/computation_graph_op_attrs.h"
 #include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
+#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 
@@ -14,7 +15,7 @@ OperatorType get_op_type(PCGOperatorAttrs const &);
 PCGOperatorAttrs
     pcg_op_attrs_from_compgraph_op_attrs(ComputationGraphOpAttrs const &);
 
-RecordFormatter pcg_op_attrs_as_dot(PCGOperatorAttrs const &);
+nlohmann::json pcg_op_attrs_as_dot_json(PCGOperatorAttrs const &);
 
 } // namespace FlexFlow
 

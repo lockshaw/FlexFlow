@@ -233,6 +233,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::vector<GenericTensorAccessorR> loss_values;
 
       for (int i = 0; i < num_epochs; i++) {
+        std::cout << i << std::endl;
+
         perform_all_passes_for_pcg_instance(
             /*instance=*/pcg_instance,
             /*profiling_settings=*/ProfilingSettings{0, 0},

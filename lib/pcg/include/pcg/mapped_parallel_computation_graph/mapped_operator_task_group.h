@@ -43,7 +43,7 @@ bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
     get_tensor_bindings_for_slot_name(MappedOperatorTaskGroup const &,
                                       TensorSlotName const &);
 
-RecordFormatter mapped_operator_task_group_as_dot(MappedOperatorTaskGroup const &);
+nlohmann::json mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &);
 
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &);
 std::ostream &operator<<(std::ostream &,
