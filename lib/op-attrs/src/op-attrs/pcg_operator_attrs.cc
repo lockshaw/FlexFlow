@@ -36,4 +36,24 @@ PCGOperatorAttrs pcg_op_attrs_from_compgraph_op_attrs(
   });
 }
 
+void pcg_op_attrs_check_incoming_tensor_roles(
+    PCGOperatorAttrs const &op_attrs,
+    std::unordered_set<TensorSlotName> const &input_slots,
+    std::unordered_set<TensorSlotName> const &weight_slots) {
+  std::unordered_map<TensorSlotName, IncomingTensorRole> correct =
+      get_incoming_tensor_roles(op_attrs);
+
+  std::unordered_map<TensorSlotName, IncomingTensorRole> current =
+      binary_merge_disjoint_maps(
+          generate_map(
+              input_slots,
+              [](TensorSlotName) { return IncomingTensorRole::INPUT; }),
+          generate_map(weight_slots, [](TensorSlotName) {
+            return IncomingTensorRole::WEIGHT;
+          }));
+
+  ASSERT(correct == current,
+         "check_incoming_tensor_roles found deviation in incoming tensors");
+}
+
 } // namespace FlexFlow

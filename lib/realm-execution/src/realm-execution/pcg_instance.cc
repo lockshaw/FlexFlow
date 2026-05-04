@@ -126,7 +126,7 @@ PCGInstance create_pcg_instance(
   dg = perform_shard_expansion(dg);
 
   TensorInstanceBacking tensor_instance_backing =
-      perform_instance_allocation(dg, inputs, ctx);
+      perform_instance_allocation(dg, inputs, ctx, device_type);
 
   logit_grad_value =
       transform(logit_grad_value, [&](DynamicValueAttrs const &lgv) {
@@ -158,7 +158,8 @@ PCGInstance create_pcg_instance(
           tensor_instance_backing,
           device_handle,
           optimizer_attrs,
-          ctx.get_outstanding_events());
+          ctx.get_outstanding_events(),
+          device_type);
 
   // Compute the topological ordering of the graph
   auto [kwarg_graph, node_map] =

@@ -491,7 +491,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::silu(
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_partition(
     parallel_tensor_guid_t const &input,
     ff_dim_t dim,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   RepartitionAttrs attrs = RepartitionAttrs{
@@ -518,7 +518,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_partition(
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_combine(
     parallel_tensor_guid_t const &input,
     ff_dim_t dim,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   CombineAttrs attrs = CombineAttrs{
@@ -544,7 +544,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_combine(
 
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_replicate(
     parallel_tensor_guid_t const &input,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   ReplicateAttrs attrs = ReplicateAttrs{degree};
@@ -567,7 +567,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_replicate(
 
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_reduce(
     parallel_tensor_guid_t const &input,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   ReductionAttrs attrs = ReductionAttrs{degree};
@@ -680,7 +680,10 @@ std::map<TensorSlotName, parallel_tensor_guid_t>
         std::map<TensorSlotName, InitializerAttrs> const &weight_initializers) {
 
   ASSERT(are_disjoint(keys(inputs), keys(weight_initializers)));
-  check_incoming_tensor_roles(layer, keys(inputs), keys(weight_initializers));
+  pcg_op_attrs_check_incoming_tensor_roles(
+      /*op_attrs=*/layer.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weight_initializers));
 
   std::map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {

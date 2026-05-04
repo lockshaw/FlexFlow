@@ -780,27 +780,27 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*role=*/mk_dynamic_tensor_role_opt(OptimizerSlotName::SGD_V),
     };
 
-    DynamicOpenDataflowGraph input = DynamicOpenDataflowGraph{
-        /*invocations=*/{
-            weight_invocation,
-            DynamicNodeInvocation{/*inputs=*/{
-                                      {
-                                          fwd_weight_output_slot1,
-                                          fwd_weight_output_attrs1,
+    DynamicOpenDataflowGraph input =
+        dynamic_open_dataflow_graph_from_invocation_set(
+            /*invocations=*/{
+                weight_invocation,
+                DynamicNodeInvocation{/*inputs=*/{
+                                          {
+                                              fwd_weight_output_slot1,
+                                              fwd_weight_output_attrs1,
+                                          },
+                                          {
+                                              upd_weight_input_slot2,
+                                              upd_weight_input_attrs2,
+                                          },
+                                          {
+                                              upd_weight_input_slot3,
+                                              upd_weight_input_attrs3,
+                                          },
                                       },
-                                      {
-                                          upd_weight_input_slot2,
-                                          upd_weight_input_attrs2,
-                                      },
-                                      {
-                                          upd_weight_input_slot3,
-                                          upd_weight_input_attrs3,
-                                      },
-                                  },
-                                  /*node_attrs=*/upd_weight_node_attrs,
-                                  /*outputs=*/{}},
-        },
-    };
+                                      /*node_attrs=*/upd_weight_node_attrs,
+                                      /*outputs=*/{}},
+            });
 
     std::pair<LabelledOpenKwargDataflowGraph<DynamicNodeAttrs,
                                              DynamicValueAttrs,

@@ -20,10 +20,11 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
   std::set<parallel_layer_guid_t> pcg_layers = pcg_get_parallel_layers(pcg);
   std::set<parallel_layer_guid_t> mapped_layers = keys(mapping.machine_views);
 
+  ASSERT(mapped_layers == pcg_layers);
+
   auto mapping_for_layer =
       [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
-    ComputationGraphOpAttrs op_attrs =
-        compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+    PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   ASSERT(mapped_layers == pcg_layers);
 

@@ -78,33 +78,24 @@ void require_value_is_copy_inserted(DynamicValueAttrs const &v) {
   ASSERT(v.mapping.has_value());
 }
 
-static DynamicValueAttrs map_dynamic_value_attrs_for_task_group(
-    DynamicTensorSlot const &slot,
-    DynamicValueAttrs const &value,
-    MappedOperatorTaskGroup const &mapping) {
-  DynamicValueAttrs result = value;
-  result.mapping = ParallelTensorMapping{
-      get_tensor_bindings_for_slot_name(mapping, slot.pcg_slot_name),
-  };
-  return result;
-}
-
-static bool training_op_type_should_start_mapped(
-    TrainingOpType const &training_op_type) {
-  return training_op_type.visit<bool>(overload{
-      [](OperatorType const &t) -> bool { return should_be_mapped(t); },
-      [](TrainingOnlyOpType const &t) -> bool {
-        ASSERT(t == TrainingOnlyOpType::LOSS);
-
-        return true;
-      },
-  });
-}
-
-static bool invocation_should_start_mapped(DynamicNodeInvocation const &i) {
-  TrainingOpType op_type = dynamic_node_invocation_get_op_type(i);
-  return training_op_type_should_start_mapped(op_type);
-}
+// static DynamicValueAttrs map_dynamic_value_attrs_for_task_group(
+//     DynamicTensorSlot const &slot,
+//     DynamicValueAttrs const &value,
+//     MappedOperatorTaskGroup const &mapping,
+//     DeviceType device_type) {
+//   DynamicValueAttrs result = value;
+//
+//   result.mapping = ParallelTensorMapping{
+//     map_values(
+//       get_tensor_bindings_for_slot_name(mapping, slot.pcg_slot_name),
+//       [&](MachineSpaceCoordinate const &coord)
+//         -> device_id_t
+//       {
+//         return device_id_t{coord, device_type};
+//       }),
+//   };
+//   return result;
+// }
 
 void require_invocation_is_fully_copy_inserted(DynamicNodeInvocation const &i) {
   auto require_node_is_copy_inserted = [](DynamicNodeAttrs const &) { return; };
@@ -127,18 +118,15 @@ void require_graph_is_fully_copy_inserted(DynamicOpenDataflowGraph const &g) {
 static std::pair<DynamicValueAttrs, DynamicValueAttrs>
     filter_mapping_to_avoid_degenerate_copies(DynamicValueAttrs const &input,
                                               DynamicValueAttrs const &output) {
-  std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+  std::unordered_set<std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       input_mapping = unordered_set_of(assert_unwrap(input.mapping).raw);
 
-  std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+  std::unordered_set<std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       output_mapping = unordered_set_of(assert_unwrap(output.mapping).raw);
 
   // Exclude the point shared between the input and output mappings, because
   // those will not result in actual copies once shard expansion is performed
-  std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+  std::unordered_set<std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       remove = set_intersection(input_mapping, output_mapping);
 
   DynamicValueAttrs filtered_input = input;

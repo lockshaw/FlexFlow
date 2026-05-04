@@ -22,7 +22,8 @@ PerDeviceOpStateBacking perform_distributed_per_device_op_state_initialization(
     TensorInstanceBacking const &tensor_instance_backing,
     DistributedFfHandle const &device_handle,
     OptimizerAttrs const &optimizer_attrs,
-    Realm::Event precondition) {
+    Realm::Event precondition,
+    DeviceType device_type) {
 
   // Initialize all operators and save the per-device op state
   ASSERT(no_nodes_are_initialized(dg));
