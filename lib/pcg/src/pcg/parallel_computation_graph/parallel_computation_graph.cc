@@ -66,6 +66,12 @@ ParallelLayerAddedResult add_parallel_layer(
     std::map<TensorSlotName, parallel_tensor_guid_t> const &weights,
     std::optional<std::map<TensorSlotName, CreateGrad>> const
         &maybe_output_flags) {
+
+  pcg_op_attrs_check_incoming_tensor_roles(
+      /*op_attrs=*/layer_attrs.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weights));
+
   std::map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {
         return get_parallel_tensor_shape(pcg, i);
@@ -183,8 +189,7 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
         return get_parallel_degrees(get_parallel_tensor_shape(pcg, input_guid));
       });
 
-  return get_operator_task_space(
-      compgraph_op_attrs_from_pcg_op_attrs(op_attrs).value(), input_degrees);
+  return get_operator_task_space(op_attrs, input_degrees);
 }
 
 std::set<ParallelLayerInvocationInfo>
@@ -311,8 +316,7 @@ std::map<TensorSlotName, parallel_tensor_guid_t>
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_incoming_mappings(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_incoming_mappings(
       /*attrs=*/op_attrs,
@@ -322,8 +326,8 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_output_mappings(ParallelComputationGraph const &pcg,
                                         parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_output_mappings(
       /*attrs=*/op_attrs,

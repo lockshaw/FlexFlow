@@ -5,8 +5,8 @@
 #include "op-attrs/computation_graph_op_attrs.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
-#include "pcg/device_id_t.dtg.h"
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
@@ -106,7 +106,7 @@ OperatorAtomicTaskShardBinding
         MachineSpaceCoordinate const &);
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &,
+    PCGOperatorAttrs const &,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const &,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &);

@@ -164,7 +164,7 @@ MachineView
 
 static OperatorAtomicTaskShardBinding
     operator_atomic_task_shard_binding_from_machine_view(
-        ComputationGraphOpAttrs const &op_attrs,
+        PCGOperatorAttrs const &op_attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_dim_degrees,
         MachineView const &machine_view,
@@ -199,7 +199,7 @@ static OperatorAtomicTaskShardBinding
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &op_attrs,
+    PCGOperatorAttrs const &op_attrs,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const
         &inputs_dim_degrees,
     MachineComputeResourceSlice const &machine_space,

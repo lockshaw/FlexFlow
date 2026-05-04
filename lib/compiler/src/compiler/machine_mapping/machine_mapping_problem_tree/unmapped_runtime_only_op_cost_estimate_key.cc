@@ -45,7 +45,7 @@ OperatorTaskSpace get_operator_task_space_for_runtime_only_op_cost_estimate_key(
     UnmappedRuntimeOnlyOpCostEstimateKey const &unmapped) {
 
   return get_operator_task_space(
-      assert_unwrap(compgraph_op_attrs_from_pcg_op_attrs(unmapped.op_attrs)),
+      unmapped.op_attrs,
       map_values(unmapped.input_shapes,
                  [](ParallelTensorShape const &input_shape)
                      -> ParallelTensorDimDegrees {
