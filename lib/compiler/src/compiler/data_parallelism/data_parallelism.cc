@@ -14,13 +14,25 @@
 #include "pcg/parallel_computation_graph/generate_weight_transform.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "utils/containers/zip_values_strict_with.h"
+#include "op-attrs/pcg_operator_attrs.h"
 
 namespace FlexFlow {
 
 SearchResult apply_data_parallelism(ComputationGraph const &cg,
                                     int_ge_two degree) {
   ParallelComputationGraph pcg = empty_parallel_computation_graph();
-  MachineMapping machine_mapping = MachineMapping{{}};
+
+  MachineView input_mv = MachineView{
+    /*start=*/MachineSpaceCoordinate{
+      /*node_idx=*/0_n,
+      /*device_idx=*/0_n,
+    },
+    /*start_invariant=*/StartInvariantMachineView{
+      MachineView1dProjection{
+        /*strides=*/{},
+      },
+    },
+  };
 
   MachineView data_parallel_mv = MachineView{
     /*start=*/MachineSpaceCoordinate{
@@ -98,7 +110,7 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
           /*op_attrs=*/PCGOperatorAttrs{
             RepartitionAttrs{
               ff_dim_t{0_n},
-              degree.positive_int_from_int_ge_two(),
+              degree,
             },
           },
           /*name=*/std::nullopt,
@@ -125,15 +137,23 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
     ) {
       cg_tensor_to_pcg_tensor.equate_strict(corresponding_outputs);
     }
-
-    if (should_be_mapped(get_op_type(parallel_layer_attrs))) {
-      machine_mapping.machine_views.insert({added.parallel_layer, data_parallel_mv});
-    }
   };
 
   for (layer_guid_t const &layer : topological_ordering(cg)) {
     add_layer_to_pcg(layer);
   }
+
+  MachineMapping machine_mapping = MachineMapping{
+    generate_map(get_parallel_layers(pcg),
+                 [&](parallel_layer_guid_t const &l) -> MachineView {
+                   OperatorType op_type = pcg_op_attrs_get_op_type(pcg_get_op_attrs(pcg, l));
+                   if (op_type == OperatorType::INPUT || op_type == OperatorType::WEIGHT) {
+                     return input_mv;
+                   } else {
+                     return data_parallel_mv;
+                   }
+                 }),
+  };
 
   return SearchResult{
     /*pcg=*/pcg,

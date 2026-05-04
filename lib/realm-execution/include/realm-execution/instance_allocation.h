@@ -13,7 +13,7 @@ namespace FlexFlow {
  */
 std::pair<Realm::RegionInstance, Realm::Event>
     perform_instance_allocation_for_value(
-        MachineSpaceCoordinate const &device_coord,
+        device_id_t const &device_id,
         DynamicValueAttrs const &value,
         RealmContext &ctx);
 
@@ -28,7 +28,8 @@ TensorInstanceBacking perform_instance_allocation(
     DynamicOpenDataflowGraph const &g,
     std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> const
         &preallocated,
-    RealmContext &ctx);
+    RealmContext &ctx,
+    DeviceType device_type);
 
 /**
  * @brief Destroys all of the instances held in \p instances.

@@ -88,8 +88,7 @@ std::unordered_map<BinaryTreePath, std::optional<MachineSpaceStencil>>
 
         UnmappedRuntimeOnlyOpCostEstimateKey leaf = tree_leaf_map.at(p);
 
-        ComputationGraphOpAttrs leaf_op_attrs =
-            compgraph_op_attrs_from_pcg_op_attrs(leaf.op_attrs).value();
+        PCGOperatorAttrs leaf_op_attrs = leaf.op_attrs;
 
         std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
             leaf_input_degrees =

@@ -22,17 +22,25 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelComputationGraphBuilder b;
 
-      parallel_tensor_guid_t t1 = b.create_input_tensor(input_shape);
-      t1 = b.parallel_partition(t1, ff_dim_t{0_n}, 2_p);
-      parallel_tensor_guid_t t2 = b.create_input_tensor(input_shape);
-      t2 = b.parallel_partition(t2, ff_dim_t{0_n}, 2_p);
-
+      std::string input1_name = "input1";
+      std::string input2_name = "input2";
+      std::string partition1_name = "partition1";
+      std::string partition2_name = "partition2";
       std::string add_name = "add";
+
+      parallel_tensor_guid_t t1 = b.create_input_tensor(input_shape, input1_name);
+      t1 = b.parallel_partition(t1, ff_dim_t{0_n}, 2_ge2, partition1_name);
+      parallel_tensor_guid_t t2 = b.create_input_tensor(input_shape, input2_name);
+      t2 = b.parallel_partition(t2, ff_dim_t{0_n}, 2_ge2, partition2_name);
 
       parallel_tensor_guid_t t3 = b.add(t1, t2, add_name);
 
       ParallelComputationGraph pcg = b.pcg;
 
+      parallel_layer_guid_t l_input1 = get_parallel_layer_by_name(pcg, input1_name);
+      parallel_layer_guid_t l_input2 = get_parallel_layer_by_name(pcg, input2_name);
+      parallel_layer_guid_t l_partition1 = get_parallel_layer_by_name(pcg, partition1_name);
+      parallel_layer_guid_t l_partition2 = get_parallel_layer_by_name(pcg, partition2_name);
       parallel_layer_guid_t l_add = get_parallel_layer_by_name(pcg, add_name);
 
       auto machine_coord = [](nonnegative_int x) -> MachineSpaceCoordinate {
@@ -50,8 +58,58 @@ TEST_SUITE(FF_TEST_SUITE) {
         };
       };
 
+      MappedOperatorTaskGroup input_mapping = MappedOperatorTaskGroup{
+        bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+          {
+            machine_coord(0_n),
+            OperatorAtomicTaskShardBinding{
+              {
+                {TensorSlotName::OUTPUT, ptensor_coord(0_n)},
+              },
+            }
+          },
+        },
+      };
+
+      MappedOperatorTaskGroup partition_mapping = MappedOperatorTaskGroup{
+        bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+          {
+            machine_coord(0_n),
+            OperatorAtomicTaskShardBinding{
+              {
+                {TensorSlotName::OUTPUT, ptensor_coord(0_n)},
+              },
+            }
+          },
+          {
+            machine_coord(1_n),
+            OperatorAtomicTaskShardBinding{
+              {
+                {TensorSlotName::OUTPUT, ptensor_coord(1_n)},
+              },
+            }
+          },
+        },
+      };
+
 
       std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapped_tasks = {
+        {
+          l_input1,
+          input_mapping,
+        },
+        {
+          l_input2,
+          input_mapping,
+        },
+        {
+          l_partition1,
+          partition_mapping,
+        },
+        {
+          l_partition2,
+          partition_mapping,
+        },
         {
           l_add,
           MappedOperatorTaskGroup{

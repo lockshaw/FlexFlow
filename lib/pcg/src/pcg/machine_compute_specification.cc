@@ -1,5 +1,4 @@
 #include "pcg/machine_compute_specification.h"
-#include "pcg/device_id.h"
 #include "pcg/machine_compute_resource_slice.h"
 #include "utils/containers/transform.h"
 #include "utils/overload.h"
@@ -44,16 +43,6 @@ bool is_valid_machine_space_coordinate(MachineComputeSpecification const &ms,
   return is_valid_machine_space_coordinate_in_slice(
     compute_slice_from_specification(ms),
     coord);
-}
-
-device_id_t get_device_id(MachineComputeSpecification const &ms,
-                          MachineSpaceCoordinate const &coord) {
-  ASSERT(is_valid_machine_space_coordinate(ms, coord));
-
-  nonnegative_int raw_idx =
-      coord.node_idx * ms.num_gpus_per_node +
-      coord.device_idx;
-  return device_id_from_index(raw_idx, DeviceType::GPU);
 }
 
 } // namespace FlexFlow

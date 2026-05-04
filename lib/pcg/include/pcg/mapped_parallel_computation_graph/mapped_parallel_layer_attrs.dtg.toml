@@ -32,4 +32,4 @@ type = "std::optional<::FlexFlow::stack_string<MAX_OPNAME>>"
 
 [[fields]]
 name = "mapping"
-type = "std::optional<::FlexFlow::MappedOperatorTaskGroup>"
+type = "::FlexFlow::MappedOperatorTaskGroup"

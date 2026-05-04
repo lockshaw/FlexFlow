@@ -11,7 +11,6 @@
 #include "op-attrs/ops/loss_functions/loss_attrs.dtg.h"
 #include "pcg/computation_graph.h"
 #include "pcg/computation_graph_builder.h"
-#include "pcg/device_id_t.h"
 #include "pcg/device_type.dtg.h"
 #include "pcg/optimizer_attrs.dtg.h"
 #include "task-spec/dynamic_graph/dynamic_tensor_guid_t.dtg.h"
@@ -140,8 +139,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                                          /*nesterov=*/false,
                                          /*weight_decay=*/0.001}};
     device_handle_t ff_handle = cpu_make_device_handle_t();
-    device_id_t device_idx =
-        make_device_id_t_from_idx(nonnegative_int{0}, DeviceType::CPU);
+    device_id_t device_idx = device_id_t{
+      MachineSpaceCoordinate{0_n, 0_n},
+      DeviceType::CPU,
+    };
 
     std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
 
@@ -309,8 +310,10 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
             /*weight_decay=*/0.001,
         },
     };
-    device_id_t device_idx =
-        make_device_id_t_from_idx(nonnegative_int{0}, DeviceType::GPU);
+    device_id_t device_idx = device_id_t{
+      MachineSpaceCoordinate{0_n, 0_n},
+      DeviceType::GPU,
+    };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 
@@ -427,8 +430,10 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         },
     };
 
-    device_id_t device_idx =
-        make_device_id_t_from_idx(nonnegative_int{0}, DeviceType::GPU);
+    device_id_t device_idx = device_id_t{
+      MachineSpaceCoordinate{0_n, 0_n},
+      DeviceType::GPU,
+    };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 

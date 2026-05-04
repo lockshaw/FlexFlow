@@ -10,7 +10,6 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/computation_graph_builder.h"
-#include "pcg/device_id_t.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -19,8 +18,10 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("LocalCostEstimator") {
     Allocator allocator = create_local_cpu_memory_allocator();
     device_handle_t ff_handle = cpu_make_device_handle_t();
-    device_id_t device_idx =
-        make_device_id_t_from_idx(nonnegative_int{0}, DeviceType::CPU);
+    device_id_t device_idx = device_id_t{
+      MachineSpaceCoordinate{0_n, 0_n},
+      DeviceType::CPU,
+    };
 
     OptimizerAttrs optimizer_attrs = OptimizerAttrs{
         SGDOptimizerAttrs{
@@ -90,8 +91,10 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     Allocator allocator = create_local_cuda_memory_allocator();
 
-    device_id_t device_idx =
-        make_device_id_t_from_idx(nonnegative_int{0}, DeviceType::GPU);
+    device_id_t device_idx = device_id_t{
+      MachineSpaceCoordinate{0_n, 0_n},
+      DeviceType::GPU,
+    };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 

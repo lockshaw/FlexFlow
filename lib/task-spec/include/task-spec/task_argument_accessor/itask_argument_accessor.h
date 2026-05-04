@@ -7,7 +7,7 @@
 #include "op-attrs/ops/loss_functions/loss_attrs.dtg.h"
 #include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include "pcg/device_id_t.dtg.h"
+#include "task-spec/device_id_t.dtg.h"
 #include "pcg/optimizer_attrs.dtg.h"
 #include "task-spec/concrete_arg_spec.h"
 #include "task-spec/ff_iteration_config.dtg.h"

@@ -34,6 +34,7 @@
 #include "task-spec/dynamic_graph/copy_insertion.h"
 #include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.h"
 #include "utils/containers/filter_values.h"
+#include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 
 namespace FlexFlow {
 
@@ -60,51 +61,40 @@ bool graph_is_fully_copy_inserted(DynamicOpenDataflowGraph const &g) {
       g, node_is_any, value_is_mapped, slot_is_mapped);
 }
 
-static DynamicValueAttrs map_dynamic_value_attrs_for_task_group(
-    DynamicTensorSlot const &slot,
-    DynamicValueAttrs const &value,
-    MappedOperatorTaskGroup const &mapping) {
-  DynamicValueAttrs result = value;
-  result.mapping = ParallelTensorMapping{
-    get_tensor_bindings_for_slot_name(mapping, slot.pcg_slot_name),
-  };
-  return result;
-}
-
-static bool training_op_type_should_start_mapped(TrainingOpType const &training_op_type) {
-  return training_op_type.visit<bool>(overload {
-    [](OperatorType const &t) -> bool {
-      return should_be_mapped(t);
-    },
-    [](TrainingOnlyOpType const &t) -> bool {
-      ASSERT(t == TrainingOnlyOpType::LOSS);
-
-      return true;
-    },
-  });
-}
-
-static bool invocation_should_start_mapped(DynamicNodeInvocation const &i)
-{
-  TrainingOpType op_type = dynamic_node_invocation_get_op_type(i);
-  return training_op_type_should_start_mapped(op_type);
-}
+// static DynamicValueAttrs map_dynamic_value_attrs_for_task_group(
+//     DynamicTensorSlot const &slot,
+//     DynamicValueAttrs const &value,
+//     MappedOperatorTaskGroup const &mapping,
+//     DeviceType device_type) {
+//   DynamicValueAttrs result = value;
+//
+//   result.mapping = ParallelTensorMapping{
+//     map_values(
+//       get_tensor_bindings_for_slot_name(mapping, slot.pcg_slot_name),
+//       [&](MachineSpaceCoordinate const &coord)
+//         -> device_id_t
+//       {
+//         return device_id_t{coord, device_type};
+//       }),
+//   };
+//   return result;
+// }
 
 static std::pair<DynamicValueAttrs, DynamicValueAttrs>
     filter_mapping_to_avoid_degenerate_copies(DynamicValueAttrs const &input,
                                               DynamicValueAttrs const &output) {
   std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+      std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       input_mapping = unordered_set_of(assert_unwrap(input.mapping).raw);
 
   std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+      std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       output_mapping = unordered_set_of(assert_unwrap(output.mapping).raw);
 
   // Exclude the point shared between the input and output mappings, because
   // those will not result in actual copies once shard expansion is performed
   std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>>
+      std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       remove = set_intersection(input_mapping, output_mapping);
 
   DynamicValueAttrs filtered_input = input;
@@ -118,228 +108,6 @@ static std::pair<DynamicValueAttrs, DynamicValueAttrs>
   };
 
   return std::pair{filtered_input, filtered_output};
-}
-
-//std::unordered_set<DynamicNodeInvocation> perform_value_mapping_for_invocation(
-    //DynamicNodeInvocation const &i)
-//{
-  //{
-    //bool should_start_mapped = invocation_should_start_mapped(i);
-    //ASSERT(should_start_mapped == i.node_attrs.mapping.has_value());
-
-    //if (!should_start_mapped) {
-      //return {i};
-    //}
-  //}
-
-  //MappedOperatorTaskGroup mapping = assert_unwrap(i.node_attrs.mapping);
-
-  //auto map_tensor = [&](DynamicTensorSlot const &slot,
-                        //DynamicValueAttrs const &value)
-    //-> DynamicValueAttrs
-  //{
-    //return map_dynamic_value_attrs_for_task_group(slot, value, mapping);
-  //};
-
-  //std::unordered_map<DynamicTensorSlot, DynamicValueAttrs> mapped_inputs =
-      //map_values2(i.inputs, map_tensor);
-
-  //std::unordered_map<DynamicTensorSlot, DynamicValueAttrs> mapped_outputs =
-      //map_values2(i.outputs, map_tensor);
-
-  //auto generate_copy_operation_for_input =
-    //[&](DynamicTensorSlot const &slot, DynamicValueAttrs const &input)
-      //-> std::optional<DynamicNodeInvocation>
-    //{
-      //DynamicValueAttrs mapped_outgoing_value =
-          //unmapped_value_to_mapped_outgoing_value.at(input);
-
-      //DynamicValueAttrs use_value = mapped_inputs.at(slot);
-
-      //if (mapped_outgoing_value == use_value) {
-        //return std::nullopt;
-      //}
-
-      //auto [filtered_source, filtered_use] =
-          //filter_mapping_to_avoid_degenerate_copies(source_value, use_value);
-
-      //return DynamicNodeInvocation{
-          //[>inputs=<]{
-              //{
-                  //DynamicTensorSlot{TensorSlotName::INPUT,
-                                    //slot.slot_tensor_role},
-                  //filtered_source,
-              //},
-          //},
-          //[>node_attrs=<]
-          //DynamicNodeAttrs{
-              //[>task_type=<]transform(
-                  //slot.slot_tensor_role,
-                  //dynamic_task_type_from_tensor_role_for_copy),
-              //[>device_coord=<]std::nullopt,
-              //[>mapping=<]std::nullopt,
-              //[>op_attrs<] TrainingOperationAttrs{CopyAttrs{}},
-              //[>layer_guid=<]dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
-              //[>per_device_op_state=<]std::nullopt,
-          //},
-          //[>outputs=<]
-          //{
-              //{
-                  //DynamicTensorSlot{TensorSlotName::OUTPUT,
-                                    //slot.slot_tensor_role},
-                  //filtered_use,
-              //},
-          //},
-      //};
-    //};
-
-  //std::unordered_set<DynamicNodeInvocation> copy_invocations =
-    //filtrans(
-      //unordered_set_of(i.inputs),
-      //[&](std::pair<DynamicTensorSlot, DynamicValueAttrs> const &p)
-        //-> std::optional<DynamicNodeInvocation>
-      //{
-        //return generate_copy_operation_for_input(p.first, p.second);
-      //});
-
-  //return set_union(
-    //copy_invocations,
-    //std::unordered_set{
-      //DynamicNodeInvocation{
-        //[>inputs=<]mapped_inputs,
-        //[>node_attrs=<]i.node_attrs,
-        //[>outputs=<]mapped_outputs,
-      //},
-    //});
-//}
-
-
-std::unordered_map<InternalDynamicSlotSite, ParallelTensorMapping>
-  solve_for_unresolved_mappings(
-    DynamicOpenDataflowGraph const &g,
-    std::unordered_map<InternalDynamicSlotSite, std::optional<ParallelTensorMapping>> const &partial_solution)
-{
-  std::unordered_map<InternalDynamicSlotSite, std::optional<ParallelTensorMapping>> curr_solution = partial_solution;
-
-  auto get_unresolved = [&]() -> std::unordered_set<InternalDynamicSlotSite> {
-    return keys(filter_values(curr_solution,
-                              [](std::optional<ParallelTensorMapping> const &m) -> bool {
-                                return !m.has_value();
-                              }));
-  };
-
-  auto count_unresolved = [&]() -> nonnegative_int {
-    return num_elements(get_unresolved());
-  };
-
-  auto try_to_resolve = [&](InternalDynamicSlotSite const &s)
-    -> std::optional<ParallelTensorMapping>
-  {
-    ASSERT(curr_solution.at(s) == std::nullopt);
-
-    DynamicNodeInvocation i = s.invocation;
-    DynamicValueAttrs v = dynamic_value_attrs_for_slot_site(DynamicSlotSite{s});
-
-    if (s.direction == TensorDirection::OUTPUT) {
-      std::unordered_set<InternalDynamicSlotSite> sinks = dynamic_graph_find_sinks_of_value(g, v);
-
-      if (sinks.size() > 0) {
-        std::unordered_set<std::optional<ParallelTensorMapping>> sink_solutions =
-          transform(sinks, [&](InternalDynamicSlotSite const &sink) { return curr_solution.at(sink); });
-        sink_solutions.erase(std::nullopt);
-
-        if (sink_solutions.size() == 1) {
-          return get_only(sink_solutions);
-        }
-      }
-    }
-
-    if (s.direction == TensorDirection::INCOMING) {
-      DynamicSlotSite source = dynamic_graph_find_source_of_value(g, v);
-
-      if (source.is_internal()) {
-        std::optional<ParallelTensorMapping> source_mapping = curr_solution.at(source.require_internal());
-        if (source_mapping.has_value()) {
-          return source_mapping.value();
-        }
-      }
-    }
-
-    // currently failing because different inputs to the update task don't influence each other, so the 
-    // sgd_v value remains unmapped
-
-  };
-
-  auto try_to_resolve_all_unresolved = [&]() -> bool {
-    bool made_progress = false;
-    for (auto const &[slot_site, mapping] : curr_solution) {
-      if (mapping == std::nullopt) {
-        std::optional<ParallelTensorMapping> resolution = try_to_resolve(slot_site);
-
-        if (resolution.has_value()) {
-          curr_solution.at(slot_site) = resolution;
-          made_progress = true;
-        }
-      }
-    }
-
-    return made_progress;
-  };
-
-  while (count_unresolved() > 0) {
-    bool made_progress = try_to_resolve_all_unresolved();
-
-    ASSERT(made_progress, get_unresolved());
-  }
-
-  return
-    map_values(
-      curr_solution,
-      [](std::optional<ParallelTensorMapping> const &m) -> ParallelTensorMapping {
-        return m.value();
-      });
-}
-
-std::unordered_map<InternalDynamicSlotSite, ParallelTensorMapping>
-  resolve_tensor_mappings_from_node_mappings(DynamicOpenDataflowGraph const &g) {
-
-  auto get_mappings_for_invocation = [&](DynamicNodeInvocation const &i)
-    -> std::unordered_map<InternalDynamicSlotSite, std::optional<ParallelTensorMapping>>
-  {
-    auto get_tensor_mapping_for_slot_name = [&](TensorSlotName slot_name)
-      -> std::optional<ParallelTensorMapping>
-    {
-      if (i.node_attrs.mapping.has_value()) {
-        return ParallelTensorMapping{
-          get_tensor_bindings_for_slot_name(assert_unwrap(i.node_attrs.mapping), slot_name),
-        };
-      } else {
-        return std::nullopt;
-      }
-    };
-
-    return generate_map(
-      get_dynamic_slot_sites_for_invocation(i),
-      [&](InternalDynamicSlotSite const &s) {
-        return get_tensor_mapping_for_slot_name(s.slot_name.pcg_slot_name);
-      });
-  };
-
-  std::unordered_map<
-    InternalDynamicSlotSite,
-    std::optional<ParallelTensorMapping>
-  > initial_partial_solution =
-    merge_disjoint_maps(
-      transform(
-        get_dynamic_invocation_set(g),
-        get_mappings_for_invocation));
-
-  std::unordered_map<
-    InternalDynamicSlotSite,
-    ParallelTensorMapping
-  > result = solve_for_unresolved_mappings(g, initial_partial_solution);
-
-  return result;
 }
 
 std::unordered_map<DynamicTensorSlot, ParallelTensorMapping>
@@ -463,6 +231,36 @@ std::unordered_set<DynamicNodeInvocation>
   return transform(required_copies, make_copy_to);
 }
 
+std::unordered_map<InternalDynamicSlotSite, ParallelTensorMapping>
+  resolve_tensor_mappings_from_node_mappings(DynamicOpenDataflowGraph const &g) {
+
+  auto get_mappings_for_invocation = [&](DynamicNodeInvocation const &i)
+    -> std::unordered_map<InternalDynamicSlotSite, ParallelTensorMapping>
+  {
+    return generate_map(
+      get_dynamic_slot_sites_for_invocation(i),
+      [&](InternalDynamicSlotSite const &s) -> ParallelTensorMapping  {
+        return ParallelTensorMapping{
+          dynamic_node_mapping_bindings_for_slot_name(
+            assert_unwrap(i.node_attrs.mapping), 
+            s.slot_name.pcg_slot_name),
+        };
+      });
+  };
+
+  std::unordered_map<
+    InternalDynamicSlotSite,
+    ParallelTensorMapping
+  > result =
+    merge_disjoint_maps(
+      transform(
+        get_dynamic_invocation_set(g),
+        get_mappings_for_invocation));
+
+  return result;
+}
+
+
 DynamicOpenDataflowGraph
     perform_copy_insertion(DynamicOpenDataflowGraph const &g) {
 
@@ -487,9 +285,8 @@ DynamicOpenDataflowGraph
           return apply_mappings_for_invocation(i, fully_resolved_tensor_mappings);
         });
 
-  DynamicOpenDataflowGraph result = DynamicOpenDataflowGraph{
-    set_union(all_copies, mapped_invocations),
-  };
+  DynamicOpenDataflowGraph result = dynamic_open_dataflow_graph_from_invocation_set(
+    set_union(all_copies, mapped_invocations));
 
   ASSERT(graph_is_fully_copy_inserted(result));
 

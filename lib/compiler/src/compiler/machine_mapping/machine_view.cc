@@ -127,19 +127,6 @@ std::unordered_set<MachineSpaceCoordinate>
                    });
 }
 
-std::unordered_set<device_id_t>
-    get_device_ids(OperatorTaskSpace const &task_space,
-                   MachineView const &mv,
-                   MachineComputeSpecification const &ms) {
-  ASSERT(op_task_space_num_dims(task_space) ==
-         mv_get_expected_task_space_num_dims(mv));
-
-  return transform(get_machine_space_coordinates(task_space, compute_slice_from_specification(ms), mv),
-                   [&](MachineSpaceCoordinate const &coord) {
-                     return get_device_id(ms, coord);
-                   });
-}
-
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
                                  MachineSpecificationDimension const &dim,
                                  stride_t stride) {
@@ -155,7 +142,7 @@ MachineView
 
 static OperatorAtomicTaskShardBinding
     operator_atomic_task_shard_binding_from_machine_view(
-        ComputationGraphOpAttrs const &op_attrs,
+        PCGOperatorAttrs const &op_attrs,
         std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_dim_degrees,
         MachineView const &machine_view,
@@ -190,7 +177,7 @@ static OperatorAtomicTaskShardBinding
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &op_attrs,
+    PCGOperatorAttrs const &op_attrs,
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
         &inputs_dim_degrees,
     MachineComputeResourceSlice const &machine_space,

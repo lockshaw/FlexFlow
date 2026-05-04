@@ -48,11 +48,22 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     std::string result = dataflow_graph_as_dot(g, get_node_label, get_input_label, get_output_label);
+
     std::string correct = R"EXPECTED_OUTPUT(digraph taskgraph {
-  node0 [label="{ {  } | n1 | { <o0>n1_0 } }",shape=record];
-  node1 [label="{ {  } | n2 | { <o0>n2_0 } }",shape=record];
-  node2 [label="{ {  } | n3 | { <o0>n3_0 } }",shape=record];
-  node3 [label="{ { <i0>n4_0 | <i1>n4_1 | <i2>n4_2 } | n4 | { <o0>n4_0 } }",shape=record];
+  node0 [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD COLSPAN="1">(no inputs)</TD></TR>
+<TR><TD COLSPAN="1">n1</TD></TR>
+<TR><TD PORT="o0" COLSPAN="1">n1_0</TD></TR></TABLE>>,shape=plaintext];
+  node1 [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD COLSPAN="1">(no inputs)</TD></TR>
+<TR><TD COLSPAN="1">n2</TD></TR>
+<TR><TD PORT="o0" COLSPAN="1">n2_0</TD></TR></TABLE>>,shape=plaintext];
+  node2 [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD COLSPAN="1">(no inputs)</TD></TR>
+<TR><TD COLSPAN="1">n3</TD></TR>
+<TR><TD PORT="o0" COLSPAN="1">n3_0</TD></TR></TABLE>>,shape=plaintext];
+  node3 [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD PORT="i0" COLSPAN="1">n4_0</TD>
+<TD PORT="i1" COLSPAN="1">n4_1</TD>
+<TD PORT="i2" COLSPAN="1">n4_2</TD></TR>
+<TR><TD COLSPAN="3">n4</TD></TR>
+<TR><TD PORT="o0" COLSPAN="3">n4_0</TD></TR></TABLE>>,shape=plaintext];
   node1:o0 -> node3:i1;
   node2:o0 -> node3:i2;
   node0:o0 -> node3:i0;

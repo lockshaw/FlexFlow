@@ -21,17 +21,4 @@ bool is_parallel_op(OperatorType t) {
   }
 }
 
-bool should_be_mapped(OperatorType t) {
-  if (is_parallel_op(t)) {
-    return false;
-  }
-
-  if (t == OperatorType::INPUT || t == OperatorType::WEIGHT) {
-    return false;
-  }
-
-  return true;
-}
-
-
 } // namespace FlexFlow

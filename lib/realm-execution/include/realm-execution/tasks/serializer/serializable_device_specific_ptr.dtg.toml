@@ -9,7 +9,7 @@ features = [
 ]
 
 includes = [
-  "pcg/device_id_t.dtg.h",
+  "task-spec/device_id_t.dtg.h",
   "cstdint",
   "optional",
 ]

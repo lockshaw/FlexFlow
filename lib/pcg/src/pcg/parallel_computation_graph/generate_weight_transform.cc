@@ -15,13 +15,13 @@ std::unordered_set<ParallelOpAttrs>
 
   positive_int discard_copy_degree = goal.discard_copy_degree.value;
   if (discard_copy_degree != 1) {
-    result.insert(ParallelOpAttrs{ReplicateAttrs{discard_copy_degree}});
+    result.insert(ParallelOpAttrs{ReplicateAttrs{int_ge_two{discard_copy_degree}}});
   }
 
   for (auto const &[shard_dim, shard_degree] :
        enumerate(goal.shard_degrees)) {
     if (shard_degree != 1) {
-      result.insert(ParallelOpAttrs{RepartitionAttrs{shard_dim, shard_degree}});
+      result.insert(ParallelOpAttrs{RepartitionAttrs{shard_dim, int_ge_two{shard_degree}}});
     }
   }
 

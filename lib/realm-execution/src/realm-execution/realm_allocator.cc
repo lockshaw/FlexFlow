@@ -3,6 +3,7 @@
 #include "pcg/device_type.dtg.h"
 #include "utils/containers/contains_key.h"
 #include "utils/containers/values.h"
+#include "realm-execution/processor_kind.h"
 
 namespace FlexFlow {
 
@@ -45,14 +46,7 @@ void RealmAllocator::deallocate(void *ptr) {
 }
 
 DeviceType RealmAllocator::get_allocation_device_type() const {
-  switch (this->processor.kind()) {
-    case Realm::Processor::Kind::LOC_PROC:
-      return DeviceType::CPU;
-    case Realm::Processor::Kind::TOC_PROC:
-      return DeviceType::GPU;
-    default:
-      PANIC("Unhandled FwbTensorType", this->processor.kind());
-  }
+  return device_type_from_processor_kind(this->processor.kind());
 }
 
 Allocator get_realm_allocator(Realm::Processor processor,

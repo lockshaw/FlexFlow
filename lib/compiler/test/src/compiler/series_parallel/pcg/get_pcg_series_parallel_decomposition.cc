@@ -275,7 +275,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       RepartitionAttrs p2_attrs = RepartitionAttrs{
           /*repartition_dim=*/ff_dim_t{0_n},
-          /*repartition_degree=*/3_p,
+          /*repartition_degree=*/3_ge2,
       };
       ParallelLayerAddedResult p2_added =
           add_parallel_layer(pcg,
@@ -288,7 +288,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelLayerAttrs p3_attrs = ParallelLayerAttrs{
           PCGOperatorAttrs{RepartitionAttrs{
               /*repartition_dim=*/ff_dim_t{1_n},
-              /*repartition_degree=*/2_p,
+              /*repartition_degree=*/2_ge2,
           }},
           /*name=*/std::nullopt,
       };
@@ -329,7 +329,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           require_only_key(w1_added.outputs, TensorSlotName::OUTPUT);
 
       ReplicateAttrs p1_attrs = ReplicateAttrs{
-          /*replicate_degree=*/6_p,
+          /*replicate_degree=*/6_ge2,
       };
       ParallelLayerAddedResult p1_added = add_parallel_layer(
           pcg, make_layer_attrs(p1_attrs), {{TensorSlotName::INPUT, t_w1}}, {});
@@ -373,7 +373,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           require_only_key(w2_added.outputs, TensorSlotName::OUTPUT);
 
       ReplicateAttrs p4_attrs = ReplicateAttrs{
-          /*replicate_degree=*/3_p,
+          /*replicate_degree=*/3_ge2,
       };
       ParallelLayerAddedResult p4_added = add_parallel_layer(
           pcg, make_layer_attrs(p4_attrs), {{TensorSlotName::INPUT, t_w2}}, {});
@@ -382,7 +382,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       RepartitionAttrs p5_attrs = RepartitionAttrs{
           /*repartition_dim=*/ff_dim_t{1_n},
-          /*repartition_degree=*/2_p,
+          /*repartition_degree=*/2_ge2,
       };
       ParallelLayerAddedResult p5_added = add_parallel_layer(
           pcg, make_layer_attrs(p5_attrs), {{TensorSlotName::INPUT, t_p4}}, {});

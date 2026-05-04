@@ -28,7 +28,7 @@ std::vector<Substitution>
   positive_int max_tensor_dim = positive_int{MAX_TENSOR_DIM};
 
   for (positive_int dim : positive_range(1_p, max_tensor_dim + 1_p)) {
-    for (positive_int degree = 1_p; degree <= get_num_gpus(resources);
+    for (int_ge_two degree = 2_ge2; degree <= get_num_gpus(resources);
          degree *= 2_p) {
       substitutions.push_back(
           create_replicate_linear_combine(dim, degree, true));
@@ -47,14 +47,14 @@ std::vector<Substitution>
     }
   }
 
-  for (positive_int degree = 1_p; degree <= get_num_gpus(resources);
+  for (int_ge_two degree = 2_ge2; degree <= get_num_gpus(resources);
        degree *= 2_p) {
     substitutions.push_back(create_partition_conv2d_combine(4_p, degree));
   }
 
   for (positive_int partition_dim : positive_range(1_p, max_tensor_dim + 1_p)) {
     for (positive_int softmax_dim : positive_range(1_p, max_tensor_dim + 1_p)) {
-      for (positive_int degree = 1_p; degree <= get_num_gpus(resources);
+      for (int_ge_two degree = 2_ge2; degree <= get_num_gpus(resources);
            degree *= 2_p) {
         if (partition_dim != softmax_dim) {
           substitutions.push_back(create_partition_softmax_combine(
@@ -103,7 +103,7 @@ static OutputGraphExprValue insert_single_output_op(
 static OutputGraphExprValue
     insert_replicate_or_reduce(OperatorType op_type,
                                SubstitutionBuilder &b,
-                               positive_int degree,
+                               int_ge_two degree,
                                OutputGraphExprValue const &input) {
 
   ASSERT(op_type == OperatorType::REPLICATE ||
@@ -115,7 +115,7 @@ static OutputGraphExprValue
           set_op_type_attr(op_type),
           set_attr_to_constant(OperatorAttributeKey::PARALLEL_DEGREE,
                                OperatorAttributeValue{
-                                   degree.nonnegative_int_from_positive_int()}),
+                                   degree.nonnegative_int_from_int_ge_two()}),
       }};
 
   return insert_single_output_op(
@@ -124,13 +124,13 @@ static OutputGraphExprValue
 
 static OutputGraphExprValue
     insert_replicate(SubstitutionBuilder &b,
-                     positive_int degree,
+                     int_ge_two degree,
                      OutputGraphExprValue const &input) {
   return insert_replicate_or_reduce(OperatorType::REPLICATE, b, degree, input);
 }
 
 static OutputGraphExprValue insert_reduce(SubstitutionBuilder &b,
-                                          positive_int degree,
+                                          int_ge_two degree,
                                           OutputGraphExprValue const &input) {
   return insert_replicate_or_reduce(OperatorType::REDUCTION, b, degree, input);
 }
@@ -138,7 +138,7 @@ static OutputGraphExprValue insert_reduce(SubstitutionBuilder &b,
 static OutputGraphExprValue
     insert_partition_or_combine(OperatorType op_type,
                                 SubstitutionBuilder &b,
-                                positive_int degree,
+                                int_ge_two degree,
                                 ff_dim_t dim,
                                 OutputGraphExprValue const &input) {
 
@@ -153,7 +153,7 @@ static OutputGraphExprValue
               set_attr_to_constant(
                   OperatorAttributeKey::PARALLEL_DEGREE,
                   OperatorAttributeValue{
-                      degree.nonnegative_int_from_positive_int()}),
+                      degree.nonnegative_int_from_int_ge_two()}),
               set_attr_to_constant(OperatorAttributeKey::PARALLEL_DIM,
                                    OperatorAttributeValue{dim}),
           }};
@@ -166,7 +166,7 @@ static OutputGraphExprValue
 
 static OutputGraphExprValue
     insert_partition(SubstitutionBuilder &b,
-                     positive_int degree,
+                     int_ge_two degree,
                      ff_dim_t dim,
                      OutputGraphExprValue const &input) {
 
@@ -175,7 +175,7 @@ static OutputGraphExprValue
 }
 
 static OutputGraphExprValue insert_combine(SubstitutionBuilder &b,
-                                           positive_int degree,
+                                           int_ge_two degree,
                                            ff_dim_t dim,
                                            OutputGraphExprValue const &input) {
 
@@ -184,7 +184,7 @@ static OutputGraphExprValue insert_combine(SubstitutionBuilder &b,
 }
 
 Substitution create_replicate_linear_combine(positive_int num_dims,
-                                             positive_int degree,
+                                             int_ge_two degree,
                                              bool use_bias) {
   SubstitutionBuilder b;
 
@@ -210,7 +210,7 @@ Substitution create_replicate_linear_combine(positive_int num_dims,
       op_type_equals_constraint(OperatorType::LINEAR),
       op_attr_key_equals(OperatorAttributeKey::BIAS,
                          OperatorAttributeValue{use_bias}),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
   }};
 
   std::string linear_name = "linear";
@@ -267,7 +267,7 @@ Substitution create_replicate_linear_combine(positive_int num_dims,
 }
 
 Substitution create_partition_linear_combine(positive_int num_dims,
-                                             positive_int degree,
+                                             int_ge_two degree,
                                              bool use_bias) {
   SubstitutionBuilder b;
 
@@ -299,7 +299,7 @@ Substitution create_partition_linear_combine(positive_int num_dims,
       op_type_equals_constraint(OperatorType::LINEAR),
       op_attr_key_equals(OperatorAttributeKey::BIAS,
                          OperatorAttributeValue{use_bias}),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
   }};
 
   std::string linear_name = "linear";
@@ -357,7 +357,7 @@ Substitution create_partition_linear_combine(positive_int num_dims,
 
 //! [SubstitutionBuilder more concise example]
 Substitution create_partition_conv2d_combine(positive_int num_dims,
-                                             positive_int degree) {
+                                             int_ge_two degree) {
   ASSERT(num_dims == 4_p);
 
   SubstitutionBuilder b;
@@ -378,7 +378,7 @@ Substitution create_partition_conv2d_combine(positive_int num_dims,
 
   OperatorAttributePattern conv2d_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::CONV2D),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
   }};
 
   std::string conv2d_name = "conv2d";
@@ -420,7 +420,7 @@ Substitution create_partition_conv2d_combine(positive_int num_dims,
 //! [SubstitutionBuilder more concise example]
 
 Substitution create_partition_attention_combine(positive_int num_heads,
-                                                positive_int degree) {
+                                                int_ge_two degree) {
 
   SubstitutionBuilder b;
 
@@ -453,7 +453,7 @@ Substitution create_partition_attention_combine(positive_int num_heads,
 
   OperatorAttributePattern attention_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::MULTIHEAD_ATTENTION),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::NUM_HEADS, num_heads),
   }};
 
@@ -513,7 +513,7 @@ Substitution create_partition_attention_combine(positive_int num_heads,
 }
 
 Substitution create_replicate_attention_reduce(positive_int num_heads,
-                                               positive_int degree) {
+                                               int_ge_two degree) {
 
   SubstitutionBuilder b;
 
@@ -547,7 +547,7 @@ Substitution create_replicate_attention_reduce(positive_int num_heads,
 
   OperatorAttributePattern attention_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::MULTIHEAD_ATTENTION),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::NUM_HEADS, num_heads),
   }};
 
@@ -608,7 +608,7 @@ Substitution create_replicate_attention_reduce(positive_int num_heads,
 
 Substitution create_partition_softmax_combine(ff_dim_t softmax_dim,
                                               ff_dim_t partition_dim,
-                                              positive_int degree) {
+                                              int_ge_two degree) {
   ASSERT(partition_dim != softmax_dim);
 
   SubstitutionBuilder b;
@@ -623,7 +623,7 @@ Substitution create_partition_softmax_combine(ff_dim_t softmax_dim,
 
   OperatorAttributePattern softmax_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::SOFTMAX),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::SOFTMAX_DIM,
                                positive_int{softmax_dim.value}),
   }};
@@ -662,7 +662,7 @@ Substitution create_partition_softmax_combine(ff_dim_t softmax_dim,
 }
 
 Substitution create_partition_add_combine(ff_dim_t parallel_dim,
-                                          positive_int degree) {
+                                          int_ge_two degree) {
   SubstitutionBuilder b;
 
   auto [p_input1, o_input1] = b.add_input(tensor_attribute_pattern_match_all());
@@ -681,7 +681,7 @@ Substitution create_partition_add_combine(ff_dim_t parallel_dim,
 
   OperatorAttributePattern add_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::EW_ADD),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
   }};
 
   std::string add_name = "add";
@@ -724,14 +724,14 @@ Substitution create_partition_add_combine(ff_dim_t parallel_dim,
 }
 
 Substitution create_partition_relu_combine(ff_dim_t parallel_dim,
-                                           positive_int degree) {
+                                           int_ge_two degree) {
   SubstitutionBuilder b;
 
   auto [p_input, o_input] = b.add_input(tensor_attribute_pattern_match_all());
 
   OperatorAttributePattern relu_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::RELU),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
   }};
 
   std::string relu_name = "relu";

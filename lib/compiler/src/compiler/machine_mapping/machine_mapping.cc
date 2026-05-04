@@ -20,21 +20,13 @@ MappedParallelComputationGraph
   std::unordered_set<parallel_layer_guid_t> pcg_layers =
       get_parallel_layers(pcg);
 
-  std::unordered_set<parallel_layer_guid_t> expected_mapped_layers =
-    filter(pcg_layers,
-           [&](parallel_layer_guid_t l) -> bool {
-             return should_be_mapped(get_op_type(pcg_get_op_attrs(pcg, l)));
-           });
-
   std::unordered_set<parallel_layer_guid_t> mapped_layers =
       keys(mapping.machine_views);
 
-  ASSERT(mapped_layers == expected_mapped_layers);
+  ASSERT(mapped_layers == pcg_layers);
 
   auto mapping_for_layer = [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
-    ComputationGraphOpAttrs op_attrs =
-        compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l))
-            .value();
+    PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
         inputs_dim_degrees = get_incoming_input_degrees(pcg, l);
@@ -46,7 +38,7 @@ MappedParallelComputationGraph
         op_attrs, inputs_dim_degrees, compute_slice_from_specification(machine_compute_spec), machine_view);
   };
 
-  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapped_op_task_groups = 
+  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapped_op_task_groups =
     generate_map(mapped_layers, mapping_for_layer);
 
   return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg, mapped_op_task_groups);

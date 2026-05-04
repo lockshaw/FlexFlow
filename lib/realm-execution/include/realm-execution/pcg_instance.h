@@ -4,7 +4,7 @@
 #include "kernels/allocation.h"
 #include "kernels/device_handle_t.dtg.h"
 #include "kernels/profiling_settings.dtg.h"
-#include "pcg/device_id_t.dtg.h"
+#include "task-spec/device_id_t.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.dtg.h"
 #include "pcg/optimizer_attrs.dtg.h"
 #include "realm-execution/distributed_ff_handle.h"
@@ -88,7 +88,8 @@ PCGInstance create_pcg_instance(
         &input_tensors,
     ProfilingSettings const &profiling_settings,
     DistributedFfHandle const &ff_handle,
-    FFIterationConfig const &iteration_config);
+    FFIterationConfig const &iteration_config,
+    DeviceType device_type);
 
 /**
  * \brief Dispatch a training iteration for a \ref PCGInstance.

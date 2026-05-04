@@ -68,11 +68,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    DynamicOpenDataflowGraph input = DynamicOpenDataflowGraph{
-      /*invocations=*/{
-        weight_invocation,
-      },
-    };
+    DynamicOpenDataflowGraph input = dynamic_open_dataflow_graph_from_invocation_set(
+      {weight_invocation});
 
     OptimizerAttrs optimizer_attrs = OptimizerAttrs{
       SGDOptimizerAttrs{
@@ -85,7 +82,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     DynamicOpenDataflowGraph result = perform_update_insertion(input, optimizer_attrs);
 
-    DynamicOpenDataflowGraph correct = DynamicOpenDataflowGraph{
+    DynamicOpenDataflowGraph correct = dynamic_open_dataflow_graph_from_invocation_set(
       /*invocations=*/{
         weight_invocation,
         DynamicNodeInvocation{
@@ -143,8 +140,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
           /*outputs=*/{}
         },
-      },
-    };
+      });
 
     CHECK(result == correct);
   }

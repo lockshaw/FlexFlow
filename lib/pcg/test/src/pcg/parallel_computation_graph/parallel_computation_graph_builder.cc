@@ -227,7 +227,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
     parallel_tensor_guid_t par_input =
-        b.parallel_partition(input, ff_dim_t{0_n}, 2_p);
+        b.parallel_partition(input, ff_dim_t{0_n}, 2_ge2);
 
     ParallelTensorShape par_input_shape = b.get_shape(par_input);
 
@@ -538,7 +538,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
     parallel_tensor_guid_t output =
-        b.parallel_partition(input, ff_dim_t{0_n}, 2_p);
+        b.parallel_partition(input, ff_dim_t{0_n}, 2_ge2);
     parallel_layer_guid_t layer = get_source_layer(output);
 
     SUBCASE("incoming") {
@@ -582,9 +582,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
-    input = b.parallel_partition(input, ff_dim_t{0_n}, 2_p);
+    input = b.parallel_partition(input, ff_dim_t{0_n}, 2_ge2);
     parallel_tensor_guid_t output =
-        b.parallel_combine(input, ff_dim_t{0_n}, 2_p);
+        b.parallel_combine(input, ff_dim_t{0_n}, 2_ge2);
     parallel_layer_guid_t layer = get_source_layer(output);
 
     SUBCASE("incoming") {
@@ -628,7 +628,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
-    parallel_tensor_guid_t output = b.parallel_replicate(input, 2_p);
+    parallel_tensor_guid_t output = b.parallel_replicate(input, 2_ge2);
     parallel_layer_guid_t layer = get_source_layer(output);
 
     SUBCASE("incoming") {
@@ -672,12 +672,12 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     parallel_tensor_guid_t input = b.create_input_tensor(input_shape);
-    input = b.parallel_partition(input, ff_dim_t{1_n}, 2_p);
+    input = b.parallel_partition(input, ff_dim_t{1_n}, 2_ge2);
     input = b.dense(input,
                     /*out_dim=*/12_p,
                     /*activation=*/std::nullopt,
                     /*use_bias=*/false);
-    parallel_tensor_guid_t output = b.parallel_reduce(input, 2_p);
+    parallel_tensor_guid_t output = b.parallel_reduce(input, 2_ge2);
     parallel_layer_guid_t layer = get_source_layer(output);
 
     SUBCASE("incoming") {

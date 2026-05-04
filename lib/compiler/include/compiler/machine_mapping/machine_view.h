@@ -6,7 +6,6 @@
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
-#include "pcg/device_id_t.dtg.h"
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
@@ -16,6 +15,7 @@
 #include <cstddef>
 #include <optional>
 #include <unordered_set>
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 
 namespace FlexFlow {
 
@@ -84,11 +84,6 @@ std::unordered_set<MachineSpaceCoordinate>
                                   MachineComputeResourceSlice const &machine_space,
                                   MachineView const &mv);
 
-std::unordered_set<device_id_t>
-    get_device_ids(OperatorTaskSpace const &task,
-                   MachineView const &mv,
-                   MachineComputeSpecification const &ms);
-
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
                                  MachineSpecificationDimension const &dim,
                                  stride_t stride);
@@ -103,7 +98,7 @@ OperatorAtomicTaskShardBinding
         MachineSpaceCoordinate const &);
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &,
+    PCGOperatorAttrs const &,
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const &,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &);

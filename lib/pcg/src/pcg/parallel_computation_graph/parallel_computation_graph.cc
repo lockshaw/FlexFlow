@@ -65,6 +65,12 @@ ParallelLayerAddedResult add_parallel_layer(
     std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const &weights,
     std::optional<std::unordered_map<TensorSlotName, CreateGrad>> const
         &maybe_output_flags) {
+
+  pcg_op_attrs_check_incoming_tensor_roles(
+    /*op_attrs=*/layer_attrs.op_attrs,
+    /*input_slots=*/keys(inputs),
+    /*weight_slots=*/keys(weights));
+
   std::unordered_map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {
         return get_parallel_tensor_shape(pcg, i);
@@ -172,8 +178,6 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &layer) {
   PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, layer);
 
-  ASSERT(!is_parallel_op(op_attrs));
-
   std::unordered_map<TensorSlotName, parallel_tensor_guid_t> inputs =
       get_incoming_inputs(pcg, layer);
 
@@ -185,7 +189,7 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                  });
 
   return get_operator_task_space(
-      compgraph_op_attrs_from_pcg_op_attrs(op_attrs).value(), input_degrees);
+      op_attrs, input_degrees);
 }
 
 std::unordered_set<ParallelComputationGraphEdge>
@@ -261,8 +265,7 @@ std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
 std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_incoming_mappings(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_incoming_mappings(
       /*attrs=*/op_attrs,
@@ -272,8 +275,8 @@ std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_output_mappings(ParallelComputationGraph const &pcg,
                                         parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_output_mappings(
       /*attrs=*/op_attrs,

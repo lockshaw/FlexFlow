@@ -4,6 +4,8 @@
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "compiler/search_result.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
+#include "pcg/parallel_computation_graph/explicit_parallel_computation_graph_builder.h"
+#include "op-attrs/initializer_attrs.h"
 
 using namespace ::FlexFlow;
 
@@ -14,6 +16,17 @@ TEST_SUITE(FF_TEST_SUITE) {
         FFOrdered<positive_int>{
           9_p,
           3_p,
+          6_p,
+        },
+      },
+      DataType::FLOAT,
+    };
+
+    TensorShape weight_shape = TensorShape{
+      TensorDims{
+        FFOrdered<positive_int>{
+          9_p,
+          6_p,
           6_p,
         },
       },
@@ -49,46 +62,157 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(apply_data_parallelism(cg, degree), machine_spec);
 
+    std::string input1_name = "input1";
+    std::string input2_name = "input2";
+    std::string partition1_name = "partition1";
+    std::string partition2_name = "partition2";
+    std::string projector_weight_name = "projector_weight";
+    std::string replicate_name = "replicate";
     std::string add_name = "add";
     std::string dense_name = "dense";
 
     ParallelComputationGraph correct_pcg = [&] {
-      ParallelComputationGraphBuilder b;
+      ExplicitParallelComputationGraphBuilder b;
 
-      parallel_tensor_guid_t t1 = b.create_input_tensor(input_shape);
-      parallel_tensor_guid_t t2 = b.create_input_tensor(input_shape);
-      t1 = b.parallel_partition(t1, ff_dim_t{0_n}, degree.positive_int_from_int_ge_two());
-      t2 = b.parallel_partition(t2, ff_dim_t{0_n}, degree.positive_int_from_int_ge_two());
+      parallel_tensor_guid_t t1 = b.create_input_tensor(input_shape, input1_name);
+      t1 = b.parallel_partition(
+        t1,
+        ff_dim_t{0_n},
+        degree,
+        partition1_name);
 
+      parallel_tensor_guid_t t2 = b.create_input_tensor(input_shape, input2_name);
+      t2 = b.parallel_partition(
+        t2,
+        ff_dim_t{0_n},
+        degree,
+        partition2_name);
 
       parallel_tensor_guid_t t3 = b.add(t1, t2, add_name);
+
+      parallel_tensor_guid_t t_projector = b.create_weight_tensor(
+        weight_shape,
+        make_zero_initializer(),
+        projector_weight_name);
+      t_projector = b.parallel_replicate(
+        t_projector, 
+        degree, 
+        replicate_name);
+
       parallel_tensor_guid_t t4 = b.dense(
         /*input=*/t1,
         /*outDim=*/6_p,
+        /*projector=*/t_projector,
+        /*bias=*/std::nullopt,
         /*activation=*/std::nullopt,
-        /*use_bias=*/false,
         /*data_type=*/DataType::FLOAT,
-        /*projection_initializer=*/std::nullopt,
-        /*bias_initializer=*/std::nullopt,
         /*name=*/dense_name);
 
       return b.pcg;
     }();
 
+    parallel_layer_guid_t l_input1 = get_parallel_layer_by_name(correct_pcg, input1_name);
+    parallel_layer_guid_t l_input2 = get_parallel_layer_by_name(correct_pcg, input2_name);
+    parallel_layer_guid_t l_projector_weight = get_parallel_layer_by_name(correct_pcg, projector_weight_name);
+    parallel_layer_guid_t l_replicate = get_parallel_layer_by_name(correct_pcg, replicate_name);
+    parallel_layer_guid_t l_partition1 = get_parallel_layer_by_name(correct_pcg, partition1_name);
+    parallel_layer_guid_t l_partition2 = get_parallel_layer_by_name(correct_pcg, partition2_name);
     parallel_layer_guid_t l_add = get_parallel_layer_by_name(correct_pcg, add_name);
     parallel_layer_guid_t l_dense = get_parallel_layer_by_name(correct_pcg, dense_name);
 
-      auto ptensor_coord = [](nonnegative_int discard_copy_component,
-                              nonnegative_int batch_component) -> ParallelTensorSpaceCoordinate {
-        return ParallelTensorSpaceCoordinate{
-          /*sum_component=*/0_n,
-          /*discard_copy_component=*/discard_copy_component,
-          /*shard_components=*/FFOrdered{batch_component, 0_n, 0_n},
-        };
+    auto ptensor_coord = [](nonnegative_int discard_copy_component,
+                            nonnegative_int batch_component) -> ParallelTensorSpaceCoordinate {
+      return ParallelTensorSpaceCoordinate{
+        /*sum_component=*/0_n,
+        /*discard_copy_component=*/discard_copy_component,
+        /*shard_components=*/FFOrdered{batch_component, 0_n, 0_n},
       };
+    };
 
+    MappedOperatorTaskGroup input_mapping = MappedOperatorTaskGroup{
+      bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+        {
+          MachineSpaceCoordinate{0_n, 0_n},
+          OperatorAtomicTaskShardBinding{
+            {
+              {TensorSlotName::OUTPUT, ptensor_coord(0_n, 0_n)},
+            },
+          },
+        },
+      },
+    };
+
+    MappedOperatorTaskGroup partition_mapping = MappedOperatorTaskGroup{
+      bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+        {
+          MachineSpaceCoordinate{0_n, 0_n},
+          OperatorAtomicTaskShardBinding{
+            {
+              {TensorSlotName::INPUT, ptensor_coord(0_n, 0_n)},
+              {TensorSlotName::OUTPUT, ptensor_coord(0_n, 0_n)},
+            },
+          },
+        },
+        {
+          MachineSpaceCoordinate{0_n, 1_n},
+          OperatorAtomicTaskShardBinding{
+            {
+              {TensorSlotName::INPUT, ptensor_coord(0_n, 0_n)},
+              {TensorSlotName::OUTPUT, ptensor_coord(0_n, 1_n)},
+            },
+          },
+        },
+      },
+    };
+
+    MappedOperatorTaskGroup replicate_mapping = MappedOperatorTaskGroup{
+      bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+        {
+          MachineSpaceCoordinate{0_n, 0_n},
+          OperatorAtomicTaskShardBinding{
+            {
+              {TensorSlotName::INPUT, ptensor_coord(0_n, 0_n)},
+              {TensorSlotName::OUTPUT, ptensor_coord(0_n, 0_n)},
+            },
+          },
+        },
+        {
+          MachineSpaceCoordinate{0_n, 1_n},
+          OperatorAtomicTaskShardBinding{
+            {
+              {TensorSlotName::INPUT, ptensor_coord(0_n, 0_n)},
+              {TensorSlotName::OUTPUT, ptensor_coord(1_n, 0_n)},
+            },
+          },
+        },
+      },
+    };
 
     std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> correct_mapping = {
+      {
+        l_input1,
+        input_mapping,
+      },
+      {
+        l_input2,
+        input_mapping,
+      },
+      {
+        l_projector_weight,
+        input_mapping,
+      },
+      {
+        l_partition1,
+        partition_mapping,
+      },
+      {
+        l_partition2,
+        partition_mapping,
+      },
+      {
+        l_replicate,
+        replicate_mapping,
+      },
       {
         l_add,
         MappedOperatorTaskGroup{
@@ -159,7 +283,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    MappedParallelComputationGraph correct_mpcg = 
+    MappedParallelComputationGraph correct_mpcg =
       mapped_pcg_from_pcg_and_mapped_op_task_groups(correct_pcg, correct_mapping);
 
     // Extra asserts are only here to improve the error message quality on a

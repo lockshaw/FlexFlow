@@ -34,6 +34,7 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/zip_values_strict_with.h"
 #include "utils/containers/zip_with.h"
+#include "op-attrs/pcg_operator_attrs.h"
 
 namespace FlexFlow {
 
@@ -42,7 +43,7 @@ static std::string get_default_name(OperatorType op_type) {
 }
 
 static std::string get_default_name(PCGOperatorAttrs const &attrs) {
-  return get_default_name(get_op_type(attrs));
+  return get_default_name(pcg_op_attrs_get_op_type(attrs));
 }
 
 ParallelComputationGraphBuilder::ParallelComputationGraphBuilder()
@@ -508,7 +509,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::elu(
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_partition(
     parallel_tensor_guid_t const &input,
     ff_dim_t dim,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   RepartitionAttrs attrs = RepartitionAttrs{
@@ -535,7 +536,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_partition(
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_combine(
     parallel_tensor_guid_t const &input,
     ff_dim_t dim,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   CombineAttrs attrs = CombineAttrs{
@@ -561,7 +562,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_combine(
 
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_replicate(
     parallel_tensor_guid_t const &input,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   ReplicateAttrs attrs = ReplicateAttrs{degree};
@@ -584,7 +585,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_replicate(
 
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_reduce(
     parallel_tensor_guid_t const &input,
-    positive_int degree,
+    int_ge_two degree,
     std::optional<std::string> const &maybe_name) {
 
   ReductionAttrs attrs = ReductionAttrs{degree};
@@ -671,25 +672,6 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::add_weight(
   return current_weight_tensor;
 }
 
-static void check_incoming_tensor_roles(
-    ParallelLayerAttrs const &layer,
-    std::unordered_set<TensorSlotName> const &input_slots,
-    std::unordered_set<TensorSlotName> const &weight_slots) {
-  std::unordered_map<TensorSlotName, IncomingTensorRole> correct =
-      get_incoming_tensor_roles(layer.op_attrs);
-  std::unordered_map<TensorSlotName, IncomingTensorRole> current =
-      binary_merge_disjoint_maps(
-          generate_map(
-              input_slots,
-              [](TensorSlotName) { return IncomingTensorRole::INPUT; }),
-          generate_map(weight_slots, [](TensorSlotName) {
-            return IncomingTensorRole::WEIGHT;
-          }));
-
-  ASSERT(correct == current,
-         "check_incoming_tensor_roles found deviation in incoming tensors");
-}
-
 std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
     ParallelComputationGraphBuilder::add_layer(
         ParallelLayerAttrs const &layer,
@@ -699,7 +681,10 @@ std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
             &weight_initializers) {
 
   ASSERT(are_disjoint(keys(inputs), keys(weight_initializers)));
-  check_incoming_tensor_roles(layer, keys(inputs), keys(weight_initializers));
+  pcg_op_attrs_check_incoming_tensor_roles(
+    /*op_attrs=*/layer.op_attrs, 
+    /*input_slots=*/keys(inputs), 
+    /*weight_slots=*/keys(weight_initializers));
 
   std::unordered_map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {

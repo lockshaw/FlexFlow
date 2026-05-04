@@ -8,13 +8,13 @@ TrainingOpType training_op_attrs_get_op_type(TrainingOperationAttrs const &train
   return training_op_attrs.visit<TrainingOpType>(overload {
     [](PCGOperatorAttrs const &a) -> TrainingOpType {
       return TrainingOpType{
-        get_op_type(a),
+        pcg_op_attrs_get_op_type(a),
       };
     },
     [](LossAttrs const &) -> TrainingOpType {
       return TrainingOpType{TrainingOnlyOpType::LOSS};
     },
-    [](CopyAttrs const &) -> TrainingOpType { 
+    [](CopyAttrs const &) -> TrainingOpType {
       return TrainingOpType{TrainingOnlyOpType::COPY};
     },
   });

@@ -29,6 +29,7 @@
 #include "task-spec/dynamic_graph/serializable_dynamic_node_attrs.h"
 #include "task-spec/dynamic_graph/serializable_dynamic_value_attrs.h"
 #include "op-attrs/ff_ordered/filtrans.h"
+#include "utils/containers/filter_values.h"
 
 namespace FlexFlow {
 
@@ -36,6 +37,29 @@ DynamicOpenDataflowGraph make_empty_dynamic_open_dataflow_graph() {
   return DynamicOpenDataflowGraph{
       std::unordered_set<DynamicNodeInvocation>{},
   };
+}
+
+void check_dynamic_open_dataflow_graph_is_valid(DynamicOpenDataflowGraph const &g) {
+  std::unordered_map<DynamicValueAttrs, std::vector<DynamicNodeInvocation>>
+    invocations_by_value_produced;
+
+  for (DynamicNodeInvocation const &i : g.invocations) {
+    for (DynamicValueAttrs const &v : values(i.outputs)) {
+      invocations_by_value_produced[v].push_back(i);
+    }
+  }
+
+  std::unordered_map<DynamicValueAttrs, std::vector<DynamicNodeInvocation>>
+    values_produced_multiple_times = filter_values(
+      invocations_by_value_produced,
+      [](std::vector<DynamicNodeInvocation> const &producers) -> bool {
+        return producers.size() > 1;
+      });
+
+  ASSERT(values_produced_multiple_times.size() == 0,
+         keys(values_produced_multiple_times));
+
+  labelled_open_kwarg_dataflow_graph_from_dynamic_open_dataflow_graph(g);
 }
 
 nonnegative_int dynamic_graph_num_nodes(DynamicOpenDataflowGraph const &g) {
@@ -169,10 +193,10 @@ std::unordered_set<InternalDynamicSlotSite>
 std::unordered_set<DynamicSlotSite>
     get_dynamic_slot_sites(DynamicOpenDataflowGraph const &g)
 {
-  std::unordered_set<InternalDynamicSlotSite> internal_slot_sites = 
+  std::unordered_set<InternalDynamicSlotSite> internal_slot_sites =
     get_internal_dynamic_slot_sites(g);
 
-  std::unordered_set<DynamicValueAttrs> internal_values = 
+  std::unordered_set<DynamicValueAttrs> internal_values =
     filtrans(internal_slot_sites,
              [&](InternalDynamicSlotSite const &s) -> std::optional<DynamicValueAttrs> {
                if (s.direction == TensorDirection::OUTPUT) {
@@ -181,27 +205,27 @@ std::unordered_set<DynamicSlotSite>
                  return std::nullopt;
                }
              });
-  
+
   std::unordered_set<DynamicValueAttrs> all_values = unordered_set_of(get_dynamic_values(g));
 
-  std::unordered_set<DynamicValueAttrs> external_values = 
+  std::unordered_set<DynamicValueAttrs> external_values =
     set_minus(all_values, internal_values);
 
-  std::unordered_set<ExternalDynamicSlotSite> external_slot_sites = 
-    transform(external_values, 
+  std::unordered_set<ExternalDynamicSlotSite> external_slot_sites =
+    transform(external_values,
               [](DynamicValueAttrs const &external_value) -> ExternalDynamicSlotSite {
                 return ExternalDynamicSlotSite{external_value};
               });
 
-  return 
+  return
     set_union(
       transform(internal_slot_sites,
                 [](InternalDynamicSlotSite const &s) -> DynamicSlotSite {
-                  return DynamicSlotSite{s}; 
+                  return DynamicSlotSite{s};
                 }),
       transform(external_slot_sites,
                 [](ExternalDynamicSlotSite const &s) -> DynamicSlotSite {
-                  return DynamicSlotSite{s}; 
+                  return DynamicSlotSite{s};
                 }));
 }
 
@@ -212,7 +236,7 @@ std::unordered_set<InternalDynamicSlotSite> dynamic_graph_find_sinks_of_value(
   std::unordered_set<InternalDynamicSlotSite> found =
     filter(get_internal_dynamic_slot_sites(g),
            [&](InternalDynamicSlotSite const &s) -> bool {
-             return dynamic_value_attrs_for_slot_site(DynamicSlotSite{s}) == v 
+             return dynamic_value_attrs_for_slot_site(DynamicSlotSite{s}) == v
                && s.direction == TensorDirection::INCOMING;
            });
 
@@ -225,7 +249,7 @@ DynamicSlotSite dynamic_graph_find_source_of_value(DynamicOpenDataflowGraph cons
   auto is_source_of_value = [&](DynamicSlotSite const &s) -> bool {
     return s.visit<bool>(overload {
       [&](InternalDynamicSlotSite const &internal_slot_site) -> bool {
-        return dynamic_value_attrs_for_slot_site(s) == v 
+        return dynamic_value_attrs_for_slot_site(s) == v
           && internal_slot_site.direction == TensorDirection::OUTPUT;
       },
       [&](ExternalDynamicSlotSite const &external_slot_site) -> bool {
@@ -285,9 +309,13 @@ DynamicOpenDataflowGraph flatmap_dynamic_invocation_set(
 DynamicOpenDataflowGraph dynamic_open_dataflow_graph_from_invocation_set(
     std::unordered_set<DynamicNodeInvocation> const &invocation_set) {
 
-  return DynamicOpenDataflowGraph{
+  DynamicOpenDataflowGraph result = DynamicOpenDataflowGraph{
       invocation_set,
   };
+
+  check_dynamic_open_dataflow_graph_is_valid(result);
+
+  return result;
 }
 
 std::pair<LabelledOpenKwargDataflowGraph<DynamicNodeAttrs,

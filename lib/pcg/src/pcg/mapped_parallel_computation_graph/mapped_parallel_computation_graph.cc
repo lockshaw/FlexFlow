@@ -7,6 +7,7 @@
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/rewrite_labelled_kwarg_dataflow_graph_node_labels.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_layer_attrs.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/materialize_labelled_kwarg_dataflow_graph_view.h"
+#include "utils/containers/transform.h"
 
 namespace FlexFlow {
 
@@ -14,7 +15,7 @@ std::unordered_set<parallel_layer_guid_t> mpcg_get_parallel_layers(MappedParalle
   return get_parallel_layers(pcg_from_mpcg(mpcg));
 }
 
-std::optional<MappedOperatorTaskGroup> mpcg_get_mapping_for_layer(
+MappedOperatorTaskGroup mpcg_get_mapping_for_layer(
   MappedParallelComputationGraph const &mpcg,
   parallel_layer_guid_t l)
 {
@@ -41,18 +42,14 @@ ParallelComputationGraph pcg_from_mpcg(MappedParallelComputationGraph const &mpc
 
 MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapped_op_task_groups(
   ParallelComputationGraph const &pcg,
-  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> const &mapped_op_task_groups) 
+  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> const &mapped_op_task_groups)
 {
-  auto mapping_for_layer = [&](parallel_layer_guid_t l) 
-    -> std::optional<MappedOperatorTaskGroup>
+  auto mapping_for_layer = [&](parallel_layer_guid_t l)
+    -> MappedOperatorTaskGroup
   {
-    OperatorType op_type = get_op_type(pcg_get_op_attrs(pcg, l));
+    OperatorType op_type = pcg_op_attrs_get_op_type(pcg_get_op_attrs(pcg, l));
 
-    if (should_be_mapped(op_type)) {
-      return mapped_op_task_groups.at(l);
-    } else {
-      return std::nullopt;
-    }
+    return mapped_op_task_groups.at(l);
   };
 
   auto mpcg_layer_attrs_from_pcg_layer_attrs
@@ -69,7 +66,7 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapped_op_task_groups(
   };
 
   LabelledKwargDataflowGraphView<MappedParallelLayerAttrs, ParallelTensorAttrs, TensorSlotName>
-    result = 
+    result =
       rewrite_labelled_kwarg_dataflow_graph_node_labels(pcg.raw_graph, mpcg_layer_attrs_from_pcg_layer_attrs);
 
 
@@ -80,7 +77,7 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapped_op_task_groups(
 
 MappedParallelComputationGraph mapped_pcg_without_layer_names(MappedParallelComputationGraph const &mpcg) {
   LabelledKwargDataflowGraphView<MappedParallelLayerAttrs, ParallelTensorAttrs, TensorSlotName>
-    result = 
+    result =
       rewrite_labelled_kwarg_dataflow_graph_node_labels(
         mpcg.raw_graph,
         [&](Node const &, MappedParallelLayerAttrs const &with_name) -> MappedParallelLayerAttrs {
@@ -120,8 +117,7 @@ std::string mapped_pcg_as_dot(MappedParallelComputationGraph const &mpcg) {
       result["Name"] = a.name.value();
     }
 
-    result["Mapping"] = 
-      transform(a.mapping, mapped_operator_task_group_as_dot_json).value_or("none");
+    result["Mapping"] = mapped_operator_task_group_as_dot_json(a.mapping);
 
     return result;
   };
