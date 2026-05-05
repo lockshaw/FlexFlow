@@ -37,6 +37,10 @@ std::set<T> get_domain_dims(DimDomain<T> const &domain) {
   return keys(domain.dims);
 }
 
+positive_int dim_domain_volume(DimDomain<T> const &domain) {
+  return product(values(domain.dims));
+}
+
 template <typename T>
 std::set<T> get_trivial_domain_dims(DimDomain<T> const &domain) {
   return filter(get_domain_dims(domain),
