@@ -16,6 +16,10 @@
 
 namespace FlexFlow {
 
+/**
+ * \brief A left-total and right-total binary relation between a pair of
+ *        \ref DimDomainMapping ""s.
+ */
 template <typename L, typename R>
 struct DimDomainMapping {
 public:
@@ -84,6 +88,11 @@ std::ostream &operator<<(std::ostream &s, DimDomainMapping<L, R> const &m) {
   return (s << fmt::to_string(m));
 }
 
+/**
+ * \brief Create an empty \ref DimDomainMapping.
+ *
+ * \relates DimDomainMapping
+ */
 template <typename L, typename R>
 DimDomainMapping<L, R> empty_dim_domain_mapping() {
   return DimDomainMapping{
@@ -95,6 +104,13 @@ DimDomainMapping<L, R> empty_dim_domain_mapping() {
   };
 }
 
+/**
+ * \brief Create a \ref DimDomainMapping between two equi-dimensional \ref DimDomain ""s,
+ *        that is simply a permutation of the dimension labels (i.e., the closest thing
+ *        possible to an identity relation).
+ *
+ * \relates DimDomainMapping
+ */
 template <typename L, typename R>
 DimDomainMapping<L, R>
     dim_domain_mapping_identity_map(DimDomain<L> const &l_domain,
@@ -112,6 +128,11 @@ DimDomainMapping<L, R>
       /*r_dim_ordering=*/r_dim_ordering);
 }
 
+/**
+ * \brief Invert a \ref DimDomainMapping.
+ *
+ * \relates DimDomainMapping
+ */
 template <typename L, typename R>
 DimDomainMapping<R, L> invert_dim_domain_mapping(
     DimDomainMapping<L, R> const &dim_domain_mapping) {
@@ -123,6 +144,13 @@ DimDomainMapping<R, L> invert_dim_domain_mapping(
   };
 }
 
+/**
+ * \brief Compose two \ref DimDomainMapping ""s.
+ *
+ * \note The mappings must have their internal dimension in common, a la matrix multiplication.
+ *
+ * \relates DimDomainMapping
+ */
 template <typename T1, typename T2, typename T3>
 DimDomainMapping<T1, T3>
     compose_dim_domain_mappings(DimDomainMapping<T1, T2> const &lhs,
@@ -138,6 +166,12 @@ DimDomainMapping<T1, T3>
   };
 }
 
+/**
+ * \brief Lower a \ref DimProjection to a \ref DimDomainMapping.
+ *
+ * \relates DimDomainMapping
+ * \relates DimProjection
+ */
 template <typename L, typename R>
 DimDomainMapping<L, R>
     dim_domain_mapping_from_projection(DimProjection<L, R> const &projection,

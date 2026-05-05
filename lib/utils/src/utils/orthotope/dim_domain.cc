@@ -13,6 +13,8 @@ template nonnegative_int dim_domain_num_dims(DimDomain<T> const &);
 
 template std::set<T> get_domain_dims(DimDomain<T> const &);
 
+template positive_int dim_domain_volume(DimDomain<T> const &);
+
 template std::set<T> get_trivial_domain_dims(DimDomain<T> const &);
 
 template std::set<T> get_nontrivial_domain_dims(DimDomain<T> const &);

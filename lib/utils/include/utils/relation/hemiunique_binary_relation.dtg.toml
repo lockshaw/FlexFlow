@@ -1,0 +1,32 @@
+namespace = "FlexFlow"
+name = "HemiuniqueBinaryRelation"
+type = "variant"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "fmt",
+]
+
+includes = [
+  "utils/bidict/bidict.h",
+  "utils/one_to_many/one_to_many.h",
+  "utils/many_to_one/many_to_one.h",
+]
+
+template_params = [
+  "L", "R",
+]
+
+[[values]]
+type = "::FlexFlow::bidict<L, R>"
+key = "biunique"
+
+[[values]]
+type = "::FlexFlow::OneToMany<L, R>"
+key = "left_unique"
+
+[[values]]
+type = "::FlexFlow::ManyToOne<L, R>"
+key = "right_unique"
