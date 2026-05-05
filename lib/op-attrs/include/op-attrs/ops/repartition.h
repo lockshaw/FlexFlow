@@ -21,6 +21,12 @@ OperatorTaskSpace
     get_operator_task_space(RepartitionAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees);
 
+OperatorSpaceToParallelTensorSpaceMapping get_operator_to_input_mapping(
+    RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceMapping get_operator_to_output_mapping(
+    RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
 } // namespace FlexFlow
 
 #endif

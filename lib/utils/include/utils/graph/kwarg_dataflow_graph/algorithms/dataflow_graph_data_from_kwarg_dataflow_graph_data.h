@@ -34,8 +34,9 @@ DataflowGraphData
                    return i.node;
                  })
           .l_to_r(),
-      [](std::unordered_set<KwargDataflowInput<SlotName>> const &is) -> std::unordered_set<SlotName> {
-        return transform(is, [](KwargDataflowInput<SlotName> const &i) { return i.slot_name; });
+      [](nonempty_unordered_set<KwargDataflowInput<SlotName>> const &is) -> std::unordered_set<SlotName> {
+        return transform(is.unwrap_as_unordered_set(),
+                         [](KwargDataflowInput<SlotName> const &i) { return i.slot_name; });
       });
 
   std::unordered_map<Node, std::unordered_set<SlotName>> outgoing_slots_by_node =
@@ -45,8 +46,9 @@ DataflowGraphData
                  return o.node;
                })
           .l_to_r(),
-      [](std::unordered_set<KwargDataflowOutput<SlotName>> const &os) -> std::unordered_set<SlotName> {
-        return transform(os, [](KwargDataflowOutput<SlotName> const &o) { return o.slot_name; });
+      [](nonempty_unordered_set<KwargDataflowOutput<SlotName>> const &os) -> std::unordered_set<SlotName> {
+        return transform(os.unwrap_as_unordered_set(),
+                         [](KwargDataflowOutput<SlotName> const &o) { return o.slot_name; });
       });
 
   auto dataflow_input_from_kwarg_input = [&](KwargDataflowInput<SlotName> const &i)

@@ -11,8 +11,9 @@ includes = [
   "utils/orthotope/dim_domain_mapping.h",
   "op-attrs/operator_task_space_dim_idx_t.dtg.h",
   "op-attrs/parallel_tensor_dim_idx_t.dtg.h",
+  "utils/orthotope/dim_domain_hemiunique_mapping.h",
 ]
 
 [[fields]]
 name = "raw_mapping"
-type = "::FlexFlow::DimDomainMapping<::FlexFlow::operator_task_space_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"
+type = "::FlexFlow::DimDomainHemiuniqueMapping<::FlexFlow::operator_task_space_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"

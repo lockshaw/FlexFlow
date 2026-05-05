@@ -4,6 +4,8 @@
 #include "utils/graph/node/algorithms.h"
 #include <unordered_set>
 #include "utils/containers/set_of.h"
+#include "utils/containers/map_values.h"
+
 namespace FlexFlow {
 
 std::unordered_set<MultiDiEdge> get_outgoing_edges(MultiDiGraphView const &g,
@@ -25,9 +27,15 @@ std::unordered_map<Node, std::unordered_set<MultiDiEdge>>
   };
 
   std::unordered_map<Node, std::unordered_set<MultiDiEdge>> result =
+    map_values(
       group_by(g.query_edges(query),
                [&](MultiDiEdge const &e) { return g.get_multidiedge_src(e); })
-          .l_to_r();
+          .l_to_r(),
+      [](nonempty_unordered_set<MultiDiEdge> const &s)
+        -> std::unordered_set<MultiDiEdge>
+      {
+        return s.unwrap_as_unordered_set();
+      });
 
   for (Node const &n : ns) {
     result[n];

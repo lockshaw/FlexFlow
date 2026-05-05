@@ -12,6 +12,8 @@
 #include "utils/orthotope/dim_domain.dtg.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/orthotope.dtg.h"
+#include "utils/containers/values.h"
+#include "utils/containers/product.h"
 
 namespace FlexFlow {
 
@@ -23,6 +25,11 @@ DimDomain<T> empty_dim_domain() {
 template <typename T>
 nonnegative_int dim_domain_num_dims(DimDomain<T> const &domain) {
   return num_elements(domain.dims);
+}
+
+template <typename T>
+positive_int dim_domain_volume(DimDomain<T> const &domain) {
+  return product(values(domain.dims));
 }
 
 template <typename T>

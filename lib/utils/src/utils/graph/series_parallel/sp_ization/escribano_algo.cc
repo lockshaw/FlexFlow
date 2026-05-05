@@ -35,6 +35,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -158,9 +159,9 @@ static std::pair<std::unordered_set<Node>, std::unordered_set<Node>>
   auto grouped_by_depth =
       group_by(forest, [&](Node const &n) { return depth_map.at(n); });
 
-  return make_pair(grouped_by_depth.at_l(
-                       nonnegative_int{max_depth.unwrap_nonnegative() - 1}),
-                   grouped_by_depth.at_l(max_depth));
+  return std::make_pair(
+    grouped_by_depth.at_l(nonnegative_int{max_depth.unwrap_nonnegative() - 1}).unwrap_as_unordered_set(),
+    grouped_by_depth.at_l(max_depth).unwrap_as_unordered_set());
 }
 
 static std::unordered_set<DirectedEdge>

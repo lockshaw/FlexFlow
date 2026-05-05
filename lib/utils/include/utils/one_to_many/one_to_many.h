@@ -22,6 +22,7 @@
 #include <rapidcheck.h>
 #include <unordered_map>
 #include <unordered_set>
+#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 
 namespace FlexFlow {
 
@@ -60,7 +61,12 @@ public:
 
     if (!found_l.has_value()) {
       this->m_r_to_l.insert({r, l});
-      this->m_l_to_r[l].insert(r);
+
+      if (contains_key(this->m_l_to_r, l)) {
+        this->m_l_to_r.at(l).insert(r);
+      } else {
+        this->m_l_to_r.insert({l, nonempty_unordered_set{{r}}});
+      }
     } else if (found_l.value() == l) {
       return;
     } else {
@@ -82,7 +88,7 @@ public:
       });
   }
 
-  std::unordered_set<R> const &at_l(L const &l) const {
+  nonempty_unordered_set<R> const &at_l(L const &l) const {
     return this->m_l_to_r.at(l);
   }
 
@@ -98,11 +104,11 @@ public:
     return keys(this->m_r_to_l);
   }
 
-  std::unordered_set<std::unordered_set<R>> right_groups() const {
+  std::unordered_set<nonempty_unordered_set<R>> right_groups() const {
     return unordered_set_of(values(this->m_l_to_r));
   }
 
-  std::unordered_map<L, std::unordered_set<R>> const &l_to_r() const {
+  std::unordered_map<L, nonempty_unordered_set<R>> const &l_to_r() const {
     return this->m_l_to_r;
   }
 
@@ -111,7 +117,7 @@ public:
   }
 
 private:
-  std::unordered_map<L, std::unordered_set<R>> m_l_to_r;
+  std::unordered_map<L, nonempty_unordered_set<R>> m_l_to_r;
   std::unordered_map<R, L> m_r_to_l;
 
 private:
@@ -124,7 +130,7 @@ private:
 };
 
 template <typename L, typename R>
-std::unordered_map<L, std::unordered_set<R>>
+std::unordered_map<L, nonempty_unordered_set<R>>
     format_as(OneToMany<L, R> const &m) {
   return generate_map(m.left_values(), [&](L const &l) { return m.at_l(l); });
 }
