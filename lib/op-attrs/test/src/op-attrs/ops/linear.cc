@@ -305,7 +305,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_operator_to_input_mapping(LinearAttrs, nonnegative_int)") {
+  TEST_CASE(
+      "linear_get_operator_to_input_mapping(LinearAttrs, nonnegative_int)") {
     LinearAttrs attrs = LinearAttrs{
         /*out_channels=*/16_p,
         /*use_bias=*/false,
@@ -325,7 +326,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     OperatorSpaceToParallelTensorSpaceMapping result =
-        get_operator_to_input_mapping(attrs, input_dims);
+        linear_get_operator_to_input_mapping(attrs, input_dims);
 
     ASSERT(get_parallel_tensor_space_for_mapping(result) == input_dims);
     ASSERT(dim_domain_get_volume(result.raw_mapping.r_domain) ==

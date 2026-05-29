@@ -973,7 +973,7 @@ std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
 
         return {{
             TensorSlotName::OUTPUT,
-            get_output_parallel_dim_degrees(attrs, input),
+            linear_get_output_parallel_dim_degrees(attrs, input),
         }};
       },
       [&](auto const &attrs)

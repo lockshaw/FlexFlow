@@ -95,7 +95,7 @@ std::ostream &operator<<(std::ostream &s,
  * \relates DimDomainBiuniqueMapping
  */
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R> empty_dim_domain_mapping() {
+DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping() {
   return DimDomainBiuniqueMapping{
       /*coord_mapping=*/{
           {DimCoord<L>{{}}, DimCoord<R>{{}}},
@@ -113,11 +113,11 @@ DimDomainBiuniqueMapping<L, R> empty_dim_domain_mapping() {
  * \relates DimDomainBiuniqueMapping
  */
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R>
-    dim_domain_mapping_identity_map(DimDomain<L> const &l_domain,
-                                    DimDomain<R> const &r_domain,
-                                    DimOrdering<L> const &l_dim_ordering,
-                                    DimOrdering<R> const &r_dim_ordering) {
+DimDomainBiuniqueMapping<L, R> dim_domain_biunique_mapping_identity_map(
+    DimDomain<L> const &l_domain,
+    DimDomain<R> const &r_domain,
+    DimOrdering<L> const &l_dim_ordering,
+    DimOrdering<R> const &r_dim_ordering) {
   DimProjection<L, R> projection = dim_projection_identity_map(
       l_domain, r_domain, l_dim_ordering, r_dim_ordering);
 
@@ -135,7 +135,7 @@ DimDomainBiuniqueMapping<L, R>
  * \relates DimDomainBiuniqueMapping
  */
 template <typename L, typename R>
-DimDomainBiuniqueMapping<R, L> invert_dim_domain_mapping(
+DimDomainBiuniqueMapping<R, L> invert_dim_domain_biunique_mapping(
     DimDomainBiuniqueMapping<L, R> const &dim_domain_mapping) {
 
   return DimDomainBiuniqueMapping{
@@ -153,9 +153,9 @@ DimDomainBiuniqueMapping<R, L> invert_dim_domain_mapping(
  * \relates DimDomainBiuniqueMapping
  */
 template <typename T1, typename T2, typename T3>
-DimDomainBiuniqueMapping<T1, T3>
-    compose_dim_domain_mappings(DimDomainBiuniqueMapping<T1, T2> const &lhs,
-                                DimDomainBiuniqueMapping<T2, T3> const &rhs) {
+DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
+    DimDomainBiuniqueMapping<T1, T2> const &lhs,
+    DimDomainBiuniqueMapping<T2, T3> const &rhs) {
 
   ASSERT(lhs.r_domain == rhs.l_domain);
 
