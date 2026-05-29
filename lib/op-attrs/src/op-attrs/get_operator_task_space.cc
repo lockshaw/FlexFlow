@@ -48,7 +48,7 @@ OperatorTaskSpace get_operator_task_space(
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return linear_get_operator_task_space(attrs, input);
       },
       [&](InputAttrs const &attrs) {
         ASSERT(inputs_degrees.size() == 0);
@@ -65,13 +65,13 @@ OperatorTaskSpace get_operator_task_space(
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return repartition_get_operator_task_space(attrs, input);
       },
       [&](ReplicateAttrs const &attrs) {
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return replicate_get_operator_task_space(attrs, input);
       },
       [&](TransposeAttrs const &attrs) {
         ParallelTensorDimDegrees input =

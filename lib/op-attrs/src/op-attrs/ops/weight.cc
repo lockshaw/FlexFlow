@@ -2,6 +2,7 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/operator_task_space_to_operator_task_space_mapping.h"
 
 namespace FlexFlow {
 

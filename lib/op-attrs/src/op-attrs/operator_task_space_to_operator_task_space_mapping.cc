@@ -5,6 +5,7 @@
 #include "utils/bidict/algorithms/transform_values.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "utils/orthotope/minimal_dim_domain_mapping.h"
+#include "utils/relation/hemiunique_binrel_transform_l_and_r.h"
 
 namespace FlexFlow {
 
@@ -13,7 +14,7 @@ OperatorTaskSpaceToOperatorTaskSpaceMapping
                               OperatorTaskSpace const &dst_space) {
 
   return OperatorTaskSpaceToOperatorTaskSpaceMapping{
-      dim_domain_mapping_identity_map(
+      dim_domain_hemiunique_mapping_identity_map(
           /*l_domain=*/lift_minimal_dim_domain(
               minimal_dim_domain_from_operator_task_space(src_space)),
           /*r_domain=*/
@@ -38,11 +39,12 @@ OperatorTaskSpace op_mapping_get_dst_space(
       require_dim_domain_is_minimal(mapping.raw_mapping.r_domain));
 }
 
-bidict<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
+HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
     OperatorTaskSpaceToOperatorTaskSpaceMapping const &mapping) {
-  return transform_values(transform_keys(mapping.raw_mapping.coord_mapping,
-                                         task_space_coordinate_from_dim_coord),
-                          task_space_coordinate_from_dim_coord);
+  return hemiunique_binrel_transform_l_and_r(
+    mapping.raw_mapping.coord_mapping,
+    task_space_coordinate_from_dim_coord,
+    task_space_coordinate_from_dim_coord);
 }
 
 OperatorTaskSpaceToOperatorTaskSpaceMapping
@@ -52,9 +54,9 @@ OperatorTaskSpaceToOperatorTaskSpaceMapping
             &dst_to_tensor_mapping) {
 
   return OperatorTaskSpaceToOperatorTaskSpaceMapping{
-      compose_dim_domain_mappings_through_minimal(
+      compose_dim_domain_hemiunique_mappings_through_minimal(
           src_to_tensor_mapping.raw_mapping,
-          invert_dim_domain_mapping(dst_to_tensor_mapping.raw_mapping)),
+          invert_dim_domain_hemiunique_mapping(dst_to_tensor_mapping.raw_mapping)),
   };
 }
 

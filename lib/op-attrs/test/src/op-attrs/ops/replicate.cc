@@ -35,7 +35,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct_output);
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(ReplicateAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("replicate_get_output_parallel_dim_degrees(ReplicateAttrs, ParallelTensorDimDegrees)") {
     ReplicateAttrs attrs = ReplicateAttrs{
         /*replicate_degree=*/3_ge2,
     };
@@ -49,7 +49,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    ParallelTensorDimDegrees result = get_output_parallel_dim_degrees(attrs, input_degrees);
+    ParallelTensorDimDegrees result = replicate_get_output_parallel_dim_degrees(attrs, input_degrees);
 
     ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
       SumDegree{2_p},
@@ -63,7 +63,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("get_operator_task_space(ReplicateAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("replicate_get_operator_task_space(ReplicateAttrs, ParallelTensorDimDegrees)") {
     ReplicateAttrs attrs = ReplicateAttrs{
         /*replicate_degree=*/3_ge2,
     };
@@ -77,7 +77,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace result = replicate_get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
       MinimalDimDomain<operator_task_space_dim_idx_t>{
         std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{

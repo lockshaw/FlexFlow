@@ -1,6 +1,7 @@
 #include "op-attrs/ops/repartition.h"
 #include <libassert/assert.hpp>
 #include "op-attrs/operator_task_space.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 
 namespace FlexFlow {
 
@@ -14,7 +15,7 @@ tl::expected<ParallelTensorShape, std::string>
   return output_shape;
 }
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees repartition_get_output_parallel_dim_degrees(
     RepartitionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
 
@@ -26,7 +27,7 @@ ParallelTensorDimDegrees get_output_parallel_dim_degrees(
 }
 
 OperatorTaskSpace
-    get_operator_task_space(RepartitionAttrs const &attrs,
+    repartition_get_operator_task_space(RepartitionAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees)
 {
   ParallelTensorDimDegrees output_degrees = get_output_parallel_dim_degrees(
@@ -36,47 +37,30 @@ OperatorTaskSpace
       output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceMapping repartition_get_operator_to_input_mapping(
     RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) 
 {
-  OperatorTaskSpace op_task_space = get_operator_task_space(attrs, input_degrees);
+  OperatorTaskSpace op_task_space = repartition_get_operator_task_space(attrs, input_degrees);
 
-  DimDomain<operator_task_space_dim_idx_t> op_task_dim_domain =
-    lift_minimal_dim_domain(minmial_dim_domain_from_operator_task_space(op_task_space));
+  DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
+    dim_projection = 
+      get_projection_for_op_to_ptensor_identity_mapping(op_task_space, input_degrees);
 
-  OperatorTaskSpace  get_identity_mapping(get_operator_task_space(attrs, input_degrees),
-                              output_degrees);
-
-  std::unordered_set<
-    std::pair<
-      DimCoord<operator_task_space_dim_idx_t>,
-      DimCoord<parallel_tensor_dim_idx_t>
-    >
-  > dim_domain_coord_relation = 
-    transform(
-      get_coords_in_dim_domain(op_task_dim_domain),
-      [](DimCoord<operator_task_space_dim_idx_t> const &c) {
-        return 
-      });
-
-  DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> result =   
-    DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>{
-      OneToMany<
-        DimCoord<operator_task_space_dim_idx_t>, 
-        DimCoord<parallel_tensor_dim_idx_t>>
-      {
-      },
-    };
+  return operator_ptensor_space_mapping_by_scaling_projection(
+    dim_projection,
+    op_task_space,
+    input_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceMapping repartition_get_operator_to_output_mapping(
     RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) 
 {
   ParallelTensorDimDegrees output_degrees =
-      get_output_parallel_dim_degrees(attrs, input_degrees);
+      repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_identity_mapping(get_operator_task_space(attrs, input_degrees),
-                              output_degrees);
+  return get_identity_mapping(
+    repartition_get_operator_task_space(attrs, input_degrees),
+    output_degrees);
 }
 
 

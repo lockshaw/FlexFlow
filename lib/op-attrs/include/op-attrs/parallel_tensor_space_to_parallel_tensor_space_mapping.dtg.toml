@@ -8,10 +8,10 @@ features = [
 ]
 
 includes = [
-  "utils/orthotope/dim_domain_mapping.h",
+  "utils/orthotope/dim_domain_hemiunique_mapping.h",
   "op-attrs/parallel_tensor_dim_idx_t.dtg.h",
 ]
 
 [[fields]]
 name = "raw_mapping"
-type = "::FlexFlow::DimDomainMapping<::FlexFlow::parallel_tensor_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"
+type = "::FlexFlow::DimDomainHemiuniqueMapping<::FlexFlow::parallel_tensor_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"

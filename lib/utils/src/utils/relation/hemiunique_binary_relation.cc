@@ -1,21 +1,21 @@
 #include "utils/relation/hemiunique_binary_relation.h"
 #include "utils/archetypes/value_type.h"
 
+using L = ::FlexFlow::value_type<0>;
+using R = ::FlexFlow::value_type<1>;
+
 namespace FlexFlow {
 
-using L = value_type<0>;
-using R = value_type<1>;
+template struct HemiuniqueBinaryRelation<L, R>;
 
-template
-  Uniqueness hemiunique_binary_relation_get_uniqueness(HemiuniqueBinaryRelation<L, R> const &);
+template std::string format_as(HemiuniqueBinaryRelation<L, R> const &);
 
-template
-  std::unordered_set<L> hemiunique_binrel_left_entries(HemiuniqueBinaryRelation<L, R> const &);
-
-template
-  std::unordered_set<R> hemiunique_binrel_right_entries(HemiuniqueBinaryRelation<L, R> const &);
-
-template
-  HemiuniqueBinaryRelation<R, L> invert_hemiunique_binary_relation(HemiuniqueBinaryRelation<L, R> const &);
+template std::ostream &operator<<(std::ostream &, HemiuniqueBinaryRelation<L, R> const &);
 
 } // namespace FlexFlow
+
+namespace std {
+
+template struct hash<::FlexFlow::HemiuniqueBinaryRelation<L, R>>;
+
+}

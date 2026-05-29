@@ -13,7 +13,7 @@
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
-#include "utils/relation/hemiunique_binary_relation.dtg.h"
+#include "utils/relation/hemiunique_binary_relation.h"
 #include "utils/relation/uniqueness.dtg.h"
 #include "utils/orthotope/dim_domain_biunique_mapping.h"
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
@@ -40,10 +40,10 @@ public:
       : coord_mapping(coord_mapping), l_domain(l_domain), r_domain(r_domain) {
 
     // check that the mapping is left-total
-    ASSERT(get_coords_in_dim_domain(l_domain) == hemiunique_binrel_left_entries(coord_mapping));
+    ASSERT(get_coords_in_dim_domain(l_domain) == coord_mapping.left_entries());
 
     // check that the mapping is right-total
-    ASSERT(get_coords_in_dim_domain(r_domain) == hemiunique_binrel_right_entries(coord_mapping));
+    ASSERT(get_coords_in_dim_domain(r_domain) == coord_mapping.right_entries());
   }
 
   bool operator==(DimDomainHemiuniqueMapping<L, R> const &other) const {
@@ -55,9 +55,20 @@ public:
   }
 
   Uniqueness get_uniqueness() const {
-    return hemiunique_binary_relation_get_uniqueness(this->coord_mapping);
+    return this->coord_mapping.get_uniqueness();
   }
 
+  bidict<DimCoord<L>, DimCoord<R>> const &require_biunique() const {
+    return this->coord_mapping.require_biunique();
+  }
+
+  OneToMany<L, R> require_strictly_left_unique() const {
+    return this->coord_mapping.require_strictly_left_unique();
+  }
+
+  OneToMany<L, R> require_strictly_right_unique() const {
+    return this->coord_mapping.require_strictly_right_unique();
+  }
 public:
   HemiuniqueBinaryRelation<DimCoord<L>, DimCoord<R>> coord_mapping;
   DimDomain<L> l_domain;
@@ -94,6 +105,28 @@ std::ostream &operator<<(std::ostream &s, DimDomainHemiuniqueMapping<L, R> const
   return (s << fmt::to_string(m));
 }
 
+/**
+ * \brief Create an \ref DimDomainHemiuniqueMapping between a pair of empty \ref DimDomain ""s.
+ *
+ * \relates DimDomainHemiuniqueMapping
+ */
+template <typename L, typename R>
+DimDomainHemiuniqueMapping<L, R> empty_dim_domain_hemiunique_mapping() {
+  return DimDomainHemiuniqueMapping<L, R>{
+      /*coord_mapping=*/HemiuniqueBinaryRelation{
+        bidict<DimCoord<L>, DimCoord<R>>{
+          {
+            DimCoord<L>{{}}, 
+            DimCoord<R>{{}},
+          },
+        },
+      },
+      /*l_domain=*/empty_dim_domain<L>(),
+      /*r_domain=*/empty_dim_domain<R>(),
+  };
+}
+
+
 template <typename L, typename R>
 DimDomainHemiuniqueMapping<L, R> hemiunique_from_biunique_dim_domain_mapping(
   DimDomainBiuniqueMapping<L, R> const &m)
@@ -114,7 +147,7 @@ DimDomainHemiuniqueMapping<L, R> hemiunique_from_biunique_dim_domain_mapping(
  */
 template <typename L, typename R>
 DimDomainHemiuniqueMapping<L, R>
-    dim_domain_mapping_identity_map(DimDomain<L> const &l_domain,
+    dim_domain_hemiunique_mapping_identity_map(DimDomain<L> const &l_domain,
                                     DimDomain<R> const &r_domain,
                                     DimOrdering<L> const &l_dim_ordering,
                                     DimOrdering<R> const &r_dim_ordering) {
@@ -135,11 +168,11 @@ DimDomainHemiuniqueMapping<L, R>
  * \relates DimDomainHemiuniqueMapping
  */
 template <typename L, typename R>
-DimDomainHemiuniqueMapping<R, L> invert_dim_domain_mapping(
+DimDomainHemiuniqueMapping<R, L> invert_dim_domain_hemiunique_mapping(
     DimDomainHemiuniqueMapping<L, R> const &dim_domain_mapping) {
 
   return DimDomainHemiuniqueMapping{
-      /*coord_mapping=*/invert_hemiunique_binary_relation(dim_domain_mapping.coord_mapping),
+      /*coord_mapping=*/dim_domain_mapping.coord_mapping.inverted(),
       /*l_domain=*/dim_domain_mapping.r_domain,
       /*r_domain=*/dim_domain_mapping.l_domain,
   };
@@ -154,7 +187,7 @@ DimDomainHemiuniqueMapping<R, L> invert_dim_domain_mapping(
  */
 template <typename T1, typename T2, typename T3>
 DimDomainHemiuniqueMapping<T1, T3>
-    compose_dim_domain_mappings(DimDomainHemiuniqueMapping<T1, T2> const &lhs,
+    compose_dim_domain_hemiunique_mappings(DimDomainHemiuniqueMapping<T1, T2> const &lhs,
                                 DimDomainHemiuniqueMapping<T2, T3> const &rhs) 
 {
   // TODO(@lockshaw)(#pr):
@@ -176,7 +209,7 @@ DimDomainHemiuniqueMapping<L, R>
       positive_int l_size = l_domain.dims.at(l_dim); 
       positive_int r_size = r_domain.dims.at(r_dim);
       
-      return l_size == r_size;
+      return l_size != r_size;
     };
 
   bidict<L, R> with_matching_dim_sizes = filter_bidict(
@@ -201,7 +234,7 @@ DimDomainHemiuniqueMapping<L, R>
   positive_int differing_r_dim_size = r_domain.dims.at(differing_r_dim);
 
   if (differing_r_dim_size > differing_l_dim_size) {
-    return invert_dim_domain_mapping(
+    return invert_dim_domain_hemiunique_mapping(
       dim_domain_hemiunique_mapping_by_scaling_projection(
         invert_dim_projection(projection),
         /*l_domain=*/r_domain,
@@ -268,7 +301,7 @@ DimDomainHemiuniqueMapping<L, R>
 
   DimDomainHemiuniqueMapping<L, R> result = DimDomainHemiuniqueMapping<L, R>{
     /*coord_mapping=*/HemiuniqueBinaryRelation<DimCoord<L>, DimCoord<R>>{
-      one_to_many_from_unstructured_relation(
+      many_to_one_from_unstructured_relation(
         transform(
           get_coords_in_dim_domain(l_domain),
           [&](DimCoord<L> const &l_coord) -> std::pair<DimCoord<L>, DimCoord<R>> {

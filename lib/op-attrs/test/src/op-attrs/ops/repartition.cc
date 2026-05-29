@@ -70,7 +70,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("get_operator_task_space(RepartitionAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("repartition_get_operator_task_space(RepartitionAttrs, ParallelTensorDimDegrees)") {
     RepartitionAttrs attrs = RepartitionAttrs{
         /*repartition_dim=*/ff_dim_t{1_n},
         /*repartition_degree=*/2_ge2,
@@ -85,7 +85,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       },
     };
 
-    OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace result = repartition_get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
       MinimalDimDomain<operator_task_space_dim_idx_t>{
         std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{

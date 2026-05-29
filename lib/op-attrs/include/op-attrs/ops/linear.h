@@ -42,7 +42,7 @@ std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
 
 
 ParallelTensorDimDegrees
-    get_output_parallel_dim_degrees(LinearAttrs const &attrs,
+    linear_get_output_parallel_dim_degrees(LinearAttrs const &attrs,
                                     ParallelTensorDimDegrees const &input);
 
 tl::expected<ParallelTensorShape, std::string>
@@ -68,18 +68,20 @@ tl::expected<std::unordered_map<TensorSlotName, InitializerAttrs>, std::string>
                          std::nullopt);
 
 OperatorTaskSpace
-    get_operator_task_space(LinearAttrs const &attrs,
+    linear_get_operator_task_space(LinearAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_input_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_projection_mapping(
+
+OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_projection_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
 OperatorSpaceToParallelTensorSpaceMapping
-    get_operator_to_bias_mapping(LinearAttrs const &attrs,
+    linear_get_operator_to_bias_mapping(LinearAttrs const &attrs,
                                  ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_output_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow

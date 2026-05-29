@@ -8,10 +8,10 @@ features = [
 ]
 
 includes = [
-  "utils/orthotope/dim_domain_mapping.h",
+  "utils/orthotope/dim_domain_hemiunique_mapping.h",
   "op-attrs/operator_task_space_dim_idx_t.dtg.h",
 ]
 
 [[fields]]
 name = "raw_mapping"
-type = "::FlexFlow::DimDomainMapping<::FlexFlow::operator_task_space_dim_idx_t, ::FlexFlow::operator_task_space_dim_idx_t>"
+type = "::FlexFlow::DimDomainHemiuniqueMapping<::FlexFlow::operator_task_space_dim_idx_t, ::FlexFlow::operator_task_space_dim_idx_t>"

@@ -18,7 +18,7 @@ OperatorTaskSpace op_mapping_get_src_space(
 OperatorTaskSpace op_mapping_get_dst_space(
     OperatorTaskSpaceToOperatorTaskSpaceMapping const &);
 
-bidict<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
+HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
     OperatorTaskSpaceToOperatorTaskSpaceMapping const &);
 
 OperatorTaskSpaceToOperatorTaskSpaceMapping

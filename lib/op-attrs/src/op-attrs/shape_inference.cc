@@ -894,7 +894,7 @@ std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degree
             return {
               {
                 TensorSlotName::OUTPUT,
-                get_output_parallel_dim_degrees(attrs, input),
+                linear_get_output_parallel_dim_degrees(attrs, input),
               }
             };
           },

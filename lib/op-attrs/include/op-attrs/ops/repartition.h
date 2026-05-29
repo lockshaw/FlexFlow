@@ -6,6 +6,7 @@
 #include <tl/expected.hpp>
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -18,13 +19,13 @@ ParallelTensorDimDegrees get_output_parallel_dim_degrees(
     ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace
-    get_operator_task_space(RepartitionAttrs const &attrs,
+    repartition_get_operator_task_space(RepartitionAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceMapping repartition_get_operator_to_input_mapping(
     RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceMapping repartition_get_operator_to_output_mapping(
     RepartitionAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow

@@ -12,7 +12,7 @@ using R = value_type<1>;
 
 template struct ManyToOne<L, R>;
 
-template std::unordered_map<std::unordered_set<L>, R>
+template std::unordered_map<nonempty_unordered_set<L>, R>
     format_as(ManyToOne<L, R> const &);
 
 template std::ostream &operator<<(std::ostream &, ManyToOne<L, R> const &);

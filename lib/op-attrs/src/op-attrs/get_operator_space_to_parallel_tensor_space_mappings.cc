@@ -13,6 +13,7 @@
 #include "utils/containers/require_two_keys.h"
 #include "utils/containers/zip_values_strict.h"
 #include "utils/overload.h"
+#include "op-attrs/ops/repartition.h"
 
 namespace FlexFlow {
 
@@ -75,15 +76,19 @@ std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
         std::unordered_map<TensorSlotName,
                            OperatorSpaceToParallelTensorSpaceMapping>
             result = {
-                {TensorSlotName::INPUT,
-                 get_operator_to_input_mapping(attrs, input_degrees)},
-                {TensorSlotName::WEIGHT,
-                 get_operator_to_projection_mapping(attrs, input_degrees)},
+                {
+                  TensorSlotName::INPUT,
+                  linear_get_operator_to_input_mapping(attrs, input_degrees),
+                },
+                {
+                  TensorSlotName::WEIGHT,
+                  linear_get_operator_to_projection_mapping(attrs, input_degrees),
+                },
             };
 
         if (attrs.use_bias) {
           result.insert({TensorSlotName::BIAS,
-                         get_operator_to_bias_mapping(attrs, input_degrees)});
+                         linear_get_operator_to_bias_mapping(attrs, input_degrees)});
         };
 
         return result;
@@ -92,7 +97,15 @@ std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
           -> std::unordered_map<TensorSlotName,
                                 OperatorSpaceToParallelTensorSpaceMapping>
       {
-        TODO TODO TODO
+        ParallelTensorDimDegrees input_degrees =
+            require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+        return {
+            {
+                TensorSlotName::INPUT,
+                repartition_get_operator_to_input_mapping(attrs, input_degrees),
+            },
+        };
       },
       [&](TransposeAttrs const &attrs)
           -> std::unordered_map<TensorSlotName,
@@ -215,7 +228,7 @@ std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
         return {
             {
                 TensorSlotName::OUTPUT,
-                get_operator_to_output_mapping(attrs, input_degrees),
+                linear_get_operator_to_output_mapping(attrs, input_degrees),
             },
         };
       },
@@ -228,6 +241,19 @@ std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             {
                 TensorSlotName::OUTPUT,
                 get_operator_to_output_mapping(attrs),
+            },
+        };
+      },
+      [&](RepartitionAttrs const &attrs)
+          -> std::unordered_map<TensorSlotName,
+                                OperatorSpaceToParallelTensorSpaceMapping> {
+        ParallelTensorDimDegrees input_degrees =
+            require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                repartition_get_operator_to_output_mapping(attrs, input_degrees),
             },
         };
       },

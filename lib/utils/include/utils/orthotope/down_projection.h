@@ -52,7 +52,7 @@ DimCoord<R> compute_down_projection(DownProjection<L, R> const &projection,
           output_dims,
           [&](R const &output_dim) {
             std::unordered_set<L> src_dims =
-                projection.dim_mapping.at_r(output_dim);
+                projection.dim_mapping.at_r(output_dim).unwrap_as_unordered_set();
 
             DimCoord<L> src_coord = restrict_coord_to_dims(coord, src_dims);
             DimDomain<L> src_domain =

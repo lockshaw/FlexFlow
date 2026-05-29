@@ -15,18 +15,20 @@ template std::string format_as(DimDomainHemiuniqueMapping<L, R> const &);
 template std::ostream &operator<<(std::ostream &,
                                   DimDomainHemiuniqueMapping<L, R> const &);
 
+template DimDomainHemiuniqueMapping<L, R> empty_dim_domain_hemiunique_mapping();
+
 template
   DimDomainHemiuniqueMapping<L, R> hemiunique_from_biunique_dim_domain_mapping(
       DimDomainBiuniqueMapping<L, R> const &);
 
 template DimDomainHemiuniqueMapping<L, R>
-    dim_domain_mapping_identity_map(DimDomain<L> const &,
+    dim_domain_hemiunique_mapping_identity_map(DimDomain<L> const &,
                                     DimDomain<R> const &,
                                     DimOrdering<L> const &,
                                     DimOrdering<R> const &);
 
 template DimDomainHemiuniqueMapping<R, L>
-    invert_dim_domain_mapping(DimDomainHemiuniqueMapping<L, R> const &);
+    invert_dim_domain_hemiunique_mapping(DimDomainHemiuniqueMapping<L, R> const &);
 
 template
   DimDomainHemiuniqueMapping<L, R>
@@ -48,7 +50,7 @@ using T2 = value_type<3>;
 using T3 = value_type<4>;
 
 template DimDomainHemiuniqueMapping<T1, T3>
-    compose_dim_domain_mappings(DimDomainHemiuniqueMapping<T1, T2> const &,
+    compose_dim_domain_hemiunique_mappings(DimDomainHemiuniqueMapping<T1, T2> const &,
                                 DimDomainHemiuniqueMapping<T2, T3> const &);
 
 } // namespace FlexFlow
