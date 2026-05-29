@@ -4,6 +4,7 @@
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/ops/input.h"
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/ops/repartition.h"
 #include "op-attrs/ops/transpose.h"
 #include "op-attrs/ops/weight.h"
 #include "utils/containers/filtrans.h"
@@ -87,7 +88,19 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             };
             return result;
           },
+          [&](RepartitionAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                                    OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    repartition_get_operator_to_input_mapping(attrs, input_degrees),
+                },
+            };
+          },
           [&](TransposeAttrs const &attrs)
               -> std::map<TensorSlotName,
                           OperatorSpaceToParallelTensorSpaceMapping> {
@@ -207,11 +220,10 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                           OperatorSpaceToParallelTensorSpaceMapping> {
             ParallelTensorDimDegrees input_degrees =
                 require_only_key(inputs_degrees, TensorSlotName::INPUT);
-
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(attrs, input_degrees),
+                    linear_get_operator_to_output_mapping(attrs, input_degrees),
                 },
             };
           },
@@ -224,6 +236,20 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                 {
                     TensorSlotName::OUTPUT,
                     get_operator_to_output_mapping(attrs),
+                },
+            };
+          },
+          [&](RepartitionAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                                    OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::OUTPUT,
+                    repartition_get_operator_to_output_mapping(attrs,
+                                                               input_degrees),
                 },
             };
           },
