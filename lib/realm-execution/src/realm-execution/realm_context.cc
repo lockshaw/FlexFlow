@@ -4,6 +4,7 @@
 #include "op-attrs/datatype.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.dtg.h"
+#include "realm-execution/processor_kind.h"
 #include "realm-execution/realm_allocator.h"
 #include "realm-execution/tasks/task_id_t.dtg.h"
 #include "realm-execution/tasks/task_id_t.h"
@@ -12,17 +13,15 @@
 #include "utils/exception.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
 #include "utils/one_to_many/one_to_many.h"
-#include "utils/positive_int/positive_int.h"
-#include "realm-execution/processor_kind.h"
 #include "utils/optional.h"
+#include "utils/positive_int/positive_int.h"
 
 namespace FlexFlow {
 
 RealmContext::RealmContext(Realm::Processor processor)
     : processor(processor),
       allocator(get_realm_allocator(
-          processor, RealmContext::get_nearest_memory(processor))) 
-{
+          processor, RealmContext::get_nearest_memory(processor))) {
   if (processor != Realm::Processor::NO_PROC) {
     this->discover_machine_topology();
   }
@@ -36,19 +35,21 @@ RealmContext::~RealmContext() {
 }
 
 static std::tuple<Realm::AddressSpace, Realm::Processor::Kind, nonnegative_int>
-    convert_machine_space_coordinate(
-        MachineSpaceCoordinate const &device_coord, DeviceType device_type) {
+    convert_machine_space_coordinate(MachineSpaceCoordinate const &device_coord,
+                                     DeviceType device_type) {
   Realm::AddressSpace as = int{device_coord.node_idx};
   Realm::Processor::Kind kind = processor_kind_from_device_type(device_type);
   nonnegative_int proc_in_node = device_coord.device_idx;
   return std::tuple{as, kind, proc_in_node};
 }
 
-Realm::Processor RealmContext::map_device_coord_to_processor(device_id_t const &device_id) const {
+Realm::Processor RealmContext::map_device_coord_to_processor(
+    device_id_t const &device_id) const {
   return assert_unwrap(this->processors).at_r(device_id);
 }
 
-device_id_t RealmContext::map_processor_to_device_coord(Realm::Processor p) const {
+device_id_t
+    RealmContext::map_processor_to_device_coord(Realm::Processor p) const {
   return assert_unwrap(this->processors).at_l(p);
 }
 
@@ -294,15 +295,13 @@ void RealmContext::discover_machine_topology() {
     return;
   }
 
-  std::unordered_map<
-    std::pair<nonnegative_int, DeviceType>,
-    nonnegative_int
-  > next_device_idx;
+  std::unordered_map<std::pair<nonnegative_int, DeviceType>, nonnegative_int>
+      next_device_idx;
 
-  auto fresh_device_id = [&](nonnegative_int node_idx, DeviceType device_type) 
-    -> device_id_t
-  {
-    std::pair<nonnegative_int, DeviceType> key = std::pair{node_idx, device_type};
+  auto fresh_device_id = [&](nonnegative_int node_idx,
+                             DeviceType device_type) -> device_id_t {
+    std::pair<nonnegative_int, DeviceType> key =
+        std::pair{node_idx, device_type};
     if (!contains_key(next_device_idx, key)) {
       next_device_idx.insert({key, 0_n});
     }
@@ -311,10 +310,8 @@ void RealmContext::discover_machine_topology() {
     next_device_idx.at(key)++;
 
     return device_id_t{
-      MachineSpaceCoordinate{
-        node_idx, device_idx
-      },
-      device_type,
+        MachineSpaceCoordinate{node_idx, device_idx},
+        device_type,
     };
   };
 

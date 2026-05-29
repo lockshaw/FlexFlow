@@ -48,22 +48,19 @@ TEST_SUITE(FF_TEST_SUITE) {
     OperatorSpaceToParallelTensorSpaceMapping correct =
         OperatorSpaceToParallelTensorSpaceMapping{
             DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
-                             parallel_tensor_dim_idx_t>{
+                                       parallel_tensor_dim_idx_t>{
                 /*coord_mapping=*/
-                  HemiuniqueBinaryRelation<
+                HemiuniqueBinaryRelation<
                     DimCoord<operator_task_space_dim_idx_t>,
-                    DimCoord<parallel_tensor_dim_idx_t>
-                  >{
-                    bidict<
-                      DimCoord<operator_task_space_dim_idx_t>,
-                      DimCoord<parallel_tensor_dim_idx_t>
-                    >{
-                      {make_op_coord(0_n, 0_n), make_pt_coord(0_n, 0_n)},
-                      {make_op_coord(0_n, 1_n), make_pt_coord(1_n, 0_n)},
-                      {make_op_coord(1_n, 0_n), make_pt_coord(0_n, 1_n)},
-                      {make_op_coord(1_n, 1_n), make_pt_coord(1_n, 1_n)},
-                      {make_op_coord(2_n, 0_n), make_pt_coord(0_n, 2_n)},
-                      {make_op_coord(2_n, 1_n), make_pt_coord(1_n, 2_n)},
+                    DimCoord<parallel_tensor_dim_idx_t>>{
+                    bidict<DimCoord<operator_task_space_dim_idx_t>,
+                           DimCoord<parallel_tensor_dim_idx_t>>{
+                        {make_op_coord(0_n, 0_n), make_pt_coord(0_n, 0_n)},
+                        {make_op_coord(0_n, 1_n), make_pt_coord(1_n, 0_n)},
+                        {make_op_coord(1_n, 0_n), make_pt_coord(0_n, 1_n)},
+                        {make_op_coord(1_n, 1_n), make_pt_coord(1_n, 1_n)},
+                        {make_op_coord(2_n, 0_n), make_pt_coord(0_n, 2_n)},
+                        {make_op_coord(2_n, 1_n), make_pt_coord(1_n, 2_n)},
                     },
                 },
                 /*l_domain=*/

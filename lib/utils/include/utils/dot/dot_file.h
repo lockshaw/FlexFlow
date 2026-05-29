@@ -1,6 +1,9 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_DOT_DOT_FILE_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_DOT_DOT_FILE_H
 
+#include "utils/containers/flatmap.h"
+#include "utils/dot/dot_file.h"
+#include "utils/dot/render_dot_html_table_to_string.h"
 #include "utils/record_formatter.h"
 #include <cassert>
 #include <fstream>
@@ -11,9 +14,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include "utils/containers/flatmap.h"
-#include "utils/dot/dot_file.h"
-#include "utils/dot/render_dot_html_table_to_string.h"
 
 namespace FlexFlow {
 
@@ -113,16 +113,13 @@ public:
   void add_html_node(T const &t, DotHtmlTable const &table) {
     std::ostringstream oss;
 
-    oss << "<" 
-        << render_dot_html_table_to_string(table)
-        << ">";
+    oss << "<" << render_dot_html_table_to_string(table) << ">";
 
-    this->add_node(
-      t, 
-      {
-        {"label", oss.str()},
-        {"shape", "plaintext"},
-      });
+    this->add_node(t,
+                   {
+                       {"label", oss.str()},
+                       {"shape", "plaintext"},
+                   });
   }
 
   void dump_subgraph(size_t subgraph) {
@@ -200,6 +197,6 @@ public:
   }
 };
 
-}
+} // namespace FlexFlow
 
 #endif

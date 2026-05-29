@@ -23,7 +23,8 @@ std::unordered_set<KwargDataflowInput<SlotName>>
             kwarg_dataflow_input_edge_query_none<GraphInputName, SlotName>(),
             KwargDataflowEdgeQuery<SlotName>{
                 /*src_nodes=*/query_set<Node>::match_single_value(o.node),
-                /*src_slots=*/query_set<SlotName>::match_single_value(o.slot_name),
+                /*src_slots=*/
+                query_set<SlotName>::match_single_value(o.slot_name),
                 /*dst_nodes=*/query_set<Node>::matchall(),
                 /*dst_slots=*/query_set<SlotName>::matchall(),
             },

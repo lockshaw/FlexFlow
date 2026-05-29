@@ -11,7 +11,8 @@ namespace FlexFlow {
 template <typename SlotName>
 struct ViewFromKwargDataflowGraphData final
     : virtual public IKwargDataflowGraphView<SlotName> {
-  explicit ViewFromKwargDataflowGraphData(KwargDataflowGraphData<SlotName> const &data)
+  explicit ViewFromKwargDataflowGraphData(
+      KwargDataflowGraphData<SlotName> const &data)
       : data(data) {}
 
   std::unordered_set<Node> query_nodes(NodeQuery const &query) const override {

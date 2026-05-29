@@ -19,20 +19,17 @@ std::string open_dataflow_graph_as_dot(OpenDataflowGraphView const &g) {
   std::function<std::string(DataflowGraphInput const &)> get_graph_input_label =
       [](DataflowGraphInput const &i) { return fmt::format("gi{}", i.idx); };
 
-  std::function<std::string(DataflowInput const &)> get_input_label = [](DataflowInput const &i) {
-    return fmt::format("i{}", i.idx);
-  };
+  std::function<std::string(DataflowInput const &)> get_input_label =
+      [](DataflowInput const &i) { return fmt::format("i{}", i.idx); };
 
-  std::function<std::string(DataflowOutput const &)> get_output_label = [](DataflowOutput const &o) {
-    return fmt::format("o{}", o.idx);
-  };
+  std::function<std::string(DataflowOutput const &)> get_output_label =
+      [](DataflowOutput const &o) { return fmt::format("o{}", o.idx); };
 
-  return open_dataflow_graph_as_dot(
-    g, 
-    get_node_label, 
-    get_graph_input_label,
-    get_input_label,
-    get_output_label);
+  return open_dataflow_graph_as_dot(g,
+                                    get_node_label,
+                                    get_graph_input_label,
+                                    get_input_label,
+                                    get_output_label);
 }
 
 /* WARN(@lockshaw): doing this all with string ids is ugly and error prone,
@@ -41,20 +38,21 @@ std::string open_dataflow_graph_as_dot(OpenDataflowGraphView const &g) {
  * Fixing this is tracked in issue
  * https://github.com/flexflow/FlexFlow/issues/1476
  */
-std::string
-    open_dataflow_graph_as_dot(OpenDataflowGraphView const &g,
-           std::function<std::string(Node const &)> const &get_node_label,
-           std::function<std::string(DataflowGraphInput const &)> const &get_graph_input_label,
-           std::function<std::string(DataflowInput const &)> const &get_input_label,
-           std::function<std::string(DataflowOutput const &)> const &get_output_label)
-{
+std::string open_dataflow_graph_as_dot(
+    OpenDataflowGraphView const &g,
+    std::function<std::string(Node const &)> const &get_node_label,
+    std::function<std::string(DataflowGraphInput const &)> const
+        &get_graph_input_label,
+    std::function<std::string(DataflowInput const &)> const &get_input_label,
+    std::function<std::string(DataflowOutput const &)> const
+        &get_output_label) {
   std::ostringstream oss;
   DotFile<std::string> dot = DotFile<std::string>{oss};
 
   dataflow_graph_as_dot(dot, static_cast<DataflowGraphView>(g), get_node_label);
 
-  auto get_node_name = [](Node n) -> std::string { 
-    return fmt::format("n{}", n.raw_uid); 
+  auto get_node_name = [](Node n) -> std::string {
+    return fmt::format("n{}", n.raw_uid);
   };
 
   auto get_input_field = [](nonnegative_int idx) -> std::string {

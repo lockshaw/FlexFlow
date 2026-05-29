@@ -16,9 +16,9 @@ template std::ostream &operator<<(std::ostream &,
 
 template DimDomainBiuniqueMapping<L, R>
     dim_domain_biunique_mapping_identity_map(DimDomain<L> const &,
-                                    DimDomain<R> const &,
-                                    DimOrdering<L> const &,
-                                    DimOrdering<R> const &);
+                                             DimDomain<R> const &,
+                                             DimOrdering<L> const &,
+                                             DimOrdering<R> const &);
 
 template DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping();
 
@@ -36,9 +36,9 @@ using T1 = value_type<2>;
 using T2 = value_type<3>;
 using T3 = value_type<4>;
 
-template DimDomainBiuniqueMapping<T1, T3>
-    compose_dim_domain_biunique_mappings(DimDomainBiuniqueMapping<T1, T2> const &,
-                                DimDomainBiuniqueMapping<T2, T3> const &);
+template DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
+    DimDomainBiuniqueMapping<T1, T2> const &,
+    DimDomainBiuniqueMapping<T2, T3> const &);
 
 } // namespace FlexFlow
 

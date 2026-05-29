@@ -1,5 +1,5 @@
-#include <doctest/doctest.h>
 #include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -24,7 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("construct from unordered_set") {
       SUBCASE("does not throw if nonempty") {
         nonempty_unordered_set<int> s{
-          std::unordered_set<int>{1, 2, 3},
+            std::unordered_set<int>{1, 2, 3},
         };
 
         CHECK(s.num_elements() == 3_p);
@@ -33,7 +33,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("throws if empty") {
         auto init_with_empty = []() -> void {
           nonempty_unordered_set<int> s{
-            std::unordered_set<int>{},
+              std::unordered_set<int>{},
           };
         };
 

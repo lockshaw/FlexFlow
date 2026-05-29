@@ -7,11 +7,11 @@
 #include "utils/bidict/generate_bidict.h"
 #include "utils/containers/are_all_distinct.h"
 #include "utils/containers/require_all_same.h"
+#include "utils/containers/sorted.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_of.h"
 #include "utils/hash/tuple.h"
 #include "utils/nonnegative_int/num_elements.h"
-#include "utils/containers/sorted.h"
 
 namespace FlexFlow {
 
@@ -103,16 +103,17 @@ bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
       .reversed();
 }
 
-nlohmann::json mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &m) {
+nlohmann::json
+    mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &m) {
 
-  std::vector<MachineSpaceCoordinate> coordinates = sorted(m.get_shard_bindings().left_values());
+  std::vector<MachineSpaceCoordinate> coordinates =
+      sorted(m.get_shard_bindings().left_values());
 
   return nlohmann::json{
-    transform(
-      coordinates,
-      [&](MachineSpaceCoordinate const &c) -> std::string {
-        return fmt::format("({}, {})", c.node_idx, c.device_idx);
-      }),
+      transform(coordinates,
+                [&](MachineSpaceCoordinate const &c) -> std::string {
+                  return fmt::format("({}, {})", c.node_idx, c.device_idx);
+                }),
   };
 }
 

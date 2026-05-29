@@ -95,8 +95,7 @@ static std::unordered_set<MachineView>
     for (nonnegative_int node_idx : nonnegative_range(slice.num_nodes)) {
       for (nonnegative_int device_idx :
            nonnegative_range(slice.num_gpus_per_node)) {
-        result.insert(
-            MachineSpaceCoordinate{node_idx, device_idx});
+        result.insert(MachineSpaceCoordinate{node_idx, device_idx});
       }
     }
     return result;

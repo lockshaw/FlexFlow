@@ -22,10 +22,9 @@
 namespace FlexFlow {
 
 std::pair<Realm::RegionInstance, Realm::Event>
-    perform_instance_allocation_for_value(
-        device_id_t const &device_id,
-        DynamicValueAttrs const &value,
-        RealmContext &ctx) {
+    perform_instance_allocation_for_value(device_id_t const &device_id,
+                                          DynamicValueAttrs const &value,
+                                          RealmContext &ctx) {
   ASSERT(value.accessor == std::nullopt);
 
   TensorShape shape = get_piece_shape(value.parallel_tensor_shape.value());

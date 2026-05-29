@@ -14,24 +14,24 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("mv_get_expected_task_space_num_dims") {
     MachineView mv = MachineView{
         MachineSpaceCoordinate{
-          MachineSpaceCoordinate{
-              /*node_idx=*/0_n,
-              /*device_idx=*/0_n,
-          },
+            MachineSpaceCoordinate{
+                /*node_idx=*/0_n,
+                /*device_idx=*/0_n,
+            },
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  stride_t{2_p},
-                  MachineSpecificationDimension::INTER_NODE,
-              },
-              MachineViewDimension{
-                  stride_t{2_p},
-                  MachineSpecificationDimension::INTER_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -64,22 +64,22 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/2_p,
-        /*num_gpus_per_node=*/3_p,
+          /*num_nodes=*/2_p,
+          /*num_gpus_per_node=*/3_p,
       };
 
       MachineView mv = MachineView{
-        MachineSpaceCoordinate{
-          /*node_idx=*/0_n,
-          /*device_idx=*/1_n,
-        },
-        StartInvariantMachineView{
-          MachineView1dProjection{
-            {
-              stride_t{2_p},
-            },
+          MachineSpaceCoordinate{
+              /*node_idx=*/0_n,
+              /*device_idx=*/1_n,
           },
-        },
+          StartInvariantMachineView{
+              MachineView1dProjection{
+                  {
+                      stride_t{2_p},
+                  },
+              },
+          },
       };
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,)") {
@@ -89,8 +89,8 @@ TEST_SUITE(FF_TEST_SUITE) {
             get_machine_space_coordinate(task, mv, machine_space, coord);
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/0_n,
-          /*device_idx=*/1_n,
+            /*node_idx=*/0_n,
+            /*device_idx=*/1_n,
         };
 
         CHECK(result == correct);
@@ -103,8 +103,8 @@ TEST_SUITE(FF_TEST_SUITE) {
             get_machine_space_coordinate(task, mv, machine_space, coord);
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/1_n,
-          /*device_idx=*/0_n,
+            /*node_idx=*/1_n,
+            /*device_idx=*/0_n,
         };
 
         CHECK(result == correct);
@@ -117,8 +117,8 @@ TEST_SUITE(FF_TEST_SUITE) {
             get_machine_space_coordinate(task, mv, machine_space, coord);
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/1_n,
-          /*device_idx=*/2_n,
+            /*node_idx=*/1_n,
+            /*device_idx=*/2_n,
         };
 
         CHECK(result == correct);
@@ -127,7 +127,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("TaskSpaceCoordinate is out of bounds") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({4_n});
 
-        CHECK_THROWS(get_machine_space_coordinate(task, mv, machine_space, coord));
+        CHECK_THROWS(
+            get_machine_space_coordinate(task, mv, machine_space, coord));
       }
     }
 
@@ -162,22 +163,22 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*node_idx=*/4_p,
-        /*device_idx=*/2_p,
+          /*node_idx=*/4_p,
+          /*device_idx=*/2_p,
       };
 
       MachineView mv = MachineView{
           MachineSpaceCoordinate{
-            /*node_idx=*/1_n,
-            /*device_idx=*/1_n,
+              /*node_idx=*/1_n,
+              /*device_idx=*/1_n,
           },
           StartInvariantMachineView{
-            MachineView1dProjection{
-              {
-                stride_t{1_p},
-                stride_t{1_p},
+              MachineView1dProjection{
+                  {
+                      stride_t{1_p},
+                      stride_t{1_p},
+                  },
               },
-            },
           },
       };
 
@@ -185,8 +186,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 0_n});
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/1_n,
-          /*device_idx=*/1_n,
+            /*node_idx=*/1_n,
+            /*device_idx=*/1_n,
         };
 
         MachineSpaceCoordinate result =
@@ -199,8 +200,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 1_n});
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/2_n,
-          /*device_idx=*/0_n,
+            /*node_idx=*/2_n,
+            /*device_idx=*/0_n,
         };
 
         MachineSpaceCoordinate result =
@@ -213,8 +214,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 0_n});
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/2_n,
-          /*device_idx=*/1_n,
+            /*node_idx=*/2_n,
+            /*device_idx=*/1_n,
         };
 
         MachineSpaceCoordinate result =
@@ -227,8 +228,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 1_n});
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-          /*node_idx=*/3_n,
-          /*device_idx=*/0_n,
+            /*node_idx=*/3_n,
+            /*device_idx=*/0_n,
         };
 
         MachineSpaceCoordinate result =
@@ -261,27 +262,27 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/1_p,
-        /*num_gpus_per_node=*/6_p,
+          /*num_nodes=*/1_p,
+          /*num_gpus_per_node=*/6_p,
       };
 
       MachineView mv = MachineView{
-        MachineSpaceCoordinate{
           MachineSpaceCoordinate{
-              /*node_idx=*/0_n,
-              /*device_idx=*/1_n,
-          },
-        },
-        StartInvariantMachineView{
-          MachineView2dProjection{
-            {
-              MachineViewDimension{
-                  stride_t{2_p},
-                  MachineSpecificationDimension::INTRA_NODE,
+              MachineSpaceCoordinate{
+                  /*node_idx=*/0_n,
+                  /*device_idx=*/1_n,
               },
-            },
           },
-        },
+          StartInvariantMachineView{
+              MachineView2dProjection{
+                  {
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
+              },
+          },
       };
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,)") {
@@ -329,7 +330,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("TaskSpaceCoordinate is out of bounds") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({4_n});
 
-        CHECK_THROWS(get_machine_space_coordinate(task, mv, machine_space, coord));
+        CHECK_THROWS(
+            get_machine_space_coordinate(task, mv, machine_space, coord));
       }
     }
 
@@ -362,8 +364,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/3_p,
-        /*num_gpus_per_node=*/5_p,
+          /*num_nodes=*/3_p,
+          /*num_gpus_per_node=*/5_p,
       };
 
       MachineView mv = MachineView{
@@ -372,18 +374,18 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*device_idx=*/2_n,
           },
           StartInvariantMachineView{
-            MachineView2dProjection{
-              {
-                  MachineViewDimension{
-                      stride_t{1_p},
-                      MachineSpecificationDimension::INTER_NODE,
-                  },
-                  MachineViewDimension{
-                      stride_t{2_p},
-                      MachineSpecificationDimension::INTRA_NODE,
+              MachineView2dProjection{
+                  {
+                      MachineViewDimension{
+                          stride_t{1_p},
+                          MachineSpecificationDimension::INTER_NODE,
+                      },
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
                   },
               },
-            },
           },
       };
 
@@ -469,8 +471,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/2_p,
-        /*num_gpus_per_node=*/6_p,
+          /*num_nodes=*/2_p,
+          /*num_gpus_per_node=*/6_p,
       };
 
       MachineView mv = MachineView{
@@ -479,18 +481,18 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*device_idx=*/0_n,
           },
           StartInvariantMachineView{
-            MachineView2dProjection{
-              {
-                MachineViewDimension{
-                    stride_t{1_p},
-                    MachineSpecificationDimension::INTRA_NODE,
-                },
-                MachineViewDimension{
-                    stride_t{2_p},
-                    MachineSpecificationDimension::INTRA_NODE,
-                },
+              MachineView2dProjection{
+                  {
+                      MachineViewDimension{
+                          stride_t{1_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
               },
-            },
           },
       };
 
@@ -582,33 +584,33 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/2_p,
-        /*num_gpus_per_node=*/8_p,
+          /*num_nodes=*/2_p,
+          /*num_gpus_per_node=*/8_p,
       };
 
       MachineView mv = MachineView{
-        MachineSpaceCoordinate{
-            /*node_idx=*/0_n,
-            /*device_idx=*/1_n,
-        },
-        StartInvariantMachineView{
-          MachineView2dProjection{
-            {
-              MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTER_NODE,
-              },
-              MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
-              },
-              MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
-              },
-            },
+          MachineSpaceCoordinate{
+              /*node_idx=*/0_n,
+              /*device_idx=*/1_n,
           },
-        },
+          StartInvariantMachineView{
+              MachineView2dProjection{
+                  {
+                      MachineViewDimension{
+                          stride_t{1_p},
+                          MachineSpecificationDimension::INTER_NODE,
+                      },
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                      MachineViewDimension{
+                          stride_t{1_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
+              },
+          },
       };
 
       SUBCASE("Task with TaskSpaceCoordinate = (0,0,1)") {
@@ -631,7 +633,8 @@ TEST_SUITE(FF_TEST_SUITE) {
             get_machine_space_coordinate(task, mv, machine_space, coord);
 
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
-            /*node_idx=*/1_n, /*device_idx=*/5_n,
+            /*node_idx=*/1_n,
+            /*device_idx=*/5_n,
         };
 
         CHECK(correct == result);

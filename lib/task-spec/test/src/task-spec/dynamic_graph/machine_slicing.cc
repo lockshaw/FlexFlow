@@ -6,15 +6,14 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("perform_machine_slicing_for_invocation") {
-    auto mk_device_id =
-        [](nonnegative_int node_idx,
-           nonnegative_int device_idx) -> device_id_t {
+    auto mk_device_id = [](nonnegative_int node_idx,
+                           nonnegative_int device_idx) -> device_id_t {
       return device_id_t{
-        MachineSpaceCoordinate{
-          /*node_idx=*/node_idx,
-          /*device_idx=*/device_idx,
-        },
-        DeviceType::GPU,
+          MachineSpaceCoordinate{
+              /*node_idx=*/node_idx,
+              /*device_idx=*/device_idx,
+          },
+          DeviceType::GPU,
       };
     };
 

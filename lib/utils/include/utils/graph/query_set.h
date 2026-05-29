@@ -6,6 +6,7 @@
 #include "utils/containers/filter.h"
 #include "utils/containers/filter_keys.h"
 #include "utils/containers/set_intersection.h"
+#include "utils/containers/set_of.h"
 #include "utils/containers/set_union.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/unordered_set_of.h"
@@ -17,7 +18,6 @@
 #include <optional>
 #include <set>
 #include <unordered_set>
-#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
@@ -28,7 +28,7 @@ struct query_set {
   static query_set<T> matchall() {
     std::optional<std::set<T>> query_val = std::nullopt;
     return query_set<T>{
-      query_val,
+        query_val,
     };
   }
 
@@ -36,13 +36,13 @@ struct query_set {
     std::set<T> to_match = {};
 
     return query_set<T>{
-      std::optional<std::set<T>>{to_match},
+        std::optional<std::set<T>>{to_match},
     };
   }
 
   static query_set<T> match_values_in(std::set<T> const &values) {
     return query_set<T>{
-      std::optional<std::set<T>>{values},
+        std::optional<std::set<T>>{values},
     };
   }
 
@@ -79,8 +79,7 @@ struct query_set {
   }
 
 private:
-  explicit query_set(std::optional<std::set<T>> const &query)
-    : query(query) { }
+  explicit query_set(std::optional<std::set<T>> const &query) : query(query) {}
 
 private:
   std::optional<std::set<T>> query;
@@ -146,7 +145,8 @@ query_set<T> query_intersection(query_set<T> const &lhs,
   } else if (is_matchall(rhs)) {
     return lhs;
   } else {
-    return query_set<T>::match_values_in(set_of(set_intersection(allowed_values(lhs), allowed_values(rhs))));
+    return query_set<T>::match_values_in(
+        set_of(set_intersection(allowed_values(lhs), allowed_values(rhs))));
   }
 }
 
@@ -155,7 +155,8 @@ query_set<T> query_union(query_set<T> const &lhs, query_set<T> const &rhs) {
   if (is_matchall(lhs) || is_matchall(rhs)) {
     return query_set<T>::matchall();
   } else {
-    return query_set<T>::match_values_in(set_of(set_union(allowed_values(lhs), allowed_values(rhs))));
+    return query_set<T>::match_values_in(
+        set_of(set_union(allowed_values(lhs), allowed_values(rhs))));
   }
 }
 

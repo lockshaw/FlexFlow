@@ -1,6 +1,7 @@
 #include "task-spec/dynamic_graph/make_dynamic_open_dataflow_graph_from_mapped_pcg.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/pcg_operator_attrs.h"
+#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_tensor_attrs.dtg.h"
 #include "task-spec/dynamic_graph/dynamic_layer_guid_t.dtg.h"
@@ -10,25 +11,23 @@
 #include <optional>
 #include <unordered_map>
 #include <utility>
-#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 
 namespace FlexFlow {
 
 DynamicOpenDataflowGraph make_dynamic_open_dataflow_graph_from_mapped_pcg(
-    MappedParallelComputationGraph const &mpcg,
-    DeviceType device_type) {
+    MappedParallelComputationGraph const &mpcg, DeviceType device_type) {
   DynamicOpenDataflowGraph result = make_empty_dynamic_open_dataflow_graph();
 
   ParallelComputationGraph pcg = pcg_from_mpcg(mpcg);
 
-  for (auto const &[layer, attrs] :
-       get_parallel_layer_attrs_mapping(pcg)) {
+  for (auto const &[layer, attrs] : get_parallel_layer_attrs_mapping(pcg)) {
     DynamicNodeAttrs result_attrs{
         /*task_type=*/std::nullopt,
         /*device_coord=*/std::nullopt,
-        /*mapping=*/DynamicNodeMapping{
-          /*op_task_group=*/mpcg_get_mapping_for_layer(mpcg, layer),
-          /*device_type=*/device_type,
+        /*mapping=*/
+        DynamicNodeMapping{
+            /*op_task_group=*/mpcg_get_mapping_for_layer(mpcg, layer),
+            /*device_type=*/device_type,
         },
         /*op_attrs=*/TrainingOperationAttrs{attrs.op_attrs},
         /*pcg_layer_guid=*/dynamic_layer_guid_t{layer},

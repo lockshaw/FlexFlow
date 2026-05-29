@@ -161,10 +161,14 @@ MachineMappingWithMemoryResult get_optimal_machine_mapping_with_memory(
               tensor_movement,
               /*pre_machine_stencils=*/
               get_machine_stencils_for_partially_mapped_mm_problem_tree(
-                  series_split.get_left_child(), resources, assigned_pre_machine_views),
+                  series_split.get_left_child(),
+                  resources,
+                  assigned_pre_machine_views),
               /*post_machine_stencils=*/
               get_machine_stencils_for_partially_mapped_mm_problem_tree(
-                  series_split.get_right_child(), resources, assigned_post_machine_views));
+                  series_split.get_right_child(),
+                  resources,
+                  assigned_post_machine_views));
 
       milliseconds_t cost_across_split =
           context.cost_estimator.estimate_cost(comm_across_split);

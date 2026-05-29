@@ -10,8 +10,7 @@ using R2 = value_type<3>;
 using FL = std::function<L2(L1 const &)>;
 using FR = std::function<R2(R1 const &)>;
 
-template
-  HemiuniqueBinaryRelation<L2, R2>
-    hemiunique_binrel_transform_l_and_r(HemiuniqueBinaryRelation<L1, R1> const &, FL &&, FR &&);
+template HemiuniqueBinaryRelation<L2, R2> hemiunique_binrel_transform_l_and_r(
+    HemiuniqueBinaryRelation<L1, R1> const &, FL &&, FR &&);
 
 } // namespace FlexFlow

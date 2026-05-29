@@ -12,7 +12,8 @@ struct DeviceSpecific {
   DeviceSpecific() = delete;
 
   template <typename... Args>
-  static DeviceSpecific<T> create(device_id_t const &device_idx, Args &&...args) {
+  static DeviceSpecific<T> create(device_id_t const &device_idx,
+                                  Args &&...args) {
     return DeviceSpecific<T>(std::make_shared<T>(std::forward<Args>(args)...),
                              device_idx);
   }

@@ -9,7 +9,7 @@ std::unordered_set<Node> get_nodes(GraphView const &g) {
 
 bool has_node(GraphView const &g, Node const &n) {
   NodeQuery query = NodeQuery{
-    query_set<Node>::match_single_value(n),
+      query_set<Node>::match_single_value(n),
   };
 
   return !g.query_nodes(query).empty();

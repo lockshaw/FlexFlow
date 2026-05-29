@@ -105,16 +105,16 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-      StartInvariantMachineView{
-        MachineView2dProjection{
-          /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     MachineView machine_view_1 = MachineView{
@@ -123,14 +123,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-                MachineViewDimension{
-                    stride_t{2_p},
-                    MachineSpecificationDimension::INTRA_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
                 },
             },
-          },
         },
     };
 
@@ -314,14 +314,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -331,15 +331,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     OpCostMetrics lhs_cost = OpCostMetrics{
@@ -422,15 +422,15 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*device_idx=*/0_n,
           },
           StartInvariantMachineView{
-            MachineView2dProjection{
-              /*dimensions=*/{
-              MachineViewDimension{
-                  stride_t{2_p},
-                  MachineSpecificationDimension::INTRA_NODE,
+              MachineView2dProjection{
+                  /*dimensions=*/{
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
               },
-            },
           },
-        },
       };
 
       MachineMappingWithMemoryResult correct = MachineMappingWithMemoryResult{{
@@ -478,15 +478,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  stride_t{1_p},
-                  MachineSpecificationDimension::INTRA_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
-      },
     };
 
     MachineView machine_view_1 = MachineView{
@@ -495,15 +495,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     MachineView machine_view_2 = MachineView{
@@ -512,14 +512,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  stride_t{4_p},
-                  MachineSpecificationDimension::INTRA_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{4_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
     };
 

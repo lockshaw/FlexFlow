@@ -7,13 +7,13 @@ namespace FlexFlow {
 using GraphInputName = ordered_value_type<0>;
 using SlotName = ordered_value_type<1>;
 
-template
-  std::string
-    open_kwarg_dataflow_graph_as_dot(
-      OpenKwargDataflowGraphView<GraphInputName, SlotName> const &,
-      std::function<nlohmann::json(Node const &)> const &,
-      std::function<nlohmann::json(OpenKwargDataflowValue<GraphInputName, SlotName> const &)> const &,
-      std::function<nlohmann::json(SlotName const &)> const &,
-      std::function<std::vector<SlotName>(std::unordered_set<SlotName> const &)> const &);
+template std::string open_kwarg_dataflow_graph_as_dot(
+    OpenKwargDataflowGraphView<GraphInputName, SlotName> const &,
+    std::function<nlohmann::json(Node const &)> const &,
+    std::function<nlohmann::json(
+        OpenKwargDataflowValue<GraphInputName, SlotName> const &)> const &,
+    std::function<nlohmann::json(SlotName const &)> const &,
+    std::function<
+        std::vector<SlotName>(std::unordered_set<SlotName> const &)> const &);
 
 } // namespace FlexFlow

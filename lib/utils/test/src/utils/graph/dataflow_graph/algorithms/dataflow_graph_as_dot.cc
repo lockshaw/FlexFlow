@@ -1,8 +1,8 @@
-#include <doctest/doctest.h>
 #include "utils/graph/dataflow_graph/algorithms/dataflow_graph_as_dot.h"
+#include "utils/containers/get_only.h"
 #include "utils/graph/dataflow_graph/dataflow_graph.h"
 #include "utils/graph/instances/unordered_set_dataflow_graph.h"
-#include "utils/containers/get_only.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -47,7 +47,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       return fmt::format("{}_{}", get_node_label(o.node), o.idx);
     };
 
-    std::string result = dataflow_graph_as_dot(g, get_node_label, get_input_label, get_output_label);
+    std::string result = dataflow_graph_as_dot(
+        g, get_node_label, get_input_label, get_output_label);
 
     std::string correct = R"EXPECTED_OUTPUT(digraph taskgraph {
   node0 [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD COLSPAN="1">(no inputs)</TD></TR>

@@ -1,12 +1,12 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_NONEMPTY_UNORDERED_SET_NONEMPTY_UNORDERED_SET_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_NONEMPTY_UNORDERED_SET_NONEMPTY_UNORDERED_SET_H
 
-#include <unordered_set>
+#include "utils/fmt/unordered_set.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/unordered_set.h"
-#include "utils/fmt/unordered_set.h"
 #include "utils/positive_int/positive_int.h"
 #include <libassert/assert.hpp>
+#include <unordered_set>
 
 namespace FlexFlow {
 
@@ -15,15 +15,11 @@ struct nonempty_unordered_set {
 public:
   nonempty_unordered_set() = delete;
 
-  nonempty_unordered_set(std::initializer_list<T> const &vs) 
-    : raw(vs)
-  { 
+  nonempty_unordered_set(std::initializer_list<T> const &vs) : raw(vs) {
     ASSERT(this->raw.size() > 0);
   }
 
-  explicit nonempty_unordered_set(std::unordered_set<T> const &s)
-    : raw(s)
-  {
+  explicit nonempty_unordered_set(std::unordered_set<T> const &s) : raw(s) {
     ASSERT(this->raw.size() > 0);
   }
 
@@ -46,7 +42,7 @@ public:
   void insert(T const &t) {
     this->raw.insert(t);
   }
-  
+
   size_t size() const {
     return this->raw.size();
   };
@@ -76,17 +72,20 @@ public:
   typename std::unordered_set<T>::const_iterator cend() const {
     return this->raw.cend();
   }
+
 private:
   std::unordered_set<T> raw;
 };
 
 template <typename T>
-bool operator==(std::unordered_set<T> const &lhs, nonempty_unordered_set<T> const &rhs) {
+bool operator==(std::unordered_set<T> const &lhs,
+                nonempty_unordered_set<T> const &rhs) {
   return lhs == rhs.unwrap_as_unordered_set();
 }
 
 template <typename T>
-bool operator!=(std::unordered_set<T> const &lhs, nonempty_unordered_set<T> const &rhs) {
+bool operator!=(std::unordered_set<T> const &lhs,
+                nonempty_unordered_set<T> const &rhs) {
   return lhs != rhs.unwrap_as_unordered_set();
 }
 

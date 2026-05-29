@@ -1,4 +1,5 @@
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/ff_ordered/enumerate.h"
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/extend.h"
@@ -10,7 +11,6 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/overload.h"
 #include <libassert/assert.hpp>
-#include "op-attrs/ff_ordered/enumerate.h"
 
 namespace FlexFlow {
 
@@ -158,7 +158,8 @@ RecordFormatter dot_for_parallel_tensor_shape(ParallelTensorShape const &s) {
          << mk_kv_record("discard_copy_degree", get_discard_copy_degree(s));
 
   for (auto const &[idx, dim] : enumerate(s.dims.shard_dims)) {
-    result << mk_kv_record(fmt::to_string(idx), fmt::format("{}/{}", dim.size, dim.degree));
+    result << mk_kv_record(fmt::to_string(idx),
+                           fmt::format("{}/{}", dim.size, dim.degree));
   }
 
   result << mk_kv_record("data_type", s.data_type);

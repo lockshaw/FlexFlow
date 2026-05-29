@@ -4,9 +4,9 @@
 
 namespace FlexFlow {
 
-RecordFormatter::RecordFormatter(Orientation orientation, std::vector<std::string> const &pieces)
-  : orientation(orientation), pieces(pieces)
-{ }
+RecordFormatter::RecordFormatter(Orientation orientation,
+                                 std::vector<std::string> const &pieces)
+    : orientation(orientation), pieces(pieces) {}
 
 RecordFormatter mk_empty_record(Orientation o) {
   return RecordFormatter{o, std::vector<std::string>{}};
@@ -76,22 +76,20 @@ RecordFormatter mk_kv_record(std::string const &k, RecordFormatter const &v) {
   return rr;
 }
 
-}
+} // namespace FlexFlow
 
 namespace FlexFlow {
 
 using T = value_type<0>;
 
-template
-  RecordFormatter mk_kv_record(std::string const &, T const &);
+template RecordFormatter mk_kv_record(std::string const &, T const &);
 
-template
-  RecordFormatter mk_kv_record(std::string const &, std::optional<T> const &);
+template RecordFormatter mk_kv_record(std::string const &,
+                                      std::optional<T> const &);
 
 using K = ordered_value_type<0>;
 using V = value_type<0>;
 
-template
-  RecordFormatter mk_record_for_map(std::unordered_map<K, V> const &);
+template RecordFormatter mk_record_for_map(std::unordered_map<K, V> const &);
 
 } // namespace FlexFlow

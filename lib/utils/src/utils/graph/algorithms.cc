@@ -3,6 +3,7 @@
 #include "utils/containers/get_only.h"
 #include "utils/containers/restrict_keys.h"
 #include "utils/containers/set_difference.h"
+#include "utils/containers/set_of.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/unordered_set_of.h"
 #include "utils/containers/values.h"
@@ -23,7 +24,6 @@
 #include <iostream>
 #include <libassert/assert.hpp>
 #include <queue>
-#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
@@ -58,7 +58,7 @@ struct GetNodesFunctor {
 std::unordered_set<Node> query_nodes(GraphView const &g,
                                      std::unordered_set<Node> const &nodes) {
   NodeQuery query = NodeQuery{
-    query_set<Node>::match_values_in(set_of(nodes)),
+      query_set<Node>::match_values_in(set_of(nodes)),
   };
 
   return g.query_nodes(query);
@@ -136,8 +136,8 @@ void add_edges(UndirectedGraph &g,
 
 bool contains_edge(DiGraphView const &g, DirectedEdge const &e) {
   DirectedEdgeQuery query = DirectedEdgeQuery{
-    query_set<Node>::match_single_value(e.src),
-    query_set<Node>::match_single_value(e.dst),
+      query_set<Node>::match_single_value(e.src),
+      query_set<Node>::match_single_value(e.dst),
   };
 
   return contains(g.query_edges(query), e);
@@ -145,9 +145,7 @@ bool contains_edge(DiGraphView const &g, DirectedEdge const &e) {
 
 bool contains_edge(UndirectedGraphView const &g, UndirectedEdge const &e) {
   UndirectedEdgeQuery q = UndirectedEdgeQuery{
-    query_set<Node>::match_values_in(
-      {e.endpoints.max(), e.endpoints.min()})
-  };
+      query_set<Node>::match_values_in({e.endpoints.max(), e.endpoints.min()})};
   return contains(g.query_edges(q), e);
 }
 
@@ -171,7 +169,7 @@ void remove_edges(UndirectedGraph &g,
 std::unordered_set<UndirectedEdge> get_node_edges(UndirectedGraphView const &g,
                                                   Node const &n) {
   UndirectedEdgeQuery query = UndirectedEdgeQuery{
-    query_set<Node>::match_single_value(n),
+      query_set<Node>::match_single_value(n),
   };
 
   return g.query_edges(query);

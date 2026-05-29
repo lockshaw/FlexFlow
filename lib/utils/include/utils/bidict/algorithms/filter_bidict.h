@@ -6,8 +6,7 @@
 namespace FlexFlow {
 
 template <typename L, typename R, typename F>
-bidict<L, R> filter_bidict(bidict<L, R> const &b, F &&f)
-{
+bidict<L, R> filter_bidict(bidict<L, R> const &b, F &&f) {
   bidict<L, R> result;
 
   for (std::pair<L, R> const &p : b) {

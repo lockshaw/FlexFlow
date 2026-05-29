@@ -12,15 +12,10 @@ template <typename L1,
           typename FR,
           typename L2 = std::invoke_result_t<FL, L1>,
           typename R2 = std::invoke_result_t<FR, R1>>
-HemiuniqueBinaryRelation<L2, R2>
-  hemiunique_binrel_transform_l_and_r(HemiuniqueBinaryRelation<L1, R1> const &r,
-                                      FL &&fl,
-                                      FR &&fr) {
-  return hemiunique_binrel_transform_l(
-    hemiunique_binrel_transform_r(
-      r,
-      fr),
-    fl);
+HemiuniqueBinaryRelation<L2, R2> hemiunique_binrel_transform_l_and_r(
+    HemiuniqueBinaryRelation<L1, R1> const &r, FL &&fl, FR &&fr) {
+  return hemiunique_binrel_transform_l(hemiunique_binrel_transform_r(r, fr),
+                                       fl);
 }
 
 } // namespace FlexFlow

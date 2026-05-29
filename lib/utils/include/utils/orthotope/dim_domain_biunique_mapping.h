@@ -81,7 +81,8 @@ std::string format_as(DimDomainBiuniqueMapping<L, R> const &m) {
 }
 
 template <typename L, typename R>
-std::ostream &operator<<(std::ostream &s, DimDomainBiuniqueMapping<L, R> const &m) {
+std::ostream &operator<<(std::ostream &s,
+                         DimDomainBiuniqueMapping<L, R> const &m) {
   CHECK_FMTABLE(L);
   CHECK_FMTABLE(R);
 
@@ -112,11 +113,11 @@ DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping() {
  * \relates DimDomainBiuniqueMapping
  */
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R>
-    dim_domain_biunique_mapping_identity_map(DimDomain<L> const &l_domain,
-                                    DimDomain<R> const &r_domain,
-                                    DimOrdering<L> const &l_dim_ordering,
-                                    DimOrdering<R> const &r_dim_ordering) {
+DimDomainBiuniqueMapping<L, R> dim_domain_biunique_mapping_identity_map(
+    DimDomain<L> const &l_domain,
+    DimDomain<R> const &r_domain,
+    DimOrdering<L> const &l_dim_ordering,
+    DimOrdering<R> const &r_dim_ordering) {
   DimProjection<L, R> projection = dim_projection_identity_map(
       l_domain, r_domain, l_dim_ordering, r_dim_ordering);
 
@@ -152,9 +153,9 @@ DimDomainBiuniqueMapping<R, L> invert_dim_domain_biunique_mapping(
  * \relates DimDomainBiuniqueMapping
  */
 template <typename T1, typename T2, typename T3>
-DimDomainBiuniqueMapping<T1, T3>
-    compose_dim_domain_biunique_mappings(DimDomainBiuniqueMapping<T1, T2> const &lhs,
-                                DimDomainBiuniqueMapping<T2, T3> const &rhs) {
+DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
+    DimDomainBiuniqueMapping<T1, T2> const &lhs,
+    DimDomainBiuniqueMapping<T2, T3> const &rhs) {
 
   ASSERT(lhs.r_domain == rhs.l_domain);
 
@@ -173,12 +174,12 @@ DimDomainBiuniqueMapping<T1, T3>
  * \relates DimProjection
  */
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R>
-    dim_domain_biunique_mapping_from_projection(DimProjection<L, R> const &projection,
-                                                DimDomain<L> const &l_domain,
-                                                DimDomain<R> const &r_domain,
-                                                DimOrdering<L> const &l_dim_ordering,
-                                                DimOrdering<R> const &r_dim_ordering) {
+DimDomainBiuniqueMapping<L, R> dim_domain_biunique_mapping_from_projection(
+    DimProjection<L, R> const &projection,
+    DimDomain<L> const &l_domain,
+    DimDomain<R> const &r_domain,
+    DimOrdering<L> const &l_dim_ordering,
+    DimOrdering<R> const &r_dim_ordering) {
 
   return DimDomainBiuniqueMapping{
       /*coord_mapping=*/generate_bidict(
@@ -203,8 +204,8 @@ namespace std {
 
 template <typename L, typename R>
 struct hash<::FlexFlow::DimDomainBiuniqueMapping<L, R>> {
-  size_t operator()(
-      ::FlexFlow::DimDomainBiuniqueMapping<L, R> const &dim_domain_mapping) const {
+  size_t operator()(::FlexFlow::DimDomainBiuniqueMapping<L, R> const
+                        &dim_domain_mapping) const {
     return get_std_hash(dim_domain_mapping.tie());
   }
 };

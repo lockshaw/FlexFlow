@@ -73,18 +73,19 @@ std::string
   std::function<std::string(std::monostate const &)> render_value_label =
       [](std::monostate const &) { return ""; };
 
-  std::function<std::string(DataflowGraphInput const &)> render_dataflow_graph_input = 
-    [](DataflowGraphInput const &) { return ""; };
-      
-  std::function<std::string(DataflowInput const &)> render_dataflow_input = 
-    [](DataflowInput const &) { return ""; };
+  std::function<std::string(DataflowGraphInput const &)>
+      render_dataflow_graph_input =
+          [](DataflowGraphInput const &) { return ""; };
 
-  std::function<std::string(DataflowOutput const &)> render_dataflow_output = 
-    [](DataflowOutput const &) { return ""; };
+  std::function<std::string(DataflowInput const &)> render_dataflow_input =
+      [](DataflowInput const &) { return ""; };
+
+  std::function<std::string(DataflowOutput const &)> render_dataflow_output =
+      [](DataflowOutput const &) { return ""; };
 
   return labelled_open_dataflow_graph_as_dot(
-      view_as_labelled_open_dataflow_graph(g), 
-      render_node_label, 
+      view_as_labelled_open_dataflow_graph(g),
+      render_node_label,
       render_value_label,
       render_dataflow_graph_input,
       render_dataflow_input,

@@ -9,8 +9,8 @@
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/replica_parallel_dim.dtg.h"
 #include "op-attrs/tensor_shape.h"
-#include <vector>
 #include "utils/record_formatter.h"
+#include <vector>
 
 namespace FlexFlow {
 

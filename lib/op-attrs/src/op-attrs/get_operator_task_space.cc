@@ -1,8 +1,12 @@
 #include "op-attrs/get_operator_task_space.h"
+#include "op-attrs/ops/combine.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/ops/input.h"
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/ops/reduction.h"
+#include "op-attrs/ops/repartition.h"
+#include "op-attrs/ops/replicate.h"
 #include "op-attrs/ops/transpose.h"
 #include "op-attrs/ops/weight.h"
 #include "utils/containers/get_only.h"
@@ -10,10 +14,6 @@
 #include "utils/containers/require_two_keys.h"
 #include "utils/overload.h"
 #include <libassert/assert.hpp>
-#include "op-attrs/ops/repartition.h"
-#include "op-attrs/ops/combine.h"
-#include "op-attrs/ops/replicate.h"
-#include "op-attrs/ops/reduction.h"
 
 namespace FlexFlow {
 

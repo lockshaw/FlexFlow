@@ -2,12 +2,12 @@
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ONE_TO_MANY_ONE_TO_MANY_H
 
 #include "utils/containers/generate_map.h"
+#include "utils/containers/items.h"
 #include "utils/containers/keys.h"
+#include "utils/containers/transform.h"
 #include "utils/containers/try_at.h"
 #include "utils/containers/unordered_set_of.h"
 #include "utils/containers/values.h"
-#include "utils/containers/transform.h"
-#include "utils/containers/items.h"
 #include "utils/exception.h"
 #include "utils/fmt/unordered_map.h"
 #include "utils/fmt/unordered_set.h"
@@ -17,12 +17,12 @@
 #include "utils/hash/unordered_set.h"
 #include "utils/json/check_is_json_deserializable.h"
 #include "utils/json/check_is_json_serializable.h"
+#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <rapidcheck.h>
 #include <unordered_map>
 #include <unordered_set>
-#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 
 namespace FlexFlow {
 
@@ -79,13 +79,11 @@ public:
     }
   }
 
-
   std::unordered_set<std::pair<L, R>> relation() const {
-    return transform(
-      items(this->m_r_to_l),
-      [](std::pair<R, L> const &p) -> std::pair<L, R> {
-        return {p.second, p.first};
-      });
+    return transform(items(this->m_r_to_l),
+                     [](std::pair<R, L> const &p) -> std::pair<L, R> {
+                       return {p.second, p.first};
+                     });
   }
 
   nonempty_unordered_set<R> const &at_l(L const &l) const {

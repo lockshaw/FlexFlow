@@ -14,19 +14,19 @@ TEST_SUITE(FF_TEST_SUITE) {
     bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>
         shard_bindings{
             {
-              MachineSpaceCoordinate{0_n, 0_n},
-              OperatorAtomicTaskShardBinding{
-                 {
-                     {
-                       TensorSlotName::INPUT,
-                        ParallelTensorSpaceCoordinate{
-                            /*sum_component=*/0_n,
-                            /*discard_copy_component=*/0_n,
-                            /*shard_components=*/FFOrdered{1_n, 2_n, 3_n},
+                MachineSpaceCoordinate{0_n, 0_n},
+                OperatorAtomicTaskShardBinding{
+                    {
+                        {
+                            TensorSlotName::INPUT,
+                            ParallelTensorSpaceCoordinate{
+                                /*sum_component=*/0_n,
+                                /*discard_copy_component=*/0_n,
+                                /*shard_components=*/FFOrdered{1_n, 2_n, 3_n},
+                            },
                         },
-                     },
-                 },
-               },
+                    },
+                },
             },
         };
     MappedOperatorTaskGroup deserialized{shard_bindings};

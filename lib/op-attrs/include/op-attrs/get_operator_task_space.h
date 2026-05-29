@@ -3,8 +3,8 @@
 
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
-#include "op-attrs/tensor_slot_name.dtg.h"
 #include "op-attrs/pcg_operator_attrs.dtg.h"
+#include "op-attrs/tensor_slot_name.dtg.h"
 
 namespace FlexFlow {
 

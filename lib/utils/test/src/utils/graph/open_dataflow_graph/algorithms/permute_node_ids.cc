@@ -92,7 +92,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("query_nodes(NodeQuery)") {
       SUBCASE("check access to old nodes") {
         NodeQuery query = NodeQuery{
-          query_set<Node>::match_single_value(n0),
+            query_set<Node>::match_single_value(n0),
         };
 
         std::unordered_set<Node> result_nodes = result.query_nodes(query);
@@ -102,7 +102,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("check access to new nodes") {
         NodeQuery query = NodeQuery{
-          query_set<Node>::match_single_value(new_node0),
+            query_set<Node>::match_single_value(new_node0),
         };
 
         std::unordered_set<Node> result_nodes = result.query_nodes(query);

@@ -34,7 +34,6 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/zip_values_strict_with.h"
 #include "utils/containers/zip_with.h"
-#include "op-attrs/pcg_operator_attrs.h"
 
 namespace FlexFlow {
 
@@ -682,9 +681,9 @@ std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
 
   ASSERT(are_disjoint(keys(inputs), keys(weight_initializers)));
   pcg_op_attrs_check_incoming_tensor_roles(
-    /*op_attrs=*/layer.op_attrs, 
-    /*input_slots=*/keys(inputs), 
-    /*weight_slots=*/keys(weight_initializers));
+      /*op_attrs=*/layer.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weight_initializers));
 
   std::unordered_map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {

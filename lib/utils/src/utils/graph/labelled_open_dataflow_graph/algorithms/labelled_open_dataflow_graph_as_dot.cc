@@ -6,8 +6,7 @@ namespace FlexFlow {
 using NodeLabel = value_type<0>;
 using ValueLabel = value_type<1>;
 
-template
-  std::string labelled_open_dataflow_graph_as_dot(
+template std::string labelled_open_dataflow_graph_as_dot(
     LabelledOpenDataflowGraphView<NodeLabel, ValueLabel> const &,
     std::function<std::string(NodeLabel const &)> const &,
     std::function<std::string(ValueLabel const &)> const &,

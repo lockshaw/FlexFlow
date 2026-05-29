@@ -9,14 +9,15 @@
 namespace FlexFlow {
 
 std::vector<MachineSpecificationDimension>
-  projection_2d_get_target_dimensions(MachineView2dProjection const &);
+    projection_2d_get_target_dimensions(MachineView2dProjection const &);
 
-std::vector<stride_t> projection_2d_get_strides(MachineView2dProjection const &);
+std::vector<stride_t>
+    projection_2d_get_strides(MachineView2dProjection const &);
 
-MachineSpaceOffset
-    projection_2d_get_machine_space_offset(OperatorTaskSpace const &task_space,
-                             MachineView2dProjection const &projection,
-                             TaskSpaceCoordinate const &coord);
+MachineSpaceOffset projection_2d_get_machine_space_offset(
+    OperatorTaskSpace const &task_space,
+    MachineView2dProjection const &projection,
+    TaskSpaceCoordinate const &coord);
 
 } // namespace FlexFlow
 

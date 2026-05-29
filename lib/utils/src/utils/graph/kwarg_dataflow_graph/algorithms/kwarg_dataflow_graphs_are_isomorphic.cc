@@ -5,8 +5,7 @@ namespace FlexFlow {
 
 using SlotName = ordered_value_type<0>;
 
-template
-  bool kwarg_dataflow_graphs_are_isomorphic(
+template bool kwarg_dataflow_graphs_are_isomorphic(
     KwargDataflowGraphView<SlotName> const &,
     KwargDataflowGraphView<SlotName> const &);
 

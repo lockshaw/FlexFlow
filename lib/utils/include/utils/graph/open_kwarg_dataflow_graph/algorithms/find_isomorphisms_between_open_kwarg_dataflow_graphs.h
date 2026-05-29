@@ -11,13 +11,12 @@
 #include "utils/graph/digraph/algorithms/get_terminal_nodes.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_incoming_open_kwarg_dataflow_edges_for_node.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_unused_open_kwarg_dataflow_graph_inputs.h"
+#include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graph_as_dot.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graph_isomorphism.dtg.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graphs_are_isomorphic_under.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_edge.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_graph_view.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_value.dtg.h"
-#include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graph_as_dot.h"
-#include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graphs_are_isomorphic_under.h"
 
 namespace FlexFlow {
 
@@ -250,15 +249,14 @@ std::unordered_set<OpenKwargDataflowGraphIsomorphism<GraphInputName>>
               src, dst, sink_node_mapping, unused_graph_inputs_mapping);
 
       if (found.has_value()) {
-        ASSERT(
-          open_kwarg_dataflow_graphs_are_isomorphic_under(src, dst, found.value()),
-          fmt::format("src=\n{}\ndst=\n{}\n",
-            open_kwarg_dataflow_graph_as_dot(src),
-            open_kwarg_dataflow_graph_as_dot(dst)),
-          found,
-          get_open_kwarg_dataflow_graph_data(src),
-          get_open_kwarg_dataflow_graph_data(dst)
-        );
+        ASSERT(open_kwarg_dataflow_graphs_are_isomorphic_under(
+                   src, dst, found.value()),
+               fmt::format("src=\n{}\ndst=\n{}\n",
+                           open_kwarg_dataflow_graph_as_dot(src),
+                           open_kwarg_dataflow_graph_as_dot(dst)),
+               found,
+               get_open_kwarg_dataflow_graph_data(src),
+               get_open_kwarg_dataflow_graph_data(dst));
 
         result.insert(found.value());
       }

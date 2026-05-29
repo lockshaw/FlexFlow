@@ -6,9 +6,11 @@
 
 namespace FlexFlow {
 
-ParallelLayerAttrs unmapped_parallel_layer_attrs_from_mapped(MappedParallelLayerAttrs const &);
+ParallelLayerAttrs
+    unmapped_parallel_layer_attrs_from_mapped(MappedParallelLayerAttrs const &);
 
-MappedParallelLayerAttrs mapped_parallel_layer_attrs_without_layer_name(MappedParallelLayerAttrs const &);
+MappedParallelLayerAttrs mapped_parallel_layer_attrs_without_layer_name(
+    MappedParallelLayerAttrs const &);
 
 } // namespace FlexFlow
 

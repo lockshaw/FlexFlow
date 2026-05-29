@@ -7,13 +7,13 @@
 
 namespace FlexFlow {
 
-FlatMachineSpaceCoordinate
-  convert_machine_space_coord_to_flat(MachineSpaceCoordinate const &coord,
-                                      MachineComputeResourceSlice const &machine_space);
+FlatMachineSpaceCoordinate convert_machine_space_coord_to_flat(
+    MachineSpaceCoordinate const &coord,
+    MachineComputeResourceSlice const &machine_space);
 
-MachineSpaceCoordinate
-  resolve_flat_machine_space_coord(FlatMachineSpaceCoordinate const &coord,
-                                   MachineComputeResourceSlice const &machine_space);
+MachineSpaceCoordinate resolve_flat_machine_space_coord(
+    FlatMachineSpaceCoordinate const &coord,
+    MachineComputeResourceSlice const &machine_space);
 
 } // namespace FlexFlow
 

@@ -1,6 +1,6 @@
 #include "utils/graph/dataflow_graph/algorithms/get_incoming_edges.h"
-#include "utils/containers/sorted_by.h"
 #include "utils/containers/set_of.h"
+#include "utils/containers/sorted_by.h"
 
 namespace FlexFlow {
 

@@ -307,7 +307,8 @@ nonnegative_int &operator*=(nonnegative_int &lhs, int_ge_two rhs) {
 }
 
 nonnegative_int int_ge_two::operator/(int_ge_two other) const {
-  return this->positive_int_from_int_ge_two() / other.positive_int_from_int_ge_two();
+  return this->positive_int_from_int_ge_two() /
+         other.positive_int_from_int_ge_two();
 }
 
 nonnegative_int operator/(positive_int lhs, int_ge_two rhs) {

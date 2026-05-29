@@ -34,7 +34,7 @@ PerDeviceOpStateBacking perform_distributed_per_device_op_state_initialization(
       device_state_map;
   for (DynamicNodeInvocation const &invocation : dg.invocations) {
     Realm::Processor target_proc = ctx.map_device_coord_to_processor(
-          assert_unwrap(invocation.node_attrs.device_coord));
+        assert_unwrap(invocation.node_attrs.device_coord));
 
     TensorInstanceBacking tensor_backing =
         subset_tensor_instance_backing_for_invocation(tensor_instance_backing,

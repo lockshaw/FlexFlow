@@ -1,7 +1,7 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_subgraph_incoming_edges.h"
 #include "utils/containers/set_minus.h"
-#include "utils/graph/node/algorithms.h"
 #include "utils/containers/set_of.h"
+#include "utils/graph/node/algorithms.h"
 
 namespace FlexFlow {
 

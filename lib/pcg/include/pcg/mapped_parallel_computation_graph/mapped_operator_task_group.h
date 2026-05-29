@@ -6,8 +6,8 @@
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "utils/bidict/bidict.h"
-#include <nlohmann/json.hpp>
 #include "utils/record_formatter.h"
+#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 
@@ -43,7 +43,8 @@ bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
     get_tensor_bindings_for_slot_name(MappedOperatorTaskGroup const &,
                                       TensorSlotName const &);
 
-nlohmann::json mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &);
+nlohmann::json
+    mapped_operator_task_group_as_dot_json(MappedOperatorTaskGroup const &);
 
 std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &);
 std::ostream &operator<<(std::ostream &,

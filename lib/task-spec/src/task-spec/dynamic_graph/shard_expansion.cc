@@ -1,14 +1,14 @@
 #include "task-spec/dynamic_graph/shard_expansion.h"
+#include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 #include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.h"
 #include "task-spec/dynamic_graph/dynamic_value_attrs.dtg.h"
+#include "task-spec/dynamic_graph/shard_expansion.h"
 #include "utils/bidict/algorithms/filter_keys.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/map_values2.h"
 #include "utils/containers/require_same.h"
 #include "utils/containers/transform.h"
 #include "utils/optional.h"
-#include "task-spec/dynamic_graph/shard_expansion.h"
-#include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 
 namespace FlexFlow {
 
@@ -44,8 +44,7 @@ bool graph_is_fully_shard_expanded(DynamicOpenDataflowGraph const &g) {
 
 static bidict<ParallelTensorSpaceCoordinate, device_id_t>
     restrict_tensor_mapping_keys_to_coord(
-        bidict<ParallelTensorSpaceCoordinate, device_id_t> const
-            &mapping,
+        bidict<ParallelTensorSpaceCoordinate, device_id_t> const &mapping,
         ParallelTensorSpaceCoordinate const &parallel_tensor_coord) {
   return filter_keys(mapping, [&](ParallelTensorSpaceCoordinate const &p) {
     return p == parallel_tensor_coord;
@@ -66,11 +65,10 @@ static DynamicNodeInvocation shard_invocation_for_binding(
     result.shard_coord = parallel_tensor_coord;
     result.mapping = transform(
         v.mapping,
-        [&](ParallelTensorMapping const &mapping) -> ParallelTensorMapping
-        {
+        [&](ParallelTensorMapping const &mapping) -> ParallelTensorMapping {
           return ParallelTensorMapping{
-            restrict_tensor_mapping_keys_to_coord(mapping.raw,
-                                                  parallel_tensor_coord),
+              restrict_tensor_mapping_keys_to_coord(mapping.raw,
+                                                    parallel_tensor_coord),
           };
         });
     return result;
@@ -131,8 +129,7 @@ std::unordered_set<DynamicNodeInvocation>
       target_devices_of_dynamic_node_mapping(mapping);
 
   return transform(
-      shard_machine_coords,
-      [&](device_id_t const &c) -> DynamicNodeInvocation {
+      shard_machine_coords, [&](device_id_t const &c) -> DynamicNodeInvocation {
         OperatorAtomicTaskShardBinding slot_bindings =
             mapping.op_task_group.get_shard_bindings().at_l(c.coord);
 

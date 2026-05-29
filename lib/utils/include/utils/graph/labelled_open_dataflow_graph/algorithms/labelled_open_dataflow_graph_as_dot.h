@@ -11,24 +11,26 @@ std::string labelled_open_dataflow_graph_as_dot(
     LabelledOpenDataflowGraphView<NodeLabel, ValueLabel> const &g,
     std::function<std::string(NodeLabel const &)> const &render_node_label,
     std::function<std::string(ValueLabel const &)> const &render_value_label,
-    std::function<std::string(DataflowGraphInput const &)> const &render_dataflow_graph_input,
-    std::function<std::string(DataflowInput const &)> const &render_dataflow_input,
-    std::function<std::string(DataflowOutput const &)> const &render_dataflow_output)
-{
+    std::function<std::string(DataflowGraphInput const &)> const
+        &render_dataflow_graph_input,
+    std::function<std::string(DataflowInput const &)> const
+        &render_dataflow_input,
+    std::function<std::string(DataflowOutput const &)> const
+        &render_dataflow_output) {
   std::function<std::string(Node const &)> render_node =
       [&](Node const &n) -> std::string { return render_node_label(g.at(n)); };
 
   std::function<std::string(DataflowGraphInput const &)>
-      render_unlabelled_dataflow_graph_input = [&](DataflowGraphInput const &i) {
-        return render_value_label(g.at(OpenDataflowValue{i}));
-      };
+      render_unlabelled_dataflow_graph_input =
+          [&](DataflowGraphInput const &i) {
+            return render_value_label(g.at(OpenDataflowValue{i}));
+          };
 
-  return open_dataflow_graph_as_dot(
-    static_cast<OpenDataflowGraphView>(g),
-    render_node,
-    render_unlabelled_dataflow_graph_input,
-    render_dataflow_input,
-    render_dataflow_output);
+  return open_dataflow_graph_as_dot(static_cast<OpenDataflowGraphView>(g),
+                                    render_node,
+                                    render_unlabelled_dataflow_graph_input,
+                                    render_dataflow_input,
+                                    render_dataflow_output);
 }
 
 } // namespace FlexFlow

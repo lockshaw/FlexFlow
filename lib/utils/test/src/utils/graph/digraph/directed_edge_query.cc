@@ -25,8 +25,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     DirectedEdge e2 = DirectedEdge{n2, n3};
 
     DirectedEdgeQuery query = DirectedEdgeQuery{
-      query_set<Node>::match_single_value(n1),
-      query_set<Node>::match_single_value(n2),
+        query_set<Node>::match_single_value(n1),
+        query_set<Node>::match_single_value(n2),
     };
 
     CHECK(matches_edge(query, e1));
@@ -44,18 +44,18 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("standard intersection") {
       DirectedEdgeQuery q1 = DirectedEdgeQuery{
-        query_set<Node>::match_values_in(std::set{n1, n2}),
-        query_set<Node>::match_values_in(std::set{n2, n3}),
+          query_set<Node>::match_values_in(std::set{n1, n2}),
+          query_set<Node>::match_values_in(std::set{n2, n3}),
       };
       DirectedEdgeQuery q2 = DirectedEdgeQuery{
-        query_set<Node>::match_values_in(std::set{n2, n3}),
-        query_set<Node>::match_values_in(std::set{n3, n4}),
+          query_set<Node>::match_values_in(std::set{n2, n3}),
+          query_set<Node>::match_values_in(std::set{n3, n4}),
       };
 
       DirectedEdgeQuery result = query_intersection(q1, q2);
       DirectedEdgeQuery expected = DirectedEdgeQuery{
-        query_set<Node>::match_single_value(n2),
-        query_set<Node>::match_single_value(n3),
+          query_set<Node>::match_single_value(n2),
+          query_set<Node>::match_single_value(n3),
       };
 
       CHECK(result == expected);
@@ -63,18 +63,18 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("intersection with matchall") {
       DirectedEdgeQuery q1 = DirectedEdgeQuery{
-        query_set<Node>::match_values_in(std::set{n1, n2}),
-        query_set<Node>::matchall(),
+          query_set<Node>::match_values_in(std::set{n1, n2}),
+          query_set<Node>::matchall(),
       };
       DirectedEdgeQuery q2 = DirectedEdgeQuery{
-        query_set<Node>::matchall(),
-        query_set<Node>::match_values_in(std::set{n3, n4}),
+          query_set<Node>::matchall(),
+          query_set<Node>::match_values_in(std::set{n3, n4}),
       };
 
       DirectedEdgeQuery result = query_intersection(q1, q2);
       DirectedEdgeQuery expected = DirectedEdgeQuery{
-        query_set<Node>::match_values_in(std::set{n1, n2}),
-        query_set<Node>::match_values_in(std::set{n3, n4}),
+          query_set<Node>::match_values_in(std::set{n1, n2}),
+          query_set<Node>::match_values_in(std::set{n3, n4}),
       };
 
       CHECK(result == expected);

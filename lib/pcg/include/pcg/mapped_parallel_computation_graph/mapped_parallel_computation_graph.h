@@ -6,10 +6,11 @@
 
 namespace FlexFlow {
 
-std::unordered_set<parallel_layer_guid_t> mpcg_get_parallel_layers(MappedParallelComputationGraph const &);
-MappedOperatorTaskGroup mpcg_get_mapping_for_layer(
-  MappedParallelComputationGraph const &,
-  parallel_layer_guid_t);
+std::unordered_set<parallel_layer_guid_t>
+    mpcg_get_parallel_layers(MappedParallelComputationGraph const &);
+MappedOperatorTaskGroup
+    mpcg_get_mapping_for_layer(MappedParallelComputationGraph const &,
+                               parallel_layer_guid_t);
 
 ParallelComputationGraph pcg_from_mpcg(MappedParallelComputationGraph const &);
 
@@ -17,10 +18,12 @@ std::unordered_set<ParallelComputationGraphEdge>
     mpcg_get_edges(MappedParallelComputationGraph const &);
 
 MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapped_op_task_groups(
-  ParallelComputationGraph const &pcg,
-  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> const &mapped_op_task_groups);
+    ParallelComputationGraph const &pcg,
+    std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> const
+        &mapped_op_task_groups);
 
-MappedParallelComputationGraph mapped_pcg_without_layer_names(MappedParallelComputationGraph const &);
+MappedParallelComputationGraph
+    mapped_pcg_without_layer_names(MappedParallelComputationGraph const &);
 
 std::string format_as(MappedParallelComputationGraph const &);
 std::ostream &operator<<(std::ostream &,

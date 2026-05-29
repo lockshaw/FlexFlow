@@ -10,12 +10,12 @@ using namespace FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("StartInvariantMachineView - utility functions") {
     StartInvariantMachineView simv = StartInvariantMachineView{
-      MachineView2dProjection{
-        {MachineViewDimension{stride_t{2_p},
-                              MachineSpecificationDimension::INTER_NODE},
-         MachineViewDimension{stride_t{2_p},
-                              MachineSpecificationDimension::INTER_NODE}},
-      },
+        MachineView2dProjection{
+            {MachineViewDimension{stride_t{2_p},
+                                  MachineSpecificationDimension::INTER_NODE},
+             MachineViewDimension{stride_t{2_p},
+                                  MachineSpecificationDimension::INTER_NODE}},
+        },
     };
 
     SUBCASE("get_expected_task_space_num_dims") {
@@ -44,8 +44,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         StartInvariantMachineView{MachineView2dProjection{dimensions}};
 
     MachineView mv = MachineView{
-      start,
-      simv,
+        start,
+        simv,
     };
 
     SUBCASE("start_invariant_from_machine_view") {
@@ -103,19 +103,19 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MachineComputeResourceSlice machine_space = MachineComputeResourceSlice{
-        /*num_nodes=*/1_p,
-        /*num_gpus_per_node=*/6_p,
+          /*num_nodes=*/1_p,
+          /*num_gpus_per_node=*/6_p,
       };
 
       StartInvariantMachineView simv = StartInvariantMachineView{
-        MachineView2dProjection{
-          /*dimensions=*/{
-            MachineViewDimension{
-              stride_t{2_p},
-              MachineSpecificationDimension::INTRA_NODE,
-            },
+          MachineView2dProjection{
+              /*dimensions=*/{
+                  MachineViewDimension{
+                      stride_t{2_p},
+                      MachineSpecificationDimension::INTRA_NODE,
+                  },
+              },
           },
-        },
       };
 
       MachineComputeSpecification ms = MachineComputeSpecification{
@@ -132,9 +132,8 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{0, 0},
+              MachineSpaceOffset{0, 0},
           };
-
 
           CHECK(correct == result);
         }
@@ -146,7 +145,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{0, 2},
+              MachineSpaceOffset{0, 2},
           };
 
           CHECK(correct == result);
@@ -159,7 +158,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{0, 4},
+              MachineSpaceOffset{0, 4},
           };
 
           CHECK(correct == result);
@@ -204,13 +203,17 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       StartInvariantMachineView simv = StartInvariantMachineView{
-        MachineView2dProjection{
-          {MachineViewDimension{stride_t{1_p},
-                                MachineSpecificationDimension::INTER_NODE,},
-           MachineViewDimension{stride_t{2_p},
-                                MachineSpecificationDimension::INTRA_NODE,}},
+          MachineView2dProjection{
+              {MachineViewDimension{
+                   stride_t{1_p},
+                   MachineSpecificationDimension::INTER_NODE,
+               },
+               MachineViewDimension{
+                   stride_t{2_p},
+                   MachineSpecificationDimension::INTRA_NODE,
+               }},
           },
-        };
+      };
 
       MachineComputeSpecification ms = MachineComputeSpecification{
           /*num_nodes=*/2_p,
@@ -218,7 +221,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*num_gpus_per_node=*/4_p,
       };
 
-      MachineComputeResourceSlice machine_space = compute_slice_from_specification(ms);
+      MachineComputeResourceSlice machine_space =
+          compute_slice_from_specification(ms);
 
       SUBCASE("get_machine_space_offset") {
         SUBCASE("Task with TaskSpaceCoordinate = (0,0)") {
@@ -228,7 +232,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{0, 0},
+              MachineSpaceOffset{0, 0},
           };
 
           CHECK(correct == result);
@@ -241,7 +245,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{0, 2},
+              MachineSpaceOffset{0, 2},
           };
 
           CHECK(correct == result);
@@ -250,10 +254,11 @@ TEST_SUITE(FF_TEST_SUITE) {
         SUBCASE("Task with TaskSpaceCoordinate = (1,0)") {
           TaskSpaceCoordinate coord = make_task_space_coordinate({1_n, 0_n});
 
-          UnresolvedMachineSpaceOffset result = get_machine_space_offset(task, simv, coord);
+          UnresolvedMachineSpaceOffset result =
+              get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{1, 0},
+              MachineSpaceOffset{1, 0},
           };
 
           CHECK(correct == result);
@@ -266,7 +271,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               get_machine_space_offset(task, simv, coord);
 
           UnresolvedMachineSpaceOffset correct = UnresolvedMachineSpaceOffset{
-            MachineSpaceOffset{1, 2},
+              MachineSpaceOffset{1, 2},
           };
 
           CHECK(correct == result);

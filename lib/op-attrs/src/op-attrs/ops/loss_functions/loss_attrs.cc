@@ -1,6 +1,6 @@
 #include "op-attrs/ops/loss_functions/loss_attrs.h"
-#include "utils/overload.h"
 #include "op-attrs/ops/loss_functions.h"
+#include "utils/overload.h"
 
 namespace FlexFlow {
 

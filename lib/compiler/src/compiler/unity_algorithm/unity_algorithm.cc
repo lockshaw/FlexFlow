@@ -70,8 +70,7 @@ SearchResult optimize_with_unity_algorithm(
         OperatorTaskSpace op_task_space =
             get_operator_task_space_for_runtime_only_op_cost_estimate_key(key);
 
-        return get_allowed_machine_views(
-            resources, op_task_space);
+        return get_allowed_machine_views(resources, op_task_space);
       },
   };
 

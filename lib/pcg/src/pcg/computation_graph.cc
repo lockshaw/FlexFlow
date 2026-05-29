@@ -10,8 +10,8 @@
 #include "utils/containers/map_values.h"
 #include "utils/containers/repeat_element.h"
 #include "utils/containers/reversed.h"
-#include "utils/containers/transform.h"
 #include "utils/containers/sorted.h"
+#include "utils/containers/transform.h"
 #include "utils/containers/zip_values_strict.h"
 #include "utils/containers/zip_values_strict_with.h"
 #include "utils/containers/zip_with_strict.h"
@@ -30,10 +30,10 @@
 #include "utils/graph/labelled_dataflow_graph/algorithms/find_isomorphism.h"
 #include "utils/graph/labelled_dataflow_graph/algorithms/rewrite_node_labels.h"
 #include "utils/graph/labelled_dataflow_graph/algorithms/view_as_labelled_open_dataflow_graph.h"
-#include "utils/graph/labelled_open_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/rewrite_labelled_kwarg_dataflow_graph_node_labels.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/view_as_labelled_open_kwarg_dataflow_graph.h"
 #include "utils/graph/labelled_open_dataflow_graph/algorithms/labelled_open_dataflow_graph_as_dot.h"
+#include "utils/graph/labelled_open_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/record_formatter.h"
 
@@ -329,7 +329,6 @@ bool computation_graphs_are_isomorphic(ComputationGraph const &lhs,
 std::string as_dot(ComputationGraph const &cg) {
   std::function<nlohmann::json(LayerAttrs const &)> get_node_label =
       [](LayerAttrs const &a) -> nlohmann::json {
-
     nlohmann::json result = a;
 
     return result;
@@ -337,7 +336,6 @@ std::string as_dot(ComputationGraph const &cg) {
 
   std::function<nlohmann::json(TensorAttrs const &)> get_input_label =
       [](TensorAttrs const &a) -> nlohmann::json {
-
     nlohmann::json result = a;
 
     return result;
@@ -345,19 +343,15 @@ std::string as_dot(ComputationGraph const &cg) {
 
   std::function<nlohmann::json(TensorSlotName const &)> render_slot_name =
       [](TensorSlotName const &s) -> nlohmann::json {
-
     nlohmann::json result = fmt::to_string(s);
 
     return result;
   };
 
-  std::function<std::vector<TensorSlotName>(std::unordered_set<TensorSlotName> const &)> order_slots =
-      [](std::unordered_set<TensorSlotName> const &unordered) -> nlohmann::json {
-
-
-    return sorted(unordered);
-  };
-
+  std::function<std::vector<TensorSlotName>(
+      std::unordered_set<TensorSlotName> const &)>
+      order_slots = [](std::unordered_set<TensorSlotName> const &unordered)
+      -> nlohmann::json { return sorted(unordered); };
 
   return labelled_open_kwarg_dataflow_graph_view_as_dot(
       view_as_labelled_open_kwarg_dataflow_graph<LayerAttrs,

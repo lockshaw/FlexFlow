@@ -41,8 +41,7 @@ positive_int get_num_devices_per_node(MachineComputeSpecification const &ms,
 bool is_valid_machine_space_coordinate(MachineComputeSpecification const &ms,
                                        MachineSpaceCoordinate const &coord) {
   return is_valid_machine_space_coordinate_in_slice(
-    compute_slice_from_specification(ms),
-    coord);
+      compute_slice_from_specification(ms), coord);
 }
 
 } // namespace FlexFlow

@@ -51,20 +51,20 @@ MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
         return MachineViewDimension{s, d};
       });
   return MachineView{
-    start,
-    StartInvariantMachineView{
-      MachineView2dProjection{
-        dimensions,
+      start,
+      StartInvariantMachineView{
+          MachineView2dProjection{
+              dimensions,
+          },
       },
-    },
   };
 }
 
-MachineSpaceCoordinate
-    get_machine_space_coordinate(OperatorTaskSpace const &task_space,
-                                 MachineView const &machine_view,
-                                 MachineComputeResourceSlice const &machine_space,
-                                 TaskSpaceCoordinate const &coord) {
+MachineSpaceCoordinate get_machine_space_coordinate(
+    OperatorTaskSpace const &task_space,
+    MachineView const &machine_view,
+    MachineComputeResourceSlice const &machine_space,
+    TaskSpaceCoordinate const &coord) {
 
   ASSERT(mv_get_expected_task_space_num_dims(machine_view) ==
              op_task_space_num_dims(task_space),
@@ -75,9 +75,11 @@ MachineSpaceCoordinate
          task_space_coord_num_dims(coord));
   ASSERT(operator_task_space_contains_coord(task_space, coord));
 
-  UnresolvedMachineSpaceOffset offset = get_machine_space_offset(task_space, machine_view.start_invariant, coord);
+  UnresolvedMachineSpaceOffset offset =
+      get_machine_space_offset(task_space, machine_view.start_invariant, coord);
 
-  return offset_machine_space_coordinate_by_unresolved(machine_space, machine_view.start, offset);
+  return offset_machine_space_coordinate_by_unresolved(
+      machine_space, machine_view.start, offset);
 }
 
 TaskSpaceCoordinate mv_task_space_coord_for_machine_space_coord(
@@ -86,9 +88,8 @@ TaskSpaceCoordinate mv_task_space_coord_for_machine_space_coord(
     OperatorTaskSpace const &operator_task_space,
     MachineSpaceCoordinate const &machine_space_coord) {
   OperatorSpaceToMachineSpaceMapping mapping =
-      get_coordinate_mapping_for_machine_view(operator_task_space,
-                                              machine_space,
-                                              machine_view);
+      get_coordinate_mapping_for_machine_view(
+          operator_task_space, machine_space, machine_view);
 
   return mapping.raw_mapping.at_r(machine_space_coord);
 }
@@ -112,10 +113,10 @@ OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
   };
 }
 
-std::unordered_set<MachineSpaceCoordinate>
-    get_machine_space_coordinates(OperatorTaskSpace const &task_space,
-                                  MachineComputeResourceSlice const &machine_space,
-                                  MachineView const &machine_view) {
+std::unordered_set<MachineSpaceCoordinate> get_machine_space_coordinates(
+    OperatorTaskSpace const &task_space,
+    MachineComputeResourceSlice const &machine_space,
+    MachineView const &machine_view) {
 
   ASSERT(op_task_space_num_dims(task_space) ==
          mv_get_expected_task_space_num_dims(machine_view));
@@ -128,8 +129,8 @@ std::unordered_set<MachineSpaceCoordinate>
 }
 
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
-                                 MachineSpecificationDimension const &dim,
-                                 stride_t stride) {
+                                       MachineSpecificationDimension const &dim,
+                                       stride_t stride) {
 
   return machine_view_2d_from_strides_and_machine_spec_dimensions(
       start, {stride}, {dim});
@@ -137,7 +138,8 @@ MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
 
 MachineView
     make_single_device_machine_view(MachineSpaceCoordinate const &coord) {
-  return machine_view_2d_from_strides_and_machine_spec_dimensions(coord, {}, {});
+  return machine_view_2d_from_strides_and_machine_spec_dimensions(
+      coord, {}, {});
 }
 
 static OperatorAtomicTaskShardBinding
@@ -188,7 +190,8 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
 
   return MappedOperatorTaskGroup{
       generate_bidict(
-          get_machine_space_coordinates(op_task_space, machine_space, machine_view),
+          get_machine_space_coordinates(
+              op_task_space, machine_space, machine_view),
           [&](MachineSpaceCoordinate const &machine_space_coord) {
             return operator_atomic_task_shard_binding_from_machine_view(
                 op_attrs,

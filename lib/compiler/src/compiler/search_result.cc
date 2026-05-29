@@ -2,9 +2,9 @@
 
 namespace FlexFlow {
 
-MappedParallelComputationGraph
-    get_mapped_pcg_from_search_result(SearchResult const &search_result,
-                                      MachineComputeSpecification const &machine_compute_specification) {
+MappedParallelComputationGraph get_mapped_pcg_from_search_result(
+    SearchResult const &search_result,
+    MachineComputeSpecification const &machine_compute_specification) {
   return mapped_pcg_from_pcg_and_mapping(search_result.pcg,
                                          machine_compute_specification,
                                          search_result.machine_mapping);

@@ -113,9 +113,9 @@ static OutputGraphExprValue
       std::nullopt,
       {
           set_op_type_attr(op_type),
-          set_attr_to_constant(OperatorAttributeKey::PARALLEL_DEGREE,
-                               OperatorAttributeValue{
-                                   degree.nonnegative_int_from_int_ge_two()}),
+          set_attr_to_constant(
+              OperatorAttributeKey::PARALLEL_DEGREE,
+              OperatorAttributeValue{degree.nonnegative_int_from_int_ge_two()}),
       }};
 
   return insert_single_output_op(
@@ -210,7 +210,8 @@ Substitution create_replicate_linear_combine(positive_int num_dims,
       op_type_equals_constraint(OperatorType::LINEAR),
       op_attr_key_equals(OperatorAttributeKey::BIAS,
                          OperatorAttributeValue{use_bias}),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
   }};
 
   std::string linear_name = "linear";
@@ -299,7 +300,8 @@ Substitution create_partition_linear_combine(positive_int num_dims,
       op_type_equals_constraint(OperatorType::LINEAR),
       op_attr_key_equals(OperatorAttributeKey::BIAS,
                          OperatorAttributeValue{use_bias}),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
   }};
 
   std::string linear_name = "linear";
@@ -378,7 +380,8 @@ Substitution create_partition_conv2d_combine(positive_int num_dims,
 
   OperatorAttributePattern conv2d_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::CONV2D),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
   }};
 
   std::string conv2d_name = "conv2d";
@@ -453,7 +456,8 @@ Substitution create_partition_attention_combine(positive_int num_heads,
 
   OperatorAttributePattern attention_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::MULTIHEAD_ATTENTION),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::NUM_HEADS, num_heads),
   }};
 
@@ -547,7 +551,8 @@ Substitution create_replicate_attention_reduce(positive_int num_heads,
 
   OperatorAttributePattern attention_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::MULTIHEAD_ATTENTION),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::NUM_HEADS, num_heads),
   }};
 
@@ -623,7 +628,8 @@ Substitution create_partition_softmax_combine(ff_dim_t softmax_dim,
 
   OperatorAttributePattern softmax_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::SOFTMAX),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
       op_attr_key_divisible_by(OperatorAttributeKey::SOFTMAX_DIM,
                                positive_int{softmax_dim.value}),
   }};
@@ -681,7 +687,8 @@ Substitution create_partition_add_combine(ff_dim_t parallel_dim,
 
   OperatorAttributePattern add_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::EW_ADD),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
   }};
 
   std::string add_name = "add";
@@ -731,7 +738,8 @@ Substitution create_partition_relu_combine(ff_dim_t parallel_dim,
 
   OperatorAttributePattern relu_pattern = OperatorAttributePattern{{
       op_type_equals_constraint(OperatorType::RELU),
-      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS, degree.positive_int_from_int_ge_two()),
+      op_attr_key_divisible_by(OperatorAttributeKey::OUT_CHANNELS,
+                               degree.positive_int_from_int_ge_two()),
   }};
 
   std::string relu_name = "relu";

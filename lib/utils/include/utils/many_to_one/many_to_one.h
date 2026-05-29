@@ -14,12 +14,12 @@
 #include "utils/hash/unordered_set.h"
 #include "utils/json/check_is_json_deserializable.h"
 #include "utils/json/check_is_json_serializable.h"
+#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <rapidcheck.h>
 #include <unordered_map>
 #include <unordered_set>
-#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 
 namespace FlexFlow {
 

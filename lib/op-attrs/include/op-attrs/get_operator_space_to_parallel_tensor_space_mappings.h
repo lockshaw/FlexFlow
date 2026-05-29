@@ -1,11 +1,11 @@
 #ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_GET_OPERATOR_SPACE_TO_PARALLEL_TENSOR_SPACE_MAPPINGS_H
 #define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_GET_OPERATOR_SPACE_TO_PARALLEL_TENSOR_SPACE_MAPPINGS_H
 
-#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/incoming_tensor_role.dtg.h"
 #include "op-attrs/num_ptensor_parallel_dims_t.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/tensor_role.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include <vector>

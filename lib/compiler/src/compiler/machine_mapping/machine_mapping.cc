@@ -2,20 +2,20 @@
 #include "compiler/machine_mapping/machine_view.h"
 #include "compiler/series_parallel/pcg/pcg_binary_sp_decomposition.h"
 #include "op-attrs/computation_graph_op_attrs.h"
+#include "op-attrs/pcg_operator_attrs.h"
 #include "pcg/machine_compute_resource_slice.h"
+#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 #include "utils/bidict/algorithms/bidict_from_map.h"
 #include "utils/containers/are_disjoint.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/keys.h"
-#include "op-attrs/pcg_operator_attrs.h"
-#include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 
 namespace FlexFlow {
 
-MappedParallelComputationGraph
-    mapped_pcg_from_pcg_and_mapping(ParallelComputationGraph const &pcg,
-                                    MachineComputeSpecification const &machine_compute_spec,
-                                    MachineMapping const &mapping) {
+MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
+    ParallelComputationGraph const &pcg,
+    MachineComputeSpecification const &machine_compute_spec,
+    MachineMapping const &mapping) {
 
   std::unordered_set<parallel_layer_guid_t> pcg_layers =
       get_parallel_layers(pcg);
@@ -25,7 +25,8 @@ MappedParallelComputationGraph
 
   ASSERT(mapped_layers == pcg_layers);
 
-  auto mapping_for_layer = [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
+  auto mapping_for_layer =
+      [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
     PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
@@ -35,13 +36,17 @@ MappedParallelComputationGraph
     MachineView machine_view = mapping.machine_views.at(l);
 
     return mapped_operator_task_group_from_machine_view(
-        op_attrs, inputs_dim_degrees, compute_slice_from_specification(machine_compute_spec), machine_view);
+        op_attrs,
+        inputs_dim_degrees,
+        compute_slice_from_specification(machine_compute_spec),
+        machine_view);
   };
 
-  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup> mapped_op_task_groups =
-    generate_map(mapped_layers, mapping_for_layer);
+  std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup>
+      mapped_op_task_groups = generate_map(mapped_layers, mapping_for_layer);
 
-  return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg, mapped_op_task_groups);
+  return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg,
+                                                       mapped_op_task_groups);
 }
 
 MachineMapping combine_disjoint_mappings(MachineMapping const &m1,

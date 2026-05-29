@@ -39,8 +39,10 @@ TensorSetMovement get_tensor_set_movement_across_split(
           tr_pcg.full_pcg, split.get_left_child(), machine_space, pre_mapping);
 
   std::unordered_map<BinaryTreePath, MachineSpaceStencil> post_stencils =
-      get_machine_stencils_for_decomposition(
-          tr_pcg.full_pcg, split.get_right_child(), machine_space, post_mapping);
+      get_machine_stencils_for_decomposition(tr_pcg.full_pcg,
+                                             split.get_right_child(),
+                                             machine_space,
+                                             post_mapping);
 
   return concretize_abstracted_tensor_set_movement(
       abstracted,

@@ -1,5 +1,5 @@
-#include <doctest/doctest.h>
 #include "utils/many_to_one/many_to_one_is_biunique.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 

@@ -11,15 +11,15 @@
 #include "utils/hash/tuple.h"
 #include "utils/orthotope/dim_coord.dtg.h"
 #include "utils/orthotope/dim_coord.h"
+#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/orthotope/dim_domain_mapping.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
-#include "utils/relation/hemiunique_binary_relation.h"
 #include "utils/orthotope/minimal_dim_domain_mapping.h"
-#include "utils/relation/hemiunique_binrel_transform_l_and_r.h"
-#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/relation/compose_hemiunique_binary_relations.h"
+#include "utils/relation/hemiunique_binary_relation.h"
+#include "utils/relation/hemiunique_binrel_transform_l_and_r.h"
 
 namespace FlexFlow {
 
@@ -32,9 +32,11 @@ public:
       MinimalDimDomain<R> const &r_domain)
       : coord_mapping(coord_mapping), l_domain(l_domain), r_domain(r_domain) {
 
-    ASSERT(get_coords_in_minimal_dim_domain(l_domain) == coord_mapping.left_entries());
+    ASSERT(get_coords_in_minimal_dim_domain(l_domain) ==
+           coord_mapping.left_entries());
 
-    ASSERT(get_coords_in_minimal_dim_domain(r_domain) == coord_mapping.right_entries());
+    ASSERT(get_coords_in_minimal_dim_domain(r_domain) ==
+           coord_mapping.right_entries());
   }
 
   bool operator==(MinimalDimDomainHemiuniqueMapping<L, R> const &other) const {
@@ -66,11 +68,11 @@ std::string format_as(MinimalDimDomainHemiuniqueMapping<L, R> const &m) {
   CHECK_FMTABLE(L);
   CHECK_FMTABLE(R);
 
-  return fmt::format(
-      "<MinimalDimDomainHemiuniqueMapping l_domain={} r_domain={} coord_mapping={}>",
-      m.l_domain,
-      m.r_domain,
-      m.coord_mapping);
+  return fmt::format("<MinimalDimDomainHemiuniqueMapping l_domain={} "
+                     "r_domain={} coord_mapping={}>",
+                     m.l_domain,
+                     m.r_domain,
+                     m.coord_mapping);
 }
 
 template <typename L, typename R>
@@ -84,7 +86,8 @@ std::ostream &operator<<(std::ostream &s,
 
 template <typename L, typename R>
 MinimalDimDomainHemiuniqueMapping<L, R>
-    minimal_hemiunique_mapping_from_dim_domain_mapping(DimDomainHemiuniqueMapping<L, R> const &m) {
+    minimal_hemiunique_mapping_from_dim_domain_mapping(
+        DimDomainHemiuniqueMapping<L, R> const &m) {
 
   std::unordered_set<L> l_nontrivial_dims =
       get_nontrivial_domain_dims(m.l_domain);
@@ -94,7 +97,7 @@ MinimalDimDomainHemiuniqueMapping<L, R>
 
   return MinimalDimDomainHemiuniqueMapping{
       /*coord_mapping=*/
-        hemiunique_binrel_transform_l_and_r(
+      hemiunique_binrel_transform_l_and_r(
           m.coord_mapping,
           [&](DimCoord<L> const &l_coord) {
             return restrict_coord_to_dims(l_coord, l_nontrivial_dims);
@@ -108,10 +111,11 @@ MinimalDimDomainHemiuniqueMapping<L, R>
 }
 
 template <typename L, typename R>
-DimDomainHemiuniqueMapping<L, R> dim_domain_hemiunique_mapping_from_minimal_dim_domain(
-    MinimalDimDomainHemiuniqueMapping<L, R> const &m,
-    std::unordered_set<L> const &l_trivial_dims,
-    std::unordered_set<R> const &r_trivial_dims) {
+DimDomainHemiuniqueMapping<L, R>
+    dim_domain_hemiunique_mapping_from_minimal_dim_domain(
+        MinimalDimDomainHemiuniqueMapping<L, R> const &m,
+        std::unordered_set<L> const &l_trivial_dims,
+        std::unordered_set<R> const &r_trivial_dims) {
 
   DimDomain<L> l_domain =
       dim_domain_from_minimal_dim_domain(m.l_domain, l_trivial_dims);
@@ -124,34 +128,35 @@ DimDomainHemiuniqueMapping<L, R> dim_domain_hemiunique_mapping_from_minimal_dim_
   return DimDomainHemiuniqueMapping{
       /*coord_mapping=*/
       hemiunique_binrel_transform_l_and_r(
-        m.coord_mapping,
-        [&](DimCoord<L> const &l_coord) {
-          return lift_dim_coord(l_coord, all_l_dims);
-        },
-        [&](DimCoord<R> const &r_coord) {
-          return lift_dim_coord(r_coord, all_r_dims);
-        }),
+          m.coord_mapping,
+          [&](DimCoord<L> const &l_coord) {
+            return lift_dim_coord(l_coord, all_l_dims);
+          },
+          [&](DimCoord<R> const &r_coord) {
+            return lift_dim_coord(r_coord, all_r_dims);
+          }),
       /*l_domain=*/l_domain,
       /*r_domain=*/r_domain,
   };
 }
 
 template <typename L, typename R>
-MinimalDimDomainHemiuniqueMapping<L, R> empty_minimal_dim_domain_hemiunique_mapping() {
+MinimalDimDomainHemiuniqueMapping<L, R>
+    empty_minimal_dim_domain_hemiunique_mapping() {
   return MinimalDimDomainHemiuniqueMapping{
-      /*coord_mapping=*/{
-      },
+      /*coord_mapping=*/{},
       /*l_domain=*/empty_minimal_dim_domain<L>(),
       /*r_domain=*/empty_minimal_dim_domain<R>(),
   };
 }
 
 template <typename L, typename R>
-MinimalDimDomainHemiuniqueMapping<L, R> minimal_dim_domain_hemiunique_mapping_identity_map(
-    MinimalDimDomain<L> const &l_domain,
-    MinimalDimDomain<R> const &r_domain,
-    DimOrdering<L> const &l_dim_ordering,
-    DimOrdering<R> const &r_dim_ordering) {
+MinimalDimDomainHemiuniqueMapping<L, R>
+    minimal_dim_domain_hemiunique_mapping_identity_map(
+        MinimalDimDomain<L> const &l_domain,
+        MinimalDimDomain<R> const &r_domain,
+        DimOrdering<L> const &l_dim_ordering,
+        DimOrdering<R> const &r_dim_ordering) {
   DimProjection<L, R> projection =
       dim_projection_identity_map(lift_minimal_dim_domain(l_domain),
                                   lift_minimal_dim_domain(r_domain),
@@ -167,8 +172,10 @@ MinimalDimDomainHemiuniqueMapping<L, R> minimal_dim_domain_hemiunique_mapping_id
 }
 
 template <typename L, typename R>
-MinimalDimDomainHemiuniqueMapping<R, L> invert_minimal_dim_domain_hemiunique_mapping(
-    MinimalDimDomainHemiuniqueMapping<L, R> const &minimal_dim_domain_mapping) {
+MinimalDimDomainHemiuniqueMapping<R, L>
+    invert_minimal_dim_domain_hemiunique_mapping(
+        MinimalDimDomainHemiuniqueMapping<L, R> const
+            &minimal_dim_domain_mapping) {
 
   return MinimalDimDomainHemiuniqueMapping{
       /*coord_mapping=*/minimal_dim_domain_mapping.coord_mapping.reversed(),
@@ -178,9 +185,10 @@ MinimalDimDomainHemiuniqueMapping<R, L> invert_minimal_dim_domain_hemiunique_map
 }
 
 template <typename T1, typename T2, typename T3>
-MinimalDimDomainHemiuniqueMapping<T1, T3> compose_minimal_dim_domain_hemiunique_mappings(
-    MinimalDimDomainHemiuniqueMapping<T1, T2> const &lhs,
-    MinimalDimDomainHemiuniqueMapping<T2, T3> const &rhs) {
+MinimalDimDomainHemiuniqueMapping<T1, T3>
+    compose_minimal_dim_domain_hemiunique_mappings(
+        MinimalDimDomainHemiuniqueMapping<T1, T2> const &lhs,
+        MinimalDimDomainHemiuniqueMapping<T2, T3> const &rhs) {
 
   ASSERT(lhs.r_domain == rhs.l_domain);
 
@@ -193,8 +201,10 @@ MinimalDimDomainHemiuniqueMapping<T1, T3> compose_minimal_dim_domain_hemiunique_
 }
 
 template <typename T1, typename T2, typename T3>
-DimDomainHemiuniqueMapping<T1, T3> compose_dim_domain_hemiunique_mappings_through_minimal(
-    DimDomainHemiuniqueMapping<T1, T2> const &lhs, DimDomainHemiuniqueMapping<T2, T3> const &rhs) {
+DimDomainHemiuniqueMapping<T1, T3>
+    compose_dim_domain_hemiunique_mappings_through_minimal(
+        DimDomainHemiuniqueMapping<T1, T2> const &lhs,
+        DimDomainHemiuniqueMapping<T2, T3> const &rhs) {
 
   MinimalDimDomainHemiuniqueMapping<T1, T2> minimal_lhs =
       minimal_hemiunique_mapping_from_dim_domain_mapping(lhs);
@@ -215,30 +225,28 @@ DimDomainHemiuniqueMapping<T1, T3> compose_dim_domain_hemiunique_mappings_throug
 }
 
 template <typename L, typename R>
-MinimalDimDomainHemiuniqueMapping<L, R> minimal_dim_domain_hemiunique_mapping_from_projection(
-    DimProjection<L, R> const &projection,
-    MinimalDimDomain<L> const &l_domain,
-    MinimalDimDomain<R> const &r_domain,
-    DimOrdering<L> const &l_dim_ordering,
-    DimOrdering<R> const &r_dim_ordering) {
+MinimalDimDomainHemiuniqueMapping<L, R>
+    minimal_dim_domain_hemiunique_mapping_from_projection(
+        DimProjection<L, R> const &projection,
+        MinimalDimDomain<L> const &l_domain,
+        MinimalDimDomain<R> const &r_domain,
+        DimOrdering<L> const &l_dim_ordering,
+        DimOrdering<R> const &r_dim_ordering) {
 
   return MinimalDimDomainHemiuniqueMapping{
       /*coord_mapping=*/
-      HemiuniqueBinaryRelation<
-        DimCoord<L>,
-        DimCoord<R>
-      >{
-        generate_bidict(
-            get_coords_in_minimal_dim_domain(l_domain),
-            [&](DimCoord<L> const &l_coord) {
-              return compute_dim_projection(
-                  /*projection=*/projection,
-                  /*input_coord=*/l_coord,
-                  /*input_domain=*/lift_minimal_dim_domain(l_domain),
-                  /*output_domain=*/lift_minimal_dim_domain(r_domain),
-                  /*input_dim_ordering=*/l_dim_ordering,
-                  /*output_dim_ordering=*/r_dim_ordering);
-            }),
+      HemiuniqueBinaryRelation<DimCoord<L>, DimCoord<R>>{
+          generate_bidict(
+              get_coords_in_minimal_dim_domain(l_domain),
+              [&](DimCoord<L> const &l_coord) {
+                return compute_dim_projection(
+                    /*projection=*/projection,
+                    /*input_coord=*/l_coord,
+                    /*input_domain=*/lift_minimal_dim_domain(l_domain),
+                    /*output_domain=*/lift_minimal_dim_domain(r_domain),
+                    /*input_dim_ordering=*/l_dim_ordering,
+                    /*output_dim_ordering=*/r_dim_ordering);
+              }),
       },
       /*l_domain=*/l_domain,
       /*r_domain=*/r_domain,

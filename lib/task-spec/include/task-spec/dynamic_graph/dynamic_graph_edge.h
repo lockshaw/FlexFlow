@@ -7,8 +7,8 @@
 namespace FlexFlow {
 
 DynamicGraphEdge
-  dynamic_graph_edge_from_slot_sites(DynamicSlotSite const &src,
-                                     InternalDynamicSlotSite const &dst);
+    dynamic_graph_edge_from_slot_sites(DynamicSlotSite const &src,
+                                       InternalDynamicSlotSite const &dst);
 
 } // namespace FlexFlow
 

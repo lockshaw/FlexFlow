@@ -6,10 +6,10 @@
 #include "kernels/managed_per_device_ff_handle.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
-#include "task-spec/device_id_t.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "realm-execution/realm.h"
 #include "realm-execution/tasks/task_id_t.dtg.h"
+#include "task-spec/device_id_t.dtg.h"
 #include <optional>
 #include <unordered_map>
 
@@ -116,7 +116,8 @@ public:
   Realm::Processor processor;
   Allocator allocator;
   std::vector<Realm::Event> outstanding_events;
-  std::optional<bidict<Realm::Processor, device_id_t>> processors = std::nullopt;
+  std::optional<bidict<Realm::Processor, device_id_t>> processors =
+      std::nullopt;
 };
 
 } // namespace FlexFlow

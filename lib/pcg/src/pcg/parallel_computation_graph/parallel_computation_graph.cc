@@ -31,13 +31,12 @@
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_kwarg_dataflow_edges_from_node_to_node.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_outgoing_kwarg_dataflow_edges_for_node.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_outgoing_kwarg_dataflow_outputs_for_node.h"
+#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/rewrite_labelled_kwarg_dataflow_graph_node_labels.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/node/node.dtg.h"
 #include "utils/record_formatter.h"
 #include <unordered_set>
-#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
-#include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
 
 namespace FlexFlow {
 
@@ -67,9 +66,9 @@ ParallelLayerAddedResult add_parallel_layer(
         &maybe_output_flags) {
 
   pcg_op_attrs_check_incoming_tensor_roles(
-    /*op_attrs=*/layer_attrs.op_attrs,
-    /*input_slots=*/keys(inputs),
-    /*weight_slots=*/keys(weights));
+      /*op_attrs=*/layer_attrs.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weights));
 
   std::unordered_map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {
@@ -133,25 +132,26 @@ ParallelLayerAddedResult add_parallel_layer(
 ParallelLayerAddedResult
     pcg_add_parallel_op_layer(ParallelComputationGraph &pcg,
                               ParallelOpAttrs const &op_attrs,
-                              parallel_tensor_guid_t input)
-{
+                              parallel_tensor_guid_t input) {
   CreateGrad create_grad = get_parallel_tensor_attrs(pcg, input).create_grad;
 
   return add_parallel_layer(
-    /*pcg=*/pcg,
-    /*layer_attrs=*/ParallelLayerAttrs{
-      /*op_attrs=*/pcg_op_attrs_from_parallel_op_attrs(op_attrs),
-      /*name=*/std::nullopt,
-    },
-    /*inputs=*/{
-      {TensorSlotName::INPUT, input},
-    },
-    /*weights=*/{},
-    /*outputs=*/std::unordered_map<TensorSlotName, CreateGrad>{
-      {TensorSlotName::OUTPUT, create_grad},
-    });
+      /*pcg=*/pcg,
+      /*layer_attrs=*/
+      ParallelLayerAttrs{
+          /*op_attrs=*/pcg_op_attrs_from_parallel_op_attrs(op_attrs),
+          /*name=*/std::nullopt,
+      },
+      /*inputs=*/
+      {
+          {TensorSlotName::INPUT, input},
+      },
+      /*weights=*/{},
+      /*outputs=*/
+      std::unordered_map<TensorSlotName, CreateGrad>{
+          {TensorSlotName::OUTPUT, create_grad},
+      });
 }
-
 
 ParallelLayerAddedResult pcg_add_input_layer(ParallelComputationGraph &pcg,
                                              TensorShape const &tensor_shape,
@@ -188,8 +188,7 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                        get_parallel_tensor_shape(pcg, input_guid));
                  });
 
-  return get_operator_task_space(
-      op_attrs, input_degrees);
+  return get_operator_task_space(op_attrs, input_degrees);
 }
 
 std::unordered_set<ParallelComputationGraphEdge>
@@ -461,7 +460,6 @@ std::string pcg_as_dot(ParallelComputationGraph const &cg) {
 
   std::function<nlohmann::json(ParallelLayerAttrs const &)> render_node_label =
       [](ParallelLayerAttrs const &a) -> nlohmann::json {
-
     nlohmann::json result = pcg_op_attrs_as_dot_json(a.op_attrs);
 
     if (a.name.has_value()) {
@@ -471,8 +469,8 @@ std::string pcg_as_dot(ParallelComputationGraph const &cg) {
     return result;
   };
 
-  std::function<nlohmann::json(ParallelTensorAttrs const &)> render_input_label =
-      [](ParallelTensorAttrs const &a) -> nlohmann::json {
+  std::function<nlohmann::json(ParallelTensorAttrs const &)>
+      render_input_label = [](ParallelTensorAttrs const &a) -> nlohmann::json {
     RecordFormatter r = mk_empty_record(Orientation::HORIZONTAL);
 
     r << fmt::to_string(a.shape);
@@ -482,25 +480,21 @@ std::string pcg_as_dot(ParallelComputationGraph const &cg) {
     return oss.str();
   };
 
-  std::function<nlohmann::json(TensorSlotName const &)> render_slot_name = [](TensorSlotName const &slot_name)
-    -> nlohmann::json
-  {
+  std::function<nlohmann::json(TensorSlotName const &)> render_slot_name =
+      [](TensorSlotName const &slot_name) -> nlohmann::json {
     return fmt::to_string(slot_name);
   };
 
-  std::function<std::vector<TensorSlotName>(std::unordered_set<TensorSlotName> const &)> order_slots
-    = [](std::unordered_set<TensorSlotName> const &slot_names)
-      -> std::vector<TensorSlotName>
-  {
-    return sorted(slot_names);
-  };
+  std::function<std::vector<TensorSlotName>(
+      std::unordered_set<TensorSlotName> const &)>
+      order_slots = [](std::unordered_set<TensorSlotName> const &slot_names)
+      -> std::vector<TensorSlotName> { return sorted(slot_names); };
 
-  return labelled_kwarg_dataflow_graph_view_as_dot(
-      cg.raw_graph,
-      render_node_label,
-      render_input_label,
-      render_slot_name,
-      order_slots);
+  return labelled_kwarg_dataflow_graph_view_as_dot(cg.raw_graph,
+                                                   render_node_label,
+                                                   render_input_label,
+                                                   render_slot_name,
+                                                   order_slots);
 }
 
 void debug_print_dot(ParallelComputationGraph const &cg) {

@@ -20,7 +20,7 @@ NodeQuery query_intersection(NodeQuery const &lhs, NodeQuery const &rhs) {
   }
 
   return NodeQuery{
-    query_set<Node>::match_values_in(set_of(nodes)),
+      query_set<Node>::match_values_in(set_of(nodes)),
   };
 }
 

@@ -10,7 +10,8 @@ template struct HemiuniqueBinaryRelation<L, R>;
 
 template std::string format_as(HemiuniqueBinaryRelation<L, R> const &);
 
-template std::ostream &operator<<(std::ostream &, HemiuniqueBinaryRelation<L, R> const &);
+template std::ostream &operator<<(std::ostream &,
+                                  HemiuniqueBinaryRelation<L, R> const &);
 
 } // namespace FlexFlow
 

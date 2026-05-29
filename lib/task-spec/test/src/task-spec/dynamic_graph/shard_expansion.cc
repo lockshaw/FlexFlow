@@ -2,19 +2,19 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
 #include "task-spec/dynamic_graph/copy_attrs.dtg.h"
 #include "task-spec/dynamic_graph/dynamic_copy_layer_guid_t.dtg.h"
+#include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 #include "task-spec/dynamic_graph/training_operation_attrs.dtg.h"
 #include "test/utils/doctest/fmt/unordered_set.h"
 #include "utils/bidict/algorithms/filter_keys.h"
 #include <doctest/doctest.h>
-#include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 
 using namespace ::FlexFlow;
 
 static MachineSpaceCoordinate mk_machine_coord(nonnegative_int node_idx,
                                                nonnegative_int device_idx) {
   return MachineSpaceCoordinate{
-    /*node_idx=*/node_idx,
-    /*device_idx=*/device_idx,
+      /*node_idx=*/node_idx,
+      /*device_idx=*/device_idx,
   };
 };
 
@@ -43,25 +43,23 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
     };
 
-
     DeviceType device_type = DeviceType::GPU;
     auto mk_device_id = [&](MachineSpaceCoordinate const &c) -> device_id_t {
-      return device_id_t{c, device_type}; 
+      return device_id_t{c, device_type};
     };
 
-    auto mk_value = [&](size_t src_node_id,
-                 TensorSlotName src_slot_name,
-                 bidict<ParallelTensorSpaceCoordinate, device_id_t>
-                     tensor_binding,
-                 std::optional<ParallelTensorSpaceCoordinate> const &shard_coord) 
-      -> DynamicValueAttrs
-    {
-
+    auto mk_value =
+        [&](size_t src_node_id,
+            TensorSlotName src_slot_name,
+            bidict<ParallelTensorSpaceCoordinate, device_id_t> tensor_binding,
+            std::optional<ParallelTensorSpaceCoordinate> const &shard_coord)
+        -> DynamicValueAttrs {
       if (shard_coord.has_value()) {
-        tensor_binding = filter_keys(tensor_binding,
-                                     [&](ParallelTensorSpaceCoordinate const &p) -> bool {
-                                       return p == shard_coord.value();
-                                     });
+        tensor_binding =
+            filter_keys(tensor_binding,
+                        [&](ParallelTensorSpaceCoordinate const &p) -> bool {
+                          return p == shard_coord.value();
+                        });
       }
 
       return DynamicValueAttrs{
@@ -129,27 +127,26 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorSpaceCoordinate mc2_output_2_coord =
           mk_pt_coord(0_n, 0_n, 0_n, 0_n);
 
-
       DynamicNodeMapping node_mapping = DynamicNodeMapping{
-        MappedOperatorTaskGroup{
-            bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
-                {
-                    mc1,
-                    mk_shard_binding(mc1_input_coord,
-                                     mc1_weight_coord,
-                                     mc1_output_1_coord,
-                                     mc1_output_2_coord),
-                },
-                {
-                    mc2,
-                    mk_shard_binding(mc2_input_coord,
-                                     mc2_weight_coord,
-                                     mc2_output_1_coord,
-                                     mc2_output_2_coord),
-                },
-            },
-        },
-        device_type,
+          MappedOperatorTaskGroup{
+              bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+                  {
+                      mc1,
+                      mk_shard_binding(mc1_input_coord,
+                                       mc1_weight_coord,
+                                       mc1_output_1_coord,
+                                       mc1_output_2_coord),
+                  },
+                  {
+                      mc2,
+                      mk_shard_binding(mc2_input_coord,
+                                       mc2_weight_coord,
+                                       mc2_output_1_coord,
+                                       mc2_output_2_coord),
+                  },
+              },
+          },
+          device_type,
       };
 
       auto mk_op_value =
@@ -158,10 +155,11 @@ TEST_SUITE(FF_TEST_SUITE) {
               TensorSlotName use_slot_name,
               std::optional<ParallelTensorSpaceCoordinate> const &shard_coord)
           -> DynamicValueAttrs {
-        bidict<ParallelTensorSpaceCoordinate, device_id_t>
-            tensor_binding = dynamic_node_mapping_bindings_for_slot_name(node_mapping,
-                                                                         use_slot_name);
-        return mk_value(src_node_id, src_slot_name, tensor_binding, shard_coord);
+        bidict<ParallelTensorSpaceCoordinate, device_id_t> tensor_binding =
+            dynamic_node_mapping_bindings_for_slot_name(node_mapping,
+                                                        use_slot_name);
+        return mk_value(
+            src_node_id, src_slot_name, tensor_binding, shard_coord);
       };
 
       DynamicNodeInvocation input = DynamicNodeInvocation{
@@ -306,7 +304,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*inputs=*/{
               {
                   mk_slot(TensorSlotName::INPUT),
-                  mk_value(0, TensorSlotName::OUTPUT, src_binding, std::nullopt),
+                  mk_value(
+                      0, TensorSlotName::OUTPUT, src_binding, std::nullopt),
               },
           },
           /*node_attrs=*/
@@ -322,7 +321,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           {
               {
                   mk_slot(TensorSlotName::OUTPUT),
-                  mk_value(20, TensorSlotName::OUTPUT, dst_binding, std::nullopt),
+                  mk_value(
+                      20, TensorSlotName::OUTPUT, dst_binding, std::nullopt),
               },
           },
       };
@@ -347,8 +347,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         result.outputs = {
             {
                 mk_slot(TensorSlotName::OUTPUT),
-                mk_value(
-                    20, TensorSlotName::OUTPUT, dst_binding, tensor_shard_coord),
+                mk_value(20,
+                         TensorSlotName::OUTPUT,
+                         dst_binding,
+                         tensor_shard_coord),
             },
         };
         return result;

@@ -55,14 +55,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-                MachineViewDimension{
-                    stride_t{1_p},
-                    MachineSpecificationDimension::INTER_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
                 },
             },
-          },
         },
     };
 
@@ -72,15 +72,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTER_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     MachineComputeResourceSlice four_nodes_resources =
@@ -565,14 +565,15 @@ TEST_SUITE(FF_TEST_SUITE) {
                 /*device_idx=*/0_n,
             },
             StartInvariantMachineView{
-              MachineView2dProjection{
-                /*dimensions=*/{
-                    MachineViewDimension{
-                        /*stride=*/stride_t{1_p},
-                        /*projection=*/MachineSpecificationDimension::INTER_NODE,
+                MachineView2dProjection{
+                    /*dimensions=*/{
+                        MachineViewDimension{
+                            /*stride=*/stride_t{1_p},
+                            /*projection=*/
+                            MachineSpecificationDimension::INTER_NODE,
+                        },
                     },
                 },
-              },
             },
         };
 

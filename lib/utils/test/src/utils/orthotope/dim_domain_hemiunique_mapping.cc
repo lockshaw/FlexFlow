@@ -1,7 +1,7 @@
-#include <doctest/doctest.h>
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
-#include "utils/orthotope/dim_ordering.h"
 #include "utils/many_to_one/many_to_one_from_unstructured_relation.h"
+#include "utils/orthotope/dim_ordering.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -90,33 +90,37 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     DimDomainHemiuniqueMapping<int, std::string> correct =
         DimDomainHemiuniqueMapping<int, std::string>{
-            /*coord_mapping=*/HemiuniqueBinaryRelation<DimCoord<int>, DimCoord<std::string>>{
-              many_to_one_from_unstructured_relation(
-                std::unordered_set<std::pair<DimCoord<int>, DimCoord<std::string>>>{
-                  {mk_input_coord(0, 0, 0, 0), mk_output_coord(0, 0, 0, 0)},
-                  {mk_input_coord(0, 1, 0, 0), mk_output_coord(0, 0, 0, 0)},
-                  {mk_input_coord(0, 0, 1, 0), mk_output_coord(0, 0, 1, 0)},
-                  {mk_input_coord(0, 1, 1, 0), mk_output_coord(0, 0, 1, 0)},
-                  {mk_input_coord(0, 0, 2, 0), mk_output_coord(0, 0, 2, 0)},
-                  {mk_input_coord(0, 1, 2, 0), mk_output_coord(0, 0, 2, 0)},
-                  {mk_input_coord(0, 2, 0, 0), mk_output_coord(0, 1, 0, 0)},
-                  {mk_input_coord(0, 3, 0, 0), mk_output_coord(0, 1, 0, 0)},
-                  {mk_input_coord(0, 2, 1, 0), mk_output_coord(0, 1, 1, 0)},
-                  {mk_input_coord(0, 3, 1, 0), mk_output_coord(0, 1, 1, 0)},
-                  {mk_input_coord(0, 2, 2, 0), mk_output_coord(0, 1, 2, 0)},
-                  {mk_input_coord(0, 3, 2, 0), mk_output_coord(0, 1, 2, 0)},
-                  {mk_input_coord(1, 0, 0, 0), mk_output_coord(1, 0, 0, 0)},
-                  {mk_input_coord(1, 1, 0, 0), mk_output_coord(1, 0, 0, 0)},
-                  {mk_input_coord(1, 0, 1, 0), mk_output_coord(1, 0, 1, 0)},
-                  {mk_input_coord(1, 1, 1, 0), mk_output_coord(1, 0, 1, 0)},
-                  {mk_input_coord(1, 0, 2, 0), mk_output_coord(1, 0, 2, 0)},
-                  {mk_input_coord(1, 1, 2, 0), mk_output_coord(1, 0, 2, 0)},
-                  {mk_input_coord(1, 2, 0, 0), mk_output_coord(1, 1, 0, 0)},
-                  {mk_input_coord(1, 3, 0, 0), mk_output_coord(1, 1, 0, 0)},
-                  {mk_input_coord(1, 2, 1, 0), mk_output_coord(1, 1, 1, 0)},
-                  {mk_input_coord(1, 3, 1, 0), mk_output_coord(1, 1, 1, 0)},
-                  {mk_input_coord(1, 2, 2, 0), mk_output_coord(1, 1, 2, 0)},
-                  {mk_input_coord(1, 3, 2, 0), mk_output_coord(1, 1, 2, 0)},
+            /*coord_mapping=*/HemiuniqueBinaryRelation<DimCoord<int>,
+                                                       DimCoord<std::string>>{
+                many_to_one_from_unstructured_relation(std::unordered_set<
+                                                       std::pair<
+                                                           DimCoord<int>,
+                                                           DimCoord<
+                                                               std::string>>>{
+                    {mk_input_coord(0, 0, 0, 0), mk_output_coord(0, 0, 0, 0)},
+                    {mk_input_coord(0, 1, 0, 0), mk_output_coord(0, 0, 0, 0)},
+                    {mk_input_coord(0, 0, 1, 0), mk_output_coord(0, 0, 1, 0)},
+                    {mk_input_coord(0, 1, 1, 0), mk_output_coord(0, 0, 1, 0)},
+                    {mk_input_coord(0, 0, 2, 0), mk_output_coord(0, 0, 2, 0)},
+                    {mk_input_coord(0, 1, 2, 0), mk_output_coord(0, 0, 2, 0)},
+                    {mk_input_coord(0, 2, 0, 0), mk_output_coord(0, 1, 0, 0)},
+                    {mk_input_coord(0, 3, 0, 0), mk_output_coord(0, 1, 0, 0)},
+                    {mk_input_coord(0, 2, 1, 0), mk_output_coord(0, 1, 1, 0)},
+                    {mk_input_coord(0, 3, 1, 0), mk_output_coord(0, 1, 1, 0)},
+                    {mk_input_coord(0, 2, 2, 0), mk_output_coord(0, 1, 2, 0)},
+                    {mk_input_coord(0, 3, 2, 0), mk_output_coord(0, 1, 2, 0)},
+                    {mk_input_coord(1, 0, 0, 0), mk_output_coord(1, 0, 0, 0)},
+                    {mk_input_coord(1, 1, 0, 0), mk_output_coord(1, 0, 0, 0)},
+                    {mk_input_coord(1, 0, 1, 0), mk_output_coord(1, 0, 1, 0)},
+                    {mk_input_coord(1, 1, 1, 0), mk_output_coord(1, 0, 1, 0)},
+                    {mk_input_coord(1, 0, 2, 0), mk_output_coord(1, 0, 2, 0)},
+                    {mk_input_coord(1, 1, 2, 0), mk_output_coord(1, 0, 2, 0)},
+                    {mk_input_coord(1, 2, 0, 0), mk_output_coord(1, 1, 0, 0)},
+                    {mk_input_coord(1, 3, 0, 0), mk_output_coord(1, 1, 0, 0)},
+                    {mk_input_coord(1, 2, 1, 0), mk_output_coord(1, 1, 1, 0)},
+                    {mk_input_coord(1, 3, 1, 0), mk_output_coord(1, 1, 1, 0)},
+                    {mk_input_coord(1, 2, 2, 0), mk_output_coord(1, 1, 2, 0)},
+                    {mk_input_coord(1, 3, 2, 0), mk_output_coord(1, 1, 2, 0)},
                 }),
             },
             /*l_domain=*/input_domain,

@@ -19,8 +19,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator allocator = create_local_cpu_memory_allocator();
     device_handle_t ff_handle = cpu_make_device_handle_t();
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::CPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::CPU,
     };
 
     OptimizerAttrs optimizer_attrs = OptimizerAttrs{
@@ -67,10 +67,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_to_2d_machine_view(
-              MachineSpaceCoordinate{0_n, 0_n},
-              MachineSpecificationDimension::INTRA_NODE,
-              stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);
@@ -92,8 +91,8 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
     Allocator allocator = create_local_cuda_memory_allocator();
 
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::GPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::GPU,
     };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
@@ -163,10 +162,9 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_to_2d_machine_view(
-              MachineSpaceCoordinate{0_n, 0_n},
-              MachineSpecificationDimension::INTRA_NODE,
-              stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);

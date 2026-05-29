@@ -38,12 +38,11 @@ ParallelTensorDimDegrees
                                   ParallelTensorDimDegrees const &input);
 
 std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
-    get_weight_parallel_dim_degrees(LinearAttrs const &attrs, ParallelTensorDimDegrees const &input);
-
-
-ParallelTensorDimDegrees
-    linear_get_output_parallel_dim_degrees(LinearAttrs const &attrs,
+    get_weight_parallel_dim_degrees(LinearAttrs const &attrs,
                                     ParallelTensorDimDegrees const &input);
+
+ParallelTensorDimDegrees linear_get_output_parallel_dim_degrees(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input);
 
 tl::expected<ParallelTensorShape, std::string>
     get_projection_shape(LinearAttrs const &attrs,
@@ -67,19 +66,19 @@ tl::expected<std::unordered_map<TensorSlotName, InitializerAttrs>, std::string>
                      std::optional<InitializerAttrs> const &kernel_initializer =
                          std::nullopt);
 
-OperatorTaskSpace
-    linear_get_operator_task_space(LinearAttrs const &attrs,
-                            ParallelTensorDimDegrees const &input_degrees);
+OperatorTaskSpace linear_get_operator_task_space(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_input_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_projection_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
-
 OperatorSpaceToParallelTensorSpaceMapping
-    linear_get_operator_to_bias_mapping(LinearAttrs const &attrs,
-                                 ParallelTensorDimDegrees const &input_degrees);
+    linear_get_operator_to_projection_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_bias_mapping(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_output_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

@@ -140,8 +140,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                          /*weight_decay=*/0.001}};
     device_handle_t ff_handle = cpu_make_device_handle_t();
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::CPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::CPU,
     };
 
     std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
@@ -311,8 +311,8 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         },
     };
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::GPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::GPU,
     };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
@@ -431,8 +431,8 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
     };
 
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::GPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::GPU,
     };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());

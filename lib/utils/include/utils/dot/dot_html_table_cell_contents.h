@@ -1,9 +1,9 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_DOT_DOT_HTML_TABLE_CELL_CONTENTS_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_DOT_DOT_HTML_TABLE_CELL_CONTENTS_H
 
+#include <memory>
 #include <string>
 #include <variant>
-#include <memory>
 
 namespace FlexFlow {
 
@@ -23,6 +23,7 @@ public:
 
   bool operator==(DotHtmlTableCellContents const &) const;
   bool operator!=(DotHtmlTableCellContents const &) const;
+
 private:
   std::variant<std::string, std::shared_ptr<DotHtmlTable>> value;
 };

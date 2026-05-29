@@ -39,8 +39,7 @@ PCGInstance::PCGInstance(
     : ctx(ctx), execution_order(execution_order),
       tensor_instance_backing(tensor_instance_backing),
       device_state_backing(device_state_backing),
-      optimizer_attrs(optimizer_attrs), logit_grad_tensor(logit_grad_tensor)
-      {}
+      optimizer_attrs(optimizer_attrs), logit_grad_tensor(logit_grad_tensor) {}
 
 PCGInstance::~PCGInstance() {
   destroy_instances(this->tensor_instance_backing,
@@ -108,8 +107,8 @@ PCGInstance create_pcg_instance(
     MappedOperatorTaskGroup loss_op_task_group = loss_config.loss_mapping;
 
     DynamicNodeMapping mapping = DynamicNodeMapping{
-      /*op_task_group=*/loss_op_task_group,
-      /*device_type=*/device_type,
+        /*op_task_group=*/loss_op_task_group,
+        /*device_type=*/device_type,
     };
 
     auto [dg2, label_v, logit_grad_v] = perform_loss_insertion(
@@ -175,12 +174,12 @@ PCGInstance create_pcg_instance(
       node_topo_order, [&](Node node) { return node_map.at_l(node); });
 
   return PCGInstance{
-    /*ctx=*/ctx,
-    /*execution_order=*/invocation_topo_order,
-    /*tensor_instance_backing=*/tensor_instance_backing,
-    /*device_state_backing=*/device_state_backing,
-    /*optimizer_attrs=*/optimizer_attrs,
-    /*logit_grad_tensor=*/logit_grad_tensor,
+      /*ctx=*/ctx,
+      /*execution_order=*/invocation_topo_order,
+      /*tensor_instance_backing=*/tensor_instance_backing,
+      /*device_state_backing=*/device_state_backing,
+      /*optimizer_attrs=*/optimizer_attrs,
+      /*logit_grad_tensor=*/logit_grad_tensor,
   };
 }
 

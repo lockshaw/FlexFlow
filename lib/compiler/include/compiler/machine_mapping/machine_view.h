@@ -5,6 +5,7 @@
 #include "op-attrs/computation_graph_op_attrs.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
@@ -15,7 +16,6 @@
 #include <cstddef>
 #include <optional>
 #include <unordered_set>
-#include "op-attrs/pcg_operator_attrs.dtg.h"
 
 namespace FlexFlow {
 
@@ -68,25 +68,25 @@ MachineSpaceCoordinate get_machine_space_coordinate(
     MachineComputeResourceSlice const &machine_space,
     TaskSpaceCoordinate const &task_space_coordinate);
 
-TaskSpaceCoordinate
-    mv_task_space_coord_for_machine_space_coord(MachineComputeResourceSlice const &machine_space,
-                                                MachineView const &,
-                                                OperatorTaskSpace const &,
-                                                MachineSpaceCoordinate const &);
+TaskSpaceCoordinate mv_task_space_coord_for_machine_space_coord(
+    MachineComputeResourceSlice const &machine_space,
+    MachineView const &,
+    OperatorTaskSpace const &,
+    MachineSpaceCoordinate const &);
 
 OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
     OperatorTaskSpace const &operator_task_space,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view);
 
-std::unordered_set<MachineSpaceCoordinate>
-    get_machine_space_coordinates(OperatorTaskSpace const &task,
-                                  MachineComputeResourceSlice const &machine_space,
-                                  MachineView const &mv);
+std::unordered_set<MachineSpaceCoordinate> get_machine_space_coordinates(
+    OperatorTaskSpace const &task,
+    MachineComputeResourceSlice const &machine_space,
+    MachineView const &mv);
 
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
-                                 MachineSpecificationDimension const &dim,
-                                 stride_t stride);
+                                       MachineSpecificationDimension const &dim,
+                                       stride_t stride);
 
 MachineView make_single_device_machine_view(MachineSpaceCoordinate const &);
 

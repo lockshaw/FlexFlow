@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("set of nodes") {
         NodeQuery query = NodeQuery{
-          query_set<Node>::match_values_in(std::set{n[0], n[2]}),
+            query_set<Node>::match_values_in(std::set{n[0], n[2]}),
         };
 
         std::unordered_set<Node> result = g.query_nodes(query);
@@ -57,7 +57,11 @@ TEST_SUITE(FF_TEST_SUITE) {
             g.query_edges(directed_edge_query_all());
 
         std::unordered_set<DirectedEdge> correct = {
-          e.at(0), e.at(1), e.at(2), e.at(3), e.at(4),
+            e.at(0),
+            e.at(1),
+            e.at(2),
+            e.at(3),
+            e.at(4),
         };
 
         CHECK(result == correct);
@@ -65,13 +69,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("query for specific edge") {
         DirectedEdgeQuery query = DirectedEdgeQuery{
-          query_set<Node>::match_single_value(n.at(0)),
-          query_set<Node>::match_single_value(n.at(1)),
+            query_set<Node>::match_single_value(n.at(0)),
+            query_set<Node>::match_single_value(n.at(1)),
 
         };
 
         std::unordered_set<DirectedEdge> result = g.query_edges(query);
-        std::unordered_set<DirectedEdge> correct = std::unordered_set<DirectedEdge>{e[0]};
+        std::unordered_set<DirectedEdge> correct =
+            std::unordered_set<DirectedEdge>{e[0]};
         CHECK(result == correct);
       }
     }

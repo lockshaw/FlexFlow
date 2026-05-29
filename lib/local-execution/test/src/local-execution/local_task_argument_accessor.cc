@@ -52,8 +52,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         };
 
     device_id_t device_idx = device_id_t{
-      MachineSpaceCoordinate{0_n, 0_n},
-      DeviceType::CPU,
+        MachineSpaceCoordinate{0_n, 0_n},
+        DeviceType::CPU,
     };
 
     LocalTaskArgumentAccessor acc = LocalTaskArgumentAccessor{

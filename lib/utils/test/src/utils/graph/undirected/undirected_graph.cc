@@ -28,7 +28,11 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("query_all") {
         std::unordered_set<Node> result = g.query_nodes(node_query_all());
         std::unordered_set<Node> correct = std::unordered_set<Node>{
-          n.at(0), n.at(1), n.at(2), n.at(3), n.at(4),
+            n.at(0),
+            n.at(1),
+            n.at(2),
+            n.at(3),
+            n.at(4),
         };
 
         CHECK(result == correct);
@@ -36,12 +40,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("query for specific nodes") {
         NodeQuery query = NodeQuery{
-          query_set<Node>::match_values_in(std::set{n.at(0), n.at(2)}),
+            query_set<Node>::match_values_in(std::set{n.at(0), n.at(2)}),
         };
 
         std::unordered_set<Node> result = g.query_nodes(query);
         std::unordered_set<Node> correct = std::unordered_set<Node>{
-          n.at(0), n.at(2),
+            n.at(0),
+            n.at(2),
         };
 
         CHECK(result == correct);
@@ -54,7 +59,11 @@ TEST_SUITE(FF_TEST_SUITE) {
             g.query_edges(undirected_edge_query_all());
 
         std::unordered_set<UndirectedEdge> correct = {
-          e.at(0), e.at(1), e.at(2), e.at(3), e.at(4),
+            e.at(0),
+            e.at(1),
+            e.at(2),
+            e.at(3),
+            e.at(4),
         };
 
         CHECK(result == correct);
@@ -62,13 +71,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("query for specific edge") {
         UndirectedEdgeQuery query = UndirectedEdgeQuery{
-          query_set<Node>::match_values_in(std::set{n.at(0), n.at(1)}),
+            query_set<Node>::match_values_in(std::set{n.at(0), n.at(1)}),
         };
 
         std::unordered_set<UndirectedEdge> result = g.query_edges(query);
-        std::unordered_set<UndirectedEdge> correct = std::unordered_set<UndirectedEdge>{
-          e.at(0),
-        };
+        std::unordered_set<UndirectedEdge> correct =
+            std::unordered_set<UndirectedEdge>{
+                e.at(0),
+            };
 
         CHECK(result == correct);
       }

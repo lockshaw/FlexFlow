@@ -1,12 +1,12 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_RECORD_FORMATTER_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_RECORD_FORMATTER_H
 
-#include <sstream>
-#include <vector>
-#include <optional>
-#include "utils/orientation.dtg.h"
 #include "utils/containers/keys.h"
 #include "utils/containers/sorted.h"
+#include "utils/orientation.dtg.h"
+#include <optional>
+#include <sstream>
+#include <vector>
 
 namespace FlexFlow {
 
@@ -73,6 +73,6 @@ RecordFormatter mk_record_for_map(std::unordered_map<K, V> const &m) {
   return result;
 }
 
-}
+} // namespace FlexFlow
 
 #endif

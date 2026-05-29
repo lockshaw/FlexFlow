@@ -7,17 +7,23 @@
 namespace FlexFlow {
 
 std::string dataflow_graph_as_dot(
-  DataflowGraphView const &,
-  std::optional<std::function<nlohmann::json(Node const &)>> const &get_node_label = std::nullopt,
-  std::optional<std::function<nlohmann::json(DataflowInput const &)>> const &get_input_label = std::nullopt,
-  std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const &get_output_label = std::nullopt);
+    DataflowGraphView const &,
+    std::optional<std::function<nlohmann::json(Node const &)>> const
+        &get_node_label = std::nullopt,
+    std::optional<std::function<nlohmann::json(DataflowInput const &)>> const
+        &get_input_label = std::nullopt,
+    std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const
+        &get_output_label = std::nullopt);
 
 void dataflow_graph_as_dot(
-  DotFile<std::string> &,
-  DataflowGraphView const &,
-  std::optional<std::function<nlohmann::json(Node const &)>> const &get_node_label = std::nullopt,
-  std::optional<std::function<nlohmann::json(DataflowInput const &)>> const &get_input_label = std::nullopt,
-  std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const &get_output_label = std::nullopt);
+    DotFile<std::string> &,
+    DataflowGraphView const &,
+    std::optional<std::function<nlohmann::json(Node const &)>> const
+        &get_node_label = std::nullopt,
+    std::optional<std::function<nlohmann::json(DataflowInput const &)>> const
+        &get_input_label = std::nullopt,
+    std::optional<std::function<nlohmann::json(DataflowOutput const &)>> const
+        &get_output_label = std::nullopt);
 
 } // namespace FlexFlow
 

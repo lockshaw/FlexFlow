@@ -22,7 +22,7 @@ bool is_valid_machine_space_coordinate_in_slice(
     MachineComputeResourceSlice const &slice,
     MachineSpaceCoordinate const &coord) {
   return (coord.node_idx < slice.num_nodes) &&
-    (coord.device_idx < slice.num_gpus_per_node);
+         (coord.device_idx < slice.num_gpus_per_node);
 }
 
 } // namespace FlexFlow

@@ -1,7 +1,7 @@
 #include "pcg/parallel_computation_graph/explicit_parallel_computation_graph_builder.h"
+#include "op-attrs/pcg_operator_attrs.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "utils/containers/require_only_key.h"
-#include "op-attrs/pcg_operator_attrs.h"
 
 namespace FlexFlow {
 
@@ -13,11 +13,13 @@ static std::string get_default_name(PCGOperatorAttrs const &attrs) {
   return get_default_name(pcg_op_attrs_get_op_type(attrs));
 }
 
-ExplicitParallelComputationGraphBuilder::ExplicitParallelComputationGraphBuilder()
+ExplicitParallelComputationGraphBuilder::
+    ExplicitParallelComputationGraphBuilder()
     : pcg(empty_parallel_computation_graph()) {}
 
-parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::create_input_tensor(
-    TensorShape const &shape, std::optional<std::string> const &name) {
+parallel_tensor_guid_t
+    ExplicitParallelComputationGraphBuilder::create_input_tensor(
+        TensorShape const &shape, std::optional<std::string> const &name) {
 
   ParallelLayerAttrs layer_attrs = ParallelLayerAttrs{
       PCGOperatorAttrs{InputAttrs{shape}},
@@ -39,10 +41,11 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::create_input_ten
       TensorSlotName::OUTPUT);
 }
 
-parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::create_weight_tensor(
-    TensorShape const &shape,
-    InitializerAttrs const &initializer_attrs,
-    std::optional<std::string> const &name) {
+parallel_tensor_guid_t
+    ExplicitParallelComputationGraphBuilder::create_weight_tensor(
+        TensorShape const &shape,
+        InitializerAttrs const &initializer_attrs,
+        std::optional<std::string> const &name) {
 
   ParallelLayerAttrs layer_attrs = ParallelLayerAttrs{
       PCGOperatorAttrs{WeightAttrs{shape, initializer_attrs}},
@@ -125,7 +128,7 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::conv2d(
     positive_int groups,
     std::optional<RegularizerAttrs> const &filter_regularizer,
     std::optional<std::string> const &maybe_name) {
-  
+
   bool use_bias = bias.has_value();
 
   Conv2DAttrs attrs = Conv2DAttrs{
@@ -151,10 +154,10 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::conv2d(
   ParallelTensorShape input_shape = this->get_shape(input);
 
   std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
-    {
-      TensorSlotName::FILTER,
-      filter,
-    },
+      {
+          TensorSlotName::FILTER,
+          filter,
+      },
   };
 
   if (use_bias) {
@@ -199,10 +202,10 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::dense(
   ParallelTensorShape input_shape = this->get_shape(input);
 
   std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
-    {
-      TensorSlotName::WEIGHT,
-      projector,
-    },
+      {
+          TensorSlotName::WEIGHT,
+          projector,
+      },
   };
 
   if (use_bias) {
@@ -211,20 +214,21 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::dense(
 
   return require_only_key(this->add_layer(layer,
                                           {
-                                            {
-                                              TensorSlotName::INPUT,
-                                              input,
-                                            },
+                                              {
+                                                  TensorSlotName::INPUT,
+                                                  input,
+                                              },
                                           },
                                           weights),
                           TensorSlotName::OUTPUT);
 }
 
-parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::parallel_partition(
-    parallel_tensor_guid_t const &input,
-    ff_dim_t dim,
-    int_ge_two degree,
-    std::optional<std::string> const &maybe_name) {
+parallel_tensor_guid_t
+    ExplicitParallelComputationGraphBuilder::parallel_partition(
+        parallel_tensor_guid_t const &input,
+        ff_dim_t dim,
+        int_ge_two degree,
+        std::optional<std::string> const &maybe_name) {
 
   RepartitionAttrs attrs = RepartitionAttrs{
       /*repartition_dim=*/dim,
@@ -247,10 +251,11 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::parallel_partiti
                           TensorSlotName::OUTPUT);
 }
 
-parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::parallel_replicate(
-    parallel_tensor_guid_t const &input,
-    int_ge_two degree,
-    std::optional<std::string> const &maybe_name) {
+parallel_tensor_guid_t
+    ExplicitParallelComputationGraphBuilder::parallel_replicate(
+        parallel_tensor_guid_t const &input,
+        int_ge_two degree,
+        std::optional<std::string> const &maybe_name) {
 
   ReplicateAttrs attrs = ReplicateAttrs{degree};
 
@@ -285,8 +290,7 @@ std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
 
   ASSERT(are_disjoint(keys(inputs), keys(weights)));
 
-  return add_parallel_layer(this->pcg, layer, inputs, weights, {})
-      .outputs;
+  return add_parallel_layer(this->pcg, layer, inputs, weights, {}).outputs;
 }
 
 } // namespace FlexFlow

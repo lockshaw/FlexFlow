@@ -39,12 +39,13 @@ OperatorTaskSpace op_mapping_get_dst_space(
       require_dim_domain_is_minimal(mapping.raw_mapping.r_domain));
 }
 
-HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
-    OperatorTaskSpaceToOperatorTaskSpaceMapping const &mapping) {
+HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate>
+    op_to_op_get_coord_mapping(
+        OperatorTaskSpaceToOperatorTaskSpaceMapping const &mapping) {
   return hemiunique_binrel_transform_l_and_r(
-    mapping.raw_mapping.coord_mapping,
-    task_space_coordinate_from_dim_coord,
-    task_space_coordinate_from_dim_coord);
+      mapping.raw_mapping.coord_mapping,
+      task_space_coordinate_from_dim_coord,
+      task_space_coordinate_from_dim_coord);
 }
 
 OperatorTaskSpaceToOperatorTaskSpaceMapping
@@ -56,7 +57,8 @@ OperatorTaskSpaceToOperatorTaskSpaceMapping
   return OperatorTaskSpaceToOperatorTaskSpaceMapping{
       compose_dim_domain_hemiunique_mappings_through_minimal(
           src_to_tensor_mapping.raw_mapping,
-          invert_dim_domain_hemiunique_mapping(dst_to_tensor_mapping.raw_mapping)),
+          invert_dim_domain_hemiunique_mapping(
+              dst_to_tensor_mapping.raw_mapping)),
   };
 }
 

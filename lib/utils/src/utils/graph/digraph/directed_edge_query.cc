@@ -32,8 +32,8 @@ DirectedEdgeQuery query_intersection(DirectedEdgeQuery const &lhs,
   }
 
   return DirectedEdgeQuery{
-    query_set<Node>::match_values_in(set_of(result_srcs)),
-    query_set<Node>::match_values_in(set_of(result_dsts)),
+      query_set<Node>::match_values_in(set_of(result_srcs)),
+      query_set<Node>::match_values_in(set_of(result_dsts)),
   };
 }
 

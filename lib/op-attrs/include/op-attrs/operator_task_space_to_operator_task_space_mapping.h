@@ -18,8 +18,9 @@ OperatorTaskSpace op_mapping_get_src_space(
 OperatorTaskSpace op_mapping_get_dst_space(
     OperatorTaskSpaceToOperatorTaskSpaceMapping const &);
 
-HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> op_to_op_get_coord_mapping(
-    OperatorTaskSpaceToOperatorTaskSpaceMapping const &);
+HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate>
+    op_to_op_get_coord_mapping(
+        OperatorTaskSpaceToOperatorTaskSpaceMapping const &);
 
 OperatorTaskSpaceToOperatorTaskSpaceMapping
     op_to_op_mapping_from_composition_through_tensor(

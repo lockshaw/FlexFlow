@@ -27,15 +27,17 @@ std::unordered_map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
     std::unordered_map<TensorSlotName, ParallelTensorShape> const
         &input_shapes);
 
-std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
-    PCGOperatorAttrs const &,
-    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
-        &input_degrees);
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
+    infer_output_degrees(
+        PCGOperatorAttrs const &,
+        std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+            &input_degrees);
 
-std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
-    PCGOperatorAttrs const &,
-    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
-        &input_degrees);
+std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
+    infer_weight_degrees(
+        PCGOperatorAttrs const &,
+        std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+            &input_degrees);
 
 } // namespace FlexFlow
 

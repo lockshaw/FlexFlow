@@ -4,7 +4,7 @@
 
 namespace FlexFlow {
 
-template
-  std::optional<value_type<0>> maybe_get_only(std::vector<value_type<0>> const &);
+template std::optional<value_type<0>>
+    maybe_get_only(std::vector<value_type<0>> const &);
 
 } // namespace FlexFlow

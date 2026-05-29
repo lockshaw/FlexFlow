@@ -2,8 +2,8 @@
 #define _FLEXFLOW_LIB_REALM_EXECUTION_INCLUDE_REALM_EXECUTION_DEVICE_SPECIFIC_PTR_H
 
 #include "task-spec/device_id_t.dtg.h"
-#include <optional>
 #include <libassert/assert.hpp>
+#include <optional>
 
 namespace FlexFlow {
 

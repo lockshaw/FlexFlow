@@ -1,16 +1,16 @@
 #ifndef _FLEXFLOW_LIB_PCG_INCLUDE_PCG_PARALLEL_COMPUTATION_GRAPH_EXPLICIT_PARALLEL_COMPUTATION_GRAPH_BUILDER_H
 #define _FLEXFLOW_LIB_PCG_INCLUDE_PCG_PARALLEL_COMPUTATION_GRAPH_EXPLICIT_PARALLEL_COMPUTATION_GRAPH_BUILDER_H
 
-#include "pcg/parallel_computation_graph/parallel_tensor_guid_t.dtg.h"
-#include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/activation.dtg.h"
-#include "op-attrs/regularizer_attrs.dtg.h"
 #include "op-attrs/ff_dim_t.dtg.h"
-#include "utils/positive_int/positive_int.h"
 #include "op-attrs/initializer_attrs.dtg.h"
-#include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/ops/element_unary_attrs.dtg.h"
+#include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/regularizer_attrs.dtg.h"
+#include "op-attrs/tensor_shape.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.dtg.h"
+#include "pcg/parallel_computation_graph/parallel_tensor_guid_t.dtg.h"
+#include "utils/positive_int/positive_int.h"
 
 namespace FlexFlow {
 
@@ -48,14 +48,14 @@ public:
       std::optional<RegularizerAttrs> const &kernel_regularizer = std::nullopt,
       std::optional<std::string> const &name = std::nullopt);
 
-  parallel_tensor_guid_t dense(
-      parallel_tensor_guid_t const &input,
-      positive_int outDim,
-      parallel_tensor_guid_t const &projector,
-      std::optional<parallel_tensor_guid_t> const &bias,
-      std::optional<Activation> activation = std::nullopt,
-      DataType data_type = DataType::FLOAT,
-      std::optional<std::string> const &name = std::nullopt);
+  parallel_tensor_guid_t
+      dense(parallel_tensor_guid_t const &input,
+            positive_int outDim,
+            parallel_tensor_guid_t const &projector,
+            std::optional<parallel_tensor_guid_t> const &bias,
+            std::optional<Activation> activation = std::nullopt,
+            DataType data_type = DataType::FLOAT,
+            std::optional<std::string> const &name = std::nullopt);
 
   parallel_tensor_guid_t
       relu(parallel_tensor_guid_t const &x,
@@ -109,7 +109,8 @@ private:
   std::unordered_map<TensorSlotName, parallel_tensor_guid_t> add_layer(
       ParallelLayerAttrs const &layer,
       std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const &inputs,
-      std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const &weights);
+      std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const
+          &weights);
 
   parallel_tensor_guid_t
       element_unary(ElementUnaryAttrs const &element_unary_attrs,

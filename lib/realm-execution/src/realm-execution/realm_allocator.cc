@@ -1,9 +1,9 @@
 #include "realm-execution/realm_allocator.h"
 #include "kernels/device.h"
 #include "pcg/device_type.dtg.h"
+#include "realm-execution/processor_kind.h"
 #include "utils/containers/contains_key.h"
 #include "utils/containers/values.h"
-#include "realm-execution/processor_kind.h"
 
 namespace FlexFlow {
 

@@ -65,7 +65,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       parallel_layer_guid_t layer1 = get_source_layer(tensor1);
 
       std::vector<MachineViewDimension> dims = {};
-      StartInvariantMachineView start_invariant_mv = StartInvariantMachineView{MachineView2dProjection{dims}};
+      StartInvariantMachineView start_invariant_mv =
+          StartInvariantMachineView{MachineView2dProjection{dims}};
 
       ParallelComputationGraph pcg = b.pcg;
       MachineView mv1 =
@@ -147,17 +148,18 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelComputationGraph pcg = b.pcg;
       std::vector<MachineViewDimension> dims = {};
-      StartInvariantMachineView start_invariant_mv = StartInvariantMachineView{MachineView2dProjection{dims}};
+      StartInvariantMachineView start_invariant_mv =
+          StartInvariantMachineView{MachineView2dProjection{dims}};
 
       SUBCASE("all different devices") {
-        MachineView mv0 = MachineView{
-            MachineSpaceCoordinate{0_n, 0_n}, start_invariant_mv};
-        MachineView mv1 = MachineView{
-            MachineSpaceCoordinate{0_n, 1_n}, start_invariant_mv};
-        MachineView mv2 = MachineView{
-            MachineSpaceCoordinate{1_n, 0_n}, start_invariant_mv};
-        MachineView mv3 = MachineView{
-            MachineSpaceCoordinate{1_n, 1_n}, start_invariant_mv};
+        MachineView mv0 =
+            MachineView{MachineSpaceCoordinate{0_n, 0_n}, start_invariant_mv};
+        MachineView mv1 =
+            MachineView{MachineSpaceCoordinate{0_n, 1_n}, start_invariant_mv};
+        MachineView mv2 =
+            MachineView{MachineSpaceCoordinate{1_n, 0_n}, start_invariant_mv};
+        MachineView mv3 =
+            MachineView{MachineSpaceCoordinate{1_n, 1_n}, start_invariant_mv};
 
         MachineMapping device_mapping = MachineMapping{{
             {layer0, mv0},
@@ -210,8 +212,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("all the same device") {
-        MachineView mv = MachineView{
-            MachineSpaceCoordinate{0_n, 0_n}, start_invariant_mv};
+        MachineView mv =
+            MachineView{MachineSpaceCoordinate{0_n, 0_n}, start_invariant_mv};
 
         MachineMapping device_mapping = MachineMapping{{
             {layer0, mv},

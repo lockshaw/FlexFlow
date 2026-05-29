@@ -54,9 +54,9 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{},
-          },
+            MachineView2dProjection{
+                /*dimensions=*/{},
+            },
         },
     };
 
@@ -66,14 +66,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  /*stride=*/stride_t{1_p},
-                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        /*stride=*/stride_t{1_p},
+                        /*projection=*/
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -83,14 +84,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  /*stride=*/stride_t{2_p},
-                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        /*stride=*/stride_t{2_p},
+                        /*projection=*/
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -100,14 +102,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                  /*stride=*/stride_t{1_p},
-                  /*projection=*/MachineSpecificationDimension::INTER_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        /*stride=*/stride_t{1_p},
+                        /*projection=*/
+                        MachineSpecificationDimension::INTER_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -737,14 +740,15 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*device_idx=*/0_n,
           },
           StartInvariantMachineView{
-            MachineView2dProjection{
-              /*dimensions=*/{
-                  MachineViewDimension{
-                      /*stride=*/stride_t{1_p},
-                      /*projection=*/MachineSpecificationDimension::INTER_NODE,
+              MachineView2dProjection{
+                  /*dimensions=*/{
+                      MachineViewDimension{
+                          /*stride=*/stride_t{1_p},
+                          /*projection=*/
+                          MachineSpecificationDimension::INTER_NODE,
+                      },
                   },
               },
-            },
           },
       };
 

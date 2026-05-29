@@ -49,8 +49,8 @@ ControllerTaskResult
                                                  precondition);
 
   return ControllerTaskResult{
-    std::unique_ptr<ControllerTaskArgs>(raw_ptr),
-    event,
+      std::unique_ptr<ControllerTaskArgs>(raw_ptr),
+      event,
   };
 }
 

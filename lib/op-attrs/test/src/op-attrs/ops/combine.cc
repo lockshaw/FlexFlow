@@ -1,7 +1,7 @@
 #include "op-attrs/ops/combine.h"
+#include "op-attrs/operator_task_space.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
-#include "op-attrs/operator_task_space.h"
 
 using namespace ::FlexFlow;
 
@@ -61,30 +61,32 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(CombineAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("get_output_parallel_dim_degrees(CombineAttrs, "
+            "ParallelTensorDimDegrees)") {
     CombineAttrs attrs = CombineAttrs{
         /*combine_dim=*/ff_dim_t{0_n},
         /*combine_degree=*/3_ge2,
     };
 
     ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
-      SumDegree{2_p},
-      DiscardCopyDegree{1_p},
-      FFOrdered<positive_int>{
-        6_p,
-        3_p,
-      },
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            6_p,
+            3_p,
+        },
     };
 
-    ParallelTensorDimDegrees result = get_output_parallel_dim_degrees(attrs, input_degrees);
+    ParallelTensorDimDegrees result =
+        get_output_parallel_dim_degrees(attrs, input_degrees);
 
     ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-      SumDegree{2_p},
-      DiscardCopyDegree{1_p},
-      FFOrdered<positive_int>{
-        2_p,
-        3_p,
-      },
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            2_p,
+            3_p,
+        },
     };
 
     CHECK(result == correct);
@@ -97,23 +99,23 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
-      SumDegree{2_p},
-      DiscardCopyDegree{1_p},
-      FFOrdered<positive_int>{
-        4_p,
-        2_p,
-      },
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            4_p,
+            2_p,
+        },
     };
 
     OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
-      MinimalDimDomain<operator_task_space_dim_idx_t>{
-        std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{
-          {operator_task_space_dim_idx_t{0_n}, 2_ge2},
-          {operator_task_space_dim_idx_t{1_n}, 4_ge2},
-          {operator_task_space_dim_idx_t{2_n}, 2_ge2},
-        },
-      });
+        MinimalDimDomain<operator_task_space_dim_idx_t>{
+            std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{
+                {operator_task_space_dim_idx_t{0_n}, 2_ge2},
+                {operator_task_space_dim_idx_t{1_n}, 4_ge2},
+                {operator_task_space_dim_idx_t{2_n}, 2_ge2},
+            },
+        });
 
     CHECK(result == correct);
   }

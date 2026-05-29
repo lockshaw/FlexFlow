@@ -1,5 +1,6 @@
 #include "utils/graph/views/views.h"
 #include "utils/containers/flatmap.h"
+#include "utils/containers/set_of.h"
 #include "utils/containers/transform.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/digraph/directed_edge_query.h"
@@ -7,7 +8,6 @@
 #include "utils/graph/query_set.h"
 #include "utils/graph/undirected/algorithms/make_undirected_edge.h"
 #include "utils/graph/undirected/undirected_edge_query.h"
-#include "utils/containers/set_of.h"
 namespace FlexFlow {
 
 UndirectedSubgraphView::UndirectedSubgraphView(
@@ -22,7 +22,7 @@ UndirectedSubgraphView *UndirectedSubgraphView::clone() const {
 std::unordered_set<UndirectedEdge> UndirectedSubgraphView::query_edges(
     UndirectedEdgeQuery const &query) const {
   UndirectedEdgeQuery subgraph_query = UndirectedEdgeQuery{
-    query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
+      query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
   };
   return this->g.query_edges(query_intersection(query, subgraph_query));
 }
@@ -30,11 +30,10 @@ std::unordered_set<UndirectedEdge> UndirectedSubgraphView::query_edges(
 std::unordered_set<Node>
     UndirectedSubgraphView::query_nodes(NodeQuery const &query) const {
   NodeQuery subgraph_query = NodeQuery{
-    query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
+      query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
   };
 
-  return this->g.query_nodes(
-      query_intersection(query, subgraph_query));
+  return this->g.query_nodes(query_intersection(query, subgraph_query));
 }
 
 DiSubgraphView::DiSubgraphView(DiGraphView const &g,
@@ -44,8 +43,8 @@ DiSubgraphView::DiSubgraphView(DiGraphView const &g,
 std::unordered_set<DirectedEdge>
     DiSubgraphView::query_edges(DirectedEdgeQuery const &query) const {
   DirectedEdgeQuery subgraph_query = DirectedEdgeQuery{
-    query_set<Node>::match_values_in(set_of(this->subgraph_nodes)), 
-    query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
+      query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
+      query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
   };
   return this->g.query_edges(query_intersection(query, subgraph_query));
 }
@@ -53,11 +52,10 @@ std::unordered_set<DirectedEdge>
 std::unordered_set<Node>
     DiSubgraphView::query_nodes(NodeQuery const &query) const {
   NodeQuery subgraph_query = NodeQuery{
-    query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
+      query_set<Node>::match_values_in(set_of(this->subgraph_nodes)),
   };
 
-  return this->g.query_nodes(
-      query_intersection(query, subgraph_query));
+  return this->g.query_nodes(query_intersection(query, subgraph_query));
 }
 
 DiSubgraphView *DiSubgraphView::clone() const {

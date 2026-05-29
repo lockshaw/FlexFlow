@@ -2,6 +2,7 @@
 #include "utils/containers/are_disjoint.h"
 #include "utils/containers/extend.h"
 #include "utils/containers/set_minus.h"
+#include "utils/containers/set_of.h"
 #include "utils/containers/values.h"
 #include "utils/containers/vector_of.h"
 #include "utils/graph/algorithms.h"
@@ -16,7 +17,6 @@
 #include "utils/graph/digraph/algorithms/get_weakly_connected_components.h"
 #include "utils/graph/node/algorithms.h"
 #include <queue>
-#include "utils/containers/set_of.h"
 
 namespace FlexFlow {
 
@@ -55,8 +55,8 @@ std::optional<CompleteBipartiteCompositeDecomposition>
 
     std::unordered_set<DirectedEdge> from_head_to_tail =
         g.query_edges(DirectedEdgeQuery{
-          query_set<Node>::match_values_in(set_of(head)),
-          query_set<Node>::match_values_in(set_of(tail)),
+            query_set<Node>::match_values_in(set_of(head)),
+            query_set<Node>::match_values_in(set_of(tail)),
         });
 
     DiGraphView subgraph = get_subgraph(g, set_union(head, tail));

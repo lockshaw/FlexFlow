@@ -7,20 +7,20 @@ using namespace FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("series_combine") {
     MachineView machine_view_0 = MachineView{
-      /*start=*/MachineSpaceCoordinate{
-          /*node_idx=*/0_n,
-          /*device_idx=*/0_n,
-      },
-      StartInvariantMachineView{
-        MachineView2dProjection{
-          /*dimensions=*/{
-            MachineViewDimension{
-              stride_t{1_p},
-              MachineSpecificationDimension::INTRA_NODE,
-            },
-          },
+        /*start=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
         },
-      },
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
+            },
+        },
     };
 
     MachineView machine_view_1 = MachineView{
@@ -28,16 +28,16 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-      StartInvariantMachineView{
-        MachineView2dProjection{
-          /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     milliseconds_t pre_cost = 2.0_ms;
@@ -192,20 +192,20 @@ TEST_SUITE(FF_TEST_SUITE) {
 
   TEST_CASE("parallel_combine") {
     MachineView machine_view_0 = MachineView{
-      /*start=*/MachineSpaceCoordinate{
-          /*node_idx=*/0_n,
-          /*device_idx=*/0_n,
-      },
-      StartInvariantMachineView{
-        MachineView2dProjection{
-          /*dimensions=*/{
-            MachineViewDimension{
-              stride_t{1_p},
-              MachineSpecificationDimension::INTRA_NODE,
-            },
-          },
+        /*start=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
         },
-      },
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
+            },
+        },
     };
 
     MachineView machine_view_1 = MachineView{
@@ -214,14 +214,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
-              },
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
     };
 
@@ -295,15 +295,15 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*device_idx=*/0_n,
           },
           StartInvariantMachineView{
-            MachineView2dProjection{
-            /*dimensions=*/{
-              MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+              MachineView2dProjection{
+                  /*dimensions=*/{
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
               },
-            },
           },
-        },
       };
 
       MachineMappingResult result = parallel_combine(split, lhs, rhs);
@@ -347,15 +347,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/
-            {
-                MachineViewDimension{
-                    stride_t{1_p},
-                    MachineSpecificationDimension::INTRA_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/
+                {
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
                 },
             },
-          },
         },
     };
 
@@ -365,15 +365,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
-          MachineView2dProjection{
-            /*dimensions=*/{
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
-          },
         },
-      },
     };
 
     MachineMappingResult faster = MachineMappingResult{

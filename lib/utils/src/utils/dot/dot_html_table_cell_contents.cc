@@ -4,10 +4,10 @@
 namespace FlexFlow {
 
 DotHtmlTableCellContents::DotHtmlTableCellContents(std::string const &s)
-  : value(s) {}
+    : value(s) {}
 
 DotHtmlTableCellContents::DotHtmlTableCellContents(DotHtmlTable const &t)
-  : value(std::make_shared<DotHtmlTable>(t)) {}
+    : value(std::make_shared<DotHtmlTable>(t)) {}
 
 DotHtmlTable const &DotHtmlTableCellContents::require_nested() const {
   return *std::get<std::shared_ptr<DotHtmlTable>>(this->value);
@@ -25,7 +25,8 @@ bool DotHtmlTableCellContents::is_nested() const {
   return std::holds_alternative<std::shared_ptr<DotHtmlTable>>(this->value);
 }
 
-bool DotHtmlTableCellContents::operator==(DotHtmlTableCellContents const &other) const {
+bool DotHtmlTableCellContents::operator==(
+    DotHtmlTableCellContents const &other) const {
   if (this->is_simple() && other.is_simple()) {
     return this->require_simple() == other.require_simple();
   } else if (this->is_nested() && other.is_nested()) {
@@ -35,7 +36,8 @@ bool DotHtmlTableCellContents::operator==(DotHtmlTableCellContents const &other)
   }
 }
 
-bool DotHtmlTableCellContents::operator!=(DotHtmlTableCellContents const &other) const {
+bool DotHtmlTableCellContents::operator!=(
+    DotHtmlTableCellContents const &other) const {
   if (this->is_simple() && other.is_simple()) {
     return this->require_simple() != other.require_simple();
   } else if (this->is_nested() && other.is_nested()) {

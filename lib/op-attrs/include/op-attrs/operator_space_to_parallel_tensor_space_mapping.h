@@ -22,9 +22,9 @@ ParallelTensorDimDegrees get_parallel_tensor_space_for_mapping(
     OperatorSpaceToParallelTensorSpaceMapping const &);
 
 DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
-  get_projection_for_op_to_ptensor_identity_mapping(
-    OperatorTaskSpace const &operator_task_space,
-    ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
+    get_projection_for_op_to_ptensor_identity_mapping(
+        OperatorTaskSpace const &operator_task_space,
+        ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
 
 OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
     OperatorTaskSpace const &operator_task_space,

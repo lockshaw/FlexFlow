@@ -7,10 +7,10 @@ namespace FlexFlow {
 
 template <typename SlotName>
 bool kwarg_dataflow_graphs_are_isomorphic(
-  KwargDataflowGraphView<SlotName> const &lhs,
-  KwargDataflowGraphView<SlotName> const &rhs)
-{
-  std::optional<bidict<Node, Node>> found = find_isomorphism_between_kwarg_dataflow_graphs(lhs, rhs);
+    KwargDataflowGraphView<SlotName> const &lhs,
+    KwargDataflowGraphView<SlotName> const &rhs) {
+  std::optional<bidict<Node, Node>> found =
+      find_isomorphism_between_kwarg_dataflow_graphs(lhs, rhs);
 
   return found.has_value();
 }

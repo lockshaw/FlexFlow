@@ -7,8 +7,8 @@
 namespace FlexFlow {
 
 FlatMachineSpaceCoordinate
-  offset_flat_machine_space_coord_by(FlatMachineSpaceCoordinate const &coord,
-                                     FlatMachineSpaceOffset const &offset);
+    offset_flat_machine_space_coord_by(FlatMachineSpaceCoordinate const &coord,
+                                       FlatMachineSpaceOffset const &offset);
 
 } // namespace FlexFlow
 
