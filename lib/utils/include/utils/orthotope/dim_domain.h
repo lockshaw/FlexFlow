@@ -4,10 +4,12 @@
 #include "utils/containers/filter.h"
 #include "utils/containers/keys.h"
 #include "utils/containers/map_from_keys_and_values.h"
+#include "utils/containers/product.h"
 #include "utils/containers/restrict_keys.h"
 #include "utils/containers/set_minus.h"
 #include "utils/containers/sorted_by.h"
 #include "utils/containers/transform.h"
+#include "utils/containers/values.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/dim_domain.dtg.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
@@ -23,6 +25,11 @@ DimDomain<T> empty_dim_domain() {
 template <typename T>
 nonnegative_int dim_domain_num_dims(DimDomain<T> const &domain) {
   return num_elements(domain.dims);
+}
+
+template <typename T>
+positive_int dim_domain_volume(DimDomain<T> const &domain) {
+  return product(values(domain.dims));
 }
 
 template <typename T>

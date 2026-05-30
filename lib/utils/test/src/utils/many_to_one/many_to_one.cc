@@ -39,9 +39,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("at_r") {
-      std::unordered_set<int> result = m.at_r("two");
+      nonempty_unordered_set<int> result = m.at_r("two");
 
-      std::unordered_set<int> correct = {2, 20};
+      nonempty_unordered_set<int> correct = {2, 20};
 
       CHECK(result == correct);
     }

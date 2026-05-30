@@ -1,0 +1,18 @@
+namespace = "FlexFlow"
+name = "Uniqueness"
+type = "enum"
+features = [
+  "hash",
+  "json",
+  "rapidcheck",
+  "fmt",
+]
+
+[[values]]
+name = "LEFT_UNIQUE"
+
+[[values]]
+name = "RIGHT_UNIQUE"
+
+[[values]]
+name = "BIUNIQUE"

@@ -14,6 +14,7 @@
 #include "utils/hash/unordered_set.h"
 #include "utils/json/check_is_json_deserializable.h"
 #include "utils/json/check_is_json_serializable.h"
+#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <rapidcheck.h>
@@ -57,7 +58,12 @@ public:
 
     if (!found_r.has_value()) {
       this->m_l_to_r.insert({l, r});
-      this->m_r_to_l[r].insert(l);
+
+      if (contains_key(this->m_r_to_l, r)) {
+        this->m_r_to_l.at(r).insert(l);
+      } else {
+        this->m_r_to_l.insert({r, nonempty_unordered_set{{l}}});
+      }
     } else if (found_r.value() == r) {
       return;
     } else {
@@ -82,7 +88,7 @@ public:
     return this->m_l_to_r.at(l);
   }
 
-  std::unordered_set<L> const &at_r(R const &r) const {
+  nonempty_unordered_set<L> const &at_r(R const &r) const {
     return this->m_r_to_l.at(r);
   }
 
@@ -90,7 +96,7 @@ public:
     return keys(this->m_l_to_r);
   }
 
-  std::unordered_set<std::unordered_set<L>> left_groups() const {
+  std::unordered_set<nonempty_unordered_set<L>> left_groups() const {
     return unordered_set_of(values(this->m_r_to_l));
   }
 
@@ -102,13 +108,13 @@ public:
     return this->m_l_to_r;
   }
 
-  std::unordered_map<R, std::unordered_set<L>> const &r_to_l() const {
+  std::unordered_map<R, nonempty_unordered_set<L>> const &r_to_l() const {
     return this->m_r_to_l;
   }
 
 private:
   std::unordered_map<L, R> m_l_to_r;
-  std::unordered_map<R, std::unordered_set<L>> m_r_to_l;
+  std::unordered_map<R, nonempty_unordered_set<L>> m_r_to_l;
 
 private:
   std::tuple<decltype(m_l_to_r) const &, decltype(m_r_to_l) const &>
@@ -120,9 +126,9 @@ private:
 };
 
 template <typename L, typename R>
-std::unordered_map<std::unordered_set<L>, R>
+std::unordered_map<nonempty_unordered_set<L>, R>
     format_as(ManyToOne<L, R> const &m) {
-  std::unordered_map<std::unordered_set<L>, R> result;
+  std::unordered_map<nonempty_unordered_set<L>, R> result;
 
   for (R const &r : m.right_values()) {
     result.insert({m.at_r(r), r});
