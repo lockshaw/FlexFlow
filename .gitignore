@@ -1,5 +1,5 @@
-# tag files
-tags
+# ctags
+/tags
 
 # gdb history
 .gdb_history
