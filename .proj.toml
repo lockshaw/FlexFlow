@@ -8,7 +8,6 @@ cuda_launch_cmd = [
   "--",
 ]
 layout_ignore_paths = [
-  "lib/runtime",
   "lib/kernels",
   "lib/utils/test/common",
   "lib/compiler/ffi",
@@ -105,6 +104,10 @@ type = "bin"
 cuda = false
 
 [targets.substitution-to-dot]
+type = "bin"
+cuda = false
+
+[targets.sp-ization-benchmarking]
 type = "bin"
 cuda = false
 

@@ -31,12 +31,10 @@ LocalCostEstimator::LocalCostEstimator(
     Allocator &allocator,
     ProfilingSettings const &profiling_settings,
     device_handle_t const &device_handle,
-    FFIterationConfig const &iteration_config,
     device_id_t device_idx)
     : interconnect_specification(interconnect_specification),
       allocator(allocator), profiling_settings(profiling_settings),
-      device_handle(device_handle), iteration_config(iteration_config),
-      device_idx(device_idx) {}
+      device_handle(device_handle), device_idx(device_idx) {}
 
 static ComputationGraph computation_graph_for_local_cost_estimation(
     ComputationGraphOpAttrs const &op,
@@ -126,7 +124,6 @@ OpCostMetrics LocalCostEstimator::estimate_cost(
       /*allocator=*/allocator,
       /*profiling_settings=*/this->profiling_settings,
       /*device_handle=*/this->device_handle,
-      /*iteration_config=*/this->iteration_config,
       /*device_idx=*/this->device_idx);
 
   // execute layer
@@ -137,7 +134,6 @@ OpCostMetrics LocalCostEstimator::estimate_cost(
           instance,
           this->profiling_settings,
           this->device_handle,
-          this->iteration_config,
           this->device_idx);
   milliseconds_t fwd = fwd_timing.at(operator_layer_guid).value();
   std::unordered_map<dynamic_layer_guid_t, std::optional<milliseconds_t>>
@@ -145,7 +141,6 @@ OpCostMetrics LocalCostEstimator::estimate_cost(
           instance,
           this->profiling_settings,
           this->device_handle,
-          this->iteration_config,
           this->device_idx);
   milliseconds_t bwd = bwd_timing.at(operator_layer_guid).value();
 
@@ -186,13 +181,11 @@ CostEstimator get_local_cost_estimator(
     Allocator &allocator,
     ProfilingSettings const &profiling_settings,
     device_handle_t const &device_handle,
-    FFIterationConfig const &iteration_config,
     device_id_t device_idx) {
   return CostEstimator::create<LocalCostEstimator>(interconnect_specification,
                                                    allocator,
                                                    profiling_settings,
                                                    device_handle,
-                                                   iteration_config,
                                                    device_idx);
 }
 

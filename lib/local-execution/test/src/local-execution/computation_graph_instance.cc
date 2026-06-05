@@ -160,7 +160,6 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*allocator=*/allocator,
             /*profiling_settings=*/ProfilingSettings{0, 0},
             /*device_handle=*/ff_handle,
-            /*iteration_config=*/FFIterationConfig{1_p},
             /*device_idx=*/device_idx);
 
     // begin training loop
@@ -172,7 +171,6 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*instance=*/computation_graph_instance,
           /*profiling_settings=*/ProfilingSettings{0, 0},
           /*ff_handle=*/ff_handle,
-          /*iteration_config=*/FFIterationConfig{1_p},
           /*device_idx=*/device_idx);
       loss_values.push_back(copy_tensor_accessor_r(
           computation_graph_instance.get_loss_tensor_accessor().value(),
@@ -333,7 +331,6 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
             /*allocator=*/allocator,
             /*profiling_settings=*/ProfilingSettings{0, 0},
             /*device_handle=*/ff_handle,
-            /*iteration_config=*/FFIterationConfig{1_p},
             /*device_idx=*/device_idx);
 
     // begin training loop
@@ -347,7 +344,6 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           /*instance=*/computation_graph_instance,
           /*profiling_settings=*/ProfilingSettings{0, 0},
           /*ff_handle=*/ff_handle,
-          /*iteration_config=*/FFIterationConfig{1_p},
           /*device_idx=*/device_idx);
       loss_values.push_back(copy_tensor_accessor_r(
           computation_graph_instance.get_loss_tensor_accessor().value(),
@@ -455,14 +451,12 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
               /*allocator=*/allocator,
               /*profiling_settings=*/ProfilingSettings{0, 1},
               /*device_handle=*/ff_handle,
-              /*iteration_config=*/FFIterationConfig{1_p},
               /*device_idx=*/device_idx);
 
       perform_all_passes_for_computation_graph_instance(
           /*instance=*/computation_graph_instance,
           /*profiling_settings=*/ProfilingSettings{0, 0},
           /*ff_handle=*/ff_handle,
-          /*iteration_config=*/FFIterationConfig{1_p},
           /*device_idx=*/device_idx);
       assert_unwrap(computation_graph_instance.get_loss_tensor_accessor());
     };

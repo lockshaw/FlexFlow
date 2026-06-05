@@ -10,6 +10,7 @@
 #include "utils/hash-utils.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/overload.h"
+#include "utils/record_formatter.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {

@@ -23,8 +23,6 @@
 #include "utils/containers/filtermap_keys.h"
 #include "utils/containers/filtrans.h"
 #include "utils/containers/flatmap.h"
-#include "utils/containers/get_only.h"
-#include "utils/containers/map_values.h"
 #include "utils/containers/map_values2.h"
 #include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/set_difference.h"

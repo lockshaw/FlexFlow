@@ -7,6 +7,7 @@
 #include "utils/containers/transform.h"
 #include "utils/graph/dataflow_graph/algorithms/dataflow_graph_data.dtg.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/kwarg_dataflow_graph_data.dtg.h"
+#include "utils/nonempty_unordered_set/nonempty_unordered_set.h"
 #include "utils/one_to_many/one_to_many_transform_values.h"
 
 namespace FlexFlow {

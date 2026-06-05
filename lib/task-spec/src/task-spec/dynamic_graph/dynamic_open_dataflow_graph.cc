@@ -25,6 +25,7 @@
 #include "utils/graph/labelled_kwarg_dataflow_graph/algorithms/labelled_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_open_dataflow_graph/algorithms/find_isomorphism.h"
 #include "utils/graph/labelled_open_kwarg_dataflow_graph/algorithms/find_isomorphism_between_labelled_open_kwarg_dataflow_graphs.h"
+#include "utils/graph/labelled_open_kwarg_dataflow_graph/algorithms/labelled_open_kwarg_dataflow_graph_view_as_dot.h"
 #include "utils/graph/labelled_open_kwarg_dataflow_graph/labelled_open_kwarg_dataflow_graph.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/graph/open_dataflow_graph/algorithms/get_inputs.h"
@@ -487,11 +488,6 @@ std::string
         "(" +
         join_strings(concat_vectors(replica_dim_entries, shard_entries), ", ") +
         ")");
-  };
-
-  auto render_parallel_tensor_mapping =
-      [](ParallelTensorMapping const &mapping) -> RecordFormatter {
-    return mk_record_for_map(mapping.raw.as_unordered_map());
   };
 
   std::function<nlohmann::json(DynamicValueAttrs const &)> render_value_label =

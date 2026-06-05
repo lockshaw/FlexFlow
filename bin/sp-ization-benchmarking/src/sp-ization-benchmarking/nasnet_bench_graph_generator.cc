@@ -1,18 +1,28 @@
 #include "sp-ization-benchmarking/nasnet_bench_graph_generator.h"
+#include "sp-ization-benchmarking/distributions.h"
+#include "utils/containers/all_of.h"
+#include "utils/containers/repeat.h"
+#include "utils/containers/transform.h"
+#include "utils/graph/algorithms.h"
+#include "utils/graph/digraph/algorithms/get_edges.h"
+#include "utils/graph/digraph/algorithms/get_initial_nodes.h"
+#include "utils/graph/digraph/algorithms/get_terminal_nodes.h"
+#include "utils/graph/digraph/algorithms/is_acyclic.h"
+#include "utils/graph/digraph/algorithms/materialize_digraph_view.h"
+#include "utils/graph/digraph/algorithms/transitive_reduction.h"
+#include "utils/graph/instances/adjacency_digraph.h"
+#include "utils/graph/node/algorithms.h"
+#include "utils/graph/series_parallel/digraph_generation.h"
 
 namespace FlexFlow {
 
+static const nonnegative_int MIN_NODES = nonnegative_int{6};
+static const nonnegative_int MAX_NODES = nonnegative_int{8};
+static const nonnegative_int MIN_EDGES = nonnegative_int{8};
+static const nonnegative_int MAX_EDGES = nonnegative_int{11};
+static const nonnegative_int NUM_CELLS = nonnegative_int{9};
+
 using AdjacencyMatrix = std::vector<std::vector<bool>>;
-
-const nonnegative_int MIN_NODES = nonnegative_int{6};
-const nonnegative_int MAX_NODES = nonnegative_int{8};
-const nonnegative_int MIN_EDGES = nonnegative_int{8};
-const nonnegative_int MAX_EDGES = nonnegative_int{11};
-const nonnegative_int NUM_CELLS = nonnegative_int{9};
-
-struct NasNetBenchConfig {
-  AdjacencyMatrix adjacency_matrix;
-};
 
 bool is_valid_config(NasNetBenchConfig const &config) {
   AdjacencyMatrix const &matrix = config.adjacency_matrix;
@@ -112,5 +122,6 @@ DiGraph generate_nasnet_bench_network() {
       transform(repeat(NUM_CELLS, generate_nasnet_bench_cell),
                 [](DiGraph const &cell) -> DiGraphView { return cell; }));
   return g;
+}
 
 } // namespace FlexFlow

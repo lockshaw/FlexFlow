@@ -1,4 +1,16 @@
 #include "sp-ization-benchmarking/sample_graphs.h"
+#include "sp-ization-benchmarking/distributions.h"
+#include "sp-ization-benchmarking/sample_graphs.h"
+#include "utils/containers/get_only.h"
+#include "utils/containers/transform.h"
+#include "utils/graph/algorithms.h"
+#include "utils/graph/digraph/algorithms/get_initial_nodes.h"
+#include "utils/graph/digraph/algorithms/get_terminal_nodes.h"
+#include "utils/graph/digraph/algorithms/is_2_terminal_dag.h"
+#include "utils/graph/digraph/algorithms/is_acyclic.h"
+#include "utils/graph/instances/adjacency_digraph.h"
+#include "utils/graph/series_parallel/digraph_generation.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
@@ -37,9 +49,9 @@ std::tuple<DiGraph, Node, Node> make_normal_taso_nasnet_cell() {
     g.add_edge(DirectedEdge{a, concat.at(0)});
   }
 
-  assert(get_terminal_nodes(g).size() == 1);
-  assert(get_initial_nodes(g).size() == 2);
-  assert(is_acyclic(g));
+  ASSERT(get_terminal_nodes(g).size() == 1);
+  ASSERT(get_initial_nodes(g).size() == 2);
+  ASSERT(is_acyclic(g));
   return {g, inputs.at(0), inputs.at(1)};
 }
 
@@ -79,9 +91,9 @@ std::tuple<DiGraph, Node, Node> make_reduction_taso_nasnet_cell() {
 
   add_edges(g, edges);
 
-  assert(get_terminal_nodes(g).size() == 1);
-  assert(get_initial_nodes(g).size() == 2);
-  assert(is_acyclic(g));
+  ASSERT(get_terminal_nodes(g).size() == 1);
+  ASSERT(get_initial_nodes(g).size() == 2);
+  ASSERT(is_acyclic(g));
   return {g, inputs.at(0), inputs.at(1)};
 }
 
@@ -118,9 +130,9 @@ DiGraph make_full_taso_nasnet(size_t num_reduction_cells, size_t N) {
     outputting.pop_front();
     g.add_edge(DirectedEdge{a, b});
 
-    assert(is_2_terminal_dag(g));
-    assert(inputting.size() == 0);
-    assert(outputting.size() == 3);
+    ASSERT(is_2_terminal_dag(g));
+    ASSERT(inputting.size() == 0);
+    ASSERT(outputting.size() == 3);
   }
   return g;
 }
@@ -170,7 +182,7 @@ DiGraph make_diamond() {
   return g;
 }
 
-DiGraph make_fully_connected(std::vector<size_t> layer_sizes) {
+DiGraph make_fully_connected(std::vector<size_t> const &layer_sizes) {
   DiGraph g = DiGraph::create<AdjacencyDiGraph>();
   std::vector<std::vector<Node>> layers =
       transform(layer_sizes, [&g](size_t size) { return add_nodes(g, size); });
@@ -191,8 +203,8 @@ DiGraph make_fully_connected(std::vector<size_t> layer_sizes) {
 
 DiGraph make_parallel_chains(size_t chain_length, size_t chain_num) {
   DiGraph g = DiGraph::create<AdjacencyDiGraph>();
-  assert(chain_length >= 3);
-  assert(chain_num >= 1);
+  ASSERT(chain_length >= 3);
+  ASSERT(chain_num >= 1);
   std::vector<std::vector<Node>> chains;
 
   for (size_t i = 0; i < chain_num; i++) {
@@ -230,7 +242,7 @@ DiGraph make_sample_dag_1() {
                                      DirectedEdge{n.at(2), n.at(6)},
                                      DirectedEdge{n.at(6), n.at(5)}};
   add_edges(g, edges);
-  assert(is_2_terminal_dag(g));
+  ASSERT(is_2_terminal_dag(g));
   return g;
 }
 
@@ -329,7 +341,7 @@ DiGraph make_2_terminal_random_dag(size_t num_nodes, float p, size_t step) {
   for (Node s : sinks) {
     g.add_edge(DirectedEdge{s, sink});
   }
-  assert(is_2_terminal_dag(g));
+  ASSERT(is_2_terminal_dag(g));
   return g;
 }
 

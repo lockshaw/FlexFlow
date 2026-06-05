@@ -44,7 +44,6 @@ TEST_SUITE(FF_TEST_SUITE) {
         ProfilingSettings{/*warmup_iters=*/0,
                           /*measure_iters=*/1},
         /*device_handle=*/ff_handle,
-        /*iteration_config=*/FFIterationConfig{1_p},
         /*device_idx=*/device_idx);
 
     SUBCASE("estimate operator cost") {
@@ -118,7 +117,6 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         ProfilingSettings{/*warmup_iters=*/0,
                           /*measure_iters=*/1},
         /*device_handle=*/ff_handle,
-        /*iteration_config=*/FFIterationConfig{1_p},
         /*device_idx=*/device_idx);
 
     SUBCASE("estimate operator cost") {
