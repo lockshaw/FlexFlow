@@ -1,5 +1,7 @@
 #include "pcg/machine_compute_specification.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "utils/containers/transform.h"
+#include "utils/overload.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -34,6 +36,12 @@ positive_int get_num_devices_per_node(MachineComputeSpecification const &ms,
     default:
       PANIC("Unknown DeviceType", device_type);
   }
+}
+
+bool is_valid_machine_space_coordinate(MachineComputeSpecification const &ms,
+                                       MachineSpaceCoordinate const &coord) {
+  return is_valid_machine_space_coordinate_in_slice(
+      compute_slice_from_specification(ms), coord);
 }
 
 } // namespace FlexFlow

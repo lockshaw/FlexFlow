@@ -1,5 +1,6 @@
 #include "compiler/machine_mapping/machine_view.h"
 #include "compiler/machine_mapping/machine_view_dimension.dtg.h"
+#include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/stride_t.dtg.h"
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
@@ -9,10 +10,13 @@
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_role.dtg.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "pcg/machine_compute_specification.h"
 #include "pcg/machine_space_coordinate.dtg.h"
+#include "pcg/machine_space_offset.dtg.h"
 #include "pcg/machine_specification.dtg.h"
 #include "pcg/machine_specification_dimension.dtg.h"
+#include "pcg/unresolved_machine_space_offset.h"
 #include "utils/bidict/generate_bidict.h"
 #include "utils/containers/contains.h"
 #include "utils/containers/count.h"
@@ -30,22 +34,14 @@
 namespace FlexFlow {
 
 nonnegative_int mv_get_expected_task_space_num_dims(MachineView const &mv) {
-  return num_elements(get_strides(mv));
+  return num_elements(mv_get_strides(mv));
 }
 
-std::vector<stride_t> get_strides(MachineView const &mv) {
-  return transform(mv.dimensions,
-                   [](MachineViewDimension const &dim) { return dim.stride; });
+std::vector<stride_t> mv_get_strides(MachineView const &mv) {
+  return start_invariant_mv_get_strides(mv.start_invariant);
 }
 
-std::vector<MachineSpecificationDimension>
-    get_dimensions(MachineView const &mv) {
-  return transform(mv.dimensions, [](MachineViewDimension const &dim) {
-    return dim.projection;
-  });
-}
-
-MachineView machine_view_from_strides_and_machine_spec_dimensions(
+MachineView machine_view_2d_from_strides_and_machine_spec_dimensions(
     MachineSpaceCoordinate const &start,
     std::vector<stride_t> const &strides,
     std::vector<MachineSpecificationDimension> const &dims) {
@@ -54,13 +50,21 @@ MachineView machine_view_from_strides_and_machine_spec_dimensions(
       strides, dims, [](stride_t s, MachineSpecificationDimension d) {
         return MachineViewDimension{s, d};
       });
-  return MachineView{start, dimensions};
+  return MachineView{
+      start,
+      StartInvariantMachineView{
+          MachineView2dProjection{
+              dimensions,
+          },
+      },
+  };
 }
 
-MachineSpaceCoordinate
-    get_machine_space_coordinate(OperatorTaskSpace const &task_space,
-                                 MachineView const &machine_view,
-                                 TaskSpaceCoordinate const &coord) {
+MachineSpaceCoordinate get_machine_space_coordinate(
+    OperatorTaskSpace const &task_space,
+    MachineView const &machine_view,
+    MachineComputeResourceSlice const &machine_space,
+    TaskSpaceCoordinate const &coord) {
 
   ASSERT(mv_get_expected_task_space_num_dims(machine_view) ==
              op_task_space_num_dims(task_space),
@@ -71,79 +75,28 @@ MachineSpaceCoordinate
          task_space_coord_num_dims(coord));
   ASSERT(operator_task_space_contains_coord(task_space, coord));
 
-  auto get_dimension_indices_for_dimension =
-      [&](MachineSpecificationDimension dimension)
-      -> std::vector<nonnegative_int> {
-    std::vector<MachineSpecificationDimension> mv_dimensions =
-        get_dimensions(machine_view);
-    return filter(nonnegative_range(num_elements(mv_dimensions)),
-                  [&](nonnegative_int idx) {
-                    return mv_dimensions.at(idx.unwrap_nonnegative()) ==
-                           dimension;
-                  });
-  };
+  UnresolvedMachineSpaceOffset offset =
+      get_machine_space_offset(task_space, machine_view.start_invariant, coord);
 
-  auto compute_index =
-      [&](nonnegative_int start_idx,
-          std::vector<nonnegative_int> const &dimension_indices) {
-        std::vector<stride_t> mv_strides = get_strides(machine_view);
-
-        std::vector<positive_int> sizes =
-            transform(dimension_indices, [&](nonnegative_int i) {
-              return (task_space.degrees.dims.at(i.unwrap_nonnegative()) *
-                      mv_strides.at(i.unwrap_nonnegative()).unwrapped)
-                  .positive_int_from_int_ge_two();
-            });
-        std::vector<nonnegative_int> coord_points =
-            transform(dimension_indices, [&](nonnegative_int i) {
-              return coord.orthotope_coord.raw.at(i.unwrap_nonnegative());
-            });
-        std::vector<positive_int> strides =
-            transform(dimension_indices, [&](nonnegative_int i) {
-              return mv_strides.at(i.unwrap_nonnegative()).unwrapped;
-            });
-
-        std::vector<positive_int> coeffs =
-            scanl(sizes, 1_p, std::multiplies<positive_int>());
-
-        nonnegative_int index = start_idx;
-        for (auto [coeff, coord_point, stride] :
-             zip3(coeffs, coord_points, strides)) {
-          index += coeff * coord_point * stride;
-        }
-        return index;
-      };
-
-  std::vector<nonnegative_int> inter_dimension_indices =
-      get_dimension_indices_for_dimension(
-          MachineSpecificationDimension::INTER_NODE);
-  std::vector<nonnegative_int> intra_dimension_indices =
-      get_dimension_indices_for_dimension(
-          MachineSpecificationDimension::INTRA_NODE);
-
-  nonnegative_int node_idx =
-      compute_index(machine_view.start.node_idx, inter_dimension_indices);
-  nonnegative_int device_idx =
-      compute_index(machine_view.start.device_idx, intra_dimension_indices);
-  MachineSpaceCoordinate ms_coord = MachineSpaceCoordinate{
-      node_idx, device_idx};
-
-  return ms_coord;
+  return offset_machine_space_coordinate_by_unresolved(
+      machine_space, machine_view.start, offset);
 }
 
 TaskSpaceCoordinate mv_task_space_coord_for_machine_space_coord(
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view,
     OperatorTaskSpace const &operator_task_space,
     MachineSpaceCoordinate const &machine_space_coord) {
   OperatorSpaceToMachineSpaceMapping mapping =
-      get_coordinate_mapping_for_machine_view(operator_task_space,
-                                              machine_view);
+      get_coordinate_mapping_for_machine_view(
+          operator_task_space, machine_space, machine_view);
 
   return mapping.raw_mapping.at_r(machine_space_coord);
 }
 
 OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
     OperatorTaskSpace const &operator_task_space,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view) {
 
   return OperatorSpaceToMachineSpaceMapping{
@@ -153,15 +106,17 @@ OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
             return get_machine_space_coordinate(
                 /*operator_task_space=*/operator_task_space,
                 /*machine_view=*/machine_view,
+                /*machine_space=*/machine_space,
                 /*task_space_coordinate=*/task_space_coord);
           }),
       /*operator_task_space=*/operator_task_space,
   };
 }
 
-std::unordered_set<MachineSpaceCoordinate>
-    get_machine_space_coordinates(OperatorTaskSpace const &task_space,
-                                  MachineView const &machine_view) {
+std::unordered_set<MachineSpaceCoordinate> get_machine_space_coordinates(
+    OperatorTaskSpace const &task_space,
+    MachineComputeResourceSlice const &machine_space,
+    MachineView const &machine_view) {
 
   ASSERT(op_task_space_num_dims(task_space) ==
          mv_get_expected_task_space_num_dims(machine_view));
@@ -169,36 +124,38 @@ std::unordered_set<MachineSpaceCoordinate>
   return transform(get_task_space_coordinates(task_space),
                    [&](TaskSpaceCoordinate const &coord) {
                      return get_machine_space_coordinate(
-                         task_space, machine_view, coord);
+                         task_space, machine_view, machine_space, coord);
                    });
 }
 
-MachineView make_1d_machine_view(MachineSpaceCoordinate const &start,
-                                 MachineSpecificationDimension const &dim,
-                                 stride_t stride) {
+MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
+                                       MachineSpecificationDimension const &dim,
+                                       stride_t stride) {
 
-  return machine_view_from_strides_and_machine_spec_dimensions(
+  return machine_view_2d_from_strides_and_machine_spec_dimensions(
       start, {stride}, {dim});
 }
 
 MachineView
     make_single_device_machine_view(MachineSpaceCoordinate const &coord) {
-  return machine_view_from_strides_and_machine_spec_dimensions(coord, {}, {});
+  return machine_view_2d_from_strides_and_machine_spec_dimensions(
+      coord, {}, {});
 }
 
 static OperatorAtomicTaskShardBinding
     operator_atomic_task_shard_binding_from_machine_view(
-        ComputationGraphOpAttrs const &op_attrs,
+        PCGOperatorAttrs const &op_attrs,
         std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_dim_degrees,
         MachineView const &machine_view,
+        MachineComputeResourceSlice const &machine_space,
         MachineSpaceCoordinate const &machine_space_coord) {
   OperatorTaskSpace op_task_space =
       get_operator_task_space(op_attrs, inputs_dim_degrees);
 
   TaskSpaceCoordinate task_space_coord =
       mv_task_space_coord_for_machine_space_coord(
-          machine_view, op_task_space, machine_space_coord);
+          machine_space, machine_view, op_task_space, machine_space_coord);
 
   std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
       mappings = get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
@@ -222,9 +179,10 @@ static OperatorAtomicTaskShardBinding
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &op_attrs,
+    PCGOperatorAttrs const &op_attrs,
     std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
         &inputs_dim_degrees,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view) {
 
   OperatorTaskSpace op_task_space =
@@ -232,12 +190,14 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
 
   return MappedOperatorTaskGroup{
       generate_bidict(
-          get_machine_space_coordinates(op_task_space, machine_view),
+          get_machine_space_coordinates(
+              op_task_space, machine_space, machine_view),
           [&](MachineSpaceCoordinate const &machine_space_coord) {
             return operator_atomic_task_shard_binding_from_machine_view(
                 op_attrs,
                 inputs_dim_degrees,
                 machine_view,
+                machine_space,
                 machine_space_coord);
           }),
   };

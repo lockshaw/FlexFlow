@@ -1,0 +1,24 @@
+namespace = "FlexFlow"
+name = "UnresolvedMachineSpaceOffset"
+type = "variant"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  # "rapidcheck",
+  "fmt",
+]
+
+includes = [
+  "pcg/flat_machine_space_offset.dtg.h",
+  "pcg/machine_space_offset.dtg.h",
+]
+
+[[values]]
+type = "::FlexFlow::FlatMachineSpaceOffset"
+key = "flat"
+
+[[values]]
+type = "::FlexFlow::MachineSpaceOffset"
+key = "2d"

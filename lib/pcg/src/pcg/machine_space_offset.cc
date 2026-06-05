@@ -1,5 +1,6 @@
 #include "pcg/machine_space_offset.h"
 #include "utils/exception.h"
+#include "utils/overload.h"
 
 namespace FlexFlow {
 
@@ -18,6 +19,20 @@ MachineSpaceOffset get_machine_space_offset_from_coordinate(
           start.node_idx.unwrap_nonnegative(),
       /*device_offset=*/coord.device_idx.unwrap_nonnegative() -
           start.device_idx.unwrap_nonnegative(),
+  };
+}
+
+MachineSpaceCoordinate
+    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &start,
+                                       MachineSpaceOffset const &offset) {
+  return MachineSpaceCoordinate{
+      /*node_idx=*/nonnegative_int{
+          start.node_idx.unwrap_nonnegative() + offset.node_offset,
+      },
+      /*device_idx=*/
+      nonnegative_int{
+          start.device_idx.unwrap_nonnegative() + offset.device_offset,
+      },
   };
 }
 

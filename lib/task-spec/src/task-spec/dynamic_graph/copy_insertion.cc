@@ -23,6 +23,7 @@
 #include "utils/containers/filtermap_keys.h"
 #include "utils/containers/filtrans.h"
 #include "utils/containers/flatmap.h"
+#include "utils/containers/set_intersection.h"
 #include "utils/containers/map_values2.h"
 #include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/set_difference.h"
@@ -69,8 +70,7 @@ static std::pair<DynamicValueAttrs, DynamicValueAttrs>
 
   // Exclude the point shared between the input and output mappings, because
   // those will not result in actual copies once shard expansion is performed
-  std::unordered_set<
-      std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
+  std::unordered_set<std::pair<ParallelTensorSpaceCoordinate, device_id_t>>
       remove = set_intersection(input_mapping, output_mapping);
 
   DynamicValueAttrs filtered_input = input;

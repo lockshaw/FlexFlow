@@ -21,5 +21,5 @@ name = "stride"
 type = "::FlexFlow::stride_t"
 
 [[fields]]
-name = "projection"
+name = "target_dim"
 type = "::FlexFlow::MachineSpecificationDimension"

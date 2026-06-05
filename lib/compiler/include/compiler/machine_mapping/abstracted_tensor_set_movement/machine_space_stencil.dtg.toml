@@ -12,11 +12,16 @@ features = [
 includes = [
   "op-attrs/operator_task_space.dtg.h",
   "compiler/machine_mapping/machine_view.dtg.h",
+  "pcg/machine_compute_resource_slice.dtg.h",
 ]
 
 [[fields]]
 name = "operator_task_space"
 type = "::FlexFlow::OperatorTaskSpace"
+
+[[fields]]
+name = "machine_space"
+type = "::FlexFlow::MachineComputeResourceSlice"
 
 [[fields]]
 name = "machine_view"

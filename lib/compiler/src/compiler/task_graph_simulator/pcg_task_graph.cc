@@ -5,6 +5,7 @@
 #include "compiler/machine_mapping/machine_view.dtg.h"
 #include "compiler/machine_mapping/machine_view.h"
 #include "op-attrs/operator_task_space.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "pcg/machine_specification.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_edge.dtg.h"
@@ -33,16 +34,21 @@ PCGTaskGraph
     Node node = digraph.add_node();
     node_to_task.equate(node, PCGTask{op_key});
     node_to_layer.equate(node, layer);
-    node_to_devices[node] =
-        get_machine_space_coordinates(get_operator_task_space(pcg, layer),
-                       machine_mapping.machine_views.at(layer));
+    node_to_devices[node] = get_machine_space_coordinates(
+        get_operator_task_space(pcg, layer),
+        compute_slice_from_specification(machine_spec),
+        machine_mapping.machine_views.at(layer));
   }
 
   for (ParallelComputationGraphEdge const &edge : get_edges(pcg)) {
     MachineView src_mv = machine_mapping.machine_views.at(get_src_layer(edge));
     MachineView dst_mv = machine_mapping.machine_views.at(get_dst_layer(edge));
-    TensorSetMovement movement =
-        get_tensor_set_movement_from_pcg_edge(edge, pcg, src_mv, dst_mv);
+    TensorSetMovement movement = get_tensor_set_movement_from_pcg_edge(
+        edge,
+        pcg,
+        compute_slice_from_specification(machine_spec),
+        src_mv,
+        dst_mv);
     Node node = digraph.add_node();
     node_to_task.equate(node, PCGTask{movement});
     node_to_devices[node] = {};

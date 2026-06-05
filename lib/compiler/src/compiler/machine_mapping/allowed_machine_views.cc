@@ -34,7 +34,7 @@ bool is_valid_machine_view(MachineView const &mv,
   }
 
   MachineSpaceCoordinate maximum_device_coord = get_machine_space_coordinate(
-      task_space, mv, get_task_space_maximum_coordinate(task_space));
+      task_space, mv, ms, get_task_space_maximum_coordinate(task_space));
 
   return is_valid_machine_space_coordinate_in_slice(ms, maximum_device_coord);
 }
@@ -91,13 +91,11 @@ static std::unordered_set<MachineView>
 
   auto get_candidate_starts = [](MachineComputeResourceSlice const &slice)
       -> std::unordered_set<MachineSpaceCoordinate> {
-
     std::unordered_set<MachineSpaceCoordinate> result;
     for (nonnegative_int node_idx : nonnegative_range(slice.num_nodes)) {
       for (nonnegative_int device_idx :
            nonnegative_range(slice.num_gpus_per_node)) {
-        result.insert(
-            MachineSpaceCoordinate{node_idx, device_idx});
+        result.insert(MachineSpaceCoordinate{node_idx, device_idx});
       }
     }
     return result;
@@ -138,7 +136,7 @@ static std::unordered_set<MachineView>
       for (std::vector<MachineSpecificationDimension> const &dims :
            candidate_dimensions) {
         machine_views.insert(
-            machine_view_from_strides_and_machine_spec_dimensions(
+            machine_view_2d_from_strides_and_machine_spec_dimensions(
                 start, strides.raw_strides, dims));
       }
     }

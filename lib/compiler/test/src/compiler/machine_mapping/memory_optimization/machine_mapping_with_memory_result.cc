@@ -105,11 +105,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -119,11 +122,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -133,6 +139,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*backward_runtime=*/2_ms,
         /*memory_usage=*/2_bytes,
     };
+
     MachineMappingWithMemoryResult pre = MachineMappingWithMemoryResult{{
         ParetoOptimalMachineMapping{
             pre_cost,
@@ -306,11 +313,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -320,11 +330,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -334,6 +347,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*backward_runtime=*/2_ms,
         /*memory_usage=*/2_bytes,
     };
+
     MachineMappingWithMemoryResult lhs = MachineMappingWithMemoryResult{{
         ParetoOptimalMachineMapping{
             lhs_cost,
@@ -407,11 +421,14 @@ TEST_SUITE(FF_TEST_SUITE) {
               /*node_idx=*/3_n,
               /*device_idx=*/0_n,
           },
-          /*dimensions=*/
-          {
-              MachineViewDimension{
-                  stride_t{2_p},
-                  MachineSpecificationDimension::INTRA_NODE,
+          StartInvariantMachineView{
+              MachineView2dProjection{
+                  /*dimensions=*/{
+                      MachineViewDimension{
+                          stride_t{2_p},
+                          MachineSpecificationDimension::INTRA_NODE,
+                      },
+                  },
               },
           },
       };
@@ -460,11 +477,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{1_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -474,11 +494,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{2_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{2_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };
@@ -488,11 +511,14 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*node_idx=*/0_n,
             /*device_idx=*/0_n,
         },
-        /*dimensions=*/
-        {
-            MachineViewDimension{
-                stride_t{4_p},
-                MachineSpecificationDimension::INTRA_NODE,
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{4_p},
+                        MachineSpecificationDimension::INTRA_NODE,
+                    },
+                },
             },
         },
     };

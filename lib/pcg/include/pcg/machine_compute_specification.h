@@ -14,6 +14,9 @@ positive_int get_num_devices(MachineComputeSpecification const &ms,
 positive_int get_num_devices_per_node(MachineComputeSpecification const &ms,
                                       DeviceType const &device_type);
 
+bool is_valid_machine_space_coordinate(MachineComputeSpecification const &ms,
+                                       MachineSpaceCoordinate const &coord);
+
 } // namespace FlexFlow
 
 #endif

@@ -16,6 +16,7 @@ TensorSetMovement empty_tensor_set_movement() {
 TensorSetMovement get_tensor_set_movement_from_pcg_edge(
     ParallelComputationGraphEdge const &edge,
     ParallelComputationGraph const &pcg,
+    MachineComputeResourceSlice const &machine_space,
     MachineView const &src_mv,
     MachineView const &dst_mv) {
 
@@ -38,11 +39,13 @@ TensorSetMovement get_tensor_set_movement_from_pcg_edge(
 
   MachineSpaceStencil src_machine_stencil = MachineSpaceStencil{
       /*operator_task_space=*/get_operator_task_space(pcg, src),
+      /*machine_space=*/machine_space,
       /*machine_view=*/src_mv,
   };
 
   MachineSpaceStencil dst_machine_stencil = MachineSpaceStencil{
       /*operator_task_space=*/get_operator_task_space(pcg, dst),
+      /*machine_space=*/machine_space,
       /*machine_view=*/dst_mv,
   };
 

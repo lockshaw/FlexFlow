@@ -15,9 +15,10 @@ MachineMapping combine_disjoint_mappings(MachineMapping const &,
 
 bool nodes_are_disjoint(MachineMapping const &m1, MachineMapping const &m2);
 
-MappedParallelComputationGraph
-    mapped_pcg_from_pcg_and_mapping(ParallelComputationGraph const &,
-                                    MachineMapping const &);
+MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
+    ParallelComputationGraph const &,
+    MachineComputeSpecification const &machine_compute_spec,
+    MachineMapping const &);
 
 std::optional<MachineMapping> get_machine_mapping_from_machine_mapping_result(
     PCGBinarySPDecomposition const &, MachineMappingResult const &);
