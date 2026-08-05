@@ -1,10 +1,12 @@
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
+#include "utils/archetypes/jsonable_ordered_value_type.h"
 #include "utils/archetypes/ordered_value_type.h"
 #include "utils/archetypes/value_type.h"
 
-using ::FlexFlow::ordered_value_type;
-using L = ordered_value_type<0>;
-using R = ordered_value_type<1>;
+namespace FlexFlow {
+
+using L = jsonable_ordered_value_type<0>;
+using R = jsonable_ordered_value_type<1>;
 
 namespace FlexFlow {
 
