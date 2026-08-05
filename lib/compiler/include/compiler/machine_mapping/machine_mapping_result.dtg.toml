@@ -3,8 +3,10 @@ name = "MachineMappingResult"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json",
 ]
 
 includes = [
@@ -14,6 +16,7 @@ includes = [
 
 src_includes = [
   "utils/fmt/optional.h",
+  "utils/json/optional.h",
 ]
 
 [[fields]]

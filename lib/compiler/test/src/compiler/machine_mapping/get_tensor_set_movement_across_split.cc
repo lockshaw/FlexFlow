@@ -94,8 +94,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*num_devices=*/2_p,
     };
 
-    MachineView pre_mv1 =
-        MachineView{/*start=*/MachineSpaceCoordinate{
+    MachineView pre_mv1 = MachineView{
+          /*start=*/MachineSpaceCoordinate{
                         /*node_idx=*/0_n,
                         /*device_idx=*/0_n,
                     },
@@ -108,7 +108,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                 },
                             },
                         },
-                    }};
+                    },};
 
     MachineView pre_mv2 = MachineView{
         /*start=*/MachineSpaceCoordinate{

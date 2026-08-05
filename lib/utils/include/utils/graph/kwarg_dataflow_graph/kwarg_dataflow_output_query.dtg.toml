@@ -6,6 +6,7 @@ features = [
   "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 template_params = [
@@ -19,7 +20,7 @@ includes = [
 ]
 
 src_includes = [
-  "utils/fmt/unordered_set.h",
+  "utils/fmt/set.h",
 ]
 
 [[fields]]

@@ -17,6 +17,7 @@
 #include "substitutions/pcg_pattern.h"
 #include "substitutions/sub_parallel_computation_graph.h"
 #include "substitutions/substitution_builder.h"
+#include "test/utils/doctest/check_kv.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/require_only_key.h"
 #include <doctest/doctest.h>
@@ -41,10 +42,10 @@ parallel_tensor_guid_t
 parallel_tensor_guid_t add_single_output_layer(
     ParallelComputationGraph &pcg,
     ParallelLayerAttrs const &layer_attrs,
-    std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const &inputs,
-    std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const &weights,
-    std::optional<std::unordered_map<TensorSlotName, CreateGrad>> const
-        &outputs = std::nullopt) {
+    std::map<TensorSlotName, parallel_tensor_guid_t> const &inputs,
+    std::map<TensorSlotName, parallel_tensor_guid_t> const &weights,
+    std::optional<std::map<TensorSlotName, CreateGrad>> const &outputs =
+        std::nullopt) {
 
   return get_single_output(
       add_parallel_layer(pcg, layer_attrs, inputs, weights, outputs));
@@ -141,7 +142,7 @@ parallel_tensor_guid_t add_linear_layer(
 
   ASSERT(t_bias.has_value() == linear_attrs.use_bias);
 
-  std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
+  std::map<TensorSlotName, parallel_tensor_guid_t> weights = {
       {TensorSlotName::WEIGHT, t_weight},
   };
 
@@ -184,7 +185,7 @@ parallel_tensor_guid_t add_conv2d_layer(
 
   ASSERT(bias.has_value() == conv2d_attrs.use_bias);
 
-  std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
+  std::map<TensorSlotName, parallel_tensor_guid_t> weights = {
       {TensorSlotName::FILTER, t_filter},
   };
 
@@ -212,8 +213,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_replicate_linear_combine, use_bias = false") {
-    positive_int num_dims = 1_p;
-    int_ge_two degree = 2_ge2;
+    positive_int num_dims = 2_p;
+    positive_int degree = 2_ge2;
     std::string linear_match = "linear_match";
 
     Substitution sub = create_replicate_linear_combine(num_dims, degree, false);
@@ -248,9 +249,6 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*repartition_degree=*/degree,
     };
 
-    ff_dim_t combine_dim =
-        ff_dim_t{nonnegative_int{num_dims.int_from_positive_int() - 1}};
-
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
@@ -282,7 +280,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_input_activations,
@@ -305,7 +303,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       parallel_tensor_guid_t t_partitioned_projection_weight =
           add_partition_layer(pcg,
-                              ff_dim_t{1_n},
+                              ff_dim_t{0_n},
                               degree,
                               add_weight_layer(pcg, projection_weight_shape));
 
@@ -316,7 +314,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                            t_partitioned_projection_weight);
 
       parallel_tensor_guid_t t_combine =
-          add_combine_layer(pcg, combine_dim, degree, t_replicated_input);
+          add_combine_layer(pcg, ff_dim_t{1_n}, degree, t_replicated_linear);
 
       return sub_pcg_from_full_pcg(pcg);
     }();
@@ -325,8 +323,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_replicate_linear_combine, use_bias = true") {
-    positive_int num_dims = 1_p;
-    int_ge_two degree = 2_ge2;
+    positive_int num_dims = 2_p;
+    positive_int degree = 2_ge2;
     std::string linear_match = "linear_match";
 
     Substitution sub = create_replicate_linear_combine(num_dims, degree, true);
@@ -355,9 +353,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape bias_shape =
         throw_if_unexpected(get_bias_shape(linear_attrs, input_shape));
 
-    ff_dim_t combine_dim =
-        ff_dim_t{nonnegative_int{num_dims.int_from_positive_int() - 1}};
-
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
@@ -369,7 +364,12 @@ TEST_SUITE(FF_TEST_SUITE) {
       parallel_tensor_guid_t t_bias = add_weight_layer(pcg, bias_shape);
 
       parallel_tensor_guid_t t_linear = add_linear_layer(
-          pcg, linear_attrs, t_input, t_projection_weight, t_bias);
+          /*pcg=*/pcg,
+          /*linear_attrs=*/linear_attrs,
+          /*t_input=*/t_input,
+          /*t_weight=*/t_projection_weight,
+          /*t_bias=*/t_bias,
+          /*name=*/linear_match);
 
       return sub_pcg_from_full_pcg(pcg);
     }();
@@ -383,14 +383,13 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_layer_inputs(original_pcg, match_layer)
               .at(TensorSlotName::WEIGHT);
       open_parallel_tensor_guid_t match_layer_input_bias =
-          get_layer_inputs(original_pcg, match_layer)
-              .at(TensorSlotName::OUTPUT);
+          get_layer_inputs(original_pcg, match_layer).at(TensorSlotName::BIAS);
 
       return PCGPatternMatch{
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_input_activations,
@@ -417,22 +416,22 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       parallel_tensor_guid_t t_partitioned_projection_weight =
           add_partition_layer(pcg,
-                              ff_dim_t{1_n},
+                              ff_dim_t{0_n},
                               degree,
                               add_weight_layer(pcg, projection_weight_shape));
 
       parallel_tensor_guid_t t_partitioned_bias = add_partition_layer(
-          pcg, ff_dim_t{1_n}, degree, add_weight_layer(pcg, bias_shape));
+          pcg, ff_dim_t{0_n}, degree, add_weight_layer(pcg, bias_shape));
 
       parallel_tensor_guid_t t_replicated_linear =
           add_linear_layer(pcg,
                            linear_attrs,
-                           t_replicated_linear,
+                           t_replicated_input,
                            t_partitioned_projection_weight,
                            t_partitioned_bias);
 
       parallel_tensor_guid_t t_combine =
-          add_combine_layer(pcg, combine_dim, degree, t_replicated_linear);
+          add_combine_layer(pcg, ff_dim_t{1_n}, degree, t_replicated_linear);
 
       return sub_pcg_from_full_pcg(pcg);
     }();
@@ -441,8 +440,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_partition_linear_combine, use_bias = false") {
-    positive_int num_dims = 1_p;
-    int_ge_two degree = 2_ge2;
+    positive_int num_dims = 2_p;
+    positive_int degree = 2_ge2;
     std::string linear_match = "linear_match";
 
     Substitution sub = create_partition_linear_combine(num_dims, degree, false);
@@ -467,9 +466,6 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     TensorShape projection_weight_shape =
         throw_if_unexpected(get_projection_shape(linear_attrs, input_shape));
-
-    ff_dim_t combine_dim =
-        ff_dim_t{nonnegative_int{num_dims.int_from_positive_int() - 1}};
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -502,7 +498,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_input_activations,
@@ -520,8 +516,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     SubParallelComputationGraph correct = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
 
-      parallel_tensor_guid_t t_input = add_input_layer(pcg, input_shape);
-
       parallel_tensor_guid_t t_partitioned_input = add_partition_layer(
           pcg, ff_dim_t{0_n}, degree, add_input_layer(pcg, input_shape));
 
@@ -536,17 +530,19 @@ TEST_SUITE(FF_TEST_SUITE) {
                            t_replicated_projection_weight);
 
       parallel_tensor_guid_t t_combine =
-          add_combine_layer(pcg, combine_dim, degree, t_partitioned_input);
+          add_combine_layer(pcg, ff_dim_t{0_n}, degree, t_partitioned_linear);
 
       return sub_pcg_from_full_pcg(pcg);
     }();
 
-    CHECK(sub_pcgs_are_isomorphic(result, correct));
+    CHECK_MESSAGE(sub_pcgs_are_isomorphic(result, correct),
+                  check_kv("result", sub_pcg_as_dot(result)),
+                  check_kv("correct", sub_pcg_as_dot(correct)));
   }
 
   TEST_CASE("create_partition_linear_combine, use_bias = true") {
-    positive_int num_dims = 1_p;
-    int_ge_two degree = 2_ge2;
+    positive_int num_dims = 2_p;
+    positive_int degree = 2_ge2;
     std::string linear_match = "linear_match";
 
     Substitution sub = create_partition_linear_combine(num_dims, degree, true);
@@ -574,9 +570,6 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     TensorShape bias_shape =
         throw_if_unexpected(get_bias_shape(linear_attrs, input_shape));
-
-    ff_dim_t combine_dim =
-        ff_dim_t{nonnegative_int{num_dims.int_from_positive_int() - 1}};
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -612,7 +605,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_input_activations,
@@ -652,7 +645,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                            t_replicated_bias);
 
       parallel_tensor_guid_t t_combine =
-          add_combine_layer(pcg, combine_dim, degree, t_partitioned_linear);
+          add_combine_layer(pcg, ff_dim_t{0_n}, degree, t_partitioned_linear);
 
       return sub_pcg_from_full_pcg(pcg);
     }();
@@ -708,7 +701,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_reduced_shape(get_parallel_tensor_shape(pcg, t_input));
 
       TensorShape projection_weight_shape =
-          get_weight_shapes(conv2d_attrs, casted_input_shape)
+          conv2d_get_weight_shapes(conv2d_attrs, casted_input_shape)
               .at(TensorSlotName::FILTER);
 
       parallel_tensor_guid_t t_projection_weight =
@@ -737,7 +730,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_input_activations,
@@ -763,7 +756,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_reduced_shape(get_parallel_tensor_shape(pcg, t_input));
 
       TensorShape weight_shape =
-          get_weight_shapes(conv2d_attrs, casted_input_shape)
+          conv2d_get_weight_shapes(conv2d_attrs, casted_input_shape)
               .at(TensorSlotName::FILTER);
 
       parallel_tensor_guid_t t_replicated_weight =
@@ -853,7 +846,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_query,
@@ -974,7 +967,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   match_layer_query,
@@ -1069,7 +1062,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{{
               PatternInput{KwargDataflowGraphInput{0}},
               match_layer_input,
           }},
@@ -1158,7 +1151,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   add_match_layer_lhs,
@@ -1245,7 +1238,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           bidict<PatternNode, parallel_layer_guid_t>{
               {PatternNode{Node{0}}, match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{{
               PatternInput{KwargDataflowGraphInput{0}},
               match_layer_input,
           }},
@@ -1324,7 +1317,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               {PatternNode{Node{0}}, mm_match_layer},
               {PatternNode{Node{1}}, relu_match_layer},
           },
-          std::unordered_map<PatternInput, open_parallel_tensor_guid_t>{
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
               {
                   PatternInput{KwargDataflowGraphInput{0}},
                   mm_match_layer_input_activations,

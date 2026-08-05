@@ -39,8 +39,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       VARIADIC_TENSORS,
     };
 
-    std::unordered_map<TaskTensorParameter, DynamicTensorAccessor>
-        tensor_slots_backing = {
+    std::map<TaskTensorParameter, DynamicTensorAccessor> tensor_slots_backing =
+        {
             {
                 make_task_tensor_parameter_fwd(TensorSlotName::LHS_INPUT),
                 DynamicTensorAccessor{input},
@@ -51,9 +51,12 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         };
 
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::CPU,
+    global_device_id_t device_idx = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::CPU,
     };
 
     LocalTaskArgumentAccessor acc = LocalTaskArgumentAccessor{

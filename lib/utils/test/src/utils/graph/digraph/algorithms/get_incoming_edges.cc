@@ -7,7 +7,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("get_incoming_edges") {
+  TEST_CASE("get_incoming_edges (DiGraph)") {
     DiGraph g = DiGraph::create<AdjacencyDiGraph>();
 
     std::vector<Node> n = add_nodes(g, 6);
@@ -23,7 +23,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                   DirectedEdge{n.at(4), n.at(1)},
               });
 
-    std::unordered_map<Node, std::unordered_set<DirectedEdge>> correct = {
+    std::map<Node, std::set<DirectedEdge>> correct = {
         {n.at(0), {}},
         {n.at(1),
          {DirectedEdge{n.at(0), n.at(1)}, DirectedEdge{n.at(4), n.at(1)}}},
@@ -34,7 +34,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         {n.at(5), {DirectedEdge{n.at(1), n.at(5)}}},
     };
 
-    std::unordered_map<Node, std::unordered_set<DirectedEdge>> result =
+    std::map<Node, std::set<DirectedEdge>> result =
         get_incoming_edges(g, get_nodes(g));
 
     CHECK(result == correct);

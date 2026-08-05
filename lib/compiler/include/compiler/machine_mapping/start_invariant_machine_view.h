@@ -35,7 +35,7 @@ UnresolvedMachineSpaceOffset
                              StartInvariantMachineView const &mv,
                              TaskSpaceCoordinate const &coordinates);
 
-std::unordered_set<UnresolvedMachineSpaceOffset>
+std::set<UnresolvedMachineSpaceOffset>
     get_machine_space_offsets(OperatorTaskSpace const &task,
                               StartInvariantMachineView const &mv);
 

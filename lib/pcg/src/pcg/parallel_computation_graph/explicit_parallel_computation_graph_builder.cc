@@ -31,7 +31,7 @@ parallel_tensor_guid_t
                          layer_attrs,
                          {},
                          {},
-                         std::unordered_map<TensorSlotName, CreateGrad>{
+                         std::map<TensorSlotName, CreateGrad>{
                              {
                                  TensorSlotName::OUTPUT,
                                  CreateGrad::NO,
@@ -57,7 +57,7 @@ parallel_tensor_guid_t
                          layer_attrs,
                          {},
                          {},
-                         std::unordered_map<TensorSlotName, CreateGrad>{
+                         std::map<TensorSlotName, CreateGrad>{
                              {
                                  TensorSlotName::OUTPUT,
                                  CreateGrad::YES,
@@ -153,7 +153,7 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::conv2d(
 
   ParallelTensorShape input_shape = this->get_shape(input);
 
-  std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
+  std::map<TensorSlotName, parallel_tensor_guid_t> weights = {
       {
           TensorSlotName::FILTER,
           filter,
@@ -201,7 +201,7 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::dense(
 
   ParallelTensorShape input_shape = this->get_shape(input);
 
-  std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights = {
+  std::map<TensorSlotName, parallel_tensor_guid_t> weights = {
       {
           TensorSlotName::WEIGHT,
           projector,
@@ -280,12 +280,12 @@ ParallelTensorShape ExplicitParallelComputationGraphBuilder::get_shape(
   return get_parallel_tensor_attrs(this->pcg, t).shape;
 }
 
-std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
+std::map<TensorSlotName, parallel_tensor_guid_t>
     ExplicitParallelComputationGraphBuilder::add_layer(
         ParallelLayerAttrs const &layer,
-        std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const
+        std::map<TensorSlotName, parallel_tensor_guid_t> const
             &inputs,
-        std::unordered_map<TensorSlotName, parallel_tensor_guid_t> const
+        std::map<TensorSlotName, parallel_tensor_guid_t> const
             &weights) {
 
   ASSERT(are_disjoint(keys(inputs), keys(weights)));

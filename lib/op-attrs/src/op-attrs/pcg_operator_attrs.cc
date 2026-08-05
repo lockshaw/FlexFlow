@@ -39,12 +39,12 @@ PCGOperatorAttrs pcg_op_attrs_from_compgraph_op_attrs(
 
 void pcg_op_attrs_check_incoming_tensor_roles(
     PCGOperatorAttrs const &op_attrs,
-    std::unordered_set<TensorSlotName> const &input_slots,
-    std::unordered_set<TensorSlotName> const &weight_slots) {
-  std::unordered_map<TensorSlotName, IncomingTensorRole> correct =
+    std::set<TensorSlotName> const &input_slots,
+    std::set<TensorSlotName> const &weight_slots) {
+  std::map<TensorSlotName, IncomingTensorRole> correct =
       get_incoming_tensor_roles(op_attrs);
 
-  std::unordered_map<TensorSlotName, IncomingTensorRole> current =
+  std::map<TensorSlotName, IncomingTensorRole> current =
       binary_merge_disjoint_maps(
           generate_map(
               input_slots,

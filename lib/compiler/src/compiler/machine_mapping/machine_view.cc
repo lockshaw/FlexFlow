@@ -113,7 +113,7 @@ OperatorSpaceToMachineSpaceMapping get_coordinate_mapping_for_machine_view(
   };
 }
 
-std::unordered_set<MachineSpaceCoordinate> get_machine_space_coordinates(
+std::set<MachineSpaceCoordinate> get_machine_space_coordinates(
     OperatorTaskSpace const &task_space,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view) {
@@ -145,7 +145,7 @@ MachineView
 static OperatorAtomicTaskShardBinding
     operator_atomic_task_shard_binding_from_machine_view(
         PCGOperatorAttrs const &op_attrs,
-        std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+        std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_dim_degrees,
         MachineView const &machine_view,
         MachineComputeResourceSlice const &machine_space,
@@ -157,11 +157,11 @@ static OperatorAtomicTaskShardBinding
       mv_task_space_coord_for_machine_space_coord(
           machine_space, machine_view, op_task_space, machine_space_coord);
 
-  std::unordered_map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
-      mappings = get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
+  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping> mappings =
+      get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
 
-  std::unordered_map<TensorSlotName, ParallelTensorSpaceCoordinate>
-      ptensor_coords = generate_map(
+  std::map<TensorSlotName, ParallelTensorSpaceCoordinate> ptensor_coords =
+      generate_map(
           keys(inputs_dim_degrees),
           [&](TensorSlotName const &slot_name)
               -> ParallelTensorSpaceCoordinate {
@@ -180,7 +180,7 @@ static OperatorAtomicTaskShardBinding
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
     PCGOperatorAttrs const &op_attrs,
-    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const
         &inputs_dim_degrees,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view) {

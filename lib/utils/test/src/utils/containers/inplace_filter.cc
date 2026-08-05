@@ -13,10 +13,10 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE_TEMPLATE("inplace_filter(T, F)",
                      T,
                      std::vector<int>,
-                     std::unordered_set<std::string>,
                      std::set<std::string>,
-                     std::unordered_map<int, int>,
-                     std::map<int, std::string>) {
+                     std::unordered_set<std::string>,
+                     std::map<int, int>,
+                     std::unordered_map<int, std::string>) {
     RC_SUBCASE("inplace_filter returns empty for predicate always_false",
                [](T t) {
                  auto always_false = [](auto const &) { return false; };
@@ -42,40 +42,21 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(input == correct);
   }
 
-  TEST_CASE("inplace_filter(std::unordered_set &, F)") {
-    std::unordered_set<int> input = {1, 2, 3, 4, 5, 6, 7, 8};
-    auto predicate = [](int x) { return x % 2 == 0; };
-
-    inplace_filter(input, predicate);
-    std::unordered_set<int> correct = {2, 4, 6, 8};
-    CHECK(input == correct);
-  }
-
   TEST_CASE("inplace_filter(std::set &, F)") {
-    std::set<int> input = {3, 2, 5, 8};
+    std::set<int> input = {1, 2, 3, 4, 5, 6, 7, 8};
     auto predicate = [](int x) { return x % 2 == 0; };
 
     inplace_filter(input, predicate);
-    std::set<int> correct = {2, 8};
+    std::set<int> correct = {2, 4, 6, 8};
     CHECK(input == correct);
   }
 
-  TEST_CASE("inplace_filter(std::unordered_map &, F)") {
-    std::unordered_map<int, std::string> input = {
-        {3, "4"},
-        {1, "1"},
-        {2, "9"},
-        {4, "4"},
-    };
-    auto predicate = [](std::pair<int, std::string> const &x) {
-      return std::to_string(x.first) == x.second;
-    };
+  TEST_CASE("inplace_filter(std::unordered_set &, F)") {
+    std::unordered_set<int> input = {3, 2, 5, 8};
+    auto predicate = [](int x) { return x % 2 == 0; };
 
     inplace_filter(input, predicate);
-    std::unordered_map<int, std::string> correct = {
-        {1, "1"},
-        {4, "4"},
-    };
+    std::unordered_set<int> correct = {2, 8};
     CHECK(input == correct);
   }
 
@@ -87,11 +68,30 @@ TEST_SUITE(FF_TEST_SUITE) {
         {4, "4"},
     };
     auto predicate = [](std::pair<int, std::string> const &x) {
-      return std::to_string(x.first) != x.second;
+      return std::to_string(x.first) == x.second;
     };
 
     inplace_filter(input, predicate);
     std::map<int, std::string> correct = {
+        {1, "1"},
+        {4, "4"},
+    };
+    CHECK(input == correct);
+  }
+
+  TEST_CASE("inplace_filter(std::unordered_map &, F)") {
+    std::unordered_map<int, std::string> input = {
+        {3, "4"},
+        {1, "1"},
+        {2, "9"},
+        {4, "4"},
+    };
+    auto predicate = [](std::pair<int, std::string> const &x) {
+      return std::to_string(x.first) != x.second;
+    };
+
+    inplace_filter(input, predicate);
+    std::unordered_map<int, std::string> correct = {
         {3, "4"},
         {2, "9"},
     };

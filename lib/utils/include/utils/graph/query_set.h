@@ -5,19 +5,19 @@
 #include "utils/containers/contains.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/filter_keys.h"
+#include "utils/containers/filter_values.h"
 #include "utils/containers/set_intersection.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/set_union.h"
 #include "utils/containers/transform.h"
-#include "utils/containers/unordered_set_of.h"
 #include "utils/exception.h"
-#include "utils/fmt/unordered_set.h"
+#include "utils/fmt/set.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/set.h"
+#include "utils/json/optional.h"
 #include "utils/optional.h"
 #include <optional>
 #include <set>
-#include <unordered_set>
 
 namespace FlexFlow {
 
@@ -68,10 +68,10 @@ struct query_set {
     return !q.query.has_value();
   }
 
-  friend std::unordered_set<T> allowed_values(query_set const &q) {
+  friend std::set<T> allowed_values(query_set const &q) {
     assert(!is_matchall(q));
     std::set<T> query_value = q.query.value();
-    return std::unordered_set<T>{query_value.begin(), query_value.end()};
+    return std::set<T>{query_value.begin(), query_value.end()};
   }
 
   std::optional<std::set<T>> const &value() const {
@@ -108,19 +108,18 @@ bool includes(query_set<T> const &q, T const &v) {
 }
 
 template <typename T, typename C>
-std::unordered_set<T> apply_query(query_set<T> const &q, C const &c) {
+std::set<T> apply_query(query_set<T> const &q, C const &c) {
   if (is_matchall(q)) {
-    return unordered_set_of(c);
+    return set_of(c);
   }
 
-  return filter(unordered_set_of(c),
-                [&](T const &t) { return includes(q, t); });
+  return filter(set_of(c), [&](T const &t) { return includes(q, t); });
 }
 
 template <typename C,
           typename K = typename C::key_type,
           typename V = typename C::mapped_type>
-std::unordered_map<K, V> query_keys(query_set<K> const &q, C const &m) {
+std::map<K, V> query_keys(query_set<K> const &q, C const &m) {
   if (is_matchall(q)) {
     return m;
   }
@@ -130,7 +129,7 @@ std::unordered_map<K, V> query_keys(query_set<K> const &q, C const &m) {
 template <typename C,
           typename K = typename C::key_type,
           typename V = typename C::mapped_type>
-std::unordered_map<K, V> query_values(query_set<V> const &q, C const &m) {
+std::map<K, V> query_values(query_set<V> const &q, C const &m) {
   if (is_matchall(q)) {
     return m;
   }
@@ -158,6 +157,12 @@ query_set<T> query_union(query_set<T> const &lhs, query_set<T> const &rhs) {
     return query_set<T>::match_values_in(
         set_of(set_union(allowed_values(lhs), allowed_values(rhs))));
   }
+}
+
+template <typename T>
+void to_json(nlohmann::json &j, query_set<T> const &q) {
+  j["__type"] = "query_set";
+  j["value"] = q.value();
 }
 
 } // namespace FlexFlow

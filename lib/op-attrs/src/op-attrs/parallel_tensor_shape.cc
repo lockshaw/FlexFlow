@@ -1,5 +1,5 @@
 #include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/ff_ordered/enumerate.h"
+#include "op-attrs/ff_ordered/ff_ordered_enumerate.h"
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/extend.h"
@@ -19,8 +19,7 @@ num_ptensor_shard_dims_t num_shard_dims(ParallelTensorShape const &s) {
   return num_shard_dims(s.dims);
 }
 
-std::unordered_set<ReplicaParallelDim>
-    replica_dims(ParallelTensorShape const &s) {
+std::set<ReplicaParallelDim> replica_dims(ParallelTensorShape const &s) {
   return replica_dims(s.dims);
 }
 
@@ -139,9 +138,9 @@ ParallelDim get_parallel_dim_at_idx(ParallelTensorShape const &shape,
       }});
 }
 
-std::unordered_set<parallel_tensor_dim_idx_t>
+std::set<parallel_tensor_dim_idx_t>
     get_parallel_tensor_dim_indices(ParallelTensorShape const &shape) {
-  std::unordered_set<parallel_tensor_dim_idx_t> indices;
+  std::set<parallel_tensor_dim_idx_t> indices;
   extend(indices,
          transform(nonnegative_range(num_shard_dims(shape.dims).value),
                    [](nonnegative_int idx) {
@@ -158,7 +157,7 @@ RecordFormatter dot_for_parallel_tensor_shape(ParallelTensorShape const &s) {
   result << mk_kv_record("sum_degree", get_sum_degree(s))
          << mk_kv_record("discard_copy_degree", get_discard_copy_degree(s));
 
-  for (auto const &[idx, dim] : enumerate(s.dims.shard_dims)) {
+  for (auto const &[idx, dim] : ff_ordered_enumerate(s.dims.shard_dims)) {
     result << mk_kv_record(fmt::to_string(idx),
                            fmt::format("{}/{}", dim.size, dim.degree));
   }

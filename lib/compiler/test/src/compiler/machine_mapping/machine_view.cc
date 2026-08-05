@@ -4,7 +4,7 @@
 #include "pcg/gpu_id_t.dtg.h"
 #include "test/utils/doctest/fmt/optional.h"
 #include "utils/containers/transform.h"
-#include "utils/fmt/unordered_set.h"
+#include "utils/fmt/set.h"
 #include "utils/fmt/vector.h"
 #include <doctest/doctest.h>
 
@@ -14,10 +14,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("mv_get_expected_task_space_num_dims") {
     MachineView mv = MachineView{
         MachineSpaceCoordinate{
-            MachineSpaceCoordinate{
-                /*node_idx=*/0_n,
-                /*device_idx=*/0_n,
-            },
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
         },
         StartInvariantMachineView{
             MachineView2dProjection{
@@ -268,10 +266,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       MachineView mv = MachineView{
           MachineSpaceCoordinate{
-              MachineSpaceCoordinate{
-                  /*node_idx=*/0_n,
-                  /*device_idx=*/1_n,
-              },
+              /*node_idx=*/0_n,
+              /*device_idx=*/1_n,
           },
           StartInvariantMachineView{
               MachineView2dProjection{
@@ -392,13 +388,13 @@ TEST_SUITE(FF_TEST_SUITE) {
       SUBCASE("Task with TaskSpaceCoordinate = (0,0)") {
         TaskSpaceCoordinate coord = make_task_space_coordinate({0_n, 0_n});
 
+        MachineSpaceCoordinate result =
+            get_machine_space_coordinate(task, mv, machine_space, coord);
+
         MachineSpaceCoordinate correct = MachineSpaceCoordinate{
             /*node_idx=*/1_n,
             /*device_idx=*/2_n,
         };
-
-        MachineSpaceCoordinate result =
-            get_machine_space_coordinate(task, mv, machine_space, coord);
 
         CHECK(correct == result);
       }

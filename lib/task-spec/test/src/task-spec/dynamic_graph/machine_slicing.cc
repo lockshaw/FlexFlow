@@ -7,8 +7,8 @@ using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("perform_machine_slicing_for_invocation") {
     auto mk_device_id = [](nonnegative_int node_idx,
-                           nonnegative_int device_idx) -> device_id_t {
-      return device_id_t{
+                           nonnegative_int device_idx) -> global_device_id_t {
+      return global_device_id_t{
           MachineSpaceCoordinate{
               /*node_idx=*/node_idx,
               /*device_idx=*/device_idx,
@@ -33,9 +33,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
     };
 
-    device_id_t mc1 = mk_device_id(0_n, 0_n);
-    device_id_t mc2 = mk_device_id(2_n, 0_n);
-    device_id_t mc3 = mk_device_id(4_n, 0_n);
+    global_device_id_t mc1 = mk_device_id(0_n, 0_n);
+    global_device_id_t mc2 = mk_device_id(2_n, 0_n);
+    global_device_id_t mc3 = mk_device_id(4_n, 0_n);
 
     ParallelTensorSpaceCoordinate mc1_input_coord =
         mk_pt_coord(0_n, 0_n, 0_n, 0_n);
@@ -59,6 +59,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       return DynamicTensorSlot{
           /*slot_name=*/slot_name,
           /*slot_tensor_role=*/std::nullopt,
+          /*task_shard=*/std::nullopt,
       };
     };
 
@@ -75,6 +76,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               },
           }},
           /*parallel_tensor_shape=*/std::nullopt,
+          /*create_grad=*/std::nullopt,
           /*shard_coord=*/shard_coord,
           /*mapping=*/std::nullopt,
           /*accessor=*/std::nullopt,
@@ -91,13 +93,13 @@ TEST_SUITE(FF_TEST_SUITE) {
     DynamicValueAttrs graph_input2 =
         mk_value(1, TensorSlotName::OUTPUT, std::nullopt);
     DynamicValueAttrs invocation1_output1 =
-        mk_value(invocation1_id, TensorSlotName::OUTPUT_1, std::nullopt);
+        mk_value(invocation1_id, TensorSlotName::OUTPUT_01, std::nullopt);
     DynamicValueAttrs invocation1_output2 =
-        mk_value(invocation1_id, TensorSlotName::OUTPUT_2, std::nullopt);
+        mk_value(invocation1_id, TensorSlotName::OUTPUT_02, std::nullopt);
     DynamicValueAttrs invocation2_output1 =
-        mk_value(invocation2_id, TensorSlotName::OUTPUT_4, std::nullopt);
+        mk_value(invocation2_id, TensorSlotName::OUTPUT_04, std::nullopt);
     DynamicValueAttrs invocation3_output1 =
-        mk_value(invocation3_id, TensorSlotName::OUTPUT_1, std::nullopt);
+        mk_value(invocation3_id, TensorSlotName::OUTPUT_01, std::nullopt);
 
     DynamicNodeInvocation invocation1 = DynamicNodeInvocation{
         /*inputs=*/{
@@ -113,7 +115,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*node_attrs=*/
         DynamicNodeAttrs{
             /*task_type=*/std::nullopt,
-            /*device_coord=*/mc2,
+            /*device_ids=*/nonempty_set{mc2},
             /*mapping=*/std::nullopt,
             /*op_attrs=*/std::nullopt,
             /*layer_guid=*/
@@ -123,11 +125,11 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*outputs=*/
         {
             {
-                mk_slot(TensorSlotName::OUTPUT_1),
+                mk_slot(TensorSlotName::OUTPUT_01),
                 invocation1_output1,
             },
             {
-                mk_slot(TensorSlotName::OUTPUT_2),
+                mk_slot(TensorSlotName::OUTPUT_02),
                 invocation1_output2,
             },
         },
@@ -140,7 +142,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*node_attrs=*/
         DynamicNodeAttrs{
             /*task_type=*/std::nullopt,
-            /*device_coord=*/mc1,
+            /*device_coord=*/nonempty_set{mc1},
             /*mapping=*/std::nullopt,
             /*op_attrs=*/std::nullopt,
             /*layer_guid=*/
@@ -150,7 +152,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*outputs=*/
         {
             {
-                mk_slot(TensorSlotName::OUTPUT_4),
+                mk_slot(TensorSlotName::OUTPUT_04),
                 invocation2_output1,
             },
         },
@@ -174,7 +176,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*node_attrs=*/
         DynamicNodeAttrs{
             /*task_type=*/std::nullopt,
-            /*device_coord=*/mc2,
+            /*device_coord=*/nonempty_set{mc2},
             /*mapping=*/std::nullopt,
             /*op_attrs=*/std::nullopt,
             /*layer_guid=*/
@@ -184,7 +186,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*outputs=*/
         {
             {
-                mk_slot(TensorSlotName::OUTPUT_1),
+                mk_slot(TensorSlotName::OUTPUT_01),
                 invocation3_output1,
             },
         },
@@ -230,7 +232,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       DynamicOpenDataflowGraph correct =
           dynamic_open_dataflow_graph_from_invocation_set(
-              std::unordered_set<DynamicNodeInvocation>{});
+              std::set<DynamicNodeInvocation>{});
 
       CHECK(dynamic_open_dataflow_graphs_are_isomorphic(result, correct));
     }

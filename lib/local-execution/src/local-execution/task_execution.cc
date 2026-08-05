@@ -49,15 +49,15 @@ TaskArgumentAccessor make_task_argument_accessor_for_invocation(
     device_handle_t const &ff_handle,
     std::optional<PerDeviceOpState> const &per_device_op_state,
     std::optional<OptimizerAttrs> const &optimizer_attrs,
-    device_id_t device_idx) {
+    global_device_id_t device_idx) {
   auto make_param = [&](DynamicTensorSlot const &slot) {
     return make_task_tensor_parameter_from_dynamic_slot(slot, optimizer_attrs);
   };
   auto get_accessor = [](DynamicValueAttrs const &value) {
     return assert_unwrap(value.accessor);
   };
-  std::unordered_map<TaskTensorParameter, DynamicTensorAccessor>
-      tensor_slots_backing = binary_merge_disjoint_maps(
+  std::map<TaskTensorParameter, DynamicTensorAccessor> tensor_slots_backing =
+      binary_merge_disjoint_maps(
           map_keys_and_values(invocation.inputs, make_param, get_accessor),
           map_keys_and_values(invocation.outputs, make_param, get_accessor));
 
@@ -88,7 +88,7 @@ std::optional<milliseconds_t> execute_dynamic_node_invocation(
     device_handle_t const &ff_handle,
     std::optional<PerDeviceOpState> const &per_device_op_state,
     std::optional<OptimizerAttrs> const &optimizer_attrs,
-    device_id_t device_idx) {
+    global_device_id_t device_idx) {
   TaskArgumentAccessor arg_accessor =
       make_task_argument_accessor_for_invocation(
           /*invocation=*/invocation,

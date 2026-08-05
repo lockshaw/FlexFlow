@@ -102,7 +102,7 @@ UnresolvedMachineSpaceOffset get_machine_space_offset(
   });
 }
 
-std::unordered_set<UnresolvedMachineSpaceOffset> get_machine_space_offsets(
+std::set<UnresolvedMachineSpaceOffset> get_machine_space_offsets(
     OperatorTaskSpace const &task,
     StartInvariantMachineView const &start_inv_machine_view) {
   return transform(

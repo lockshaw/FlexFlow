@@ -1,6 +1,6 @@
 #include "op-attrs/ops/linear.h"
-#include "op-attrs/ff_ordered/slice.h"
-#include "op-attrs/ff_ordered/transform.h"
+#include "op-attrs/ff_ordered/ff_ordered_slice.h"
+#include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/initializers/kaiming_initializer_mode.h"
 #include "op-attrs/num_ptensor_shard_dims_t.h"
 #include "op-attrs/num_tensor_dims_t.h"
@@ -14,7 +14,7 @@
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/product.h"
-#include "utils/containers/unordered_set_of.h"
+#include "utils/containers/set_of.h"
 #include "utils/expected.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
@@ -26,9 +26,9 @@
 
 namespace FlexFlow {
 
-std::unordered_map<TensorSlotName, IncomingTensorRole>
+std::map<TensorSlotName, IncomingTensorRole>
     get_linear_incoming_tensor_roles(LinearAttrs const &attrs) {
-  std::unordered_map<TensorSlotName, IncomingTensorRole> result = {
+  std::map<TensorSlotName, IncomingTensorRole> result = {
       {TensorSlotName::INPUT, IncomingTensorRole::INPUT},
       {TensorSlotName::WEIGHT, IncomingTensorRole::WEIGHT},
   };
@@ -72,11 +72,11 @@ tl::expected<TensorShape, std::string>
   return output_shape;
 }
 
-tl::expected<std::unordered_map<TensorSlotName, TensorShape>, std::string>
+tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
     get_weight_shapes(LinearAttrs const &attrs,
                       TensorShape const &input_shape) {
 
-  std::unordered_map<TensorSlotName, TensorShape> weight_shapes = {
+  std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
           PROPAGATE_ERR(get_projection_shape(attrs, input_shape)),
@@ -176,9 +176,9 @@ ParallelTensorDimDegrees
                                         ParallelTensorDimDegrees const &input) {
   SumDegree sum_degree = SumDegree{1_p};
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      input.sum_degree.value * product(slice(input.shard_degrees,
-                                             relative_ff_dim_t{0},
-                                             relative_ff_dim_t{-1}))};
+      input.sum_degree.value *
+      product(ff_ordered_slice(
+          input.shard_degrees, relative_ff_dim_t{0}, relative_ff_dim_t{-1}))};
   FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{
       input.discard_copy_degree.value,
       input.shard_degrees.at(relative_ff_dim_t{-1}),
@@ -198,8 +198,9 @@ ParallelTensorDimDegrees
   SumDegree sum_degree = SumDegree{
       input.sum_degree.value * input.shard_degrees.at(relative_ff_dim_t{-1}),
   };
-  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{product(
-      slice(input.shard_degrees, relative_ff_dim_t{0}, relative_ff_dim_t{-1}))};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{product(ff_ordered_slice(
+          input.shard_degrees, relative_ff_dim_t{0}, relative_ff_dim_t{-1}))};
   FFOrdered<positive_int> shard_degrees =
       FFOrdered<positive_int>{input.discard_copy_degree.value};
 
@@ -227,12 +228,11 @@ ParallelTensorDimDegrees linear_get_output_parallel_dim_degrees(
   };
 }
 
-tl::expected<std::unordered_map<TensorSlotName, ParallelTensorShape>,
-             std::string>
+tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
     get_weight_shapes(LinearAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
 
-  std::unordered_map<TensorSlotName, ParallelTensorShape> weight_shapes = {
+  std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
           PROPAGATE_ERR(get_projection_shape(attrs, input_shape)),
@@ -253,7 +253,7 @@ tl::expected<std::unordered_map<TensorSlotName, ParallelTensorShape>,
  * see
  * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/linear.py#L114-L122
  */
-tl::expected<std::unordered_map<TensorSlotName, InitializerAttrs>, std::string>
+tl::expected<std::map<TensorSlotName, InitializerAttrs>, std::string>
     get_initializers(
         LinearAttrs const &attrs,
         TensorShape const &input_shape,
@@ -297,12 +297,12 @@ tl::expected<std::unordered_map<TensorSlotName, InitializerAttrs>, std::string>
       maybe_bias_initializer.value_or(bias_default_initializer);
 
   if (attrs.use_bias) {
-    return std::unordered_map<TensorSlotName, InitializerAttrs>{
+    return std::map<TensorSlotName, InitializerAttrs>{
         {TensorSlotName::WEIGHT, projection_initializer},
         {TensorSlotName::BIAS, bias_initializer},
     };
   } else {
-    return std::unordered_map<TensorSlotName, InitializerAttrs>{
+    return std::map<TensorSlotName, InitializerAttrs>{
         {TensorSlotName::WEIGHT, projection_initializer},
     };
   }
@@ -378,8 +378,8 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   };
 
   {
-    std::unordered_set<parallel_tensor_dim_idx_t> dims_from =
-        unordered_set_of(dim_idxs_for_num_shard_dims(input_num_shard_dims));
+    std::set<parallel_tensor_dim_idx_t> dims_from =
+        set_of(dim_idxs_for_num_shard_dims(input_num_shard_dims));
     dims_from.insert(sum_dim_idx());
     dims_from.erase(input_channel_dim);
     dims_from.erase(discard_copy_dim_idx());
@@ -435,8 +435,8 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   };
 
   {
-    std::unordered_set<parallel_tensor_dim_idx_t> dims_from =
-        unordered_set_of(dim_idxs_for_num_shard_dims(input_num_shard_dims));
+    std::set<parallel_tensor_dim_idx_t> dims_from =
+        set_of(dim_idxs_for_num_shard_dims(input_num_shard_dims));
     dims_from.erase(input_channel_dim);
     dims_from.erase(sum_dim_idx());
 

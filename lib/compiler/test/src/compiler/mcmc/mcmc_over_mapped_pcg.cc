@@ -10,6 +10,7 @@
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "pcg/pcg_from_computation_graph.h"
 #include "utils/integer_conversions.h"
+#include <doctest/doctest.h>
 
 using namespace FlexFlow;
 

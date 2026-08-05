@@ -6,10 +6,8 @@
 #include "utils/fmt/variant.h"
 #include "utils/many_to_one/invert_many_to_one.h"
 #include "utils/many_to_one/many_to_one_is_biunique.h"
-#include "utils/many_to_one/unstructured_relation_from_many_to_one.h"
 #include "utils/one_to_many/invert_one_to_many.h"
 #include "utils/one_to_many/one_to_many_is_biunique.h"
-#include "utils/one_to_many/unstructured_relation_from_one_to_many.h"
 #include "utils/overload.h"
 #include "utils/relation/uniqueness.dtg.h"
 
@@ -74,15 +72,15 @@ struct HemiuniqueBinaryRelation {
     };
   }
 
-  std::unordered_set<std::pair<L, R>> as_unstructured_relation() const {
-    return this->visit<std::unordered_set<std::pair<L, R>>>(overload{
-        [](bidict<L, R> const &b) -> std::unordered_set<std::pair<L, R>> {
+  std::set<std::pair<L, R>> as_unstructured_relation() const {
+    return this->visit<std::set<std::pair<L, R>>>(overload{
+        [](bidict<L, R> const &b) -> std::set<std::pair<L, R>> {
           return unstructured_relation_from_bidict(b);
         },
-        [](OneToMany<L, R> const &otm) -> std::unordered_set<std::pair<L, R>> {
+        [](OneToMany<L, R> const &otm) -> std::set<std::pair<L, R>> {
           return unstructured_relation_from_one_to_many(otm);
         },
-        [](ManyToOne<L, R> const &mto) -> std::unordered_set<std::pair<L, R>> {
+        [](ManyToOne<L, R> const &mto) -> std::set<std::pair<L, R>> {
           return unstructured_relation_from_many_to_one(mto);
         },
     });
@@ -100,29 +98,29 @@ struct HemiuniqueBinaryRelation {
     });
   }
 
-  std::unordered_set<L> left_entries() const {
-    return this->visit<std::unordered_set<L>>(overload{
-        [](bidict<L, R> const &b) -> std::unordered_set<L> {
+  std::set<L> left_entries() const {
+    return this->visit<std::set<L>>(overload{
+        [](bidict<L, R> const &b) -> std::set<L> {
           return b.left_values();
         },
-        [](OneToMany<L, R> const &otm) -> std::unordered_set<L> {
+        [](OneToMany<L, R> const &otm) -> std::set<L> {
           return otm.left_values();
         },
-        [](ManyToOne<L, R> const &mto) -> std::unordered_set<L> {
+        [](ManyToOne<L, R> const &mto) -> std::set<L> {
           return mto.left_values();
         },
     });
   }
 
-  std::unordered_set<R> right_entries() const {
-    return this->visit<std::unordered_set<R>>(overload{
-        [](bidict<L, R> const &b) -> std::unordered_set<R> {
+  std::set<R> right_entries() const {
+    return this->visit<std::set<R>>(overload{
+        [](bidict<L, R> const &b) -> std::set<R> {
           return b.right_values();
         },
-        [](OneToMany<L, R> const &otm) -> std::unordered_set<R> {
+        [](OneToMany<L, R> const &otm) -> std::set<R> {
           return otm.right_values();
         },
-        [](ManyToOne<L, R> const &mto) -> std::unordered_set<R> {
+        [](ManyToOne<L, R> const &mto) -> std::set<R> {
           return mto.right_values();
         },
     });

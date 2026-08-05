@@ -1,4 +1,5 @@
 #include "realm-execution/processor_kind.h"
+#include "realm-execution/fmt/realm_processor_kind.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {

@@ -13,8 +13,10 @@ docstring = """\
 
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 includes = [
@@ -22,7 +24,7 @@ includes = [
   "<vector>"
 ]
 
-src_includes = [   
+src_includes = [
   "utils/hash/vector.h",
   "utils/fmt/vector.h",
 ]

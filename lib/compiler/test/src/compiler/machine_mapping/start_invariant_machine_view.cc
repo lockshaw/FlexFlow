@@ -1,7 +1,7 @@
 #include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "pcg/machine_compute_resource_slice.h"
-#include "utils/fmt/unordered_set.h"
+#include "utils/fmt/set.h"
 #include "utils/fmt/vector.h"
 #include <doctest/doctest.h>
 
@@ -166,10 +166,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("get_machine_space_offsets") {
-        std::unordered_set<UnresolvedMachineSpaceOffset> result =
+        std::set<UnresolvedMachineSpaceOffset> result =
             get_machine_space_offsets(task, simv);
 
-        std::unordered_set<UnresolvedMachineSpaceOffset> correct = {
+        std::set<UnresolvedMachineSpaceOffset> correct = {
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{0, 0}},
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{0, 2}},
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{0, 4}},
@@ -279,10 +279,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("get_machine_space_offsets") {
-        std::unordered_set<UnresolvedMachineSpaceOffset> result =
+        std::set<UnresolvedMachineSpaceOffset> result =
             get_machine_space_offsets(task, simv);
 
-        std::unordered_set<UnresolvedMachineSpaceOffset> correct = {
+        std::set<UnresolvedMachineSpaceOffset> correct = {
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{0, 0}},
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{0, 2}},
             UnresolvedMachineSpaceOffset{MachineSpaceOffset{1, 0}},

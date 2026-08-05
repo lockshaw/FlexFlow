@@ -3,8 +3,10 @@ name = "DownProjection"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 template_params = [

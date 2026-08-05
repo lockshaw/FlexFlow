@@ -3,8 +3,10 @@ name = "MMProblemTreeSeriesSplit"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json",
 ]
 
 fwd_decls = [

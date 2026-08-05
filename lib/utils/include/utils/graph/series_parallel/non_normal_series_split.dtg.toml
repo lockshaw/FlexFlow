@@ -5,6 +5,8 @@ features = [
   "eq",
   "hash",
   "fmt",
+  "json_serialize",
+  "ord",
 ]
 
 fwd_decls = [
@@ -23,8 +25,10 @@ includes = [
 
 src_includes = [
   "utils/fmt/variant.h",
+  "utils/ord/vector.h",
   "utils/fmt/vector.h",
   "utils/hash/vector.h",
+  "utils/json/variant.h",
 ]
 
 [[fields]]

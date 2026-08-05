@@ -9,7 +9,7 @@ namespace FlexFlow {
 
 template <typename L, typename R>
 bool many_to_one_is_biunique(ManyToOne<L, R> const &mto) {
-  return all_of(values(mto.r_to_l()), [](nonempty_unordered_set<L> const &ls) {
+  return all_of(values(mto.r_to_l()), [](nonempty_set<L> const &ls) {
     return ls.num_elements() == 1_p;
   });
 }

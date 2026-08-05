@@ -11,12 +11,15 @@
 
 namespace FlexFlow {
 
+positive_int
+    get_total_degree_of_ptensor_dim_degrees(ParallelTensorDimDegrees const &);
+
 num_ptensor_shard_dims_t
     get_ptensor_dim_degrees_num_shard_dims(ParallelTensorDimDegrees const &);
 num_tensor_dims_t
     get_ptensor_dim_degrees_num_tensor_dims(ParallelTensorDimDegrees const &);
 
-std::unordered_set<parallel_tensor_dim_idx_t>
+std::set<parallel_tensor_dim_idx_t>
     get_parallel_tensor_dim_indices(ParallelTensorDimDegrees const &);
 
 std::set<parallel_tensor_dim_idx_t> get_nontrivial_parallel_tensor_dim_indices(
@@ -26,10 +29,10 @@ positive_int
     get_degree_for_parallel_tensor_dim_idx(ParallelTensorDimDegrees const &,
                                            parallel_tensor_dim_idx_t const &);
 
-std::unordered_map<parallel_tensor_dim_idx_t, positive_int>
+std::map<parallel_tensor_dim_idx_t, positive_int>
     get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &);
 
-std::unordered_set<ParallelTensorSpaceCoordinate>
+std::set<ParallelTensorSpaceCoordinate>
     get_parallel_tensor_space_coordinates(ParallelTensorDimDegrees const &);
 
 DimDomain<parallel_tensor_dim_idx_t>

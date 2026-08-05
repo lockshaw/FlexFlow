@@ -1,11 +1,10 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_MINIMAL_DIM_DOMAIN_MAPPING_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_MINIMAL_DIM_DOMAIN_MAPPING_H
 
+#include "utils/bidict/algorithms/bidict_transform_keys_and_values.h"
 #include "utils/bidict/algorithms/exhaustive_relational_join.h"
 #include "utils/bidict/algorithms/left_entries.h"
 #include "utils/bidict/algorithms/right_entries.h"
-#include "utils/bidict/algorithms/transform_keys.h"
-#include "utils/bidict/algorithms/transform_values.h"
 #include "utils/bidict/bidict.h"
 #include "utils/bidict/generate_bidict.h"
 #include "utils/hash/tuple.h"
@@ -89,11 +88,9 @@ MinimalDimDomainHemiuniqueMapping<L, R>
     minimal_hemiunique_mapping_from_dim_domain_mapping(
         DimDomainHemiuniqueMapping<L, R> const &m) {
 
-  std::unordered_set<L> l_nontrivial_dims =
-      get_nontrivial_domain_dims(m.l_domain);
+  std::set<L> l_nontrivial_dims = get_nontrivial_domain_dims(m.l_domain);
 
-  std::unordered_set<R> r_nontrivial_dims =
-      get_nontrivial_domain_dims(m.r_domain);
+  std::set<R> r_nontrivial_dims = get_nontrivial_domain_dims(m.r_domain);
 
   return MinimalDimDomainHemiuniqueMapping{
       /*coord_mapping=*/
@@ -114,16 +111,16 @@ template <typename L, typename R>
 DimDomainHemiuniqueMapping<L, R>
     dim_domain_hemiunique_mapping_from_minimal_dim_domain(
         MinimalDimDomainHemiuniqueMapping<L, R> const &m,
-        std::unordered_set<L> const &l_trivial_dims,
-        std::unordered_set<R> const &r_trivial_dims) {
+        std::set<L> const &l_trivial_dims,
+        std::set<R> const &r_trivial_dims) {
 
   DimDomain<L> l_domain =
       dim_domain_from_minimal_dim_domain(m.l_domain, l_trivial_dims);
   DimDomain<R> r_domain =
       dim_domain_from_minimal_dim_domain(m.r_domain, r_trivial_dims);
 
-  std::unordered_set<L> all_l_dims = get_domain_dims(l_domain);
-  std::unordered_set<R> all_r_dims = get_domain_dims(r_domain);
+  std::set<L> all_l_dims = get_domain_dims(l_domain);
+  std::set<R> all_r_dims = get_domain_dims(r_domain);
 
   return DimDomainHemiuniqueMapping{
       /*coord_mapping=*/
@@ -209,14 +206,12 @@ DimDomainHemiuniqueMapping<T1, T3>
   MinimalDimDomainHemiuniqueMapping<T1, T2> minimal_lhs =
       minimal_hemiunique_mapping_from_dim_domain_mapping(lhs);
 
-  std::unordered_set<T1> t1_trivial_dims =
-      get_trivial_domain_dims(lhs.l_domain);
+  std::set<T1> t1_trivial_dims = get_trivial_domain_dims(lhs.l_domain);
 
   MinimalDimDomainHemiuniqueMapping<T2, T3> minimal_rhs =
       minimal_hemiunique_mapping_from_dim_domain_mapping(rhs);
 
-  std::unordered_set<T3> t3_trivial_dims =
-      get_trivial_domain_dims(rhs.r_domain);
+  std::set<T3> t3_trivial_dims = get_trivial_domain_dims(rhs.r_domain);
 
   return dim_domain_hemiunique_mapping_from_minimal_dim_domain(
       compose_minimal_dim_domain_hemiunique_mappings(minimal_lhs, minimal_rhs),

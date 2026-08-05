@@ -3,13 +3,15 @@ name = "CLIPositionalArgumentSpec"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 includes = [
   "<optional>",
-  "<unordered_set>",
+  "<set>",
   "<string>",
 ]
 
@@ -17,6 +19,7 @@ src_includes = [
   "utils/fmt/optional.h",
   "utils/fmt/vector.h",
   "utils/hash/vector.h",
+  "utils/json/optional.h",
 ]
 
 [[fields]]

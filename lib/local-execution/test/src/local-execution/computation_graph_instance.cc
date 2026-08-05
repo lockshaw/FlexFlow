@@ -139,12 +139,15 @@ TEST_SUITE(FF_TEST_SUITE) {
                                          /*nesterov=*/false,
                                          /*weight_decay=*/0.001}};
     device_handle_t ff_handle = cpu_make_device_handle_t();
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::CPU,
+    global_device_id_t global_device_id = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::CPU,
     };
 
-    std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
+    std::map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
 
     ComputationGraphInstance computation_graph_instance =
         create_computation_graph_instance(
@@ -160,7 +163,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*allocator=*/allocator,
             /*profiling_settings=*/ProfilingSettings{0, 0},
             /*device_handle=*/ff_handle,
-            /*device_idx=*/device_idx);
+            /*global_device_id=*/global_device_id);
 
     // begin training loop
     int num_epochs = 5;
@@ -171,7 +174,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*instance=*/computation_graph_instance,
           /*profiling_settings=*/ProfilingSettings{0, 0},
           /*ff_handle=*/ff_handle,
-          /*device_idx=*/device_idx);
+          /*global_device_id=*/global_device_id);
       loss_values.push_back(copy_tensor_accessor_r(
           computation_graph_instance.get_loss_tensor_accessor().value(),
           allocator));
@@ -308,14 +311,17 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
             /*weight_decay=*/0.001,
         },
     };
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::GPU,
+    global_device_id_t device_idx = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::GPU,
     };
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 
-    std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
+    std::map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
 
     ComputationGraphInstance computation_graph_instance =
         create_computation_graph_instance(
@@ -426,14 +432,18 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         },
     };
 
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::GPU,
+    global_device_id_t device_idx = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::GPU,
     };
+
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 
-    std::unordered_map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
+    std::map<DynamicValueAttrs, DynamicTensorAccessor> input_tensors;
 
     auto compute_loss = [&](LossAttrs const &loss_attrs,
                             GenericTensorAccessorR label_tensor) {

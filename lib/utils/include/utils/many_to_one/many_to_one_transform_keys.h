@@ -2,8 +2,7 @@
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_MANY_TO_ONE_MANY_TO_ONE_TRANSFORM_KEYS_H
 
 #include "utils/containers/transform.h"
-#include "utils/many_to_one/many_to_one_from_unstructured_relation.h"
-#include "utils/many_to_one/unstructured_relation_from_many_to_one.h"
+#include "utils/many_to_one/many_to_one.h"
 
 namespace FlexFlow {
 

@@ -7,6 +7,7 @@
 #include "pcg/optimizer_attrs.dtg.h"
 #include "task-spec/device_id_t.dtg.h"
 #include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.dtg.h"
+#include "task-spec/global_device_id_t.dtg.h"
 
 namespace FlexFlow {
 
@@ -18,7 +19,7 @@ DynamicNodeInvocation
                     ProfilingSettings const &profiling_settings,
                     device_handle_t const &device_handle,
                     OptimizerAttrs const &optimizer_attrs,
-                    device_id_t device_idx);
+                    global_device_id_t device_idx);
 
 /**
  * @brief Initialize all operators and save the per-device op state
@@ -29,7 +30,7 @@ DynamicOpenDataflowGraph perform_per_device_op_state_initialization(
     ProfilingSettings const &profiling_settings,
     device_handle_t const &device_handle,
     OptimizerAttrs const &optimizer_attrs,
-    device_id_t device_idx);
+    global_device_id_t device_idx);
 
 } // namespace FlexFlow
 

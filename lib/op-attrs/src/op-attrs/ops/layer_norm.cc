@@ -1,6 +1,6 @@
 #include "op-attrs/ops/layer_norm.h"
+#include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
 #include "op-attrs/ff_ordered/ff_ordered_of.h"
-#include "op-attrs/ff_ordered/get_idxs.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
@@ -15,9 +15,9 @@
 
 namespace FlexFlow {
 
-std::unordered_map<TensorSlotName, IncomingTensorRole>
+std::map<TensorSlotName, IncomingTensorRole>
     get_layer_norm_incoming_tensor_roles(LayerNormAttrs const &attrs) {
-  std::unordered_map<TensorSlotName, IncomingTensorRole> result = {
+  std::map<TensorSlotName, IncomingTensorRole> result = {
       {TensorSlotName::INPUT, IncomingTensorRole::INPUT},
   };
 
@@ -75,7 +75,7 @@ tl::expected<TensorShape, std::string>
   }
 
   std::vector<ff_dim_t> non_layer_norm_dim_idxs = filter(
-      vector_of(get_idxs(input_shape.dims.ff_ordered)),
+      vector_of(ff_ordered_get_idxs(input_shape.dims.ff_ordered)),
       [&](ff_dim_t const &dim_idx) { return !contains(attrs.axes, dim_idx); });
   std::vector<positive_int> raw_weight_dims =
       transform(non_layer_norm_dim_idxs, [&](ff_dim_t const &dim_idx) {
@@ -100,7 +100,7 @@ tl::expected<TensorShape, std::string>
   return get_gamma_weights_shape(attrs, input_shape);
 }
 
-tl::expected<std::unordered_map<TensorSlotName, TensorShape>, std::string>
+tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
     get_weight_shapes(LayerNormAttrs const &attrs,
                       TensorShape const &input_shape) {
 
@@ -109,7 +109,7 @@ tl::expected<std::unordered_map<TensorSlotName, TensorShape>, std::string>
   TensorShape beta_shape =
       PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
-  return std::unordered_map<TensorSlotName, TensorShape>{
+  return std::map<TensorSlotName, TensorShape>{
       {
           TensorSlotName::GAMMA,
           gamma_shape,
@@ -189,7 +189,7 @@ tl::expected<ParallelTensorShape, std::string>
   }
 
   std::vector<ff_dim_t> non_layer_norm_dim_idxs = filter(
-      vector_of(get_idxs(input_shape.dims.shard_dims)),
+      vector_of(ff_ordered_get_idxs(input_shape.dims.shard_dims)),
       [&](ff_dim_t const &dim_idx) { return !contains(attrs.axes, dim_idx); });
   std::vector<ShardParallelDim> raw_weight_shard_dims =
       transform(non_layer_norm_dim_idxs, [&](ff_dim_t const &dim_idx) {
@@ -220,8 +220,7 @@ tl::expected<ParallelTensorShape, std::string>
   return get_gamma_weights_shape(attrs, input_shape);
 }
 
-tl::expected<std::unordered_map<TensorSlotName, ParallelTensorShape>,
-             std::string>
+tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
     get_weight_shapes(LayerNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
 
@@ -230,7 +229,7 @@ tl::expected<std::unordered_map<TensorSlotName, ParallelTensorShape>,
   ParallelTensorShape beta_shape =
       PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
 
-  return std::unordered_map<TensorSlotName, ParallelTensorShape>{
+  return std::map<TensorSlotName, ParallelTensorShape>{
       {
           TensorSlotName::GAMMA,
           gamma_shape,
@@ -242,7 +241,7 @@ tl::expected<std::unordered_map<TensorSlotName, ParallelTensorShape>,
   };
 }
 
-std::unordered_map<TensorSlotName, InitializerAttrs>
+std::map<TensorSlotName, InitializerAttrs>
     get_initializers(LayerNormAttrs const &attrs) {
   if (attrs.elementwise_affine) {
     InitializerAttrs gamma_initializer =

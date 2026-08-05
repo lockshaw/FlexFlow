@@ -66,7 +66,7 @@ SearchResult optimize_with_unity_algorithm(
       /*allowed_machine_views=*/
       [&](UnmappedRuntimeOnlyOpCostEstimateKey const &key,
           MachineComputeResourceSlice const &resources)
-          -> std::unordered_set<MachineView> {
+          -> std::set<MachineView> {
         OperatorTaskSpace op_task_space =
             get_operator_task_space_for_runtime_only_op_cost_estimate_key(key);
 

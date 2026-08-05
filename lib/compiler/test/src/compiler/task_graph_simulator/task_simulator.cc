@@ -13,7 +13,6 @@
 #include "op-attrs/parallel_tensor_dims.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
-#include "pcg/device_type.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "pcg/machine_specification_dimension.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
@@ -27,9 +26,9 @@
 #include "utils/graph/open_dataflow_graph/algorithms/get_source_nodes.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
 #include <doctest/doctest.h>
+#include <map>
 #include <optional>
-#include <unordered_map>
-#include <unordered_set>
+#include <set>
 
 namespace FlexFlow {
 

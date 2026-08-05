@@ -6,7 +6,7 @@
 
 namespace FlexFlow {
 
-std::unordered_set<ParallelOpAttrs>
+std::set<ParallelOpAttrs>
     generate_weight_transform(ParallelTensorDimDegrees const &goal);
 
 } // namespace FlexFlow

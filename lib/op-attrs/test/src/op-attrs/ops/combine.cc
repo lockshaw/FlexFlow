@@ -32,10 +32,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*repartition_degree=*/degree,
       };
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, input);
+      ParallelTensorShape result =
+          combine_get_output_parallel_shape(attrs, input);
 
-      tl::expected<ParallelTensorShape, std::string> correct = [&] {
+      ParallelTensorShape correct = [&] {
         ParallelTensorShape output = input;
         output.dims.shard_dims.at(dim).degree = 1_p;
         return output;
@@ -52,12 +52,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*repartition_degree=*/degree,
       };
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, input);
-
-      CHECK_MESSAGE(!result.has_value(),
-                    "Unexpected successful result: ",
-                    result.error());
+      CHECK_THROWS(combine_get_output_parallel_shape(attrs, input));
     }
   }
 
@@ -110,7 +105,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
-            std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{
+            std::map<operator_task_space_dim_idx_t, int_ge_two>{
                 {operator_task_space_dim_idx_t{0_n}, 2_ge2},
                 {operator_task_space_dim_idx_t{1_n}, 4_ge2},
                 {operator_task_space_dim_idx_t{2_n}, 2_ge2},

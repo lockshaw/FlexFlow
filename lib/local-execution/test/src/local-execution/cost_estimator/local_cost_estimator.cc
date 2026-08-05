@@ -18,9 +18,12 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("LocalCostEstimator") {
     Allocator allocator = create_local_cpu_memory_allocator();
     device_handle_t ff_handle = cpu_make_device_handle_t();
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::CPU,
+    global_device_id_t device_idx = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::CPU,
     };
 
     OptimizerAttrs optimizer_attrs = OptimizerAttrs{
@@ -89,10 +92,14 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     Allocator allocator = create_local_cuda_memory_allocator();
 
-    device_id_t device_idx = device_id_t{
-        MachineSpaceCoordinate{0_n, 0_n},
-        DeviceType::GPU,
+    global_device_id_t device_idx = global_device_id_t{
+        /*coord=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        /*device_type=*/DeviceType::GPU,
     };
+
     device_handle_t ff_handle =
         gpu_make_device_handle_t(managed_handle.raw_handle());
 

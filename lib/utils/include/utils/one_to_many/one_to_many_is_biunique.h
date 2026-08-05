@@ -9,7 +9,7 @@ namespace FlexFlow {
 
 template <typename L, typename R>
 bool one_to_many_is_biunique(OneToMany<L, R> const &otm) {
-  return all_of(values(otm.l_to_r()), [](nonempty_unordered_set<R> const &rs) {
+  return all_of(values(otm.l_to_r()), [](nonempty_set<R> const &rs) {
     return rs.num_elements() == 1_p;
   });
 }

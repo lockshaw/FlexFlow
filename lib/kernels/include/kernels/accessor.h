@@ -43,6 +43,11 @@ public:
   bool operator==(GenericTensorAccessorR const &) const;
   bool operator!=(GenericTensorAccessorR const &) const;
 
+  bool operator<(GenericTensorAccessorR const &) const;
+  bool operator<=(GenericTensorAccessorR const &) const;
+  bool operator>(GenericTensorAccessorR const &) const;
+  bool operator>=(GenericTensorAccessorR const &) const;
+
   template <DataType DT>
   real_type_t<DT> const &at(TensorDimsCoord const &indices) const {
     ASSERT(this->device_type == DeviceType::CPU,
@@ -96,6 +101,11 @@ public:
 
   bool operator==(GenericTensorAccessorW const &) const;
   bool operator!=(GenericTensorAccessorW const &) const;
+
+  bool operator<(GenericTensorAccessorW const &) const;
+  bool operator<=(GenericTensorAccessorW const &) const;
+  bool operator>(GenericTensorAccessorW const &) const;
+  bool operator>=(GenericTensorAccessorW const &) const;
 
   operator GenericTensorAccessorR() const;
 
@@ -223,6 +233,10 @@ real_type_t<DT> accessor_get_only_value(GenericTensorAccessorR const &acc) {
 
   return *static_cast<real_type_t<DT> const *>(acc.ptr);
 }
+
+void to_json(nlohmann::json &, GenericTensorAccessorR const &);
+
+void to_json(nlohmann::json &, GenericTensorAccessorW const &);
 
 } // namespace FlexFlow
 

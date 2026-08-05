@@ -5,13 +5,13 @@
 
 namespace FlexFlow {
 
-std::unordered_set<DynamicNodeInvocation>
+std::set<DynamicNodeInvocation>
     perform_machine_slicing_for_invocation(DynamicNodeInvocation const &,
-                                           device_id_t const &);
+                                           global_device_id_t const &);
 
 DynamicOpenDataflowGraph
     perform_machine_slicing(DynamicOpenDataflowGraph const &,
-                            device_id_t const &);
+                            global_device_id_t const &);
 
 } // namespace FlexFlow
 

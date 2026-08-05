@@ -3,8 +3,10 @@ name = "PCGTask"
 type = "variant"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 includes = [

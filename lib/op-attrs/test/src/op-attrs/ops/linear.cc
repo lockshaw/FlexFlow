@@ -1,4 +1,5 @@
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include "utils/integer_conversions.h"
@@ -21,9 +22,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("use_bias = true") {
       LinearAttrs attrs = make_attrs(/*use_bias=*/true);
 
-      std::unordered_map<TensorSlotName, IncomingTensorRole> result =
+      std::map<TensorSlotName, IncomingTensorRole> result =
           get_linear_incoming_tensor_roles(attrs);
-      std::unordered_map<TensorSlotName, IncomingTensorRole> correct = {
+      std::map<TensorSlotName, IncomingTensorRole> correct = {
           {
               TensorSlotName::INPUT,
               IncomingTensorRole::INPUT,
@@ -44,9 +45,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("use_bias = false") {
       LinearAttrs attrs = make_attrs(/*use_bias=*/false);
 
-      std::unordered_map<TensorSlotName, IncomingTensorRole> result =
+      std::map<TensorSlotName, IncomingTensorRole> result =
           get_linear_incoming_tensor_roles(attrs);
-      std::unordered_map<TensorSlotName, IncomingTensorRole> correct = {
+      std::map<TensorSlotName, IncomingTensorRole> correct = {
           {
               TensorSlotName::INPUT,
               IncomingTensorRole::INPUT,
@@ -327,7 +328,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     OperatorSpaceToParallelTensorSpaceMapping result =
         linear_get_operator_to_input_mapping(attrs, input_dims);
 
-    // TODO(@lockshaw): implement some actual checks here
-    NOT_IMPLEMENTED();
+    ASSERT(get_parallel_tensor_space_for_mapping(result) == input_dims);
+    ASSERT(dim_domain_get_volume(result.raw_mapping.r_domain) ==
+           dim_domain_get_volume(result.raw_mapping.l_domain));
   }
 }

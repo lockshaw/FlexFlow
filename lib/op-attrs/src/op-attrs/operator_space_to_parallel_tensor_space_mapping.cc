@@ -62,6 +62,16 @@ DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
       bidict_from_keys_and_values(op_minimal_domain_dims,
                                   pt_minimal_domain_dims);
 
+  for (std::pair<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> const
+           &p : projection) {
+    positive_int op_task_space_dim_size =
+        op_task_space_dim_size_for_idx(operator_task_space, p.first);
+    positive_int parallel_tensor_space_dim_size =
+        get_degree_for_parallel_tensor_dim_idx(parallel_tensor_dim_degrees,
+                                               p.second);
+    ASSERT(op_task_space_dim_size == parallel_tensor_space_dim_size);
+  }
+
   return DimProjection{EqProjection{projection}};
 }
 
@@ -137,8 +147,8 @@ ParallelTensorSpaceCoordinate ptensor_coord_for_task_space_coord(
     TaskSpaceCoordinate const &task_space_coordinate,
     num_ptensor_shard_dims_t num_dims) {
 
-  std::unordered_set<parallel_tensor_dim_idx_t> ptensor_dim_idxs =
-      unordered_set_of(dim_idxs_for_num_shard_dims(num_dims));
+  std::set<parallel_tensor_dim_idx_t> ptensor_dim_idxs =
+      dim_idxs_for_num_shard_dims(num_dims);
 
   DimCoord<parallel_tensor_dim_idx_t> mapped_dim_coord =
       mapping.raw_mapping.require_biunique().at_l(

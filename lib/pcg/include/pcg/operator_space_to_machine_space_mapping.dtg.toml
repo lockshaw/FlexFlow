@@ -3,8 +3,10 @@ name = "OperatorSpaceToMachineSpaceMapping"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "hash",
   "fmt",
+  "json_serialize",
 ]
 
 includes = [

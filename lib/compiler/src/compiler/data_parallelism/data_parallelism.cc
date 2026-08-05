@@ -69,29 +69,29 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
     ParallelLayerAttrs parallel_layer_attrs =
         parallel_layer_attrs_from_layer_attrs(get_layer_attrs(cg, layer));
 
-    std::unordered_map<TensorSlotName, parallel_tensor_guid_t> inputs =
+    std::map<TensorSlotName, parallel_tensor_guid_t> inputs =
         map_values(get_incoming_inputs(cg, layer),
                    [&](tensor_guid_t t) -> parallel_tensor_guid_t {
                      return cg_tensor_to_pcg_tensor.at_l(t);
                    });
 
-    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> input_degrees =
+    std::map<TensorSlotName, ParallelTensorDimDegrees> input_degrees =
         map_values(
             inputs, [&](parallel_tensor_guid_t t) -> ParallelTensorDimDegrees {
               return get_parallel_degrees(get_parallel_tensor_shape(pcg, t));
             });
 
-    std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
+    std::map<TensorSlotName, ParallelTensorDimDegrees>
         weight_degrees =
             infer_weight_degrees(parallel_layer_attrs.op_attrs, input_degrees);
 
-    std::unordered_map<TensorSlotName, parallel_tensor_guid_t> weights =
+    std::map<TensorSlotName, parallel_tensor_guid_t> weights =
         map_values(get_incoming_weights(cg, layer),
                    [&](tensor_guid_t t) -> parallel_tensor_guid_t {
                      return cg_tensor_to_pcg_tensor.at_l(t);
                    });
 
-    std::unordered_map<TensorSlotName, parallel_tensor_guid_t>
+    std::map<TensorSlotName, parallel_tensor_guid_t>
         parallelized_weights =
             zip_values_strict_with(weights, weight_degrees, parallelize_tensor);
 
@@ -146,7 +146,7 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
   }
 
   MachineMapping machine_mapping = MachineMapping{
-      generate_map(get_parallel_layers(pcg),
+      generate_map(pcg_get_parallel_layers(pcg),
                    [&](parallel_layer_guid_t const &l) -> MachineView {
                      OperatorType op_type =
                          pcg_op_attrs_get_op_type(pcg_get_op_attrs(pcg, l));

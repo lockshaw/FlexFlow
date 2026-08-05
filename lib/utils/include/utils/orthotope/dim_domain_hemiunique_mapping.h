@@ -10,8 +10,6 @@
 #include "utils/bidict/generate_bidict.h"
 #include "utils/containers/get_only.h"
 #include "utils/hash/tuple.h"
-#include "utils/many_to_one/many_to_one_from_unstructured_relation.h"
-#include "utils/one_to_many/one_to_many_from_unstructured_relation.h"
 #include "utils/orthotope/dim_coord.dtg.h"
 #include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/dim_domain.dtg.h"
@@ -27,7 +25,7 @@ namespace FlexFlow {
 
 /**
  * \brief A left-total and right-total binary relation between a pair of
- *        \ref DimDomainHemiuniqueMapping ""s.
+ *        \ref DimDomain ""s.
  */
 template <typename L, typename R>
 struct DimDomainHemiuniqueMapping {
@@ -249,7 +247,7 @@ DimDomainHemiuniqueMapping<L, R>
     };
 
     return many_to_one_from_unstructured_relation(
-        transform(unordered_set_of(nonnegative_range(differing_l_dim_size)),
+        transform(set_of(nonnegative_range(differing_l_dim_size)),
                   [&](nonnegative_int l_entry)
                       -> std::pair<nonnegative_int, nonnegative_int> {
                     return std::pair{
@@ -349,6 +347,23 @@ DimDomainHemiuniqueMapping<L, R> dim_domain_hemiunique_mapping_from_projection(
 }
 
 } // namespace FlexFlow
+
+namespace nlohmann {
+
+template <typename L, typename R>
+struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>> {
+  static void to_json(json &, ::FlexFlow::DimDomainHemiuniqueMapping<L, R> const &) {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+
+  static ::FlexFlow::DimDomainHemiuniqueMapping<L, R> from_json(json const &) {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+};
+
+}
 
 namespace std {
 

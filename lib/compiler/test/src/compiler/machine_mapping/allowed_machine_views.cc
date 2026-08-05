@@ -2,10 +2,11 @@
 #include <doctest/doctest.h>
 #include "utils/containers/extend.h"
 #include "utils/containers/range.h"
+#include "utils/containers/set_of.h"
 #include "utils/containers/transform.h"
-#include "utils/containers/unordered_set_of.h"
 #include "utils/containers/zip.h"
-#include "utils/fmt/unordered_set.h"
+#include "utils/fmt/set.h"
+#include <doctest/doctest.h>
 #include <libassert/assert.hpp>
 
 using namespace FlexFlow;
@@ -60,15 +61,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       OperatorTaskSpace task = OperatorTaskSpace{MinimalOrthotope{{3_ge2}}};
 
-      std::unordered_set<MachineView> correct = {
+      std::set<MachineView> correct = {
           make_machine_view(0_n, 0_n, 1_p, intra),
           make_machine_view(0_n, 1_n, 1_p, intra),
           make_machine_view(0_n, 2_n, 1_p, intra),
           make_machine_view(0_n, 0_n, 2_p, intra),
       };
 
-      std::unordered_set<MachineView> result =
-          get_allowed_machine_views(ms, task);
+      std::set<MachineView> result = get_allowed_machine_views(ms, task);
 
       CHECK(correct == result);
     }
@@ -82,7 +82,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       OperatorTaskSpace task =
           OperatorTaskSpace{MinimalOrthotope{{2_ge2, 3_ge2}}};
 
-      std::unordered_set<MachineView> correct = {
+      std::set<MachineView> correct = {
           make_machine_view(
               0_n, 0_n, /*stride_1=*/1_p, inter, /*stride_2=*/1_p, intra),
           make_machine_view(
@@ -98,8 +98,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               0_n, 0_n, /*stride_1=*/2_p, intra, /*stride_2=*/1_p, inter),
       };
 
-      std::unordered_set<MachineView> result =
-          get_allowed_machine_views(ms, task);
+      std::set<MachineView> result = get_allowed_machine_views(ms, task);
 
       CHECK(correct == result);
     }
@@ -112,10 +111,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
       OperatorTaskSpace task = OperatorTaskSpace{MinimalOrthotope{{}}};
 
-      std::unordered_set<MachineView> result =
+      std::set<MachineView> result =
           get_allowed_machine_views(full_machine_spec, task);
 
-      std::unordered_set<MachineView> correct = {
+      std::set<MachineView> correct = {
           make_machine_view(0_n, 0_n),
           make_machine_view(1_n, 0_n),
       };
@@ -131,10 +130,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
       OperatorTaskSpace task = OperatorTaskSpace{MinimalOrthotope{{2_ge2}}};
 
-      std::unordered_set<MachineView> result =
+      std::set<MachineView> result =
           get_allowed_machine_views(full_machine_spec, task);
 
-      std::unordered_set<MachineView> correct = {
+      std::set<MachineView> correct = {
           make_machine_view(0_n, 0_n, /*stride_1=*/1_p, intra),
           make_machine_view(0_n, 0_n, /*stride_1=*/1_p, inter),
           make_machine_view(1_n, 0_n, /*stride_1=*/1_p, intra),

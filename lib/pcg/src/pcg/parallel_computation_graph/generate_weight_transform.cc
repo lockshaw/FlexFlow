@@ -1,13 +1,13 @@
 #include "pcg/parallel_computation_graph/generate_weight_transform.h"
-#include "op-attrs/ff_ordered/enumerate.h"
+#include "op-attrs/ff_ordered/ff_ordered_enumerate.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
-std::unordered_set<ParallelOpAttrs>
+std::set<ParallelOpAttrs>
     generate_weight_transform(ParallelTensorDimDegrees const &goal) {
-  std::unordered_set<ParallelOpAttrs> result;
+  std::set<ParallelOpAttrs> result;
 
   positive_int sum_degree = goal.sum_degree.value;
   ASSERT(sum_degree == 1,
@@ -19,7 +19,7 @@ std::unordered_set<ParallelOpAttrs>
         ParallelOpAttrs{ReplicateAttrs{int_ge_two{discard_copy_degree}}});
   }
 
-  for (auto const &[shard_dim, shard_degree] : enumerate(goal.shard_degrees)) {
+  for (auto const &[shard_dim, shard_degree] : ff_ordered_enumerate(goal.shard_degrees)) {
     if (shard_degree != 1) {
       result.insert(ParallelOpAttrs{
           RepartitionAttrs{shard_dim, int_ge_two{shard_degree}}});

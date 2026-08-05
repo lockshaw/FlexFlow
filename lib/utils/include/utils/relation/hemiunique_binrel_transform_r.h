@@ -1,7 +1,7 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_RELATION_HEMIUNIQUE_BINREL_TRANSFORM_R_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_RELATION_HEMIUNIQUE_BINREL_TRANSFORM_R_H
 
-#include "utils/bidict/algorithms/transform_values.h"
+#include "utils/bidict/algorithms/bidict_transform_values.h"
 #include "utils/many_to_one/many_to_one_transform_values.h"
 #include "utils/one_to_many/one_to_many_transform_values.h"
 #include "utils/overload.h"
@@ -19,7 +19,7 @@ HemiuniqueBinaryRelation<L, R2>
   return r.template visit<HemiuniqueBinaryRelation<L, R2>>(overload{
       [&](bidict<L, R1> const &b) -> HemiuniqueBinaryRelation<L, R2> {
         return HemiuniqueBinaryRelation<L, R2>{
-            transform_values(b, f),
+            bidict_transform_values(b, f),
         };
       },
       [&](OneToMany<L, R1> const &otm) -> HemiuniqueBinaryRelation<L, R2> {

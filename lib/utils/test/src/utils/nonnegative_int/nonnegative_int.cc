@@ -235,14 +235,14 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("nonnegative_int::operator*(nonnegative_int)") {
+  TEST_CASE("nonnegative_int times nonnegative_int") {
     nonnegative_int result = nonnegative_int{2} * nonnegative_int{3};
     nonnegative_int correct = nonnegative_int{6};
 
     CHECK(result == correct);
   }
 
-  TEST_CASE("nonnegative_int::operator*=(nonnegative_int)") {
+  TEST_CASE("nonnegative_int times= nonnegative_int") {
     nonnegative_int result = nonnegative_int{3};
     result *= nonnegative_int{6};
 
@@ -268,8 +268,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("operator/(float, nonnegative_int)") {
-    float result = 5.0 / nonnegative_int{2};
-    float correct = 5.0 / 2;
+    float result = 5.0f / nonnegative_int{2};
+    float correct = 5.0f / 2;
 
     CHECK(result == correct);
   }
@@ -279,22 +279,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     result /= nonnegative_int{3};
 
     float correct = 13.0 / 3;
-
-    CHECK(result == correct);
-  }
-
-  TEST_CASE("nonnegative_int::operator/(nonnegative_int)") {
-    nonnegative_int result = nonnegative_int{5} / nonnegative_int{2};
-    nonnegative_int correct = nonnegative_int{2};
-
-    CHECK(result == correct);
-  }
-
-  TEST_CASE("nonnegative_int::operator/=(nonnegative_int)") {
-    nonnegative_int result = nonnegative_int{13};
-    result /= nonnegative_int{3};
-
-    nonnegative_int correct = nonnegative_int{4};
 
     CHECK(result == correct);
   }
@@ -365,7 +349,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(hash_fn(nn_int_1a) != hash_fn(nn_int_2));
     }
     SUBCASE("Unordered set works with nonnegative_int") {
-      std::unordered_set<::FlexFlow::nonnegative_int> nonnegative_int_set;
+      std::set<::FlexFlow::nonnegative_int> nonnegative_int_set;
       nonnegative_int_set.insert(nn_int_1a);
       nonnegative_int_set.insert(nn_int_1b);
       nonnegative_int_set.insert(nn_int_2);

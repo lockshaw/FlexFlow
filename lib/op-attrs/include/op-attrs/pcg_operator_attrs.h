@@ -19,8 +19,8 @@ nlohmann::json pcg_op_attrs_as_dot_json(PCGOperatorAttrs const &);
 
 void pcg_op_attrs_check_incoming_tensor_roles(
     PCGOperatorAttrs const &op_attrs,
-    std::unordered_set<TensorSlotName> const &input_slots,
-    std::unordered_set<TensorSlotName> const &weight_slots);
+    std::set<TensorSlotName> const &input_slots,
+    std::set<TensorSlotName> const &weight_slots);
 
 } // namespace FlexFlow
 

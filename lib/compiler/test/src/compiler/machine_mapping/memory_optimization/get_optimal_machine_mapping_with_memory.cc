@@ -278,13 +278,13 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       CostEstimator cost_estimator = make_fake_cost_estimator(
-          std::unordered_map<OpCostEstimateKey, OpCostMetrics>{{
+          std::map<OpCostEstimateKey, OpCostMetrics>{{
               {
                   map_unmapped_op_cost_estimate_key(k1, mv1),
                   k1_on_mv1_cost,
               },
           }},
-          std::unordered_map<TensorSetMovement, milliseconds_t>{
+          std::map<TensorSetMovement, milliseconds_t>{
               {
                   empty_tensor_set_movement(),
                   0_ms,
@@ -302,7 +302,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               MachineComputeResourceSlice const &resources) {
             ASSERT(k == runtime_only_from_unmapped_op_cost_estimate_key(k1));
             ASSERT(resources == four_nodes_resources);
-            return std::unordered_set<MachineView>{mv1};
+            return std::set<MachineView>{mv1};
           };
 
       MachineMappingWithMemoryContext context = MachineMappingWithMemoryContext{
@@ -337,7 +337,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               MachineComputeResourceSlice const &resources) {
             ASSERT(k == runtime_only_from_unmapped_op_cost_estimate_key(k3));
             ASSERT(resources == four_nodes_resources);
-            return std::unordered_set<MachineView>{mv2, mv3, mv4};
+            return std::set<MachineView>{mv2, mv3, mv4};
           };
 
       OpCostMetrics k3_on_mv2_cost = OpCostMetrics{
@@ -359,7 +359,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       CostEstimator cost_estimator = make_fake_cost_estimator(
-          std::unordered_map<OpCostEstimateKey, OpCostMetrics>{{
+          std::map<OpCostEstimateKey, OpCostMetrics>{{
               {
                   map_unmapped_op_cost_estimate_key(k3, mv2),
                   k3_on_mv2_cost,
@@ -373,7 +373,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                   k3_on_mv4_cost,
               },
           }},
-          std::unordered_map<TensorSetMovement, milliseconds_t>{
+          std::map<TensorSetMovement, milliseconds_t>{
               {
                   empty_tensor_set_movement(),
                   0_ms,
@@ -488,7 +488,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                    milliseconds_t mv3_to_mv2_cost,
                                    milliseconds_t mv3_to_mv3_cost) {
         return make_fake_cost_estimator(
-            std::unordered_map<OpCostEstimateKey, OpCostMetrics>{{
+            std::map<OpCostEstimateKey, OpCostMetrics>{{
                 {
                     map_unmapped_op_cost_estimate_key(k2, mv2),
                     OpCostMetrics{
@@ -522,7 +522,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                     },
                 },
             }},
-            std::unordered_map<TensorSetMovement, milliseconds_t>{{
+            std::map<TensorSetMovement, milliseconds_t>{{
                 {
                     empty_tensor_set_movement(),
                     0_ms,
@@ -575,18 +575,18 @@ TEST_SUITE(FF_TEST_SUITE) {
             [&](UnmappedRuntimeOnlyOpCostEstimateKey const &k,
                 MachineComputeResourceSlice const &resources) {
               if (k == runtime_only_from_unmapped_op_cost_estimate_key(k1)) {
-                return std::unordered_set<MachineView>{
+                return std::set<MachineView>{
                     mv1,
                 };
               } else {
                 if (resources == four_nodes_resources) {
-                  return std::unordered_set<MachineView>{mv2, mv3};
+                  return std::set<MachineView>{mv2, mv3};
                 } else if (resources == three_nodes_resources) {
-                  return std::unordered_set<MachineView>{mv2, mv3};
+                  return std::set<MachineView>{mv2, mv3};
                 } else if (resources == two_nodes_resources) {
-                  return std::unordered_set<MachineView>{mv2};
+                  return std::set<MachineView>{mv2};
                 } else {
-                  return std::unordered_set<MachineView>{};
+                  return std::set<MachineView>{};
                 }
               };
             };
@@ -642,7 +642,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                    milliseconds_t k3_on_mv3_cost,
                                    num_bytes_t k3_on_mv3_mem_usage) {
         return make_fake_cost_estimator(
-            std::unordered_map<OpCostEstimateKey, OpCostMetrics>{{
+            std::map<OpCostEstimateKey, OpCostMetrics>{{
                 {
                     map_unmapped_op_cost_estimate_key(k2, mv2),
                     OpCostMetrics{
@@ -676,7 +676,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                     },
                 },
             }},
-            std::unordered_map<TensorSetMovement, milliseconds_t>{
+            std::map<TensorSetMovement, milliseconds_t>{
                 {
                     empty_tensor_set_movement(),
                     0_ms,
@@ -698,18 +698,18 @@ TEST_SUITE(FF_TEST_SUITE) {
           [&](UnmappedRuntimeOnlyOpCostEstimateKey const &k,
               MachineComputeResourceSlice const &resources) {
             if (k == runtime_only_from_unmapped_op_cost_estimate_key(k1)) {
-              return std::unordered_set<MachineView>{
+              return std::set<MachineView>{
                   mv1,
               };
             } else {
               if (resources == four_nodes_resources) {
-                return std::unordered_set<MachineView>{mv2, mv3};
+                return std::set<MachineView>{mv2, mv3};
               } else if (resources == three_nodes_resources) {
-                return std::unordered_set<MachineView>{mv2, mv3};
+                return std::set<MachineView>{mv2, mv3};
               } else if (resources == two_nodes_resources) {
-                return std::unordered_set<MachineView>{mv2};
+                return std::set<MachineView>{mv2};
               } else {
-                return std::unordered_set<MachineView>{};
+                return std::set<MachineView>{};
               }
             };
           };

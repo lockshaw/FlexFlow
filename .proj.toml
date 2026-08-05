@@ -3,6 +3,7 @@ testsuite_macro = "FF_TEST_SUITE"
 namespace_name = "FlexFlow"
 header_extension = ".h"
 doxygen = true
+build_tool = "ninja"
 cuda_launch_cmd = [
   "nixGL",
   "--",
@@ -111,6 +112,10 @@ cuda = false
 type = "bin"
 cuda = false
 
+[targets.run-model]
+type = "bin"
+cuda = false
+
 # default_build_targets = [
 #   "utils",
 # ]
@@ -124,5 +129,4 @@ cuda = false
 # ]
 
 [cmake_flags_extra]
-FF_CUDA_ARCH = "60"
 CMAKE_CUDA_ARCHITECTURES = "60"

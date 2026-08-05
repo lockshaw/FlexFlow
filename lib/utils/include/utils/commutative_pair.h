@@ -1,9 +1,11 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_UNORDERED_PAIR_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_UNORDERED_PAIR_H
 
+#include "utils/exception.h"
 #include "utils/fmt/pair.h"
 #include "utils/hash-utils.h"
 #include "utils/type_traits_core.h"
+#include <nlohmann/json.hpp>
 #include <rapidcheck.h>
 #include <tuple>
 
@@ -90,6 +92,13 @@ std::ostream &operator<<(std::ostream &s, commutative_pair<T> const &p) {
   return (s << fmt::to_string(p));
 }
 
+template <typename T>
+void to_json(nlohmann::json &j, commutative_pair<T> const &p) {
+  j["__type"] = "commutative_pair";
+  j["max"] = p.max();
+  j["min"] = p.min();
+}
+
 } // namespace FlexFlow
 
 namespace std {
@@ -98,8 +107,8 @@ template <typename T>
 struct hash<::FlexFlow::commutative_pair<T>> {
   size_t operator()(::FlexFlow::commutative_pair<T> const &p) {
     size_t result = 0;
-    ::FlexFlow::unordered_hash_combine(result, p.first);
-    ::FlexFlow::unordered_hash_combine(result, p.second);
+    ::FlexFlow::hash_combine(result, p.first);
+    ::FlexFlow::hash_combine(result, p.second);
     return result;
   }
 };

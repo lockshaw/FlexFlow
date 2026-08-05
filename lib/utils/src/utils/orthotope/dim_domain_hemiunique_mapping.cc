@@ -1,12 +1,10 @@
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/archetypes/ordered_value_type.h"
-#include "utils/archetypes/value_type.h"
-
-using ::FlexFlow::ordered_value_type;
-using L = ordered_value_type<0>;
-using R = ordered_value_type<1>;
 
 namespace FlexFlow {
+
+using L = ordered_value_type<0>;
+using R = ordered_value_type<1>;
 
 template struct DimDomainHemiuniqueMapping<L, R>;
 
@@ -45,9 +43,9 @@ template DimDomainHemiuniqueMapping<L, R>
                                                   DimOrdering<L> const &,
                                                   DimOrdering<R> const &);
 
-using T1 = value_type<2>;
-using T2 = value_type<3>;
-using T3 = value_type<4>;
+using T1 = ordered_value_type<2>;
+using T2 = ordered_value_type<3>;
+using T3 = ordered_value_type<4>;
 
 template DimDomainHemiuniqueMapping<T1, T3>
     compose_dim_domain_hemiunique_mappings(
@@ -56,7 +54,19 @@ template DimDomainHemiuniqueMapping<T1, T3>
 
 } // namespace FlexFlow
 
+namespace nlohmann {
+
+using L = ::FlexFlow::jsonable_ordered_value_type<0>;
+using R = ::FlexFlow::jsonable_ordered_value_type<1>;
+
+template struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>>;
+
+}
+
 namespace std {
+
+using L = ::FlexFlow::ordered_value_type<0>;
+using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::DimDomainHemiuniqueMapping<L, R>>;
 

@@ -3,7 +3,9 @@ name = "LossInsertionResult"
 type = "struct"
 features = [
   "eq",
+  "ord",
   "fmt",
+  "json_serialize",
 ]
 
 includes = [
