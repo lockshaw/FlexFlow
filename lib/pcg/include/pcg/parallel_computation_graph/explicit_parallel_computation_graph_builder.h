@@ -109,8 +109,7 @@ private:
   std::map<TensorSlotName, parallel_tensor_guid_t> add_layer(
       ParallelLayerAttrs const &layer,
       std::map<TensorSlotName, parallel_tensor_guid_t> const &inputs,
-      std::map<TensorSlotName, parallel_tensor_guid_t> const
-          &weights);
+      std::map<TensorSlotName, parallel_tensor_guid_t> const &weights);
 
   parallel_tensor_guid_t
       element_unary(ElementUnaryAttrs const &element_unary_attrs,

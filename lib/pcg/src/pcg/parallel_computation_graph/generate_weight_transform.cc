@@ -19,7 +19,8 @@ std::set<ParallelOpAttrs>
         ParallelOpAttrs{ReplicateAttrs{int_ge_two{discard_copy_degree}}});
   }
 
-  for (auto const &[shard_dim, shard_degree] : ff_ordered_enumerate(goal.shard_degrees)) {
+  for (auto const &[shard_dim, shard_degree] :
+       ff_ordered_enumerate(goal.shard_degrees)) {
     if (shard_degree != 1) {
       result.insert(ParallelOpAttrs{
           RepartitionAttrs{shard_dim, int_ge_two{shard_degree}}});

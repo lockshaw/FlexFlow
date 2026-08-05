@@ -19,8 +19,7 @@ namespace FlexFlow {
 
 OperatorTaskSpace get_operator_task_space(
     PCGOperatorAttrs const &attrs,
-    std::map<TensorSlotName, ParallelTensorDimDegrees> const
-        &inputs_degrees) {
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const &inputs_degrees) {
   return attrs.visit<OperatorTaskSpace>(overload{
       [&](CombineAttrs const &attrs) {
         ParallelTensorDimDegrees input =

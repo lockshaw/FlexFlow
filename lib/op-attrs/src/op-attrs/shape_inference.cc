@@ -959,73 +959,67 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
       });
 }
 
-std::map<TensorSlotName, ParallelTensorDimDegrees>
-    infer_output_degrees(
-        PCGOperatorAttrs const &pcg_op_attrs,
-        std::map<TensorSlotName, ParallelTensorDimDegrees> const
-            &input_degrees) {
-  return pcg_op_attrs.visit<
-      std::map<TensorSlotName, ParallelTensorDimDegrees>>(overload{
-      [&](LinearAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        ParallelTensorDimDegrees input =
-            require_only_key(input_degrees, TensorSlotName::INPUT);
+std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
+    PCGOperatorAttrs const &pcg_op_attrs,
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_degrees) {
+  return pcg_op_attrs.visit<std::map<TensorSlotName, ParallelTensorDimDegrees>>(
+      overload{[&](LinearAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 ParallelTensorDimDegrees input =
+                     require_only_key(input_degrees, TensorSlotName::INPUT);
 
-        return {{
-            TensorSlotName::OUTPUT,
-            linear_get_output_parallel_dim_degrees(attrs, input),
-        }};
-      },
-      [&](auto const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        NOT_IMPLEMENTED();
-      }});
+                 return {{
+                     TensorSlotName::OUTPUT,
+                     linear_get_output_parallel_dim_degrees(attrs, input),
+                 }};
+               },
+               [&](auto const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 NOT_IMPLEMENTED();
+               }});
 }
 
-std::map<TensorSlotName, ParallelTensorDimDegrees>
-    infer_weight_degrees(
-        PCGOperatorAttrs const &pcg_op_attrs,
-        std::map<TensorSlotName, ParallelTensorDimDegrees> const
-            &input_degrees) {
-  return pcg_op_attrs.visit<
-      std::map<TensorSlotName, ParallelTensorDimDegrees>>(overload{
-      [&](ElementBinaryAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        require_two_keys(input_degrees,
-                         TensorSlotName::LHS_INPUT,
-                         TensorSlotName::RHS_INPUT);
+std::map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
+    PCGOperatorAttrs const &pcg_op_attrs,
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_degrees) {
+  return pcg_op_attrs.visit<std::map<TensorSlotName, ParallelTensorDimDegrees>>(
+      overload{[&](ElementBinaryAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 require_two_keys(input_degrees,
+                                  TensorSlotName::LHS_INPUT,
+                                  TensorSlotName::RHS_INPUT);
 
-        return {};
-      },
-      [&](ElementUnaryAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        require_only_key(input_degrees, TensorSlotName::INPUT);
+                 return {};
+               },
+               [&](ElementUnaryAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 require_only_key(input_degrees, TensorSlotName::INPUT);
 
-        return {};
-      },
-      [&](InputAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        ASSERT(input_degrees.size() == 0);
+                 return {};
+               },
+               [&](InputAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 ASSERT(input_degrees.size() == 0);
 
-        return {};
-      },
-      [&](LinearAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        ParallelTensorDimDegrees input =
-            require_only_key(input_degrees, TensorSlotName::INPUT);
+                 return {};
+               },
+               [&](LinearAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 ParallelTensorDimDegrees input =
+                     require_only_key(input_degrees, TensorSlotName::INPUT);
 
-        return get_weight_parallel_dim_degrees(attrs, input);
-      },
-      [&](WeightAttrs const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        ASSERT(input_degrees.size() == 0);
+                 return get_weight_parallel_dim_degrees(attrs, input);
+               },
+               [&](WeightAttrs const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 ASSERT(input_degrees.size() == 0);
 
-        return {};
-      },
-      [&](auto const &attrs)
-          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-        NOT_IMPLEMENTED();
-      }});
+                 return {};
+               },
+               [&](auto const &attrs)
+                   -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+                 NOT_IMPLEMENTED();
+               }});
 }
 
 } // namespace FlexFlow

@@ -30,9 +30,9 @@
 #include "utils/graph/series_parallel/get_series_parallel_decomposition.h"
 #include "utils/graph/series_parallel/sp_ization/node_role.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
+#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/positive_int/positive_int.h"
 #include <libassert/assert.hpp>
-#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include <map>
 #include <set>
 

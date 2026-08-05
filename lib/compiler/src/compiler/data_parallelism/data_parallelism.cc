@@ -81,9 +81,8 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
               return get_parallel_degrees(get_parallel_tensor_shape(pcg, t));
             });
 
-    std::map<TensorSlotName, ParallelTensorDimDegrees>
-        weight_degrees =
-            infer_weight_degrees(parallel_layer_attrs.op_attrs, input_degrees);
+    std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees =
+        infer_weight_degrees(parallel_layer_attrs.op_attrs, input_degrees);
 
     std::map<TensorSlotName, parallel_tensor_guid_t> weights =
         map_values(get_incoming_weights(cg, layer),
@@ -91,9 +90,8 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
                      return cg_tensor_to_pcg_tensor.at_l(t);
                    });
 
-    std::map<TensorSlotName, parallel_tensor_guid_t>
-        parallelized_weights =
-            zip_values_strict_with(weights, weight_degrees, parallelize_tensor);
+    std::map<TensorSlotName, parallel_tensor_guid_t> parallelized_weights =
+        zip_values_strict_with(weights, weight_degrees, parallelize_tensor);
 
     ParallelLayerAddedResult added = add_parallel_layer(
         /*pcg=*/pcg,

@@ -283,10 +283,8 @@ ParallelTensorShape ExplicitParallelComputationGraphBuilder::get_shape(
 std::map<TensorSlotName, parallel_tensor_guid_t>
     ExplicitParallelComputationGraphBuilder::add_layer(
         ParallelLayerAttrs const &layer,
-        std::map<TensorSlotName, parallel_tensor_guid_t> const
-            &inputs,
-        std::map<TensorSlotName, parallel_tensor_guid_t> const
-            &weights) {
+        std::map<TensorSlotName, parallel_tensor_guid_t> const &inputs,
+        std::map<TensorSlotName, parallel_tensor_guid_t> const &weights) {
 
   ASSERT(are_disjoint(keys(inputs), keys(weights)));
 

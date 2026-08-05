@@ -61,7 +61,7 @@ using R = ::FlexFlow::jsonable_ordered_value_type<1>;
 
 template struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>>;
 
-}
+} // namespace nlohmann
 
 namespace std {
 
@@ -70,4 +70,4 @@ using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::DimDomainHemiuniqueMapping<L, R>>;
 
-}
+} // namespace std

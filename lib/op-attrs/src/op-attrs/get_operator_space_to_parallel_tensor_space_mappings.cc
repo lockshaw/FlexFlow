@@ -23,11 +23,11 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
         std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
   return op_attrs.visit<
-      std::map<TensorSlotName,
-                         OperatorSpaceToParallelTensorSpaceMapping>>(overload{
-      [&](ElementBinaryAttrs const &attrs)
-          -> std::map<TensorSlotName,
-                                OperatorSpaceToParallelTensorSpaceMapping> {
+      std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
+      overload{
+          [&](ElementBinaryAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
             ASSERT(inputs_degrees.size() == 2);
 
             ParallelTensorDimDegrees lhs_degrees =
@@ -73,38 +73,39 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             ParallelTensorDimDegrees input_degrees =
                 require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        std::map<TensorSlotName,
-                           OperatorSpaceToParallelTensorSpaceMapping>
-            result = {
-                {
-                    TensorSlotName::INPUT,
-                    linear_get_operator_to_input_mapping(attrs, input_degrees),
-                },
-                {
-                    TensorSlotName::WEIGHT,
-                    linear_get_operator_to_projection_mapping(attrs,
-                                                              input_degrees),
-                },
+            std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
+                result = {
+                    {
+                        TensorSlotName::INPUT,
+                        linear_get_operator_to_input_mapping(attrs,
+                                                             input_degrees),
+                    },
+                    {
+                        TensorSlotName::WEIGHT,
+                        linear_get_operator_to_projection_mapping(
+                            attrs, input_degrees),
+                    },
+                };
+
+            if (attrs.use_bias) {
+              result.insert(
+                  {TensorSlotName::BIAS,
+                   linear_get_operator_to_bias_mapping(attrs, input_degrees)});
             };
 
-        if (attrs.use_bias) {
-          result.insert(
-              {TensorSlotName::BIAS,
-               linear_get_operator_to_bias_mapping(attrs, input_degrees)});
-        };
-
-        return result;
-      },
+            return result;
+          },
           [&](RepartitionAttrs const &attrs)
               -> std::map<TensorSlotName,
-                                    OperatorSpaceToParallelTensorSpaceMapping> {
+                          OperatorSpaceToParallelTensorSpaceMapping> {
             ParallelTensorDimDegrees input_degrees =
                 require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
             return {
                 {
                     TensorSlotName::INPUT,
-                    repartition_get_operator_to_input_mapping(attrs, input_degrees),
+                    repartition_get_operator_to_input_mapping(attrs,
+                                                              input_degrees),
                 },
             };
           },
@@ -191,15 +192,15 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             &inputs_degrees) {
 
   return op_attrs.visit<
-      std::map<TensorSlotName,
-                         OperatorSpaceToParallelTensorSpaceMapping>>(overload{
-      [&](ElementBinaryAttrs const &attrs)
-          -> std::map<TensorSlotName,
-                                OperatorSpaceToParallelTensorSpaceMapping> {
-        auto [lhs_degrees, rhs_degrees] =
-            require_two_keys(inputs_degrees,
-                             TensorSlotName::LHS_INPUT,
-                             TensorSlotName::RHS_INPUT);
+      std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
+      overload{
+          [&](ElementBinaryAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            auto [lhs_degrees, rhs_degrees] =
+                require_two_keys(inputs_degrees,
+                                 TensorSlotName::LHS_INPUT,
+                                 TensorSlotName::RHS_INPUT);
 
             return {
                 {
@@ -249,7 +250,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
           },
           [&](RepartitionAttrs const &attrs)
               -> std::map<TensorSlotName,
-                                    OperatorSpaceToParallelTensorSpaceMapping> {
+                          OperatorSpaceToParallelTensorSpaceMapping> {
             ParallelTensorDimDegrees input_degrees =
                 require_only_key(inputs_degrees, TensorSlotName::INPUT);
 

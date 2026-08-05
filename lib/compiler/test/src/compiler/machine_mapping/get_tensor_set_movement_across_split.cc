@@ -95,20 +95,21 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     MachineView pre_mv1 = MachineView{
-          /*start=*/MachineSpaceCoordinate{
-                        /*node_idx=*/0_n,
-                        /*device_idx=*/0_n,
+        /*start=*/MachineSpaceCoordinate{
+            /*node_idx=*/0_n,
+            /*device_idx=*/0_n,
+        },
+        StartInvariantMachineView{
+            MachineView2dProjection{
+                /*dimensions=*/{
+                    MachineViewDimension{
+                        stride_t{1_p},
+                        MachineSpecificationDimension::INTRA_NODE,
                     },
-                    StartInvariantMachineView{
-                        MachineView2dProjection{
-                            /*dimensions=*/{
-                                MachineViewDimension{
-                                    stride_t{1_p},
-                                    MachineSpecificationDimension::INTRA_NODE,
-                                },
-                            },
-                        },
-                    },};
+                },
+            },
+        },
+    };
 
     MachineView pre_mv2 = MachineView{
         /*start=*/MachineSpaceCoordinate{

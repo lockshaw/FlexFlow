@@ -573,16 +573,17 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       OperatorTaskSpaceToOperatorTaskSpaceMapping correct =
           OperatorTaskSpaceToOperatorTaskSpaceMapping{
-              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t, operator_task_space_dim_idx_t>{
-                /*coord_mapping=*/HemiuniqueBinaryRelation{
-                    bidict<DimCoord<operator_task_space_dim_idx_t>,
-                           DimCoord<operator_task_space_dim_idx_t>>{
-                        {make_coord(0_n), make_coord(0_n)},
-                        {make_coord(1_n), make_coord(1_n)},
-                    },
-                },
-                /*l_domain=*/layer_1_task_space,
-                /*r_domain=*/layer_2_task_space,
+              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                                         operator_task_space_dim_idx_t>{
+                  /*coord_mapping=*/HemiuniqueBinaryRelation{
+                      bidict<DimCoord<operator_task_space_dim_idx_t>,
+                             DimCoord<operator_task_space_dim_idx_t>>{
+                          {make_coord(0_n), make_coord(0_n)},
+                          {make_coord(1_n), make_coord(1_n)},
+                      },
+                  },
+                  /*l_domain=*/layer_1_task_space,
+                  /*r_domain=*/layer_2_task_space,
               },
           };
 
@@ -674,16 +675,16 @@ TEST_SUITE(FF_TEST_SUITE) {
       OperatorTaskSpaceToOperatorTaskSpaceMapping correct =
           OperatorTaskSpaceToOperatorTaskSpaceMapping{
               DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
-                               operator_task_space_dim_idx_t>{
-                HemiuniqueBinaryRelation{
-                  bidict<DimCoord<operator_task_space_dim_idx_t>,
-                         DimCoord<operator_task_space_dim_idx_t>>{
-                      {make_coord(0_n), make_coord(1_n)},
-                      {make_coord(1_n), make_coord(0_n)},
+                                         operator_task_space_dim_idx_t>{
+                  HemiuniqueBinaryRelation{
+                      bidict<DimCoord<operator_task_space_dim_idx_t>,
+                             DimCoord<operator_task_space_dim_idx_t>>{
+                          {make_coord(0_n), make_coord(1_n)},
+                          {make_coord(1_n), make_coord(0_n)},
+                      },
                   },
-                },
-                /*l_domain=*/layer_1_task_space,
-                /*r_domain=*/layer_2_task_space,
+                  /*l_domain=*/layer_1_task_space,
+                  /*r_domain=*/layer_2_task_space,
               },
           };
     }

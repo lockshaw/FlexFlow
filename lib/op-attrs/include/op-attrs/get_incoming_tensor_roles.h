@@ -22,13 +22,11 @@ std::set<TensorSlotName>
 
 std::set<TensorSlotName>
     get_input_tensor_slots(ComputationGraphOpAttrs const &);
-std::set<TensorSlotName>
-    get_input_tensor_slots(PCGOperatorAttrs const &);
+std::set<TensorSlotName> get_input_tensor_slots(PCGOperatorAttrs const &);
 
 std::set<TensorSlotName>
     get_weight_tensor_slots(ComputationGraphOpAttrs const &);
-std::set<TensorSlotName>
-    get_weight_tensor_slots(PCGOperatorAttrs const &);
+std::set<TensorSlotName> get_weight_tensor_slots(PCGOperatorAttrs const &);
 
 } // namespace FlexFlow
 

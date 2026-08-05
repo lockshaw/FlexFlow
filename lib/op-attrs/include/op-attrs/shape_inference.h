@@ -25,17 +25,13 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
     PCGOperatorAttrs const &,
     std::map<TensorSlotName, ParallelTensorShape> const &input_shapes);
 
-std::map<TensorSlotName, ParallelTensorDimDegrees>
-    infer_output_degrees(
-        PCGOperatorAttrs const &,
-        std::map<TensorSlotName, ParallelTensorDimDegrees> const
-            &input_degrees);
+std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
+    PCGOperatorAttrs const &,
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_degrees);
 
-std::map<TensorSlotName, ParallelTensorDimDegrees>
-    infer_weight_degrees(
-        PCGOperatorAttrs const &,
-        std::map<TensorSlotName, ParallelTensorDimDegrees> const
-            &input_degrees);
+std::map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
+    PCGOperatorAttrs const &,
+    std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_degrees);
 
 } // namespace FlexFlow
 

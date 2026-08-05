@@ -352,7 +352,8 @@ namespace nlohmann {
 
 template <typename L, typename R>
 struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>> {
-  static void to_json(json &, ::FlexFlow::DimDomainHemiuniqueMapping<L, R> const &) {
+  static void to_json(json &,
+                      ::FlexFlow::DimDomainHemiuniqueMapping<L, R> const &) {
     // TODO(@lockshaw)(#pr):
     NOT_IMPLEMENTED();
   }
@@ -363,7 +364,7 @@ struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>> {
   }
 };
 
-}
+} // namespace nlohmann
 
 namespace std {
 

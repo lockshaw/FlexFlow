@@ -100,9 +100,7 @@ struct HemiuniqueBinaryRelation {
 
   std::set<L> left_entries() const {
     return this->visit<std::set<L>>(overload{
-        [](bidict<L, R> const &b) -> std::set<L> {
-          return b.left_values();
-        },
+        [](bidict<L, R> const &b) -> std::set<L> { return b.left_values(); },
         [](OneToMany<L, R> const &otm) -> std::set<L> {
           return otm.left_values();
         },
@@ -114,9 +112,7 @@ struct HemiuniqueBinaryRelation {
 
   std::set<R> right_entries() const {
     return this->visit<std::set<R>>(overload{
-        [](bidict<L, R> const &b) -> std::set<R> {
-          return b.right_values();
-        },
+        [](bidict<L, R> const &b) -> std::set<R> { return b.right_values(); },
         [](OneToMany<L, R> const &otm) -> std::set<R> {
           return otm.right_values();
         },
