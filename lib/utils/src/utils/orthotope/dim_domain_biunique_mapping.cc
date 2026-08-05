@@ -1,11 +1,11 @@
 #include "utils/orthotope/dim_domain_biunique_mapping.h"
-#include "utils/archetypes/value_type.h"
-
-using ::FlexFlow::value_type;
-using L = value_type<0>;
-using R = value_type<1>;
+#include "utils/archetypes/ordered_value_type.h"
+#include "utils/archetypes/jsonable_ordered_value_type.h"
 
 namespace FlexFlow {
+
+using L = jsonable_ordered_value_type<0>;
+using R = jsonable_ordered_value_type<1>;
 
 template struct DimDomainBiuniqueMapping<L, R>;
 
@@ -32,9 +32,9 @@ template DimDomainBiuniqueMapping<L, R>
                                                 DimOrdering<L> const &,
                                                 DimOrdering<R> const &);
 
-using T1 = value_type<2>;
-using T2 = value_type<3>;
-using T3 = value_type<4>;
+using T1 = ordered_value_type<2>;
+using T2 = ordered_value_type<3>;
+using T3 = ordered_value_type<4>;
 
 template DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
     DimDomainBiuniqueMapping<T1, T2> const &,
@@ -43,6 +43,9 @@ template DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
 } // namespace FlexFlow
 
 namespace std {
+
+using L = ::FlexFlow::ordered_value_type<0>;
+using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::DimDomainBiuniqueMapping<L, R>>;
 

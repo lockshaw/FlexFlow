@@ -7,6 +7,7 @@
 #include <ostream>
 #include <rapidcheck.h>
 #include <sstream>
+#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 
@@ -41,6 +42,11 @@ struct rapidcheckable_value_type {
 
 template <int TAG>
 std::string format_as(rapidcheckable_value_type<TAG> const &) {
+  PANIC();
+}
+
+template <int TAG>
+void to_json(nlohmann::json &, rapidcheckable_value_type<TAG> const &) {
   PANIC();
 }
 

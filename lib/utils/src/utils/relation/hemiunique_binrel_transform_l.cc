@@ -1,11 +1,11 @@
 #include "utils/relation/hemiunique_binrel_transform_l.h"
-#include "utils/archetypes/value_type.h"
+#include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {
 
-using L = value_type<0>;
-using L2 = value_type<1>;
-using R = value_type<2>;
+using L = ordered_value_type<0>;
+using L2 = ordered_value_type<1>;
+using R = ordered_value_type<2>;
 using F = std::function<L2(L const &)>;
 
 template HemiuniqueBinaryRelation<L2, R>

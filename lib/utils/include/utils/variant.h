@@ -5,6 +5,7 @@
 #include <optional>
 #include <utility>
 #include <variant>
+#include <functional>
 
 namespace FlexFlow {
 

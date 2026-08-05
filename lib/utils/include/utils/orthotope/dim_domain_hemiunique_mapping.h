@@ -59,11 +59,11 @@ public:
     return this->coord_mapping.require_biunique();
   }
 
-  OneToMany<L, R> require_strictly_left_unique() const {
+  OneToMany<DimCoord<L>, DimCoord<R>> require_strictly_left_unique() const {
     return this->coord_mapping.require_strictly_left_unique();
   }
 
-  OneToMany<L, R> require_strictly_right_unique() const {
+  ManyToOne<DimCoord<L>, DimCoord<R>> require_strictly_right_unique() const {
     return this->coord_mapping.require_strictly_right_unique();
   }
 
@@ -257,13 +257,13 @@ DimDomainHemiuniqueMapping<L, R>
                   }));
   }();
 
-  std::unordered_set<L> nondiffering_l_dims =
+  std::set<L> nondiffering_l_dims =
       set_minus(input_dims_of_eq_projection(eq_proj),
-                std::unordered_set{differing_l_dim});
+                std::set{differing_l_dim});
 
-  std::unordered_set<R> nondiffering_r_dims =
+  std::set<R> nondiffering_r_dims =
       set_minus(output_dims_of_eq_projection(eq_proj),
-                std::unordered_set{differing_r_dim});
+                std::set{differing_r_dim});
 
   DimDomainBiuniqueMapping<L, R> mapping_without_differing =
       dim_domain_biunique_mapping_from_projection(
@@ -286,9 +286,9 @@ DimDomainHemiuniqueMapping<L, R>
         mapping_without_differing.at_l(nondiffer_l_coord);
     nonnegative_int differ_r_coord = differing_l_to_r.at_l(differ_l_coord);
 
-    std::unordered_map<R, nonnegative_int> raw_result =
+    std::map<R, nonnegative_int> raw_result =
         binary_merge_disjoint_maps(nondiffer_r_coord.raw,
-                                   std::unordered_map<R, nonnegative_int>{
+                                   std::map<R, nonnegative_int>{
                                        {differing_r_dim, differ_r_coord},
                                    });
 
@@ -330,7 +330,7 @@ DimDomainHemiuniqueMapping<L, R> dim_domain_hemiunique_mapping_from_projection(
     DimDomain<R> const &r_domain,
     DimOrdering<L> const &l_dim_ordering,
     DimOrdering<R> const &r_dim_ordering) {
-  if (dim_domain_volume(l_domain) == dim_domain_volume(r_domain)) {
+  if (dim_domain_get_volume(l_domain) == dim_domain_get_volume(r_domain)) {
     DimDomainBiuniqueMapping<L, R> biunique =
         dim_domain_biunique_mapping_from_projection(
             projection, l_domain, r_domain, l_dim_ordering, r_dim_ordering);

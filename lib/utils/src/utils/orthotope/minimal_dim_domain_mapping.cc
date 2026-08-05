@@ -1,11 +1,10 @@
 #include "utils/orthotope/minimal_dim_domain_mapping.h"
-#include "utils/archetypes/jsonable_ordered_value_type.h"
-
-using ::FlexFlow::jsonable_ordered_value_type;
-using L = jsonable_ordered_value_type<0>;
-using R = jsonable_ordered_value_type<1>;
+#include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {
+
+using L = ordered_value_type<0>;
+using R = ordered_value_type<1>;
 
 template struct MinimalDimDomainHemiuniqueMapping<L, R>;
 
@@ -32,7 +31,7 @@ template MinimalDimDomainHemiuniqueMapping<L, R>
         DimOrdering<R> const &);
 
 template MinimalDimDomainHemiuniqueMapping<L, R>
-    empty_minimal_dim_domain_mapping();
+    empty_minimal_dim_domain_hemiunique_mapping();
 
 template MinimalDimDomainHemiuniqueMapping<R, L>
     invert_minimal_dim_domain_hemiunique_mapping(
@@ -46,9 +45,9 @@ template MinimalDimDomainHemiuniqueMapping<L, R>
         DimOrdering<L> const &,
         DimOrdering<R> const &);
 
-using T1 = jsonable_ordered_value_type<2>;
-using T2 = jsonable_ordered_value_type<3>;
-using T3 = jsonable_ordered_value_type<4>;
+using T1 = ordered_value_type<2>;
+using T2 = ordered_value_type<3>;
+using T3 = ordered_value_type<4>;
 
 template MinimalDimDomainHemiuniqueMapping<T1, T3>
     compose_minimal_dim_domain_hemiunique_mappings(
@@ -63,6 +62,9 @@ template DimDomainHemiuniqueMapping<T1, T3>
 } // namespace FlexFlow
 
 namespace std {
+
+using L = ::FlexFlow::ordered_value_type<0>;
+using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::MinimalDimDomainHemiuniqueMapping<L, R>>;
 

@@ -2,6 +2,11 @@
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_RELATION_COMPOSE_HEMIUNIQUE_BINARY_RELATIONS_H
 
 #include "utils/one_to_many/one_to_many_from_bidict.h"
+#include "utils/one_to_many/compose_one_to_manys.h"
+#include "utils/many_to_one/compose_many_to_ones.h"
+#include "utils/many_to_one/many_to_one_from_bidict.h"
+#include "utils/relation/hemiunique_binary_relation.h"
+
 namespace FlexFlow {
 
 template <typename L, typename C, typename R>
@@ -32,9 +37,11 @@ HemiuniqueBinaryRelation<L, R> compose_hemiunique_binary_relations(
     };
   } else if (is(Uniqueness::BIUNIQUE, Uniqueness::RIGHT_UNIQUE)) {
     return HemiuniqueBinaryRelation<L, R>{
-        compose_many_to_ones(many_to_one_from_bidict(r_rel.require_biunique()),
+        compose_many_to_ones(many_to_one_from_bidict(l_rel.require_biunique()),
                              r_rel.require_strictly_right_unique()),
     };
+  } else {
+    NOT_IMPLEMENTED();
   }
 }
 

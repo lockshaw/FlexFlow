@@ -1,10 +1,11 @@
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/archetypes/ordered_value_type.h"
+#include "utils/archetypes/jsonable_ordered_value_type.h"
 
 namespace FlexFlow {
 
-using L = ordered_value_type<0>;
-using R = ordered_value_type<1>;
+using L = jsonable_ordered_value_type<0>;
+using R = jsonable_ordered_value_type<1>;
 
 template struct DimDomainHemiuniqueMapping<L, R>;
 

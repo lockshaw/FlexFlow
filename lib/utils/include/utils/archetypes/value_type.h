@@ -6,6 +6,7 @@
 #include <libassert/assert.hpp>
 #include <ostream>
 #include <sstream>
+#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 
@@ -37,6 +38,11 @@ struct value_type {
 
 template <int TAG>
 std::string format_as(value_type<TAG> const &) {
+  PANIC();
+}
+
+template <int TAG>
+void to_json(nlohmann::json &, value_type<TAG> const &) {
   PANIC();
 }
 

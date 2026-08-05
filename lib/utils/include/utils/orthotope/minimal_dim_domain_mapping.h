@@ -175,7 +175,7 @@ MinimalDimDomainHemiuniqueMapping<R, L>
             &minimal_dim_domain_mapping) {
 
   return MinimalDimDomainHemiuniqueMapping{
-      /*coord_mapping=*/minimal_dim_domain_mapping.coord_mapping.reversed(),
+      /*coord_mapping=*/minimal_dim_domain_mapping.coord_mapping.inverted(),
       /*l_domain=*/minimal_dim_domain_mapping.r_domain,
       /*r_domain=*/minimal_dim_domain_mapping.l_domain,
   };
