@@ -25,20 +25,20 @@ OperatorTaskSpace get_operator_task_space(
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return combine_get_operator_task_space(attrs, input);
       },
       [&](ElementUnaryAttrs const &attrs) {
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return element_unary_get_operator_task_space(attrs, input);
       },
       [&](ElementBinaryAttrs const &attrs) {
         auto [lhs, rhs] = require_two_keys(inputs_degrees,
                                            TensorSlotName::LHS_INPUT,
                                            TensorSlotName::RHS_INPUT);
 
-        return get_operator_task_space(
+        return element_binary_get_operator_task_space(
             /*attrs=*/attrs,
             /*lhs_input_degrees=*/lhs,
             /*rhs_input_degrees=*/rhs);
@@ -52,13 +52,13 @@ OperatorTaskSpace get_operator_task_space(
       [&](InputAttrs const &attrs) {
         ASSERT(inputs_degrees.size() == 0);
 
-        return get_operator_task_space(attrs);
+        return input_get_operator_task_space(attrs);
       },
       [&](ReductionAttrs const &attrs) {
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return reduction_get_operator_task_space(attrs, input);
       },
       [&](RepartitionAttrs const &attrs) {
         ParallelTensorDimDegrees input =
@@ -76,12 +76,12 @@ OperatorTaskSpace get_operator_task_space(
         ParallelTensorDimDegrees input =
             require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-        return get_operator_task_space(attrs, input);
+        return transpose_get_operator_task_space(attrs, input);
       },
       [&](WeightAttrs const &attrs) {
         ASSERT(inputs_degrees.size() == 0);
 
-        return get_operator_task_space(attrs);
+        return weight_get_operator_task_space(attrs);
       },
       [](auto const &attrs) -> OperatorTaskSpace {
         PANIC("Missing implmentation of get_operator_task_space", attrs);

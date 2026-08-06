@@ -1,0 +1,11 @@
+#include "op-attrs/ops/transpose.h"
+#include <doctest/doctest.h>
+
+using namespace ::FlexFlow;
+
+TEST_SUITE(FF_TEST_SUITE) {
+  TEST_CASE("transpose_get_output_shape") {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+}
