@@ -35,10 +35,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       SUBCASE("returns correct attrs") {
-        tl::expected<Pool2DAttrs, std::string> result =
+        Pool2DAttrs result =
             make_adaptive_pool2d_attrs(
                 input_dims, output_h, output_w, op, activation);
-        tl::expected<Pool2DAttrs, std::string> correct = correct_attrs;
+        Pool2DAttrs correct = correct_attrs;
 
         CHECK(result == correct);
       }
@@ -47,9 +47,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           "confirm that output shape is as expected for the expected attrs") {
         TensorShape input_shape = TensorShape{input_dims, DataType::FLOAT};
 
-        tl::expected<TensorShape, std::string> result =
-            get_output_shape(correct_attrs, input_shape);
-        tl::expected<TensorShape, std::string> correct = TensorShape{
+        TensorShape result =
+            pool2d_get_output_shape(correct_attrs, input_shape);
+        TensorShape correct = TensorShape{
             TensorDims{FFOrdered{
                 input_n,
                 input_c,
@@ -67,24 +67,16 @@ TEST_SUITE(FF_TEST_SUITE) {
       positive_int output_h = 6_p;
       positive_int output_w = 2_p;
 
-      std::optional<Pool2DAttrs> result =
-          optional_from_expected(make_adaptive_pool2d_attrs(
-              input_dims, output_h, output_w, op, activation));
-      std::optional<Pool2DAttrs> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(make_adaptive_pool2d_attrs(
+          input_dims, output_h, output_w, op, activation));
     }
 
     SUBCASE("input_w not divisible by output_w") {
       positive_int output_h = 5_p;
       positive_int output_w = 3_p;
 
-      std::optional<Pool2DAttrs> result =
-          optional_from_expected(make_adaptive_pool2d_attrs(
-              input_dims, output_h, output_w, op, activation));
-      std::optional<Pool2DAttrs> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(make_adaptive_pool2d_attrs(
+          input_dims, output_h, output_w, op, activation));
     }
 
     SUBCASE("input_h == output_h and input_w == output_w") {
@@ -103,10 +95,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       SUBCASE("returns correct attrs") {
-        tl::expected<Pool2DAttrs, std::string> result =
+        Pool2DAttrs result =
             make_adaptive_pool2d_attrs(
                 input_dims, output_h, output_w, op, activation);
-        tl::expected<Pool2DAttrs, std::string> correct = correct_attrs;
+        Pool2DAttrs correct = correct_attrs;
 
         CHECK(result == correct);
       }
@@ -115,16 +107,16 @@ TEST_SUITE(FF_TEST_SUITE) {
           "confirm that output shape is as expected for the expected attrs") {
         TensorShape input_shape = TensorShape{input_dims, DataType::FLOAT};
 
-        tl::expected<TensorShape, std::string> result =
-            get_output_shape(correct_attrs, input_shape);
-        tl::expected<TensorShape, std::string> correct = input_shape;
+        TensorShape result =
+            pool2d_get_output_shape(correct_attrs, input_shape);
+        TensorShape correct = input_shape;
 
         CHECK(result == correct);
       }
     }
   }
 
-  TEST_CASE("get_output_shape(Pool2DAttrs, TensorShape)") {
+  TEST_CASE("pool2d_get_output_shape") {
     Pool2DAttrs attrs = Pool2DAttrs{
         /*kernel_h=*/3_p,
         /*kernel_w=*/2_p,
@@ -146,11 +138,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      std::optional<TensorShape> result =
-          optional_from_expected(get_output_shape(attrs, input));
-      std::optional<TensorShape> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(pool2d_get_output_shape(attrs, input));
     }
 
     SUBCASE("4d input") {
@@ -159,9 +147,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      tl::expected<TensorShape, std::string> result =
-          get_output_shape(attrs, input);
-      tl::expected<TensorShape, std::string> correct = TensorShape{
+      TensorShape result =
+          pool2d_get_output_shape(attrs, input);
+      TensorShape correct = TensorShape{
           TensorDims{FFOrdered{11_p, 13_p, 6_p, 4_p}},
           DataType::FLOAT,
       };
@@ -170,8 +158,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(Pool2DAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("pool2d_get_output_parallel_dim_degrees") {
     auto make_attrs = [](PoolOp pool_type,
                          std::optional<Activation> const &activation) {
       return Pool2DAttrs{
@@ -200,9 +187,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
       };
 
-      tl::expected<ParallelTensorDimDegrees, std::string> result =
-          get_output_parallel_dim_degrees(attrs, input);
-      tl::expected<ParallelTensorDimDegrees, std::string> correct = input;
+      ParallelTensorDimDegrees result =
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
+      ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
     }
@@ -221,9 +208,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
       };
 
-      tl::expected<ParallelTensorDimDegrees, std::string> result =
-          get_output_parallel_dim_degrees(attrs, input);
-      tl::expected<ParallelTensorDimDegrees, std::string> correct = input;
+      ParallelTensorDimDegrees result =
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
+      ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
     }
@@ -242,9 +229,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
       };
 
-      tl::expected<ParallelTensorDimDegrees, std::string> result =
-          get_output_parallel_dim_degrees(attrs, input);
-      tl::expected<ParallelTensorDimDegrees, std::string> correct = input;
+      ParallelTensorDimDegrees result =
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
+      ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
     }
@@ -266,12 +253,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               },
           };
 
-          std::optional<ParallelTensorDimDegrees> result =
-              optional_from_expected(
-                  get_output_parallel_dim_degrees(attrs, input));
-          std::optional<ParallelTensorDimDegrees> correct = std::nullopt;
-
-          CHECK(result == correct);
+          CHECK_THROWS(pool2d_get_output_parallel_dim_degrees(attrs, input));
         }
 
         SUBCASE("PoolOp::AVG does allow sum parallelism") {
@@ -289,9 +271,9 @@ TEST_SUITE(FF_TEST_SUITE) {
               },
           };
 
-          tl::expected<ParallelTensorDimDegrees, std::string> result =
-              get_output_parallel_dim_degrees(attrs, input);
-          tl::expected<ParallelTensorDimDegrees, std::string> correct = input;
+          ParallelTensorDimDegrees result =
+              pool2d_get_output_parallel_dim_degrees(attrs, input);
+          ParallelTensorDimDegrees correct = input;
 
           CHECK(result == correct);
         }
@@ -312,16 +294,12 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         };
 
-        std::optional<ParallelTensorDimDegrees> result = optional_from_expected(
-            get_output_parallel_dim_degrees(attrs, input));
-        std::optional<ParallelTensorDimDegrees> correct = std::nullopt;
-
-        CHECK(result == correct);
+        CHECK_THROWS(pool2d_get_output_parallel_dim_degrees(attrs, input));
       }
     }
   }
 
-  TEST_CASE("get_output_shape(Pool2DAttrs, ParallelTensorShape)") {
+  TEST_CASE("pool2d_get_output_parallel_shape") {
     // this function is mostly covered by the tests above, so we
     // just do a single test to make sure it works/exists
 
@@ -353,9 +331,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, input);
-      tl::expected<ParallelTensorShape, std::string> correct =
+      ParallelTensorShape result =
+          pool2d_get_output_parallel_shape(attrs, input);
+      ParallelTensorShape correct =
           ParallelTensorShape{
               ParallelTensorDims{
                   FFOrdered<ShardParallelDim>{
@@ -390,11 +368,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      std::optional<ParallelTensorShape> result =
-          optional_from_expected(get_output_shape(attrs, input));
-      std::optional<ParallelTensorShape> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(pool2d_get_output_parallel_shape(attrs, input));
     }
   }
 }

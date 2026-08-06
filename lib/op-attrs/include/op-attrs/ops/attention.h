@@ -13,107 +13,107 @@
 
 namespace FlexFlow {
 
-positive_int get_qProjSize(MultiHeadAttentionAttrs const &);
-positive_int get_vProjSize(MultiHeadAttentionAttrs const &);
-positive_int get_kProjSize(MultiHeadAttentionAttrs const &);
-positive_int get_oProjSize(MultiHeadAttentionAttrs const &);
+positive_int attention_get_qProjSize(MultiHeadAttentionAttrs const &);
+positive_int attention_get_vProjSize(MultiHeadAttentionAttrs const &);
+positive_int attention_get_kProjSize(MultiHeadAttentionAttrs const &);
+positive_int attention_get_oProjSize(MultiHeadAttentionAttrs const &);
 
-positive_int get_qSize(MultiHeadAttentionParallelInputs const &);
-positive_int get_qSize(MultiHeadAttentionInputs const &);
+positive_int attention_get_qSize(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_qSize(MultiHeadAttentionInputs const &);
 
-positive_int get_kSize(MultiHeadAttentionParallelInputs const &);
-positive_int get_kSize(MultiHeadAttentionInputs const &);
+positive_int attention_get_kSize(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_kSize(MultiHeadAttentionInputs const &);
 
-positive_int get_vSize(MultiHeadAttentionParallelInputs const &);
-positive_int get_vSize(MultiHeadAttentionInputs const &);
+positive_int attention_get_vSize(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_vSize(MultiHeadAttentionInputs const &);
 
-positive_int get_oSize(ParallelTensorShape const &);
-positive_int get_oSize(TensorShape const &);
+positive_int attention_get_oSize(ParallelTensorShape const &);
+positive_int attention_get_oSize(TensorShape const &);
 
-positive_int get_qoSeqLength(MultiHeadAttentionParallelInputs const &);
-positive_int get_qoSeqLength(MultiHeadAttentionInputs const &);
+positive_int attention_get_qoSeqLength(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_qoSeqLength(MultiHeadAttentionInputs const &);
 
-positive_int get_kvSeqLength(MultiHeadAttentionParallelInputs const &);
-positive_int get_kvSeqLength(MultiHeadAttentionInputs const &);
+positive_int attention_get_kvSeqLength(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_kvSeqLength(MultiHeadAttentionInputs const &);
 
-positive_int get_num_samples(MultiHeadAttentionParallelInputs const &);
-positive_int get_num_samples(MultiHeadAttentionInputs const &);
+positive_int attention_get_num_samples(MultiHeadAttentionParallelInputs const &);
+positive_int attention_get_num_samples(MultiHeadAttentionInputs const &);
 
 std::map<TensorSlotName, IncomingTensorRole>
     get_attention_incoming_tensor_roles(MultiHeadAttentionAttrs const &);
 
-tl::expected<TensorShape, std::string>
-    get_weights_shape(MultiHeadAttentionAttrs const &,
+TensorShape
+    attention_get_weights_shape(MultiHeadAttentionAttrs const &,
                       TensorShape const &input_q,
                       TensorShape const &input_k,
                       TensorShape const &input_v);
-tl::expected<TensorShape, std::string>
-    get_input_bias_shape(MultiHeadAttentionAttrs const &,
+TensorShape
+    attention_get_input_bias_shape(MultiHeadAttentionAttrs const &,
                          TensorShape const &input_q,
                          TensorShape const &input_k,
                          TensorShape const &input_v);
-tl::expected<TensorShape, std::string>
-    get_output_bias_shape(MultiHeadAttentionAttrs const &,
+TensorShape
+    attention_get_output_bias_shape(MultiHeadAttentionAttrs const &,
                           TensorShape const &input_q,
                           TensorShape const &input_k,
                           TensorShape const &input_v);
-tl::expected<TensorShape, std::string>
-    get_output_shape(MultiHeadAttentionAttrs const &,
+TensorShape
+    attention_get_output_shape(MultiHeadAttentionAttrs const &,
                      TensorShape const &input_q,
                      TensorShape const &input_k,
                      TensorShape const &input_v);
 
-tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
-    get_weight_shapes(MultiHeadAttentionAttrs const &,
+std::map<TensorSlotName, TensorShape>
+    attention_get_weight_shapes(MultiHeadAttentionAttrs const &,
                       TensorShape const &input_q,
                       TensorShape const &input_k,
                       TensorShape const &input_v);
 
-tl::expected<ParallelTensorDims, std::string>
-    get_weights_parallel_dims(MultiHeadAttentionAttrs const &,
+ParallelTensorDims
+    attention_get_weights_parallel_dims(MultiHeadAttentionAttrs const &,
                               ParallelTensorShape const &input_q,
                               ParallelTensorShape const &input_k,
                               ParallelTensorShape const &input_v);
-tl::expected<ParallelTensorDims, std::string>
-    get_input_bias_parallel_dims(MultiHeadAttentionAttrs const &,
+ParallelTensorDims
+    attention_get_input_bias_parallel_dims(MultiHeadAttentionAttrs const &,
                                  ParallelTensorShape const &input_q,
                                  ParallelTensorShape const &input_k,
                                  ParallelTensorShape const &input_v);
-tl::expected<ParallelTensorDims, std::string>
-    get_output_bias_parallel_dims(MultiHeadAttentionAttrs const &,
+ParallelTensorDims
+    attention_get_output_bias_parallel_dims(MultiHeadAttentionAttrs const &,
                                   ParallelTensorShape const &input_q,
                                   ParallelTensorShape const &input_k,
                                   ParallelTensorShape const &input_v);
 
-tl::expected<ParallelTensorShape, std::string>
-    get_weights_shape(MultiHeadAttentionAttrs const &,
+ParallelTensorShape
+    attention_get_weights_parallel_shape(MultiHeadAttentionAttrs const &,
                       ParallelTensorShape const &input_q,
                       ParallelTensorShape const &input_k,
                       ParallelTensorShape const &input_v);
-tl::expected<ParallelTensorShape, std::string>
-    get_input_bias_shape(MultiHeadAttentionAttrs const &,
+ParallelTensorShape
+    attention_get_input_bias_parallel_shape(MultiHeadAttentionAttrs const &,
                          ParallelTensorShape const &input_q,
                          ParallelTensorShape const &input_k,
                          ParallelTensorShape const &input_v);
-tl::expected<ParallelTensorShape, std::string>
-    get_output_bias_shape(MultiHeadAttentionAttrs const &,
+ParallelTensorShape
+    attention_get_output_bias_parallel_shape(MultiHeadAttentionAttrs const &,
                           ParallelTensorShape const &input_q,
                           ParallelTensorShape const &input_k,
                           ParallelTensorShape const &input_v);
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(MultiHeadAttentionAttrs const &,
+ParallelTensorShape
+    attention_get_output_parallel_shape(MultiHeadAttentionAttrs const &,
                      ParallelTensorShape const &input_q,
                      ParallelTensorShape const &input_k,
                      ParallelTensorShape const &input_v);
 
-tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
-    get_weight_shapes(MultiHeadAttentionAttrs const &,
+std::map<TensorSlotName, ParallelTensorShape>
+    attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &,
                       ParallelTensorShape const &input_q,
                       ParallelTensorShape const &input_k,
                       ParallelTensorShape const &input_v);
 
-tl::expected<std::map<TensorSlotName, InitializerAttrs>, std::string>
-    get_initializers(
+std::map<TensorSlotName, InitializerAttrs>
+    attention_get_initializers(
         MultiHeadAttentionAttrs const &,
         TensorShape const &input_q,
         TensorShape const &input_k,

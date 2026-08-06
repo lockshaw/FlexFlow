@@ -117,27 +117,27 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    // get_output_shape
+    // linear_get_output_shape
     {
-      tl::expected<TensorShape, std::string> output_result =
-          get_output_shape(attrs, input);
-      tl::expected<TensorShape, std::string> output_correct = output;
+      TensorShape output_result =
+          linear_get_output_shape(attrs, input);
+      TensorShape output_correct = output;
       CHECK(output_result == output_correct);
     }
 
-    // get_weight_shape
+    // linear_get_weight_shape
     {
-      tl::expected<TensorShape, std::string> projection_result =
-          get_projection_shape(attrs, input);
-      tl::expected<TensorShape, std::string> projection_correct = projection;
+      TensorShape projection_result =
+          linear_get_projection_shape(attrs, input);
+      TensorShape projection_correct = projection;
       CHECK(projection_result == projection_correct);
     }
 
-    // get_bias_shape
+    // linear_get_bias_shape
     {
-      tl::expected<TensorShape, std::string> bias_result =
-          get_bias_shape(attrs, input);
-      tl::expected<TensorShape, std::string> bias_correct = bias;
+      TensorShape bias_result =
+          linear_get_bias_shape(attrs, input);
+      TensorShape bias_correct = bias;
       CHECK(bias_result == bias_correct);
     }
 
@@ -186,9 +186,9 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                  1_p);
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_output_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_output_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_output(SumDegree{input_sum_degree},
                         DiscardCopyDegree{1_p},
                         degree,
@@ -198,9 +198,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_projection_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_projection_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_projection(
                 SumDegree{1_p},
                 DiscardCopyDegree{input_sum_degree * degree * extra_dim_degree},
@@ -210,9 +210,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_bias_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_bias_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_bias(SumDegree{input_sum_degree},
                       DiscardCopyDegree{degree * extra_dim_degree},
                       1_p);
@@ -231,9 +231,9 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                  degree);
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_output_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_output_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_output(SumDegree{input_sum_degree * degree},
                         DiscardCopyDegree{1_p},
                         1_p,
@@ -243,9 +243,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_projection_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_projection_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_projection(SumDegree{1_p},
                             DiscardCopyDegree{input_sum_degree},
                             1_p,
@@ -254,9 +254,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_bias_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct = make_bias(
+        ParallelTensorShape result =
+            linear_get_bias_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct = make_bias(
             SumDegree{input_sum_degree * degree}, DiscardCopyDegree{1_p}, 1_p);
         CHECK(result == correct);
       }
@@ -273,9 +273,9 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                  1_p);
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_output_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_output_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_output(SumDegree{input_sum_degree},
                         DiscardCopyDegree{1_p},
                         1_p,
@@ -285,9 +285,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_projection_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct =
+        ParallelTensorShape result =
+            linear_get_projection_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct =
             make_projection(SumDegree{1_p},
                             DiscardCopyDegree{input_sum_degree},
                             degree,
@@ -296,9 +296,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       {
-        tl::expected<ParallelTensorShape, std::string> result =
-            get_bias_shape(attrs, par_input);
-        tl::expected<ParallelTensorShape, std::string> correct = make_bias(
+        ParallelTensorShape result =
+            linear_get_bias_parallel_shape(attrs, par_input);
+        ParallelTensorShape correct = make_bias(
             SumDegree{input_sum_degree}, DiscardCopyDegree{1_p}, degree);
         CHECK(result == correct);
       }

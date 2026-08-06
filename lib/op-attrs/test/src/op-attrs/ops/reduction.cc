@@ -6,7 +6,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("Reduction shape inference") {
+  TEST_CASE("reduction_get_output_parallel_shape") {
 
     ParallelTensorShape input = ParallelTensorShape{
         ParallelTensorDims{
@@ -29,10 +29,10 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*repartition_degree=*/3_ge2,
       };
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, input);
+      ParallelTensorShape result =
+          reduction_get_output_parallel_shape(attrs, input);
 
-      tl::expected<ParallelTensorShape, std::string> correct = [&] {
+      ParallelTensorShape correct = [&] {
         ParallelTensorShape output = input;
         output.dims.replica_dims.sum_degree.value = 1_p;
         return output;
@@ -46,17 +46,11 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*repartition_degree=*/4_ge2,
       };
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, input);
-
-      CHECK_MESSAGE(!result.has_value(),
-                    "Unexpected successful result: ",
-                    result.error());
+      CHECK_THROWS(reduction_get_output_parallel_shape(attrs, input));
     }
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(ReductionAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("reduction_get_output_parallel_dim_degrees") {
     ReductionAttrs attrs = ReductionAttrs{
         /*reduction_degree=*/3_ge2,
     };
@@ -71,7 +65,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees result =
-        get_output_parallel_dim_degrees(attrs, input_degrees);
+        reduction_get_output_parallel_dim_degrees(attrs, input_degrees);
 
     ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
         SumDegree{2_p},
@@ -85,8 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE(
-      "get_operator_task_space(ReductionAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("reduction_get_operator_task_space") {
     ReductionAttrs attrs = ReductionAttrs{
         /*reduction_degree=*/3_ge2,
     };
@@ -100,10 +93,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace result = reduction_get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
-            std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{
+            std::map<operator_task_space_dim_idx_t, int_ge_two>{
                 {operator_task_space_dim_idx_t{0_n}, 2_ge2},
                 {operator_task_space_dim_idx_t{1_n}, 6_ge2},
                 {operator_task_space_dim_idx_t{2_n}, 3_ge2},

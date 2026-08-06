@@ -8,7 +8,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("get_output_shape(DropoutAttrs, TensorShape)") {
+  TEST_CASE("dropout_get_output_shape") {
     DropoutAttrs attrs = DropoutAttrs{
         /*rate=*/0.5,
         /*seed=*/1,
@@ -23,13 +23,13 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    TensorShape result = get_output_shape(attrs, input);
+    TensorShape result = dropout_get_output_shape(attrs, input);
     TensorShape correct = input;
 
     CHECK(result == correct);
   }
 
-  TEST_CASE("get_output_shape(DropoutAttrs, ParallelTensorShape)") {
+  TEST_CASE("dropout_get_output_parallel_shape") {
     DropoutAttrs attrs = DropoutAttrs{
         /*rate=*/0.5,
         /*seed=*/1,
@@ -71,9 +71,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorShape par_input = make_input(
           SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, 1_p, degree2);
 
-      tl::expected<ParallelTensorShape, std::string> result =
-          get_output_shape(attrs, par_input);
-      tl::expected<ParallelTensorShape, std::string> correct = make_output(
+      ParallelTensorShape result =
+          dropout_get_output_parallel_shape(attrs, par_input);
+      ParallelTensorShape correct = make_output(
           SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, 1_p, degree2);
 
       CHECK(result == correct);
@@ -85,11 +85,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorShape par_input =
           make_input(sum_degree, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p);
 
-      std::optional<ParallelTensorShape> result =
-          optional_from_expected(get_output_shape(attrs, par_input));
-      std::optional<ParallelTensorShape> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(dropout_get_output_parallel_shape(attrs, par_input));
     }
 
     SUBCASE("discard copy parallelism (not allowed)") {
@@ -98,11 +94,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorShape par_input =
           make_input(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p);
 
-      std::optional<ParallelTensorShape> result =
-          optional_from_expected(get_output_shape(attrs, par_input));
-      std::optional<ParallelTensorShape> correct = std::nullopt;
-
-      CHECK(result == correct);
+      CHECK_THROWS(dropout_get_output_parallel_shape(attrs, par_input));
     }
   }
 }

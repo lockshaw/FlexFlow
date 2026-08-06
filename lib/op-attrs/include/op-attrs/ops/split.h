@@ -9,15 +9,15 @@
 
 namespace FlexFlow {
 
-std::vector<TensorShape> get_output_shapes(SplitAttrs const &,
+std::vector<TensorShape> split_get_output_shapes(SplitAttrs const &,
                                            TensorShape const &);
 
 std::vector<ParallelTensorDimDegrees>
-    get_output_parallel_dim_degrees(SplitAttrs const &attrs,
+    split_get_output_parallel_dim_degrees(SplitAttrs const &attrs,
                                     ParallelTensorDimDegrees const &input);
 
 std::vector<ParallelTensorShape>
-    get_output_shapes(SplitAttrs const &attrs,
+    split_get_output_parallel_shapes(SplitAttrs const &attrs,
                       ParallelTensorShape const &input_shape);
 
 } // namespace FlexFlow

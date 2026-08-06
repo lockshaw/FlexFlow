@@ -29,50 +29,37 @@ std::map<TensorSlotName, IncomingTensorRole>
   return result;
 }
 
-static std::optional<std::string>
+static void
     check_input_shape(LayerNormAttrs const &attrs,
                       TensorShape const &input_shape) {
-  if (any_of(attrs.axes, [&](ff_dim_t axis) {
-        return axis.value >= get_num_dims(input_shape.dims);
-      })) {
-    return fmt::format(
+
+  ASSERT(
+    all_of(attrs.axes,
+           [&](ff_dim_t axis) -> bool {
+             return axis.value < get_num_dims(input_shape.dims);
+           }),
+    fmt::format(
         "LayerNorm axes {} out-of-bounds for input tensor shape {}",
         attrs.axes,
-        input_shape);
-  }
-
-  return std::nullopt;
+        input_shape)
+  );
 }
 
-tl::expected<TensorShape, std::string>
-    get_output_shape(LayerNormAttrs const &attrs,
+TensorShape
+    layer_norm_get_output_shape(LayerNormAttrs const &attrs,
                      TensorShape const &input_shape) {
-  {
-    std::optional<std::string> maybe_err_msg =
-        check_input_shape(attrs, input_shape);
-    if (maybe_err_msg.has_value()) {
-      return tl::unexpected(maybe_err_msg.value());
-    }
-  }
+
+  check_input_shape(attrs, input_shape);
 
   return input_shape;
 }
 
-tl::expected<TensorShape, std::string>
-    get_gamma_weights_shape(LayerNormAttrs const &attrs,
+TensorShape
+    layer_norm_get_gamma_weights_shape(LayerNormAttrs const &attrs,
                             TensorShape const &input_shape) {
-  {
-    std::optional<std::string> maybe_err_msg =
-        check_input_shape(attrs, input_shape);
-    if (maybe_err_msg.has_value()) {
-      return tl::unexpected(maybe_err_msg.value());
-    }
-  }
+  check_input_shape(attrs, input_shape);
 
-  if (!attrs.elementwise_affine) {
-    return tl::unexpected(
-        "No gamma weights exist for attrs.elementwise_affine = false");
-  }
+  ASSERT(attrs.elementwise_affine, "No gamma weights exist for attrs.elementwise_affine = false");
 
   std::vector<ff_dim_t> non_layer_norm_dim_idxs = filter(
       vector_of(ff_ordered_get_idxs(input_shape.dims.ff_ordered)),
@@ -89,25 +76,23 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_beta_weights_shape(LayerNormAttrs const &attrs,
+TensorShape
+    layer_norm_get_beta_weights_shape(LayerNormAttrs const &attrs,
                            TensorShape const &input_shape) {
-  if (!attrs.elementwise_affine) {
-    return tl::unexpected(
-        "No beta weights exist for attrs.elementwise_affine = false");
-  }
 
-  return get_gamma_weights_shape(attrs, input_shape);
+  ASSERT(attrs.elementwise_affine, "No beta weights exist for attrs.elementwise_affine = false");
+
+  return layer_norm_get_gamma_weights_shape(attrs, input_shape);
 }
 
-tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs,
+std::map<TensorSlotName, TensorShape>
+    layer_norm_get_weight_shapes(LayerNormAttrs const &attrs,
                       TensorShape const &input_shape) {
 
   TensorShape gamma_shape =
-      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+      layer_norm_get_gamma_weights_shape(attrs, input_shape);
   TensorShape beta_shape =
-      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+      layer_norm_get_beta_weights_shape(attrs, input_shape);
 
   return std::map<TensorSlotName, TensorShape>{
       {
@@ -121,72 +106,55 @@ tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
   };
 }
 
-static std::optional<std::string>
-    check_input_shape(LayerNormAttrs const &attrs,
+static void
+    check_input_parallel_shape(LayerNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
-  {
-    TensorShape reduced_shape = get_reduced_shape(input_shape);
-    std::optional<std::string> maybe_err_msg =
-        check_input_shape(attrs, reduced_shape);
-    if (maybe_err_msg.has_value()) {
-      return maybe_err_msg;
-    }
-  }
 
-  if (get_sum_degree(input_shape) != 1) {
-    return fmt::format("Expected sum degree 1, but receieved sum degree {}",
-                       get_sum_degree(input_shape));
-  }
+  check_input_shape(attrs, get_reduced_shape(input_shape));
 
-  if (get_discard_copy_degree(input_shape) != 1) {
-    return fmt::format(
+  ASSERT(
+    get_sum_degree(input_shape) == 1,
+    fmt::format("Expected sum degree 1, but receieved sum degree {}",
+                get_sum_degree(input_shape))
+  );
+
+  ASSERT(
+    get_discard_copy_degree(input_shape) == 1,
+    fmt::format(
         "Expected discard copy degree 1, but received discard copy degree {}",
-        get_discard_copy_degree(input_shape));
-  }
+        get_discard_copy_degree(input_shape))
+  );
 
-  if (!all_of(attrs.axes, [&](ff_dim_t axis) {
-        return shard_dim_at_idx(input_shape,
-                                relative_ff_dim_t_from_ff_dim_t(axis))
-                   .degree == 1;
-      })) {
-    return fmt::format("Expected parallel degree of all dimensions in "
-                       "LayerNorm axes {} to be 1, but received input shape {}",
-                       attrs.axes,
-                       input_shape);
-  }
-
-  return std::nullopt;
+  ASSERT(
+    all_of(attrs.axes,
+           [&](ff_dim_t axis) -> bool {
+             return shard_dim_at_idx(input_shape,
+                                     relative_ff_dim_t_from_ff_dim_t(axis))
+                        .degree == 1;
+           }),
+    fmt::format("Expected parallel degree of all dimensions in "
+                "LayerNorm axes {} to be 1, but received input shape {}",
+                attrs.axes,
+                input_shape)
+  );
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(LayerNormAttrs const &attrs,
+ParallelTensorShape
+    layer_norm_get_output_parallel_shape(LayerNormAttrs const &attrs,
                      ParallelTensorShape const &input_shape) {
-  {
-    std::optional<std::string> maybe_err_msg =
-        check_input_shape(attrs, input_shape);
-    if (maybe_err_msg.has_value()) {
-      return tl::unexpected(maybe_err_msg.value());
-    }
-  }
+
+  check_input_parallel_shape(attrs, input_shape);
 
   return input_shape;
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_gamma_weights_shape(LayerNormAttrs const &attrs,
+ParallelTensorShape
+    layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs const &attrs,
                             ParallelTensorShape const &input_shape) {
-  {
-    std::optional<std::string> maybe_err_msg =
-        check_input_shape(attrs, input_shape);
-    if (maybe_err_msg.has_value()) {
-      return tl::unexpected(maybe_err_msg.value());
-    }
-  }
 
-  if (!attrs.elementwise_affine) {
-    return tl::unexpected(
-        "No gamma weights exist for attrs.elementwise_affine = false");
-  }
+  check_input_parallel_shape(attrs, input_shape);
+
+  ASSERT(attrs.elementwise_affine, "No gamma weights exist for attrs.elementwise_affine = false");
 
   std::vector<ff_dim_t> non_layer_norm_dim_idxs = filter(
       vector_of(ff_ordered_get_idxs(input_shape.dims.shard_dims)),
@@ -209,25 +177,23 @@ tl::expected<ParallelTensorShape, std::string>
   };
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_beta_weights_shape(LayerNormAttrs const &attrs,
+ParallelTensorShape
+    layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs const &attrs,
                            ParallelTensorShape const &input_shape) {
-  if (!attrs.elementwise_affine) {
-    return tl::unexpected(
-        "No beta weights exist for attrs.elementwise_affine = false");
-  }
+  
+  ASSERT(attrs.elementwise_affine, "No beta weights exist for attrs.elementwise_affine = false");
 
-  return get_gamma_weights_shape(attrs, input_shape);
+  return layer_norm_get_gamma_weights_parallel_shape(attrs, input_shape);
 }
 
-tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs,
+std::map<TensorSlotName, ParallelTensorShape>
+    layer_norm_get_weight_parallel_shapes(LayerNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
 
   ParallelTensorShape gamma_shape =
-      PROPAGATE_ERR(get_gamma_weights_shape(attrs, input_shape));
+      layer_norm_get_gamma_weights_parallel_shape(attrs, input_shape);
   ParallelTensorShape beta_shape =
-      PROPAGATE_ERR(get_beta_weights_shape(attrs, input_shape));
+      layer_norm_get_beta_weights_parallel_shape(attrs, input_shape);
 
   return std::map<TensorSlotName, ParallelTensorShape>{
       {
@@ -242,7 +208,7 @@ tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
 }
 
 std::map<TensorSlotName, InitializerAttrs>
-    get_initializers(LayerNormAttrs const &attrs) {
+    layer_norm_get_initializers(LayerNormAttrs const &attrs) {
   if (attrs.elementwise_affine) {
     InitializerAttrs gamma_initializer =
         InitializerAttrs{ConstantInitializerAttrs{DataTypeValue{float{1}}}};

@@ -7,7 +7,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("get_attention_incoming_tensor_roles(MultiHeadAttentionAttrs)") {
+  TEST_CASE("get_attention_incoming_tensor_roles") {
     auto make_attrs = [](bool bias) {
       return MultiHeadAttentionAttrs{
           /*embed_dim=*/32_p,
@@ -86,8 +86,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_shape(MultiHeadAttentionAttrs, TensorShape, "
-            "TensorShape, TensorShape)") {
+  TEST_CASE("shape inference (Attention)") {
     positive_int embed_dim = 32_p;
     positive_int num_heads = 10_p;
 
@@ -181,33 +180,33 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    SUBCASE("get_output_shape") {
-      tl::expected<TensorShape, std::string> result =
-          get_output_shape(attrs, input_q, input_k, input_v);
+    SUBCASE("attention_get_output_shape") {
+      TensorShape result =
+          attention_get_output_shape(attrs, input_q, input_k, input_v);
 
-      tl::expected<TensorShape, std::string> correct = output;
+      TensorShape correct = output;
       CHECK(result == correct);
     }
 
-    SUBCASE("get_weights_shape") {
-      tl::expected<TensorShape, std::string> result =
-          get_weights_shape(attrs, input_q, input_k, input_v);
+    SUBCASE("attention_get_weights_shape") {
+      TensorShape result =
+          attention_get_weights_shape(attrs, input_q, input_k, input_v);
 
-      tl::expected<TensorShape, std::string> correct = weights;
+      TensorShape correct = weights;
       CHECK(result == correct);
     }
 
-    SUBCASE("get_input_bias_shape") {
-      tl::expected<TensorShape, std::string> result =
-          get_input_bias_shape(attrs, input_q, input_k, input_v);
-      tl::expected<TensorShape, std::string> correct = input_bias;
+    SUBCASE("attention_get_input_bias_shape") {
+      TensorShape result =
+          attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
+      TensorShape correct = input_bias;
       CHECK(result == correct);
     }
 
-    SUBCASE("get_output_bias_shape") {
-      tl::expected<TensorShape, std::string> result =
-          get_output_bias_shape(attrs, input_q, input_k, input_v);
-      tl::expected<TensorShape, std::string> correct = output_bias;
+    SUBCASE("attention_get_output_bias_shape") {
+      TensorShape result =
+          attention_get_output_bias_shape(attrs, input_q, input_k, input_v);
+      TensorShape correct = output_bias;
       CHECK(result == correct);
     }
 
@@ -279,34 +278,34 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape v =
             make_v(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
 
-        SUBCASE("get_output_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_o(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_weights_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_weights_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_weights_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_weights_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_w(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_input_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_input_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_input_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_input_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_input_bias(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_output_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_output_bias(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p);
           CHECK(result == correct);
         }
@@ -321,34 +320,34 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape v =
             make_v(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p, 1_p, 1_p);
 
-        SUBCASE("get_output_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_o(SumDegree{o_h}, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p);
           CHECK(result == correct);
         }
 
         SUBCASE("get_weight_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_weights_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+          ParallelTensorShape result =
+              attention_get_weights_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_w(SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, o_h);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_input_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_input_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_input_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_input_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_input_bias(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_output_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_output_bias(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p);
           CHECK(result == correct);
         }
@@ -364,35 +363,35 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape v =
             make_v(SumDegree{1_p}, DiscardCopyDegree{o_h}, o_b, 1_p, 1_p);
 
-        SUBCASE("get_output_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_o(SumDegree{o_h}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_weights_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_weights_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_weights_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_weights_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_w(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p, o_h);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_input_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_input_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_input_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_input_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_input_bias(
                   SumDegree{1_p}, DiscardCopyDegree{o_b * o_h}, 1_p);
           CHECK(result == correct);
         }
 
-        SUBCASE("get_output_bias_shape") {
-          tl::expected<ParallelTensorShape, std::string> result =
-              get_output_bias_shape(attrs, q, k, v);
-          tl::expected<ParallelTensorShape, std::string> correct =
+        SUBCASE("attention_get_output_bias_parallel_shape") {
+          ParallelTensorShape result =
+              attention_get_output_bias_parallel_shape(attrs, q, k, v);
+          ParallelTensorShape correct =
               make_output_bias(
                   SumDegree{1_p}, DiscardCopyDegree{o_b * o_h}, 1_p);
           CHECK(result == correct);

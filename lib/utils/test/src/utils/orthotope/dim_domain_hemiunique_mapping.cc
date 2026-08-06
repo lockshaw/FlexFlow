@@ -1,5 +1,4 @@
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
-#include "utils/many_to_one/many_to_one_from_unstructured_relation.h"
 #include "utils/orthotope/dim_ordering.h"
 #include <doctest/doctest.h>
 
@@ -92,7 +91,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         DimDomainHemiuniqueMapping<int, std::string>{
             /*coord_mapping=*/HemiuniqueBinaryRelation<DimCoord<int>,
                                                        DimCoord<std::string>>{
-                many_to_one_from_unstructured_relation(std::unordered_set<
+                many_to_one_from_unstructured_relation(std::set<
                                                        std::pair<
                                                            DimCoord<int>,
                                                            DimCoord<

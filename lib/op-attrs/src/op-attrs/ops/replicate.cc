@@ -5,7 +5,7 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(ReplicateAttrs const &attrs,
+ParallelTensorShape replicate_get_output_parallel_shape(ReplicateAttrs const &attrs,
                                      ParallelTensorShape const &input_shape) {
   ParallelTensorShape output_shape = input_shape;
   output_shape.dims.replica_dims.discard_copy_degree.value *=
@@ -13,7 +13,7 @@ ParallelTensorShape get_output_shape(ReplicateAttrs const &attrs,
   return output_shape;
 }
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees replicate_get_output_parallel_dim_degrees(
     ReplicateAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees = input_degrees;
@@ -25,7 +25,7 @@ OperatorTaskSpace replicate_get_operator_task_space(
     ReplicateAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =
-      get_output_parallel_dim_degrees(attrs, input_degrees);
+      replicate_get_output_parallel_dim_degrees(attrs, input_degrees);
 
   return get_operator_task_space_matching_parallel_tensor_dim_degrees(
       output_degrees);

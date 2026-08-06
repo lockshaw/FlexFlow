@@ -32,7 +32,7 @@ OperatorTaskSpace repartition_get_operator_task_space(
     RepartitionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =
-      get_output_parallel_dim_degrees(attrs, input_degrees);
+      repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
 
   return get_operator_task_space_matching_parallel_tensor_dim_degrees(
       output_degrees);

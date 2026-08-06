@@ -12,11 +12,11 @@ ParallelTensorShape
     combine_get_output_parallel_shape(CombineAttrs const &,
                                       ParallelTensorShape const &);
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees combine_get_output_parallel_dim_degrees(
     CombineAttrs const &, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace
-    get_operator_task_space(CombineAttrs const &attrs,
+    combine_get_operator_task_space(CombineAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow

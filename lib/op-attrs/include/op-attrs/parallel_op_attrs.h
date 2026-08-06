@@ -8,8 +8,8 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(ParallelOpAttrs const &,
-                                     ParallelTensorShape const &);
+ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(ParallelOpAttrs const &,
+                                                                ParallelTensorShape const &);
 PCGOperatorAttrs pcg_op_attrs_from_parallel_op_attrs(ParallelOpAttrs const &);
 
 } // namespace FlexFlow

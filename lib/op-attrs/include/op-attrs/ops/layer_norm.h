@@ -14,27 +14,24 @@ namespace FlexFlow {
 std::map<TensorSlotName, IncomingTensorRole>
     get_layer_norm_incoming_tensor_roles(LayerNormAttrs const &);
 
-tl::expected<TensorShape, std::string> get_output_shape(LayerNormAttrs const &,
-                                                        TensorShape const &);
-tl::expected<TensorShape, std::string>
-    get_gamma_weights_shape(LayerNormAttrs const &, TensorShape const &);
-tl::expected<TensorShape, std::string>
-    get_beta_weights_shape(LayerNormAttrs const &, TensorShape const &);
+TensorShape layer_norm_get_output_shape(LayerNormAttrs const &, TensorShape const &);
+TensorShape layer_norm_get_gamma_weights_shape(LayerNormAttrs const &, TensorShape const &);
+TensorShape layer_norm_get_beta_weights_shape(LayerNormAttrs const &, TensorShape const &);
 
-tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs,
+std::map<TensorSlotName, TensorShape>
+    layer_norm_get_weight_shapes(LayerNormAttrs const &attrs,
                       TensorShape const &input_shape);
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(LayerNormAttrs const &, ParallelTensorShape const &);
-tl::expected<ParallelTensorShape, std::string>
-    get_gamma_weights_shape(LayerNormAttrs const &,
+ParallelTensorShape
+    layer_norm_get_output_parallel_shape(LayerNormAttrs const &, ParallelTensorShape const &);
+ParallelTensorShape
+    layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs const &,
                             ParallelTensorShape const &);
-tl::expected<ParallelTensorShape, std::string>
-    get_beta_weights_shape(LayerNormAttrs const &, ParallelTensorShape const &);
+ParallelTensorShape
+    layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs const &, ParallelTensorShape const &);
 
-tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
-    get_weight_shapes(LayerNormAttrs const &attrs,
+std::map<TensorSlotName, ParallelTensorShape>
+    layer_norm_get_weight_parallel_shapes(LayerNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape);
 
 /**
@@ -44,7 +41,7 @@ tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
  * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/normalization.py#L210-L214
  */
 std::map<TensorSlotName, InitializerAttrs>
-    get_initializers(LayerNormAttrs const &attrs);
+    layer_norm_get_initializers(LayerNormAttrs const &attrs);
 
 } // namespace FlexFlow
 

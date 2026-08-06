@@ -40,8 +40,8 @@ std::map<TensorSlotName, IncomingTensorRole>
   return result;
 }
 
-tl::expected<TensorShape, std::string>
-    get_projection_shape(LinearAttrs const &attrs,
+TensorShape
+    linear_get_projection_shape(LinearAttrs const &attrs,
                          TensorShape const &input_shape) {
   positive_int in_channels =
       dim_at_idx(input_shape.dims, relative_ff_dim_t{-1});
@@ -54,8 +54,8 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_bias_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
+TensorShape
+    linear_get_bias_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
   return TensorShape{
       TensorDims{
           FFOrdered<positive_int>{attrs.out_channels},
@@ -64,51 +64,51 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_output_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
+TensorShape
+    linear_get_output_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
   TensorShape output_shape = input_shape;
   output_shape.dims.ff_ordered.at(relative_ff_dim_t{-1}) = attrs.out_channels;
 
   return output_shape;
 }
 
-tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
-    get_weight_shapes(LinearAttrs const &attrs,
+std::map<TensorSlotName, TensorShape>
+    linear_get_weight_shapes(LinearAttrs const &attrs,
                       TensorShape const &input_shape) {
 
   std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          PROPAGATE_ERR(get_projection_shape(attrs, input_shape)),
+          linear_get_projection_shape(attrs, input_shape),
       },
   };
 
   if (attrs.use_bias) {
     weight_shapes.insert({
         TensorSlotName::BIAS,
-        PROPAGATE_ERR(get_bias_shape(attrs, input_shape)),
+        linear_get_bias_shape(attrs, input_shape),
     });
   }
 
   return weight_shapes;
 }
 
-std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
-    get_weight_parallel_dim_degrees(
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    linear_get_weight_parallel_dim_degrees(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees =
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees =
       {
           {
               TensorSlotName::WEIGHT,
-              get_projection_parallel_dim_degrees(attrs, input_degrees),
+              linear_get_projection_parallel_dim_degrees(attrs, input_degrees),
           },
       };
 
   if (attrs.use_bias) {
     weight_degrees.insert({
         TensorSlotName::BIAS,
-        get_bias_parallel_dim_degrees(attrs, input_degrees),
+        linear_get_bias_parallel_dim_degrees(attrs, input_degrees),
     });
   }
 
@@ -116,53 +116,33 @@ std::unordered_map<TensorSlotName, ParallelTensorDimDegrees>
 }
 
 //! [parallel shape inference composition example]
-tl::expected<ParallelTensorShape, std::string>
-    get_projection_shape(LinearAttrs const &attrs,
+ParallelTensorShape
+    linear_get_projection_parallel_shape(LinearAttrs const &attrs,
                          ParallelTensorShape const &input) {
-  TensorShape unpar = ({
-    tl::expected<TensorShape, std::string> result_unpar =
-        get_projection_shape(attrs, get_reduced_shape(input));
-    if (!result_unpar.has_value()) {
-      return tl::unexpected(result_unpar.error());
-    }
-    result_unpar.value();
-  });
+  TensorShape unpar = linear_get_projection_shape(attrs, get_reduced_shape(input));
 
   ParallelTensorDimDegrees projection_degrees =
-      get_projection_parallel_dim_degrees(attrs, get_parallel_degrees(input));
+      linear_get_projection_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
   return lift_to_parallel_with_degrees(unpar, projection_degrees);
 }
 //! [parallel shape inference composition example]
 
-tl::expected<ParallelTensorShape, std::string>
-    get_bias_shape(LinearAttrs const &attrs, ParallelTensorShape const &input) {
-  TensorShape unpar = ({
-    tl::expected<TensorShape, std::string> result_unpar =
-        get_bias_shape(attrs, get_reduced_shape(input));
-    if (!result_unpar.has_value()) {
-      return tl::unexpected(result_unpar.error());
-    }
-    result_unpar.value();
-  });
+ParallelTensorShape
+    linear_get_bias_parallel_shape(LinearAttrs const &attrs, ParallelTensorShape const &input) {
+
+  TensorShape unpar = linear_get_bias_shape(attrs, get_reduced_shape(input));
 
   ParallelTensorDimDegrees bias_degrees =
-      get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input));
+      linear_get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
   return lift_to_parallel_with_degrees(unpar, bias_degrees);
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(LinearAttrs const &attrs,
+ParallelTensorShape
+    linear_get_output_parallel_shape(LinearAttrs const &attrs,
                      ParallelTensorShape const &input) {
-  TensorShape unpar = ({
-    tl::expected<TensorShape, std::string> result_unpar =
-        get_output_shape(attrs, get_reduced_shape(input));
-    if (!result_unpar.has_value()) {
-      return tl::unexpected(result_unpar.error());
-    }
-    result_unpar.value();
-  });
+  TensorShape unpar = linear_get_output_shape(attrs, get_reduced_shape(input));
 
   ParallelTensorDimDegrees output_degrees =
       linear_get_output_parallel_dim_degrees(attrs,
@@ -172,7 +152,7 @@ tl::expected<ParallelTensorShape, std::string>
 }
 
 ParallelTensorDimDegrees
-    get_projection_parallel_dim_degrees(LinearAttrs const &attrs,
+    linear_get_projection_parallel_dim_degrees(LinearAttrs const &attrs,
                                         ParallelTensorDimDegrees const &input) {
   SumDegree sum_degree = SumDegree{1_p};
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
@@ -192,7 +172,7 @@ ParallelTensorDimDegrees
 }
 
 ParallelTensorDimDegrees
-    get_bias_parallel_dim_degrees(LinearAttrs const &attrs,
+    linear_get_bias_parallel_dim_degrees(LinearAttrs const &attrs,
                                   ParallelTensorDimDegrees const &input) {
 
   SumDegree sum_degree = SumDegree{
@@ -228,20 +208,22 @@ ParallelTensorDimDegrees linear_get_output_parallel_dim_degrees(
   };
 }
 
-tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
-    get_weight_shapes(LinearAttrs const &attrs,
+std::map<TensorSlotName, ParallelTensorShape>
+    linear_get_weight_parallel_shapes(LinearAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
 
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          PROPAGATE_ERR(get_projection_shape(attrs, input_shape)),
+          linear_get_projection_parallel_shape(attrs, input_shape),
       },
   };
 
   if (attrs.use_bias) {
-    weight_shapes.insert({TensorSlotName::BIAS,
-                          PROPAGATE_ERR(get_bias_shape(attrs, input_shape))});
+    weight_shapes.insert({
+      TensorSlotName::BIAS,
+      linear_get_bias_parallel_shape(attrs, input_shape),
+    });
   }
 
   return weight_shapes;
@@ -253,22 +235,21 @@ tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
  * see
  * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/linear.py#L114-L122
  */
-tl::expected<std::map<TensorSlotName, InitializerAttrs>, std::string>
-    get_initializers(
+std::map<TensorSlotName, InitializerAttrs>
+    linear_get_initializers(
         LinearAttrs const &attrs,
         TensorShape const &input_shape,
         std::optional<InitializerAttrs> const &maybe_projection_initializer,
         std::optional<InitializerAttrs> const &maybe_bias_initializer) {
 
-  if (!attrs.use_bias && maybe_bias_initializer.has_value()) {
-    return tl::unexpected(
-        fmt::format("Expected bias_initializer=std::nullopt since "
-                    "use_bias=false, but received bias_initializer: {}",
-                    maybe_bias_initializer.value()));
-  }
+  ASSERT(
+    attrs.use_bias || !maybe_bias_initializer.has_value(),
+    fmt::format("Expected bias_initializer=std::nullopt since "
+                "use_bias=false, but received bias_initializer: {}",
+                maybe_bias_initializer.value())
+  );
 
-  TensorShape projection_shape =
-      PROPAGATE_ERR(get_projection_shape(attrs, input_shape));
+  TensorShape projection_shape = linear_get_projection_shape(attrs, input_shape);
 
   InitializerAttrs projection_default_initializer =
       InitializerAttrs{KaimingNormalAttrs{
@@ -404,7 +385,7 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
                /*onto=*/projection_in_channel_dim);
 
   ParallelTensorDimDegrees projection_degrees =
-      get_projection_parallel_dim_degrees(attrs, input_degrees);
+      linear_get_projection_parallel_dim_degrees(attrs, input_degrees);
 
   return parallel_tensor_space_mapping_from_projection(
       DimProjection{inp_to_proj}, input_degrees, projection_degrees);
@@ -420,7 +401,7 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
       get_ptensor_dim_degrees_num_shard_dims(input_degrees);
 
   ParallelTensorDimDegrees bias_degrees =
-      get_bias_parallel_dim_degrees(attrs, input_degrees);
+      linear_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
   DownProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
       inp_to_bias = make_empty_down_projection<parallel_tensor_dim_idx_t,

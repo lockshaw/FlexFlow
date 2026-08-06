@@ -20,79 +20,79 @@ namespace FlexFlow {
 /*   return is_valid; */
 /* } */
 
-positive_int get_qProjSize(MultiHeadAttentionAttrs const &attrs) {
+positive_int attention_get_qProjSize(MultiHeadAttentionAttrs const &attrs) {
   return attrs.kdim;
 }
 
-positive_int get_vProjSize(MultiHeadAttentionAttrs const &attrs) {
+positive_int attention_get_vProjSize(MultiHeadAttentionAttrs const &attrs) {
   return attrs.vdim;
 }
 
-positive_int get_kProjSize(MultiHeadAttentionAttrs const &attrs) {
+positive_int attention_get_kProjSize(MultiHeadAttentionAttrs const &attrs) {
   return attrs.kdim;
 }
 
-positive_int get_oProjSize(MultiHeadAttentionAttrs const &attrs) {
+positive_int attention_get_oProjSize(MultiHeadAttentionAttrs const &attrs) {
   return attrs.embed_dim;
 }
 
-positive_int get_qSize(TensorShape const &query_shape) {
+positive_int attention_get_qSize(TensorShape const &query_shape) {
   return dim_at_idx(query_shape.dims, relative_ff_dim_t{0});
 }
 
-positive_int get_kSize(TensorShape const &key_shape) {
+positive_int attention_get_kSize(TensorShape const &key_shape) {
   return dim_at_idx(key_shape.dims, relative_ff_dim_t{0});
 }
 
-positive_int get_vSize(TensorShape const &value_shape) {
+positive_int attention_get_vSize(TensorShape const &value_shape) {
   return dim_at_idx(value_shape.dims, relative_ff_dim_t{0});
 }
 
-positive_int get_qSize(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_qSize(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.query_dim.size;
 }
 
-positive_int get_qSize(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_qSize(MultiHeadAttentionInputs const &inputs) {
   return inputs.query_size;
 }
 
-positive_int get_kSize(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_kSize(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.key_dim.size;
 }
 
-positive_int get_kSize(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_kSize(MultiHeadAttentionInputs const &inputs) {
   return inputs.key_size;
 }
 
-positive_int get_vSize(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_vSize(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.value_dim.size;
 }
 
-positive_int get_vSize(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_vSize(MultiHeadAttentionInputs const &inputs) {
   return inputs.value_size;
 }
 
-positive_int get_kvSeqLength(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_kvSeqLength(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.sequence_dim.size;
 }
 
-positive_int get_kvSeqLength(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_kvSeqLength(MultiHeadAttentionInputs const &inputs) {
   return inputs.sequence_length;
 }
 
-positive_int get_qoSeqLength(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_qoSeqLength(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.sequence_dim.size; // FIXME -- assumes only prefill
 }
 
-positive_int get_qoSeqLength(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_qoSeqLength(MultiHeadAttentionInputs const &inputs) {
   return inputs.sequence_length; // FIXME -- assumes only prefil
 }
 
-positive_int get_num_samples(MultiHeadAttentionParallelInputs const &inputs) {
+positive_int attention_get_num_samples(MultiHeadAttentionParallelInputs const &inputs) {
   return inputs.batch_dim.size;
 }
 
-positive_int get_num_samples(MultiHeadAttentionInputs const &inputs) {
+positive_int attention_get_num_samples(MultiHeadAttentionInputs const &inputs) {
   return inputs.batch_size;
 }
 
@@ -122,20 +122,15 @@ std::map<TensorSlotName, IncomingTensorRole>
   return roles;
 }
 
-tl::expected<TensorShape, std::string>
-    get_output_shape(MultiHeadAttentionAttrs const &attrs,
+TensorShape
+    attention_get_output_shape(MultiHeadAttentionAttrs const &attrs,
                      TensorShape const &input_q,
                      TensorShape const &input_k,
                      TensorShape const &input_v) {
   check_attrs(attrs);
 
-  tl::expected<MultiHeadAttentionInputs, std::string> parse_result =
+  MultiHeadAttentionInputs parsed =
       parse_attention_input_shape(input_q, input_k, input_v);
-  if (!parse_result.has_value()) {
-    return tl::unexpected(parse_result.error());
-  }
-
-  MultiHeadAttentionInputs parsed = parse_result.value();
 
   return TensorShape{
       TensorDims{FFOrdered<positive_int>{
@@ -147,20 +142,15 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_weights_shape(MultiHeadAttentionAttrs const &attrs,
+TensorShape
+    attention_get_weights_shape(MultiHeadAttentionAttrs const &attrs,
                       TensorShape const &input_q,
                       TensorShape const &input_k,
                       TensorShape const &input_v) {
   check_attrs(attrs);
 
-  tl::expected<MultiHeadAttentionInputs, std::string> parse_result =
+  MultiHeadAttentionInputs parsed =
       parse_attention_input_shape(input_q, input_k, input_v);
-  if (!parse_result.has_value()) {
-    return tl::unexpected(parse_result.error());
-  }
-
-  MultiHeadAttentionInputs parsed = parse_result.value();
 
   // W^Q_i in "Attention Is All You Need" top of page 5
   positive_int qProjectWeightSize = parsed.query_size * attrs.kdim;
@@ -185,21 +175,15 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
+TensorShape
+    attention_get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
                          TensorShape const &input_q,
                          TensorShape const &input_k,
                          TensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionInputs parsed = ({
-    tl::expected<MultiHeadAttentionInputs, std::string> parse_result =
+  MultiHeadAttentionInputs parsed = 
         parse_attention_input_shape(input_q, input_k, input_v);
-    if (!parse_result.has_value()) {
-      return tl::unexpected(parse_result.error());
-    }
-    parse_result.value();
-  });
 
   return TensorShape{
       TensorDims{FFOrdered<positive_int>{
@@ -209,21 +193,15 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<TensorShape, std::string>
-    get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
+TensorShape
+    attention_get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
                           TensorShape const &input_q,
                           TensorShape const &input_k,
                           TensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionInputs parsed = ({
-    tl::expected<MultiHeadAttentionInputs, std::string> parse_result =
+  MultiHeadAttentionInputs parsed = 
         parse_attention_input_shape(input_q, input_k, input_v);
-    if (!parse_result.has_value()) {
-      return tl::unexpected(parse_result.error());
-    }
-    parse_result.value();
-  });
 
   return TensorShape{
       TensorDims{FFOrdered<positive_int>{
@@ -233,8 +211,8 @@ tl::expected<TensorShape, std::string>
   };
 }
 
-tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
-    get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
+std::map<TensorSlotName, TensorShape>
+    attention_get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
                       TensorShape const &input_q,
                       TensorShape const &input_k,
                       TensorShape const &input_v) {
@@ -242,48 +220,40 @@ tl::expected<std::map<TensorSlotName, TensorShape>, std::string>
   std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
+          attention_get_weights_shape(attrs, input_q, input_k, input_v),
       },
   };
 
   if (attrs.bias) {
     weight_shapes.insert({
         TensorSlotName::INPUT_BIAS,
-        PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)),
+        attention_get_input_bias_shape(attrs, input_q, input_k, input_v),
     });
 
     weight_shapes.insert({
         TensorSlotName::OUTPUT_BIAS,
-        PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)),
+        attention_get_output_bias_shape(attrs, input_q, input_k, input_v),
     });
   }
 
   return weight_shapes;
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_weights_shape(MultiHeadAttentionAttrs const &attrs,
+ParallelTensorShape
+    attention_get_weights_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                       ParallelTensorShape const &input_q,
                       ParallelTensorShape const &input_k,
                       ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
-  tl::expected<MultiHeadAttentionParallelInputs, std::string> parse_result =
+  MultiHeadAttentionParallelInputs parsed =
       parse_attention_parallel_input_shape(input_q, input_k, input_v);
-  if (!parse_result.has_value()) {
-    return tl::unexpected(parse_result.error());
-  }
-  MultiHeadAttentionParallelInputs parsed = parse_result.value();
 
-  tl::expected<TensorShape, std::string> result_unpar_get_shape =
-      get_weights_shape(attrs,
+  TensorShape unpar_shape =
+      attention_get_weights_shape(attrs,
                         get_reduced_shape(input_q),
                         get_reduced_shape(input_k),
                         get_reduced_shape(input_v));
-  if (!result_unpar_get_shape.has_value()) {
-    return tl::unexpected(result_unpar_get_shape.error());
-  }
-  TensorShape unpar_shape = result_unpar_get_shape.value();
 
   positive_int joined_dim_degree = 1_p;
   positive_int head_dim_degree = parsed.discard_copy_degree.value;
@@ -295,35 +265,21 @@ tl::expected<ParallelTensorShape, std::string>
       FFOrdered<positive_int>{joined_dim_degree, head_dim_degree});
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
+ParallelTensorShape
+    attention_get_input_bias_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                          ParallelTensorShape const &input_q,
                          ParallelTensorShape const &input_k,
                          ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionParallelInputs parsed = ({
-    tl::expected<MultiHeadAttentionParallelInputs, std::string> parse_result =
+  MultiHeadAttentionParallelInputs parsed =
         parse_attention_parallel_input_shape(input_q, input_k, input_v);
-    if (!parse_result.has_value()) {
-      return tl::unexpected(parse_result.error());
-    }
 
-    parse_result.value();
-  });
-
-  TensorShape unpar_shape = ({
-    tl::expected<TensorShape, std::string> result_unpar =
-        get_input_bias_shape(attrs,
+  TensorShape unpar_shape = 
+        attention_get_input_bias_shape(attrs,
                              get_reduced_shape(input_q),
                              get_reduced_shape(input_k),
                              get_reduced_shape(input_v));
-    if (!result_unpar.has_value()) {
-      return tl::unexpected(result_unpar.error());
-    }
-
-    result_unpar.value();
-  });
 
   SumDegree sum_degree = SumDegree{1_p};
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
@@ -333,35 +289,21 @@ tl::expected<ParallelTensorShape, std::string>
       unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
+ParallelTensorShape
+    attention_get_output_bias_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                           ParallelTensorShape const &input_q,
                           ParallelTensorShape const &input_k,
                           ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionParallelInputs parsed = ({
-    tl::expected<MultiHeadAttentionParallelInputs, std::string> parse_result =
+  MultiHeadAttentionParallelInputs parsed =
         parse_attention_parallel_input_shape(input_q, input_k, input_v);
-    if (!parse_result.has_value()) {
-      return tl::unexpected(parse_result.error());
-    }
 
-    parse_result.value();
-  });
-
-  TensorShape unpar_shape = ({
-    tl::expected<TensorShape, std::string> result_unpar =
-        get_output_bias_shape(attrs,
+  TensorShape unpar_shape = 
+        attention_get_output_bias_shape(attrs,
                               get_reduced_shape(input_q),
                               get_reduced_shape(input_k),
                               get_reduced_shape(input_v));
-    if (!result_unpar.has_value()) {
-      return tl::unexpected(result_unpar.error());
-    }
-
-    result_unpar.value();
-  });
 
   SumDegree sum_degree = SumDegree{1_p};
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
@@ -371,29 +313,21 @@ tl::expected<ParallelTensorShape, std::string>
       unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(MultiHeadAttentionAttrs const &attrs,
+ParallelTensorShape
+    attention_get_output_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                      ParallelTensorShape const &input_q,
                      ParallelTensorShape const &input_k,
                      ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
-  tl::expected<MultiHeadAttentionParallelInputs, std::string> parse_result =
+  MultiHeadAttentionParallelInputs parsed =
       parse_attention_parallel_input_shape(input_q, input_k, input_v);
-  if (!parse_result.has_value()) {
-    return tl::unexpected(parse_result.error());
-  }
-  MultiHeadAttentionParallelInputs parsed = parse_result.value();
 
-  tl::expected<TensorShape, std::string> result_unpar_get_shape =
-      get_output_shape(attrs,
+  TensorShape unpar_shape =
+      attention_get_output_shape(attrs,
                        get_reduced_shape(input_q),
                        get_reduced_shape(input_k),
                        get_reduced_shape(input_v));
-  if (!result_unpar_get_shape.has_value()) {
-    return tl::unexpected(result_unpar_get_shape.error());
-  }
-  TensorShape unpar_shape = result_unpar_get_shape.value();
 
   positive_int sum_degree = parsed.discard_copy_degree.value;
   positive_int discard_copy_degree = 1_p;
@@ -408,16 +342,16 @@ tl::expected<ParallelTensorShape, std::string>
       FFOrdered{batch_degree, seq_len_degree, out_dim_degree});
 }
 
-positive_int get_oSize(ParallelTensorShape const &) {
+positive_int attention_get_oSize(ParallelTensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
-positive_int get_oSize(TensorShape const &) {
+positive_int attention_get_oSize(TensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
-tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
-    get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
+std::map<TensorSlotName, ParallelTensorShape>
+    attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &attrs,
                       ParallelTensorShape const &input_q,
                       ParallelTensorShape const &input_k,
                       ParallelTensorShape const &input_v) {
@@ -425,27 +359,27 @@ tl::expected<std::map<TensorSlotName, ParallelTensorShape>, std::string>
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          PROPAGATE_ERR(get_weights_shape(attrs, input_q, input_k, input_v)),
+          attention_get_weights_parallel_shape(attrs, input_q, input_k, input_v),
       },
   };
 
   if (attrs.bias) {
     weight_shapes.insert({
         TensorSlotName::INPUT_BIAS,
-        PROPAGATE_ERR(get_input_bias_shape(attrs, input_q, input_k, input_v)),
+        attention_get_input_bias_parallel_shape(attrs, input_q, input_k, input_v),
     });
 
     weight_shapes.insert({
         TensorSlotName::OUTPUT_BIAS,
-        PROPAGATE_ERR(get_output_bias_shape(attrs, input_q, input_k, input_v)),
+        attention_get_output_bias_parallel_shape(attrs, input_q, input_k, input_v),
     });
   }
 
   return weight_shapes;
 }
 
-tl::expected<std::map<TensorSlotName, InitializerAttrs>, std::string>
-    get_initializers(
+std::map<TensorSlotName, InitializerAttrs>
+    attention_get_initializers(
         MultiHeadAttentionAttrs const &attrs,
         TensorShape const &input_q,
         TensorShape const &input_k,
@@ -455,19 +389,19 @@ tl::expected<std::map<TensorSlotName, InitializerAttrs>, std::string>
         std::optional<InitializerAttrs> const &maybe_output_bias_initializer) {
   check_attrs(attrs);
 
-  if (!attrs.bias && maybe_input_bias_initializer.has_value()) {
-    return tl::unexpected(
-        fmt::format("Expected input_bias_initializer=std::nullopt since "
-                    "bias=false, but received input_bias_initializer: {}",
-                    maybe_input_bias_initializer.value()));
-  }
+  ASSERT(
+    attrs.bias || !maybe_input_bias_initializer.has_value(),
+    fmt::format("Expected input_bias_initializer=std::nullopt since "
+                "bias=false, but received input_bias_initializer: {}",
+                maybe_input_bias_initializer.value())
+  );
 
-  if (!attrs.bias && maybe_output_bias_initializer.has_value()) {
-    return tl::unexpected(
-        fmt::format("Expected output_bias_initializer=std::nullopt since "
-                    "bias=false, but received output_bias_initializer: {}",
-                    maybe_output_bias_initializer.value()));
-  }
+  ASSERT(
+    attrs.bias || !maybe_output_bias_initializer.has_value(),
+    fmt::format("Expected output_bias_initializer=std::nullopt since "
+                "bias=false, but received output_bias_initializer: {}",
+                maybe_output_bias_initializer.value())
+  );
 
   InitializerAttrs default_weights_initializer = InitializerAttrs{
       GlorotUniformAttrs{

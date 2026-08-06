@@ -3,23 +3,23 @@
 
 #include "op-attrs/initializer_attrs.dtg.h"
 #include "op-attrs/ops/embedding_attrs.dtg.h"
-#include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/tensor_shape.h"
+#include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include "utils/record_formatter.h"
-#include <tl/expected.hpp>
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 
 namespace FlexFlow {
 
-tl::expected<TensorShape, std::string> get_output_shape(EmbeddingAttrs const &,
-                                                        TensorShape const &);
-tl::expected<TensorShape, std::string> get_weights_shape(EmbeddingAttrs const &,
-                                                         TensorShape const &);
+TensorShape embedding_get_output_shape(EmbeddingAttrs const &, TensorShape const &);
+TensorShape embedding_get_weights_shape(EmbeddingAttrs const &, TensorShape const &);
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
-tl::expected<ParallelTensorShape, std::string>
-    get_weights_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
+ParallelTensorDimDegrees embedding_get_output_parallel_dim_degrees(
+  EmbeddingAttrs const &, ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees embedding_get_weights_parallel_dim_degrees(
+  EmbeddingAttrs const &, ParallelTensorDimDegrees const &);
+
+ParallelTensorShape embedding_get_output_parallel_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
+ParallelTensorShape embedding_get_weights_parallel_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
 
 /**
  * @brief Chosen to match pytorch
@@ -27,7 +27,7 @@ tl::expected<ParallelTensorShape, std::string>
  * see
  * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/sparse.py#L180-L182
  */
-std::map<TensorSlotName, InitializerAttrs> get_initializers(
+std::map<TensorSlotName, InitializerAttrs> embedding_get_initializers(
     EmbeddingAttrs const &,
     std::optional<InitializerAttrs> const &initializer_attrs = std::nullopt);
 

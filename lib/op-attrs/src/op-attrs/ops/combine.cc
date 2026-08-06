@@ -29,7 +29,7 @@ ParallelTensorShape
   return output;
 }
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees combine_get_output_parallel_dim_degrees(
     CombineAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
   positive_int input_degree = input_degrees.shard_degrees.at(attrs.combine_dim);
   ASSERT(input_degree % attrs.combine_degree == 0);
@@ -46,7 +46,7 @@ ParallelTensorDimDegrees get_output_parallel_dim_degrees(
 }
 
 OperatorTaskSpace
-    get_operator_task_space(CombineAttrs const &attrs,
+    combine_get_operator_task_space(CombineAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees) {
   return get_operator_task_space_matching_parallel_tensor_dim_degrees(
       input_degrees);

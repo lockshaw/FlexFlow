@@ -6,7 +6,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("Repartition shape inference") {
+  TEST_CASE("repartition_get_output_parallel_shape") {
     ff_dim_t dim = ff_dim_t{2_n};
     RepartitionAttrs attrs = RepartitionAttrs{
         /*repartition_dim=*/dim,
@@ -41,8 +41,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(RepartitionAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("repartition_get_output_parallel_dim_degrees") {
     RepartitionAttrs attrs = RepartitionAttrs{
         /*repartition_dim=*/ff_dim_t{1_n},
         /*repartition_degree=*/2_ge2,
@@ -58,7 +57,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees result =
-        get_output_parallel_dim_degrees(attrs, input_degrees);
+        repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
 
     ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
         SumDegree{2_p},
@@ -72,8 +71,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("repartition_get_operator_task_space(RepartitionAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("repartition_get_operator_task_space") {
     RepartitionAttrs attrs = RepartitionAttrs{
         /*repartition_dim=*/ff_dim_t{1_n},
         /*repartition_degree=*/2_ge2,
@@ -92,7 +90,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         repartition_get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
-            std::unordered_map<operator_task_space_dim_idx_t, int_ge_two>{
+            std::map<operator_task_space_dim_idx_t, int_ge_two>{
                 {operator_task_space_dim_idx_t{0_n}, 2_ge2},
                 {operator_task_space_dim_idx_t{1_n}, 2_ge2},
                 {operator_task_space_dim_idx_t{2_n}, 6_ge2},

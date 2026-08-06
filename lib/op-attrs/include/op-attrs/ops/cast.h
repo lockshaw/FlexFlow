@@ -4,16 +4,17 @@
 #include "op-attrs/ops/cast_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
-#include "utils/record_formatter.h"
-#include <tl/expected.hpp>
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 
 namespace FlexFlow {
 
-tl::expected<TensorShape, std::string> get_output_shape(CastAttrs const &,
-                                                        TensorShape const &);
+TensorShape cast_get_output_shape(CastAttrs const &, TensorShape const &);
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(CastAttrs const &, ParallelTensorShape const &);
+ParallelTensorDimDegrees cast_get_output_parallel_dim_degrees(
+  CastAttrs const &, ParallelTensorDimDegrees const &);
+
+ParallelTensorShape
+    cast_get_output_parallel_shape(CastAttrs const &, ParallelTensorShape const &);
 
 } // namespace FlexFlow
 

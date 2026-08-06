@@ -1,22 +1,33 @@
 #include "op-attrs/ops/cast.h"
 #include "op-attrs/datatype.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_dims.h"
 
 namespace FlexFlow {
 
-tl::expected<TensorShape, std::string>
-    get_output_shape(CastAttrs const &attrs, TensorShape const &input) {
+TensorShape
+    cast_get_output_shape(CastAttrs const &attrs, TensorShape const &input) {
 
   TensorShape output = input;
   output.data_type = attrs.dtype;
   return output;
 }
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(CastAttrs const &attrs, ParallelTensorShape const &input) {
+ParallelTensorDimDegrees cast_get_output_parallel_dim_degrees(
+  CastAttrs const &attrs, ParallelTensorDimDegrees const &input_dim_degrees) {
 
-  ParallelTensorShape output = input;
-  output.data_type = attrs.dtype;
-  return output;
+  return input_dim_degrees;
+}
+
+ParallelTensorShape
+    cast_get_output_parallel_shape(CastAttrs const &attrs, ParallelTensorShape const &input) {
+
+  TensorShape unpar = cast_get_output_shape(attrs, get_reduced_shape(input));
+
+  ParallelTensorDimDegrees output_degrees =
+      cast_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input));
+
+  return lift_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 } // namespace FlexFlow

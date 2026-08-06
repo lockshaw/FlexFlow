@@ -20,7 +20,7 @@ namespace FlexFlow {
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_incoming_mappings(
         PCGOperatorAttrs const &op_attrs,
-        std::unordered_map<TensorSlotName, ParallelTensorDimDegrees> const
+        std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
   return op_attrs.visit<
       std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
@@ -38,12 +38,12 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::LHS_INPUT,
-                    get_operator_to_lhs_input_mapping(
+                    element_binary_get_operator_to_lhs_input_mapping(
                         attrs, lhs_degrees, rhs_degrees),
                 },
                 {
                     TensorSlotName::RHS_INPUT,
-                    get_operator_to_rhs_input_mapping(
+                    element_binary_get_operator_to_rhs_input_mapping(
                         attrs, lhs_degrees, rhs_degrees),
                 },
             };
@@ -57,7 +57,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::INPUT,
-                    get_operator_to_input_mapping(attrs, input_degrees),
+                    element_unary_get_operator_to_input_mapping(attrs, input_degrees),
                 },
             };
           },
@@ -118,7 +118,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::INPUT,
-                    get_operator_to_input_mapping(attrs, input_degrees),
+                    transpose_get_operator_to_input_mapping(attrs, input_degrees),
                 },
             };
           },
@@ -205,7 +205,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(
+                    element_binary_get_operator_to_output_mapping(
                         attrs, lhs_degrees, rhs_degrees),
                 },
             };
@@ -219,7 +219,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(attrs, input_degrees),
+                    element_unary_get_operator_to_output_mapping(attrs, input_degrees),
                 },
             };
           },
@@ -244,7 +244,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(attrs),
+                    input_get_operator_to_output_mapping(attrs),
                 },
             };
           },
@@ -271,7 +271,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(attrs, input_degrees),
+                    transpose_get_operator_to_output_mapping(attrs, input_degrees),
                 },
             };
           },
@@ -283,7 +283,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    get_operator_to_output_mapping(attrs),
+                    weight_get_operator_to_output_mapping(attrs),
                 },
             };
           },

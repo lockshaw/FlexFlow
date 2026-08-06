@@ -6,7 +6,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("Combine shape inference") {
+  TEST_CASE("combine_get_output_parallel_shape") {
 
     ParallelTensorShape input = ParallelTensorShape{
         ParallelTensorDims{
@@ -56,8 +56,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(CombineAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("combine_get_output_parallel_dim_degrees") {
     CombineAttrs attrs = CombineAttrs{
         /*combine_dim=*/ff_dim_t{0_n},
         /*combine_degree=*/3_ge2,
@@ -73,7 +72,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees result =
-        get_output_parallel_dim_degrees(attrs, input_degrees);
+        combine_get_output_parallel_dim_degrees(attrs, input_degrees);
 
     ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
         SumDegree{2_p},
@@ -87,7 +86,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("get_operator_task_space(CombineAttrs, ParallelTensorDimDegrees)") {
+  TEST_CASE("combine_get_operator_task_space") {
     CombineAttrs attrs = CombineAttrs{
         /*combine_dim=*/ff_dim_t{0_n},
         /*combine_degree=*/3_ge2,
@@ -102,7 +101,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    OperatorTaskSpace result = get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace result = combine_get_operator_task_space(attrs, input_degrees);
+
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
             std::map<operator_task_space_dim_idx_t, int_ge_two>{
