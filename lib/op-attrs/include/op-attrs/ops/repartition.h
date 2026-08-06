@@ -12,7 +12,7 @@ namespace FlexFlow {
 ParallelTensorShape repartition_get_output_parallel_shape(
     RepartitionAttrs const &, ParallelTensorShape const &input_shape);
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees repartition_get_output_parallel_dim_degrees(
     RepartitionAttrs const &, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace repartition_get_operator_task_space(

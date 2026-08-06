@@ -4,16 +4,13 @@
 
 namespace FlexFlow {
 
-tl::expected<ParallelTensorShape, std::string>
-    get_output_shape(ReductionAttrs const &attrs,
-                     ParallelTensorShape const &input_shape) {
-  if (get_sum_degree(input_shape) % attrs.reduction_degree != 0) {
-    return tl::unexpected(
-        fmt::format("Reduction received tensor with sum degree {}, which is "
-                    "not divisible by reduction degree {}",
-                    get_sum_degree(input_shape),
-                    attrs.reduction_degree));
-  }
+ParallelTensorShape reduction_get_output_parallel_shape(
+    ReductionAttrs const &attrs, ParallelTensorShape const &input_shape) {
+  ASSERT(get_sum_degree(input_shape) % attrs.reduction_degree == 0,
+         fmt::format("Reduction received tensor with sum degree {}, which is "
+                     "not divisible by reduction degree {}",
+                     get_sum_degree(input_shape),
+                     attrs.reduction_degree));
 
   ParallelTensorShape output_shape = input_shape;
 
@@ -22,7 +19,7 @@ tl::expected<ParallelTensorShape, std::string>
   return output_shape;
 }
 
-ParallelTensorDimDegrees get_output_parallel_dim_degrees(
+ParallelTensorDimDegrees reduction_get_output_parallel_dim_degrees(
     ReductionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   positive_int input_degree = input_degrees.sum_degree.value;
@@ -38,9 +35,9 @@ ParallelTensorDimDegrees get_output_parallel_dim_degrees(
   return output_degrees;
 }
 
-OperatorTaskSpace
-    get_operator_task_space(ReductionAttrs const &attrs,
-                            ParallelTensorDimDegrees const &input_degrees) {
+OperatorTaskSpace reduction_get_operator_task_space(
+    ReductionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
   return get_operator_task_space_matching_parallel_tensor_dim_degrees(
       input_degrees);
 }
