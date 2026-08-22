@@ -1,5 +1,6 @@
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_incoming_tensor_roles.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/ops/input.h"
@@ -76,16 +77,27 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
             std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                 result = {
-                    {TensorSlotName::INPUT,
-                     get_operator_to_input_mapping(attrs, input_degrees)},
-                    {TensorSlotName::WEIGHT,
-                     get_operator_to_projection_mapping(attrs, input_degrees)},
+                    {
+                        TensorSlotName::INPUT,
+                        operator_ptensor_space_mapping_from_biunique(
+                            linear_get_operator_to_input_mapping(
+                                attrs, input_degrees)),
+                    },
+                    {
+                        TensorSlotName::WEIGHT,
+                        operator_ptensor_space_mapping_from_biunique(
+                            linear_get_operator_to_projection_mapping(
+                                attrs, input_degrees)),
+                    },
                 };
 
             if (attrs.use_bias) {
-              result.insert(
-                  {TensorSlotName::BIAS,
-                   get_operator_to_bias_mapping(attrs, input_degrees)});
+              result.insert({
+                  TensorSlotName::BIAS,
+                  operator_ptensor_space_mapping_from_biunique(
+                      linear_get_operator_to_bias_mapping(attrs,
+                                                          input_degrees)),
+              });
             };
             return result;
           },
@@ -226,7 +238,9 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    linear_get_operator_to_output_mapping(attrs, input_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                        linear_get_operator_to_output_mapping(attrs,
+                                                              input_degrees)),
                 },
             };
           },
@@ -251,8 +265,9 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::OUTPUT,
-                    repartition_get_operator_to_output_mapping(attrs,
-                                                               input_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                        repartition_get_operator_to_output_mapping(
+                            attrs, input_degrees)),
                 },
             };
           },

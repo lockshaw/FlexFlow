@@ -187,115 +187,112 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    std::unordered_map<parallel_layer_guid_t, MappedOperatorTaskGroup>
-        correct_mapping = {
-            {
-                l_input1,
-                input_mapping,
-            },
-            {
-                l_input2,
-                input_mapping,
-            },
-            {
-                l_projector_weight,
-                input_mapping,
-            },
-            {
-                l_partition1,
-                partition_mapping,
-            },
-            {
-                l_partition2,
-                partition_mapping,
-            },
-            {
-                l_replicate,
-                replicate_mapping,
-            },
-            {
-                l_add,
-                MappedOperatorTaskGroup{
-                    bidict<MachineSpaceCoordinate,
-                           OperatorAtomicTaskShardBinding>{
-                        {
-                            MachineSpaceCoordinate{0_n, 0_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::LHS_INPUT,
-                                     ptensor_coord(0_n, 0_n)},
-                                    {TensorSlotName::RHS_INPUT,
-                                     ptensor_coord(0_n, 0_n)},
-                                },
+    std::map<parallel_layer_guid_t, MappedOperatorTaskGroup> correct_mapping = {
+        {
+            l_input1,
+            input_mapping,
+        },
+        {
+            l_input2,
+            input_mapping,
+        },
+        {
+            l_projector_weight,
+            input_mapping,
+        },
+        {
+            l_partition1,
+            partition_mapping,
+        },
+        {
+            l_partition2,
+            partition_mapping,
+        },
+        {
+            l_replicate,
+            replicate_mapping,
+        },
+        {
+            l_add,
+            MappedOperatorTaskGroup{
+                bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+                    {
+                        MachineSpaceCoordinate{0_n, 0_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::LHS_INPUT,
+                                 ptensor_coord(0_n, 0_n)},
+                                {TensorSlotName::RHS_INPUT,
+                                 ptensor_coord(0_n, 0_n)},
                             },
                         },
-                        {
-                            MachineSpaceCoordinate{0_n, 1_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::LHS_INPUT,
-                                     ptensor_coord(0_n, 1_n)},
-                                    {TensorSlotName::RHS_INPUT,
-                                     ptensor_coord(0_n, 1_n)},
-                                },
+                    },
+                    {
+                        MachineSpaceCoordinate{0_n, 1_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::LHS_INPUT,
+                                 ptensor_coord(0_n, 1_n)},
+                                {TensorSlotName::RHS_INPUT,
+                                 ptensor_coord(0_n, 1_n)},
                             },
                         },
-                        {
-                            MachineSpaceCoordinate{1_n, 0_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::LHS_INPUT,
-                                     ptensor_coord(0_n, 2_n)},
-                                    {TensorSlotName::RHS_INPUT,
-                                     ptensor_coord(0_n, 2_n)},
-                                },
+                    },
+                    {
+                        MachineSpaceCoordinate{1_n, 0_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::LHS_INPUT,
+                                 ptensor_coord(0_n, 2_n)},
+                                {TensorSlotName::RHS_INPUT,
+                                 ptensor_coord(0_n, 2_n)},
                             },
                         },
                     },
                 },
             },
-            {
-                l_dense,
-                MappedOperatorTaskGroup{
-                    bidict<MachineSpaceCoordinate,
-                           OperatorAtomicTaskShardBinding>{
-                        {
-                            MachineSpaceCoordinate{0_n, 0_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::INPUT,
-                                     ptensor_coord(0_n, 0_n)},
-                                    {TensorSlotName::WEIGHT,
-                                     ptensor_coord(0_n, 0_n)},
-                                },
+        },
+        {
+            l_dense,
+            MappedOperatorTaskGroup{
+                bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
+                    {
+                        MachineSpaceCoordinate{0_n, 0_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::INPUT,
+                                 ptensor_coord(0_n, 0_n)},
+                                {TensorSlotName::WEIGHT,
+                                 ptensor_coord(0_n, 0_n)},
                             },
                         },
-                        {
-                            MachineSpaceCoordinate{0_n, 1_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::INPUT,
-                                     ptensor_coord(0_n, 1_n)},
-                                    {TensorSlotName::WEIGHT,
-                                     ptensor_coord(1_n, 0_n)},
-                                },
+                    },
+                    {
+                        MachineSpaceCoordinate{0_n, 1_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::INPUT,
+                                 ptensor_coord(0_n, 1_n)},
+                                {TensorSlotName::WEIGHT,
+                                 ptensor_coord(1_n, 0_n)},
                             },
                         },
-                        {
-                            MachineSpaceCoordinate{1_n, 0_n},
-                            OperatorAtomicTaskShardBinding{
-                                {
-                                    {TensorSlotName::INPUT,
-                                     ptensor_coord(0_n, 2_n)},
-                                    {TensorSlotName::WEIGHT,
-                                     ptensor_coord(2_n, 0_n)},
-                                },
+                    },
+                    {
+                        MachineSpaceCoordinate{1_n, 0_n},
+                        OperatorAtomicTaskShardBinding{
+                            {
+                                {TensorSlotName::INPUT,
+                                 ptensor_coord(0_n, 2_n)},
+                                {TensorSlotName::WEIGHT,
+                                 ptensor_coord(2_n, 0_n)},
                             },
                         },
                     },
                 },
             },
-        };
+        },
+    };
 
     MappedParallelComputationGraph correct_mpcg =
         mapped_pcg_from_pcg_and_mapped_op_task_groups(correct_pcg,

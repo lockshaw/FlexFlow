@@ -46,7 +46,7 @@ bidict<L, R> bidict_from_unstructured_relation(
 
   bidict<L, R> result;
   for (auto const &lr : relation) {
-    result.equate_strict(lr);
+    result.equate(lr);
   }
   return result;
 }
