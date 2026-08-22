@@ -9,7 +9,6 @@ features = [
 ]
 
 includes = [
-  "utils/orthotope/dim_domain_mapping.h",
   "op-attrs/operator_task_space_dim_idx_t.dtg.h",
   "op-attrs/parallel_tensor_dim_idx_t.dtg.h",
   "utils/orthotope/dim_domain_hemiunique_mapping.h",

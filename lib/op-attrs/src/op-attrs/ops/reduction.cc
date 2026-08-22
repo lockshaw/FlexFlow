@@ -22,8 +22,11 @@ ParallelTensorShape reduction_get_output_parallel_shape(
 ParallelTensorDimDegrees reduction_get_output_parallel_dim_degrees(
     ReductionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
+
   positive_int input_degree = input_degrees.sum_degree.value;
-  ASSERT(input_degree % attrs.reduction_degree == 0);
+  ASSERT(input_degree % attrs.reduction_degree == 0,
+         input_degree,
+         attrs.reduction_degree);
 
   positive_int output_degree = positive_int{
       input_degree / attrs.reduction_degree,
@@ -40,6 +43,22 @@ OperatorTaskSpace reduction_get_operator_task_space(
     ParallelTensorDimDegrees const &input_degrees) {
   return get_operator_task_space_matching_parallel_tensor_dim_degrees(
       input_degrees);
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    reduction_get_operator_to_input_mapping(
+        ReductionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    reduction_get_operator_to_output_mapping(
+        ReductionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow

@@ -179,8 +179,6 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &layer) {
   PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, layer);
 
-  ASSERT(!is_parallel_op(op_attrs));
-
   std::map<TensorSlotName, parallel_tensor_guid_t> inputs =
       get_incoming_inputs(pcg, layer);
 

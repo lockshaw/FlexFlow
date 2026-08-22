@@ -4,11 +4,14 @@
 #include "op-attrs/initializers/kaiming_initializer_mode.h"
 #include "op-attrs/num_ptensor_shard_dims_t.h"
 #include "op-attrs/num_tensor_dims_t.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/tensor_dims.h"
@@ -296,7 +299,7 @@ OperatorTaskSpace linear_get_operator_task_space(
       output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceMapping
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_input_to_output_mapping(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
@@ -331,11 +334,11 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   ParallelTensorDimDegrees output_degrees =
       linear_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return parallel_tensor_space_mapping_from_projection(
+  return parallel_tensor_space_biunique_mapping_from_projection(
       DimProjection{inp_to_out}, input_degrees, output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceMapping
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_input_to_projection_mapping(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
@@ -384,11 +387,11 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   ParallelTensorDimDegrees projection_degrees =
       linear_get_projection_parallel_dim_degrees(attrs, input_degrees);
 
-  return parallel_tensor_space_mapping_from_projection(
+  return parallel_tensor_space_biunique_mapping_from_projection(
       DimProjection{inp_to_proj}, input_degrees, projection_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceMapping
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_input_to_bias_mapping(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
@@ -439,58 +442,63 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   DimDomain<parallel_tensor_dim_idx_t> r_domain =
       dim_domain_from_parallel_tensor_dim_degrees(bias_degrees);
 
-  return parallel_tensor_space_mapping_from_projection(
+  return parallel_tensor_space_biunique_mapping_from_projection(
       DimProjection{inp_to_bias}, input_degrees, bias_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_operator_to_projection_mapping(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
 
-  return operator_ptensor_space_mapping_from_composition(
+  return operator_ptensor_space_biunique_mapping_from_composition(
       linear_get_operator_to_input_mapping(attrs, input_degrees),
       linear_get_input_to_projection_mapping(attrs, input_degrees));
 }
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_input_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_input_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
 
-  DimDomainHemiuniqueMapping<parallel_tensor_dim_idx_t,
-                             parallel_tensor_dim_idx_t>
+  DimDomainBiuniqueMapping<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
       inp_to_out =
           linear_get_input_to_output_mapping(attrs, input_degrees).raw_mapping;
 
-  DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
-                             parallel_tensor_dim_idx_t>
+  DimDomainBiuniqueMapping<operator_task_space_dim_idx_t,
+                           parallel_tensor_dim_idx_t>
       op_to_out = linear_get_operator_to_output_mapping(attrs, input_degrees)
                       .raw_mapping;
 
-  DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
-                             parallel_tensor_dim_idx_t>
-      op_to_inp = compose_dim_domain_hemiunique_mappings_through_minimal(
-          op_to_out, invert_dim_domain_hemiunique_mapping(inp_to_out));
+  DimDomainBiuniqueMapping<operator_task_space_dim_idx_t,
+                           parallel_tensor_dim_idx_t>
+      op_to_inp = compose_dim_domain_biunique_mappings(
+          op_to_out, invert_dim_domain_biunique_mapping(inp_to_out));
 
-  return OperatorSpaceToParallelTensorSpaceMapping{
+  return OperatorSpaceToParallelTensorSpaceBiuniqueMapping{
       op_to_inp,
   };
 }
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_bias_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_bias_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
 
-  return operator_ptensor_space_mapping_from_composition(
+  return operator_ptensor_space_biunique_mapping_from_composition(
       linear_get_operator_to_input_mapping(attrs, input_degrees),
       linear_get_input_to_bias_mapping(attrs, input_degrees));
 }
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_output_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_output_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
 
   ParallelTensorDimDegrees output_degrees =
       linear_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       linear_get_operator_task_space(attrs, input_degrees), output_degrees);
 }
 

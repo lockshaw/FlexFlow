@@ -1,17 +1,23 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 
+#include "utils/containers/all_of.h"
+#include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/filter.h"
+#include "utils/containers/generate_map.h"
+#include "utils/containers/is_subseteq_of.h"
 #include "utils/containers/keys.h"
 #include "utils/containers/map_from_keys_and_values.h"
 #include "utils/containers/product.h"
 #include "utils/containers/restrict_keys.h"
+#include "utils/containers/restrict_keys_strict.h"
 #include "utils/containers/set_minus.h"
 #include "utils/containers/sorted_by.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/values.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/dim_domain.dtg.h"
+#include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/orthotope.dtg.h"
 
@@ -56,6 +62,32 @@ template <typename T>
 DimDomain<T> restrict_domain_to_dims(DimDomain<T> const &domain,
                                      std::set<T> const &allowed) {
   return DimDomain<T>{restrict_keys(domain.dims, allowed)};
+}
+
+template <typename T>
+DimDomain<T> strict_restrict_domain_to_dims_by_dropping_only_trivial_dims(
+    DimDomain<T> const &domain, std::set<T> const &allowed) {
+
+  std::set<T> to_remove = set_minus(keys(domain.dims), allowed);
+  ASSERT(all_of(to_remove,
+                [&](T const &t) -> bool { return domain.dims.at(t) == 1_p; }));
+
+  return DimDomain<T>{restrict_keys_strict(domain.dims, allowed)};
+}
+
+template <typename T>
+DimDomain<T> lift_domain_to_dims(DimDomain<T> const &domain,
+                                 std::set<T> const &target) {
+  std::set<T> current = get_domain_dims(domain);
+  ASSERT(is_subseteq_of(current, target));
+
+  std::set<T> to_add = set_minus(target, current);
+
+  return DimDomain<T>{
+      binary_merge_disjoint_maps(
+          domain.dims,
+          generate_map(to_add, [](T const &) -> positive_int { return 1_p; })),
+  };
 }
 
 template <typename T>
