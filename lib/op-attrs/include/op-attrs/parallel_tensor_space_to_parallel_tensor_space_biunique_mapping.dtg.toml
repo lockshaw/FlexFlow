@@ -1,0 +1,18 @@
+namespace = "FlexFlow"
+name = "ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping"
+type = "struct"
+features = [
+  "eq",
+  "hash",
+  "fmt",
+  "json_serialize",
+]
+
+includes = [
+  "utils/orthotope/dim_domain_biunique_mapping.h",
+  "op-attrs/parallel_tensor_dim_idx_t.dtg.h",
+]
+
+[[fields]]
+name = "raw_mapping"
+type = "::FlexFlow::DimDomainBiuniqueMapping<::FlexFlow::parallel_tensor_dim_idx_t, ::FlexFlow::parallel_tensor_dim_idx_t>"

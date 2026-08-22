@@ -6,6 +6,7 @@
 #include "utils/many_to_one/compose_many_to_ones.h"
 #include "utils/many_to_one/many_to_one_from_bidict.h"
 #include "utils/relation/hemiunique_binary_relation.h"
+#include "utils/bidict/algorithms/compose_bidicts.h"
 
 namespace FlexFlow {
 
@@ -40,8 +41,31 @@ HemiuniqueBinaryRelation<L, R> compose_hemiunique_binary_relations(
         compose_many_to_ones(many_to_one_from_bidict(l_rel.require_biunique()),
                              r_rel.require_strictly_right_unique()),
     };
+  } else if (is(Uniqueness::LEFT_UNIQUE, Uniqueness::LEFT_UNIQUE)) {
+    return HemiuniqueBinaryRelation<L, R>{
+      compose_one_to_manys(l_rel.require_strictly_left_unique(),
+                           r_rel.require_strictly_left_unique()),
+    };
+  } else if (is(Uniqueness::BIUNIQUE, Uniqueness::BIUNIQUE)) {
+    return HemiuniqueBinaryRelation<L, R>{
+      compose_bidicts(l_rel.require_biunique(),
+                      r_rel.require_biunique()),
+    };
+  } else if (is(Uniqueness::RIGHT_UNIQUE, Uniqueness::RIGHT_UNIQUE)) {
+    return HemiuniqueBinaryRelation<L, R>{
+      compose_many_to_ones(l_rel.require_strictly_right_unique(),
+                           r_rel.require_strictly_right_unique()),
+    };
+  } else if (is(Uniqueness::LEFT_UNIQUE, Uniqueness::RIGHT_UNIQUE)) {
+    PANIC("Cannot compose a left-unique relation with a right-unique relation");
+  } else if (is(Uniqueness::RIGHT_UNIQUE, Uniqueness::LEFT_UNIQUE)) {
+    PANIC("Cannot compose a right-unique relation with a left-unique relation");
   } else {
-    NOT_IMPLEMENTED();
+    PANIC(
+      "Unexpected uniquenesses. Please file an issue.",
+      l_uniqueness,
+      r_uniqueness
+    );
   }
 }
 

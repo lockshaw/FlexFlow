@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include "utils/binary_relation/binary_relation_is_biunique.h"
 
 namespace FlexFlow {
 
@@ -31,6 +32,7 @@ std::map<K, V> restrict_keys(std::map<K, V> const &m, std::set<K> const &mask) {
   }
   return result;
 }
+
 } // namespace FlexFlow
 
 #endif

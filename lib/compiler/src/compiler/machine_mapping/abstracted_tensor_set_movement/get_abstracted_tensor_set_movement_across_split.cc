@@ -36,29 +36,32 @@ AbstractedSingleTensorMovement get_abstracted_single_tensor_movement_along_edge(
   parallel_tensor_guid_t parallel_tensor = get_parallel_tensor(edge);
   TensorShape tensor_piece =
       get_piece_shape(get_parallel_tensor_shape(pcg, parallel_tensor));
+  num_bytes_t tensor_piece_size = get_size_in_bytes(tensor_piece);
 
   OperatorTaskSpaceToOperatorTaskSpaceMapping mapping =
       pcg_get_mapping_along_edge(pcg, edge);
 
-  bidict<TaskSpaceCoordinate, TaskSpaceCoordinate> coord_mapping =
+  HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> coord_mapping =
       op_to_op_get_coord_mapping(mapping);
 
   std::map<AbstractedSingleTensorCommunicationEdge, num_bytes_t> single_comms =
-      map_from_pairs(transform(
-          unstructured_relation_from_bidict(coord_mapping),
-          [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &
-                  src_dst) -> std::pair<AbstractedSingleTensorCommunicationEdge,
-                                        num_bytes_t> {
-            auto [src_task_coord, dst_task_coord] = src_dst;
+    generate_map2(
+      coord_mapping.as_unstructured_relation(),
+      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &src_dst) 
+        -> AbstractedSingleTensorCommunicationEdge
+      {
+        auto [src_task_coord, dst_task_coord] = src_dst;
 
-            return std::pair{
-                AbstractedSingleTensorCommunicationEdge{
-                    /*src_coord=*/src_task_coord,
-                    /*dst=*/AbstractedDevice{dst_path, dst_task_coord},
-                },
-                get_size_in_bytes(tensor_piece),
-            };
-          }));
+        return AbstractedSingleTensorCommunicationEdge{
+            /*src_coord=*/src_task_coord,
+            /*dst=*/AbstractedDevice{dst_path, dst_task_coord},
+        };
+      },
+      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &) 
+        -> num_bytes_t 
+      {
+        return tensor_piece_size;
+      });
 
   return AbstractedSingleTensorMovement{
       /*src_op_tree_path=*/src_path,

@@ -46,6 +46,7 @@ public:
                 &l_to_r)
       : OneToMany(l_to_r.begin(), l_to_r.end()) {}
 
+
   bool operator==(OneToMany const &other) const {
     return this->tie() == other.tie();
   }

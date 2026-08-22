@@ -4,8 +4,8 @@
 
 namespace FlexFlow {
 
-using L = jsonable_ordered_value_type<0>;
-using R = jsonable_ordered_value_type<1>;
+using L = ordered_value_type<0>;
+using R = ordered_value_type<1>;
 
 template struct DimDomainHemiuniqueMapping<L, R>;
 
@@ -19,6 +19,18 @@ template DimDomainHemiuniqueMapping<L, R> empty_dim_domain_hemiunique_mapping();
 template DimDomainHemiuniqueMapping<L, R>
     hemiunique_from_biunique_dim_domain_mapping(
         DimDomainBiuniqueMapping<L, R> const &);
+
+template
+  DimDomainHemiuniqueMapping<L, R>
+    dim_domain_hemiunique_mapping_lift_left_domain(
+      DimDomainHemiuniqueMapping<L, R> const &,
+      std::set<L> const &);
+
+template
+  DimDomainHemiuniqueMapping<L, R>
+    dim_domain_hemiunique_mapping_lift_right_domain(
+      DimDomainHemiuniqueMapping<L, R> const &,
+      std::set<R> const &);
 
 template DimDomainHemiuniqueMapping<L, R>
     dim_domain_hemiunique_mapping_identity_map(DimDomain<L> const &,

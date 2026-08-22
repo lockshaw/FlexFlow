@@ -9,6 +9,7 @@
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -23,8 +24,8 @@ ParallelTensorDimDegrees get_parallel_tensor_space_for_mapping(
 
 DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
     get_projection_for_op_to_ptensor_identity_mapping(
-        OperatorTaskSpace const &operator_task_space,
-        ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
+        std::set<operator_task_space_dim_idx_t> const &task_space_dims,
+        std::set<parallel_tensor_dim_idx_t> const &parallel_tensor_space_dims);
 
 OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
     OperatorTaskSpace const &operator_task_space,
@@ -36,6 +37,10 @@ OperatorSpaceToParallelTensorSpaceMapping
                       parallel_tensor_dim_idx_t> const &projection,
         OperatorTaskSpace const &op_task_space,
         ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
+
+OperatorSpaceToParallelTensorSpaceMapping
+    operator_ptensor_space_mapping_from_biunique(
+      OperatorSpaceToParallelTensorSpaceBiuniqueMapping const &);
 
 OperatorSpaceToParallelTensorSpaceMapping
     operator_ptensor_space_mapping_by_scaling_projection(

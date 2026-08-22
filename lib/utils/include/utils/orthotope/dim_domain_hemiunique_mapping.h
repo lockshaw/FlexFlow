@@ -20,6 +20,9 @@
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
 #include "utils/relation/hemiunique_binary_relation.h"
 #include "utils/relation/uniqueness.dtg.h"
+#include "utils/orthotope/dim_domain.h"
+#include "utils/relation/hemiunique_binrel_transform_r.h"
+#include "utils/relation/hemiunique_binrel_transform_l.h"
 
 namespace FlexFlow {
 
@@ -136,6 +139,40 @@ DimDomainHemiuniqueMapping<L, R> hemiunique_from_biunique_dim_domain_mapping(
   };
 }
 
+template <typename L, typename R>
+DimDomainHemiuniqueMapping<L, R>
+  dim_domain_hemiunique_mapping_lift_left_domain(
+    DimDomainHemiuniqueMapping<L, R> const &m,
+    std::set<L> const &target_dims)
+{
+  return DimDomainHemiuniqueMapping<L, R>{
+    /*coord_mapping=*/hemiunique_binrel_transform_l(
+      m.coord_mapping, 
+      [&](DimCoord<L> const &coord) -> DimCoord<L> {
+        return lift_dim_coord(coord, target_dims);
+      }),
+    /*l_domain=*/lift_domain_to_dims(m.l_domain, target_dims),
+    /*r_domain=*/m.r_domain,
+  };
+}
+
+template <typename L, typename R>
+DimDomainHemiuniqueMapping<L, R>
+  dim_domain_hemiunique_mapping_lift_right_domain(
+    DimDomainHemiuniqueMapping<L, R> const &m,
+    std::set<R> const &target_dims)
+{
+  return DimDomainHemiuniqueMapping<L, R>{
+    /*coord_mapping=*/hemiunique_binrel_transform_r(
+      m.coord_mapping, 
+      [&](DimCoord<R> const &coord) -> DimCoord<R> {
+        return lift_dim_coord(coord, target_dims);
+      }),
+    /*l_domain=*/m.l_domain,
+    /*r_domain=*/lift_domain_to_dims(m.r_domain, target_dims),
+  };
+}
+
 /**
  * \brief Create a \ref DimDomainHemiuniqueMapping between two equi-dimensional \ref DimDomain ""s,
  *        that is simply a permutation of the dimension labels (i.e., the closest thing
@@ -199,6 +236,10 @@ DimDomainHemiuniqueMapping<L, R>
         DimDomain<R> const &r_domain,
         DimOrdering<L> const &l_dim_ordering,
         DimOrdering<R> const &r_dim_ordering) {
+
+  ASSERT(input_dims_of_projection(projection) == get_domain_dims(l_domain));
+  ASSERT(output_dims_of_projection(projection) == get_domain_dims(r_domain));
+
   EqProjection<L, R> eq_proj = projection.require_eq_proj();
 
   auto have_differing_dim_sizes = [&](L l_dim, R r_dim) -> bool {
@@ -352,15 +393,26 @@ namespace nlohmann {
 
 template <typename L, typename R>
 struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>> {
-  static void to_json(json &,
-                      ::FlexFlow::DimDomainHemiuniqueMapping<L, R> const &) {
-    // TODO(@lockshaw)(#pr):
-    NOT_IMPLEMENTED();
+  static void to_json(json &j,
+                      ::FlexFlow::DimDomainHemiuniqueMapping<L, R> const &m) {
+    j["__type"] = "DimDomainHemiuniqueMapping";
+    j["coord_mapping"] = m.coord_mapping;
+    j["l_domain"] = m.l_domain;
+    j["r_domain"] = m.r_domain;
   }
 
-  static ::FlexFlow::DimDomainHemiuniqueMapping<L, R> from_json(json const &) {
-    // TODO(@lockshaw)(#pr):
-    NOT_IMPLEMENTED();
+  static ::FlexFlow::DimDomainHemiuniqueMapping<L, R> from_json(json const &j) {
+    return ::FlexFlow::DimDomainHemiuniqueMapping<L, R>{
+      /*coord_mapping=*/j.at("coord_mapping")
+        .template get<
+          ::FlexFlow::HemiuniqueBinaryRelation<
+            ::FlexFlow::DimCoord<L>,
+            ::FlexFlow::DimCoord<R>
+          >
+        >(),
+      /*l_domain=*/j.at("l_domain").template get<::FlexFlow::DimDomain<L>>(),
+      /*r_domain=*/j.at("r_domain").template get<::FlexFlow::DimDomain<R>>(),
+    };
   }
 };
 

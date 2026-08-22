@@ -4,6 +4,7 @@
 #include "test/utils/doctest/fmt/expected.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 using namespace ::FlexFlow;
 
@@ -325,10 +326,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    OperatorSpaceToParallelTensorSpaceMapping result =
+    OperatorSpaceToParallelTensorSpaceBiuniqueMapping result =
         linear_get_operator_to_input_mapping(attrs, input_dims);
 
-    ASSERT(get_parallel_tensor_space_for_mapping(result) == input_dims);
+    ASSERT(get_parallel_tensor_space_for_biunique_mapping(result) == input_dims);
     ASSERT(dim_domain_get_volume(result.raw_mapping.r_domain) ==
            dim_domain_get_volume(result.raw_mapping.l_domain));
   }

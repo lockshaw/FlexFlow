@@ -4,8 +4,8 @@
 
 namespace FlexFlow {
 
-using L = jsonable_ordered_value_type<0>;
-using R = jsonable_ordered_value_type<1>;
+using L = ordered_value_type<0>;
+using R = ordered_value_type<1>;
 
 template struct HemiuniqueBinaryRelation<L, R>;
 
@@ -15,6 +15,15 @@ template std::ostream &operator<<(std::ostream &,
                                   HemiuniqueBinaryRelation<L, R> const &);
 
 } // namespace FlexFlow
+
+namespace nlohmann {
+
+using L = ::FlexFlow::jsonable_ordered_value_type<0>;
+using R = ::FlexFlow::jsonable_ordered_value_type<1>;
+
+template struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>>;
+
+}
 
 namespace std {
 

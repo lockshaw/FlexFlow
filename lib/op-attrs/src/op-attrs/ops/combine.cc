@@ -52,4 +52,23 @@ OperatorTaskSpace
       input_degrees);
 }
 
+OperatorSpaceToParallelTensorSpaceMapping
+    combine_get_operator_to_input_mapping(
+        CombineAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) 
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    combine_get_operator_to_output_mapping(
+        CombineAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+
 } // namespace FlexFlow

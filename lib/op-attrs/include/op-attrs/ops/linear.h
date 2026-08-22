@@ -13,6 +13,7 @@
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "utils/record_formatter.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -67,18 +68,18 @@ std::map<TensorSlotName, InitializerAttrs>
 OperatorTaskSpace linear_get_operator_task_space(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_input_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_operator_to_projection_mapping(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_bias_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_bias_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_output_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow

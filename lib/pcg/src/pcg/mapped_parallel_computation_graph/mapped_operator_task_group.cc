@@ -19,6 +19,12 @@
 #include "utils/containers/vector_of.h"
 #include "utils/hash/tuple.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/binary_relation/binary_relation_is_biunique.h"
+#include "utils/containers/set_minus.h"
+#include "utils/containers/restrict_keys_strict.h"
+#include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
+#include "utils/containers/transform_pairs.h"
+#include "pcg/mapped_parallel_computation_graph/parallelism_operator_atomic_task_shard_binding.h"
 
 namespace FlexFlow {
 
@@ -35,7 +41,60 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
   std::set<TensorSlotName> slot_names =
       require_all_same(binding_slot_sets).value();
 
+  auto project_out_key = [&](MappedOperatorAtomicTaskShardBinding const &b, TensorSlotName key)
+    -> std::pair<
+        ParallelTensorSpaceCoordinate,
+        MappedOperatorAtomicTaskShardBinding
+       >
+  {
+    std::set<TensorSlotName> remaining_keys =
+      set_minus(keys(b.tensor_coords), std::set{key});
+
+    return std::pair{
+      b.tensor_coords.at(key),
+      MappedOperatorAtomicTaskShardBinding{
+        /*tensor_coords=*/restrict_keys_strict(b.tensor_coords, remaining_keys),
+        /*machine_coord=*/b.machine_coord,
+      },
+    };
+  };
+
+  std::set<MappedOperatorAtomicTaskShardBinding> mapped_bindings =
+    transform_pairs(
+      unstructured_relation_from_bidict(shard_bindings),
+      [&](MachineSpaceCoordinate const &mc, OperatorAtomicTaskShardBinding const &b)
+        -> MappedOperatorAtomicTaskShardBinding
+      {
+        return MappedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/b.tensor_coords,
+          /*machine_coord=*/mc,
+        };
+      });
+
+  auto is_1_unique = [&](TensorSlotName slot_name)
+    -> bool
+  {
+    std::set<std::pair<
+      ParallelTensorSpaceCoordinate,
+      MappedOperatorAtomicTaskShardBinding
+    >> s = transform(mapped_bindings,
+                    [&](MappedOperatorAtomicTaskShardBinding const &b)
+                      -> std::pair<ParallelTensorSpaceCoordinate, MappedOperatorAtomicTaskShardBinding>
+                    {
+                      return project_out_key(b, slot_name);
+                    });
+
+    BinaryRelation<
+      ParallelTensorSpaceCoordinate,
+      MappedOperatorAtomicTaskShardBinding
+    > r = BinaryRelation{s};
+
+    return binary_relation_is_biunique(r);
+  };
+
   for (TensorSlotName const &slot_name : slot_names) {
+    ASSERT(is_1_unique(slot_name));
+
     std::vector<OperatorAtomicTaskShardBinding> signatures_for_key =
         vector_of(shard_bindings.right_values());
 
@@ -96,6 +155,22 @@ bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding> const &
   return this->shard_bindings;
 }
 
+std::set<MappedOperatorAtomicTaskShardBinding>
+  get_mapped_operator_atomic_task_shard_bindings_for_task_group(
+    MappedOperatorTaskGroup const &g)
+{
+  return transform_pairs(
+      unstructured_relation_from_bidict(g.get_shard_bindings()),
+      [&](MachineSpaceCoordinate const &mc, OperatorAtomicTaskShardBinding const &b)
+        -> MappedOperatorAtomicTaskShardBinding
+      {
+        return MappedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/b.tensor_coords,
+          /*machine_coord=*/mc,
+        };
+      });
+}
+
 bidict<ParallelTensorSpaceCoordinate, MachineSpaceCoordinate>
     get_tensor_bindings_for_slot_name(MappedOperatorTaskGroup const &task_group,
                                       TensorSlotName const &slot_name) {
@@ -137,15 +212,39 @@ nlohmann::json
   };
 }
 
-std::string format_as(::FlexFlow::MappedOperatorTaskGroup const &m) {
-  return fmt::format("<MappedOperatorTaskGroup shard_bindings={}>",
-                     m.get_shard_bindings());
+nlohmann::json format_as(::FlexFlow::MappedOperatorTaskGroup const &m) {
+  return m;
 }
 
 std::ostream &operator<<(std::ostream &s,
                          ::FlexFlow::MappedOperatorTaskGroup const &x) {
   return (s << fmt::to_string(x));
 }
+
+MappedOperatorTaskGroup
+  mapped_op_task_group_from_standard_op_group(
+    MappedStandardOperatorTaskGroup const &g)
+{
+  return MappedOperatorTaskGroup{
+    g.get_shard_bindings(),
+  };
+}
+
+MappedOperatorTaskGroup
+  mapped_op_task_group_from_parallelism_op_group(
+    MappedParallelismOperatorTaskGroup const &g)
+{
+  return MappedOperatorTaskGroup{
+    bidict_transform_values(
+      g.get_shard_bindings(),
+      [](ParallelismOperatorAtomicTaskShardBinding const &b) 
+        -> OperatorAtomicTaskShardBinding
+      {
+        return operator_atomic_task_shard_binding_from_parallelism_op_binding(b);
+      }),
+  };
+}
+
 
 } // namespace FlexFlow
 

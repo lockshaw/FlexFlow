@@ -10,13 +10,13 @@ features = [
   "rapidcheck",
 ]
 
-docstring = """\
-@brief Index type for the dimensions of @ref ParallelTensorDimDegrees.
+docstring = '''\
+\brief Index type for the dimensions of @ref ParallelTensorDimDegrees.
 
-@ref parallel_tensor_dim_idx_t is to @ref ParallelTensorDimDegrees as 
-@ref operator_task_space_dim_idx_t is to @ref OperatorTaskSpace as 
-@ref MachineSpecificationDimension is to @ref MachineComputeSpecification.
-"""
+\ref parallel_tensor_dim_idx_t is to @ref ParallelTensorDimDegrees as 
+\ref operator_task_space_dim_idx_t is to @ref OperatorTaskSpace as 
+\ref MachineSpecificationDimension is to @ref MachineComputeSpecification.
+'''
 
 includes = [
   "op-attrs/ff_dim_t.dtg.h",

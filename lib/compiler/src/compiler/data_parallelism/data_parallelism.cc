@@ -135,7 +135,7 @@ SearchResult apply_data_parallelism(ComputationGraph const &cg,
     for (std::pair<tensor_guid_t, parallel_tensor_guid_t> const
              &corresponding_outputs : values(zip_values_strict(
                  get_outgoing_tensors(cg, layer), added.outputs))) {
-      cg_tensor_to_pcg_tensor.equate_strict(corresponding_outputs);
+      cg_tensor_to_pcg_tensor.equate(corresponding_outputs);
     }
   };
 

@@ -67,31 +67,20 @@ struct bidict {
   }
 
   void equate(L const &l, R const &r) {
-    fwd_map.insert({l, r});
-    bwd_map.insert({r, l});
-
-    this->check_invariants();
-  }
-
-  void equate(std::pair<L, R> const &lr) {
-    fwd_map.insert(lr);
-    bwd_map.insert({lr.second, lr.first});
-
-    this->check_invariants();
-  }
-
-  void equate_strict(L const &l, R const &r) {
     ASSERT(this->contains_l(l) == this->contains_r(r));
 
     if (this->contains_l(l)) {
       ASSERT(this->at_l(l) == r);
     } else {
-      this->equate(l, r);
+      fwd_map.insert({l, r});
+      bwd_map.insert({r, l});
     }
+
+    this->check_invariants();
   }
 
-  void equate_strict(std::pair<L, R> const &lr) {
-    this->equate_strict(lr.first, lr.second);
+  void equate(std::pair<L, R> const &lr) {
+    this->equate(lr.first, lr.second);
   }
 
   bool operator==(bidict<L, R> const &other) const {

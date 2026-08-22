@@ -171,7 +171,8 @@ private:
 
 template <typename L, typename R>
 std::string format_as(HemiuniqueBinaryRelation<L, R> const &x) {
-  return fmt::format("<HemiuniqueBinaryRelation raw={}>", x.raw);
+  nlohmann::json j = x;
+  return j.dump();
 }
 
 template <typename L, typename R>
@@ -181,6 +182,61 @@ std::ostream &operator<<(std::ostream &s,
 }
 
 } // namespace FlexFlow
+
+namespace nlohmann {
+
+template <typename L, typename R>
+struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>> {
+  static void to_json(json &j,
+                      ::FlexFlow::HemiuniqueBinaryRelation<L, R> const &r) {
+    j["__type"] = "HemiuniqueBinaryRelation";
+    ::FlexFlow::Uniqueness uniqueness = r.get_uniqueness();
+    switch (uniqueness) {
+      case ::FlexFlow::Uniqueness::LEFT_UNIQUE:
+      {
+        j["type"] = "left-unique";
+        j["value"] = r.require_strictly_left_unique();
+        break;
+      }
+      case ::FlexFlow::Uniqueness::BIUNIQUE:
+      {
+        j["type"] = "bi-unique";
+        j["value"] = r.require_biunique();
+        break;
+      }
+      case ::FlexFlow::Uniqueness::RIGHT_UNIQUE:
+      {
+        j["type"] = "right-unique";
+        j["value"] = r.require_strictly_right_unique();
+        break;
+      }
+      default:
+        PANIC("Unexpected uniqueness", uniqueness);
+    }
+  }
+
+  static ::FlexFlow::HemiuniqueBinaryRelation<L, R> from_json(json const &j) {
+    std::string uniqueness_str = j.at("type").template get<std::string>();
+
+    if (uniqueness_str == "left-unique") {
+      return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
+        j.at("value").template get<::FlexFlow::OneToMany<L, R>>(),
+      };
+    } else if (uniqueness_str == "bi-unique") {
+      return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
+        j.at("value").template get<::FlexFlow::bidict<L, R>>(),
+      };
+    } else if (uniqueness_str == "right-unique") {
+      return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
+        j.at("value").template get<::FlexFlow::ManyToOne<L, R>>(),
+      };
+    } else {
+      PANIC("Unexpected uniquness string", uniqueness_str);
+    }
+  }
+};
+
+}
 
 namespace std {
 

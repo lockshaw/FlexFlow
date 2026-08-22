@@ -6,6 +6,7 @@
 #include "op-attrs/ops/repartition_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -24,7 +25,7 @@ OperatorSpaceToParallelTensorSpaceMapping
         RepartitionAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     repartition_get_operator_to_output_mapping(
         RepartitionAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees);

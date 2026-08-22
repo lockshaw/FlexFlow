@@ -4,8 +4,8 @@
 
 namespace FlexFlow {
 
-using L = jsonable_ordered_value_type<0>;
-using R = jsonable_ordered_value_type<1>;
+using L = ordered_value_type<0>;
+using R = ordered_value_type<1>;
 
 template struct DimDomainBiuniqueMapping<L, R>;
 
@@ -21,6 +21,18 @@ template DimDomainBiuniqueMapping<L, R>
                                              DimOrdering<R> const &);
 
 template DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping();
+
+template
+  DimDomainBiuniqueMapping<L, R>
+    dim_domain_biunique_mapping_lift_left_domain(
+      DimDomainBiuniqueMapping<L, R> const &,
+      std::set<L> const &);
+
+template
+  DimDomainBiuniqueMapping<L, R>
+    dim_domain_biunique_mapping_lift_right_domain(
+      DimDomainBiuniqueMapping<L, R> const &,
+      std::set<R> const &);
 
 template DimDomainBiuniqueMapping<R, L>
     invert_dim_domain_biunique_mapping(DimDomainBiuniqueMapping<L, R> const &);
@@ -41,6 +53,15 @@ template DimDomainBiuniqueMapping<T1, T3> compose_dim_domain_biunique_mappings(
     DimDomainBiuniqueMapping<T2, T3> const &);
 
 } // namespace FlexFlow
+
+namespace nlohmann {
+
+using L = ::FlexFlow::jsonable_ordered_value_type<0>;
+using R = ::FlexFlow::jsonable_ordered_value_type<1>;
+
+template struct adl_serializer<::FlexFlow::DimDomainBiuniqueMapping<L, R>>;
+
+} // namespace nlohmann
 
 namespace std {
 

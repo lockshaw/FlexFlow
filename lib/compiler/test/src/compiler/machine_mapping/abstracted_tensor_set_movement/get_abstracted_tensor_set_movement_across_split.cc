@@ -59,51 +59,126 @@ TEST_SUITE(FF_TEST_SUITE) {
         pcg, relu_attrs, {{TensorSlotName::INPUT, t_partition_input}}, {});
     parallel_tensor_guid_t t_layer_1 =
         require_only_key(layer_1.outputs, TensorSlotName::OUTPUT);
-    ParallelLayerAddedResult layer_2 = add_parallel_layer(
-        pcg, relu_attrs, {{TensorSlotName::INPUT, t_layer_1}}, {});
 
-    ParallelComputationGraphEdge edge =
-        get_only(get_pcg_edges_from_layer_to_layer(
-            /*pcg=*/pcg,
-            /*src=*/layer_1.parallel_layer,
-            /*dst=*/layer_2.parallel_layer));
+    SUBCASE("communications are biunique (i.e., no parallel operators are involved)") {
+      ParallelLayerAddedResult layer_2 = add_parallel_layer(
+          pcg, relu_attrs, {{TensorSlotName::INPUT, t_layer_1}}, {});
 
-    BinaryTreePath src_path = BinaryTreePath{{}};
-    BinaryTreePath dst_path = BinaryTreePath{{}};
+      ParallelComputationGraphEdge edge =
+          get_only(get_pcg_edges_from_layer_to_layer(
+              /*pcg=*/pcg,
+              /*src=*/layer_1.parallel_layer,
+              /*dst=*/layer_2.parallel_layer));
 
-    AbstractedSingleTensorMovement result =
-        get_abstracted_single_tensor_movement_along_edge(
-            pcg, edge, src_path, dst_path);
+      BinaryTreePath src_path = BinaryTreePath{{}};
+      BinaryTreePath dst_path = BinaryTreePath{{}};
 
-    num_bytes_t shard_size =
-        get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_1));
+      AbstractedSingleTensorMovement result =
+          get_abstracted_single_tensor_movement_along_edge(
+              pcg, edge, src_path, dst_path);
 
-    auto mk_single_tensor_communication =
-        [&](nonnegative_int src_coord,
-            nonnegative_int dst_coord) -> AbstractedSingleTensorCommunication {
-      return AbstractedSingleTensorCommunication{
-          /*edge=*/AbstractedSingleTensorCommunicationEdge{
-              /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
-              /*dst=*/
-              AbstractedDevice{
-                  /*operator_tree_path=*/dst_path,
-                  /*task_space_coordinate=*/
-                  TaskSpaceCoordinate{OrthotopeCoord{{dst_coord}}},
-              },
-          },
-          /*size=*/shard_size,
+      num_bytes_t shard_size =
+          get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_1));
+
+      auto mk_single_tensor_communication =
+          [&](nonnegative_int src_coord,
+              nonnegative_int dst_coord) -> AbstractedSingleTensorCommunication {
+        return AbstractedSingleTensorCommunication{
+            /*edge=*/AbstractedSingleTensorCommunicationEdge{
+                /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
+                /*dst=*/
+                AbstractedDevice{
+                    /*operator_tree_path=*/dst_path,
+                    /*task_space_coordinate=*/
+                    TaskSpaceCoordinate{OrthotopeCoord{{dst_coord}}},
+                },
+            },
+            /*size=*/shard_size,
+        };
       };
+
+      AbstractedSingleTensorMovement correct =
+          abstracted_single_tensor_movement_from_communications(
+              /*src_op_tree_path=*/src_path,
+              /*communications=*/{
+                  mk_single_tensor_communication(0_n, 0_n),
+                  mk_single_tensor_communication(1_n, 1_n),
+              });
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("communications are left-unique") {
+      ParallelLayerAttrs repartition_attrs_2 = ParallelLayerAttrs{
+        /*op_attrs=*/PCGOperatorAttrs{
+            RepartitionAttrs{
+                /*repartition_dim=*/ff_dim_t{1_n},
+                /*repartition_degree=*/3_ge2,
+            },
+        },
+        /*name=*/std::nullopt,
     };
 
-    AbstractedSingleTensorMovement correct =
-        abstracted_single_tensor_movement_from_communications(
-            /*src_op_tree_path=*/src_path,
-            /*communications=*/{
-                mk_single_tensor_communication(0_n, 0_n),
-                mk_single_tensor_communication(1_n, 1_n),
-            });
+      ParallelLayerAddedResult layer_2 = add_parallel_layer(
+          pcg, repartition_attrs_2, {{TensorSlotName::INPUT, t_layer_1}}, {});
 
-    CHECK(result == correct);
+      ParallelComputationGraphEdge edge =
+          get_only(get_pcg_edges_from_layer_to_layer(
+              /*pcg=*/pcg,
+              /*src=*/layer_1.parallel_layer,
+              /*dst=*/layer_2.parallel_layer));
+
+      BinaryTreePath src_path = BinaryTreePath{{}};
+      BinaryTreePath dst_path = BinaryTreePath{{}};
+
+      AbstractedSingleTensorMovement result =
+          get_abstracted_single_tensor_movement_along_edge(
+              pcg, edge, src_path, dst_path);
+
+      num_bytes_t shard_size =
+          get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_1));
+
+      auto mk_single_tensor_communication =
+          [&](nonnegative_int src_coord,
+              nonnegative_int dst_coord,
+              nonnegative_int dst_coord_2) -> AbstractedSingleTensorCommunication {
+        return AbstractedSingleTensorCommunication{
+            /*edge=*/AbstractedSingleTensorCommunicationEdge{
+                /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
+                /*dst=*/
+                AbstractedDevice{
+                    /*operator_tree_path=*/dst_path,
+                    /*task_space_coordinate=*/
+                    TaskSpaceCoordinate{
+                      OrthotopeCoord{
+                        {dst_coord, dst_coord_2},
+                      },
+                    },
+                },
+            },
+            /*size=*/shard_size,
+        };
+      };
+
+      AbstractedSingleTensorMovement correct =
+          abstracted_single_tensor_movement_from_communications(
+              /*src_op_tree_path=*/src_path,
+              /*communications=*/{
+                  mk_single_tensor_communication(0_n, 0_n, 0_n),
+                  mk_single_tensor_communication(0_n, 0_n, 1_n),
+                  mk_single_tensor_communication(0_n, 0_n, 2_n),
+                  mk_single_tensor_communication(1_n, 1_n, 0_n),
+                  mk_single_tensor_communication(1_n, 1_n, 1_n),
+                  mk_single_tensor_communication(1_n, 1_n, 2_n),
+              });
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("communications are right-unique") {
+      // TODO(@lockshaw)(#pr):
+      NOT_IMPLEMENTED();
+    }
   }
 
   TEST_CASE("get_abstracted_tensor_set_movement_across_split") {

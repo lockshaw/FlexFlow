@@ -56,8 +56,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
-        SumDegree{2_p},
-        DiscardCopyDegree{6_p},
+        SumDegree{6_p},
+        DiscardCopyDegree{2_p},
         FFOrdered<positive_int>{
             1_p,
             3_p,
@@ -85,8 +85,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
-        SumDegree{2_p},
-        DiscardCopyDegree{6_p},
+        SumDegree{6_p},
+        DiscardCopyDegree{2_p},
         FFOrdered<positive_int>{
             1_p,
             3_p,
@@ -97,8 +97,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
             std::map<operator_task_space_dim_idx_t, int_ge_two>{
-                {operator_task_space_dim_idx_t{0_n}, 2_ge2},
-                {operator_task_space_dim_idx_t{1_n}, 6_ge2},
+                {operator_task_space_dim_idx_t{0_n}, 6_ge2},
+                {operator_task_space_dim_idx_t{1_n}, 2_ge2},
                 {operator_task_space_dim_idx_t{2_n}, 3_ge2},
             },
         });
