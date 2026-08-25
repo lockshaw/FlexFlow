@@ -64,8 +64,16 @@ public:
     return this->coord_mapping.require_biunique();
   }
 
+  OneToMany<DimCoord<L>, DimCoord<R>> require_weakly_left_unique() const {
+    return this->coord_mapping.require_weakly_left_unique();
+  }
+
   OneToMany<DimCoord<L>, DimCoord<R>> require_strictly_left_unique() const {
     return this->coord_mapping.require_strictly_left_unique();
+  }
+
+  ManyToOne<DimCoord<L>, DimCoord<R>> require_weakly_right_unique() const {
+    return this->coord_mapping.require_weakly_right_unique();
   }
 
   ManyToOne<DimCoord<L>, DimCoord<R>> require_strictly_right_unique() const {

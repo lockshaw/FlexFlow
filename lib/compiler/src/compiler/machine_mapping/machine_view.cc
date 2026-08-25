@@ -8,6 +8,7 @@
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/shape_inference.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_role.dtg.h"
 #include "pcg/machine_compute_resource_slice.h"
@@ -22,6 +23,7 @@
 #include "utils/containers/count.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/get_only.h"
+#include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/scanl.h"
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
@@ -180,21 +182,32 @@ static OperatorAtomicTaskShardBinding
   std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping> mappings =
       get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
 
-  std::map<TensorSlotName, ParallelTensorSpaceCoordinate> ptensor_coords =
-      generate_map(
-          keys(inputs_dim_degrees),
-          [&](TensorSlotName const &slot_name)
-              -> ParallelTensorSpaceCoordinate {
-            num_ptensor_shard_dims_t num_shard_dims =
-                get_ptensor_dim_degrees_num_shard_dims(
-                    inputs_dim_degrees.at(slot_name));
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weights_dim_degrees =
+      infer_weight_degrees(op_attrs, inputs_dim_degrees);
 
-            return ptensor_coord_for_task_space_coord(
-                mappings.at(slot_name), task_space_coord, num_shard_dims);
-          });
+  std::map<TensorSlotName, ParallelTensorDimDegrees> outputs_dim_degrees =
+      infer_output_degrees(op_attrs, inputs_dim_degrees);
+
+  auto compute_ptensor_coords =
+      [&](std::map<TensorSlotName, ParallelTensorDimDegrees> const &dim_degrees)
+      -> std::map<TensorSlotName, ParallelTensorSpaceCoordinate> {
+    return generate_map(
+        keys(dim_degrees),
+        [&](TensorSlotName const &slot_name) -> ParallelTensorSpaceCoordinate {
+          num_ptensor_shard_dims_t num_shard_dims =
+              get_ptensor_dim_degrees_num_shard_dims(dim_degrees.at(slot_name));
+
+          return ptensor_coord_for_task_space_coord(
+              mappings.at(slot_name), task_space_coord, num_shard_dims);
+        });
+  };
 
   return OperatorAtomicTaskShardBinding{
-      /*tensor_coords=*/ptensor_coords,
+      /*tensor_coords=*/merge_disjoint_maps(std::vector{
+          compute_ptensor_coords(inputs_dim_degrees),
+          compute_ptensor_coords(weights_dim_degrees),
+          compute_ptensor_coords(outputs_dim_degrees),
+      }),
   };
 }
 
@@ -212,7 +225,8 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
       generate_bidict(
           get_machine_space_coordinates(
               op_task_space, machine_space, machine_view),
-          [&](MachineSpaceCoordinate const &machine_space_coord) {
+          [&](MachineSpaceCoordinate const &machine_space_coord)
+              -> OperatorAtomicTaskShardBinding {
             return operator_atomic_task_shard_binding_from_machine_view(
                 op_attrs,
                 inputs_dim_degrees,

@@ -1,6 +1,7 @@
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/replica_parallel_dim.h"
 #include "op-attrs/replica_parallel_dim_set.h"
 #include "op-attrs/shard_parallel_dim.h"
@@ -43,13 +44,8 @@ ParallelTensorDimDegrees get_parallel_degrees(ParallelTensorDims const &d) {
 }
 
 ParallelTensorDims lift_to_parallel(TensorDims const &dims) {
-  std::vector<positive_int> shard_degrees = repeat_element(
-      /*num_times=*/get_num_dims(dims).nonnegative_int_from_num_tensor_dims(),
-      /*element=*/1_p);
   return lift_to_parallel_with_degrees(dims,
-                                       SumDegree{1_p},
-                                       DiscardCopyDegree{1_p},
-                                       ff_ordered_of(shard_degrees));
+                                       trivial_degrees_for_tensor_dims(dims));
 }
 
 ParallelTensorDims lift_to_parallel_with_degrees(

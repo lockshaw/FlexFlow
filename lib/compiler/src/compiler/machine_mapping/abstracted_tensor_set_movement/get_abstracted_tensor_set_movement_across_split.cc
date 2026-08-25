@@ -13,6 +13,7 @@
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/containers/binary_cartesian_product.h"
 #include "utils/containers/flatmap.h"
+#include "utils/containers/generate_map2.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/group_by.h"
 #include "utils/containers/map_from_pairs.h"

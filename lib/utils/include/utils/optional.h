@@ -48,6 +48,11 @@ T expect(std::optional<T> const &x, std::string const &err) {
   return x.value();
 }
 
+template <typename T, typename F>
+bool has_value_satisfying(std::optional<T> const &x, F &&f) {
+  return x.has_value() && f(x.value());
+}
+
 } // namespace FlexFlow
 
 #endif

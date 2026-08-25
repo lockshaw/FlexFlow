@@ -156,7 +156,7 @@ ParallelTensorSpaceCoordinate ptensor_coord_for_task_space_coord(
       dim_idxs_for_num_shard_dims(num_dims);
 
   DimCoord<parallel_tensor_dim_idx_t> mapped_dim_coord =
-      mapping.raw_mapping.require_biunique().at_l(
+      mapping.raw_mapping.require_weakly_right_unique().at_l(
           dim_coord_from_task_space_coordinate(task_space_coordinate));
 
   DimCoord<parallel_tensor_dim_idx_t> lifted_dim_coord =
