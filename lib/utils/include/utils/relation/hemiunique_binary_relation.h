@@ -5,9 +5,11 @@
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/fmt/variant.h"
 #include "utils/many_to_one/invert_many_to_one.h"
+#include "utils/many_to_one/many_to_one_from_bidict.h"
 #include "utils/many_to_one/many_to_one_is_biunique.h"
 #include "utils/many_to_one/unstructured_relation_from_many_to_one.h"
 #include "utils/one_to_many/invert_one_to_many.h"
+#include "utils/one_to_many/one_to_many_from_bidict.h"
 #include "utils/one_to_many/one_to_many_is_biunique.h"
 #include "utils/one_to_many/unstructured_relation_from_one_to_many.h"
 #include "utils/overload.h"
@@ -154,10 +156,34 @@ struct HemiuniqueBinaryRelation {
     return std::get<bidict<L, R>>(this->raw);
   }
 
+  OneToMany<L, R> require_weakly_left_unique() const {
+    return this->visit<OneToMany<L, R>>(overload{
+        [&](bidict<L, R> const &b) -> OneToMany<L, R> {
+          return one_to_many_from_bidict(b);
+        },
+        [&](OneToMany<L, R> const &otm) -> OneToMany<L, R> { return otm; },
+        [&](ManyToOne<L, R> const &mto) -> OneToMany<L, R> {
+          PANIC("Relation is not weakly left-unique");
+        },
+    });
+  }
+
   OneToMany<L, R> const &require_strictly_left_unique() const {
     ASSERT(this->get_uniqueness() == Uniqueness::LEFT_UNIQUE);
 
     return std::get<OneToMany<L, R>>(this->raw);
+  }
+
+  ManyToOne<L, R> require_weakly_right_unique() const {
+    return this->visit<ManyToOne<L, R>>(overload{
+        [&](bidict<L, R> const &b) -> ManyToOne<L, R> {
+          return many_to_one_from_bidict(b);
+        },
+        [&](OneToMany<L, R> const &otm) -> ManyToOne<L, R> {
+          PANIC("Relation is not weakly right-unique");
+        },
+        [&](ManyToOne<L, R> const &mto) -> ManyToOne<L, R> { return mto; },
+    });
   }
 
   ManyToOne<L, R> const &require_strictly_right_unique() const {

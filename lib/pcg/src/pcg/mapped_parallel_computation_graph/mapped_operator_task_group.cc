@@ -2,6 +2,7 @@
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.h"
 #include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.h"
 #include "pcg/mapped_parallel_computation_graph/parallelism_operator_atomic_task_shard_binding.h"
 #include "utils/bidict/algorithms/bidict_from_unstructured_relation.h"
@@ -10,6 +11,7 @@
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/bidict/generate_bidict.h"
 #include "utils/binary_relation/binary_relation_is_biunique.h"
+#include "utils/containers/all_of.h"
 #include "utils/containers/are_all_distinct.h"
 #include "utils/containers/contains.h"
 #include "utils/containers/keys.h"
@@ -32,31 +34,15 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
     bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding> const
         &shard_bindings)
     : shard_bindings(shard_bindings) {
-  std::vector<std::set<TensorSlotName>> binding_slot_sets = transform(
-      vector_of(shard_bindings.right_values()),
-      [&](OperatorAtomicTaskShardBinding const &s) -> std::set<TensorSlotName> {
-        return keys(s.tensor_coords);
-      });
 
-  std::set<TensorSlotName> slot_names =
-      require_all_same(binding_slot_sets).value();
+  std::set<TensorSlotName> slot_names = [&]() -> std::set<TensorSlotName> {
+    std::vector<std::set<TensorSlotName>> binding_slot_sets = transform(
+        vector_of(shard_bindings.right_values()),
+        [&](OperatorAtomicTaskShardBinding const &s)
+            -> std::set<TensorSlotName> { return keys(s.tensor_coords); });
 
-  auto project_out_key = [&](MappedOperatorAtomicTaskShardBinding const &b,
-                             TensorSlotName key)
-      -> std::pair<ParallelTensorSpaceCoordinate,
-                   MappedOperatorAtomicTaskShardBinding> {
-    std::set<TensorSlotName> remaining_keys =
-        set_minus(keys(b.tensor_coords), std::set{key});
-
-    return std::pair{
-        b.tensor_coords.at(key),
-        MappedOperatorAtomicTaskShardBinding{
-            /*tensor_coords=*/restrict_keys_strict(b.tensor_coords,
-                                                   remaining_keys),
-            /*machine_coord=*/b.machine_coord,
-        },
-    };
-  };
+    return require_all_same1(binding_slot_sets);
+  }();
 
   std::set<MappedOperatorAtomicTaskShardBinding> mapped_bindings =
       transform_pairs(unstructured_relation_from_bidict(shard_bindings),
@@ -69,31 +55,36 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
                         };
                       });
 
-  auto is_1_unique = [&](TensorSlotName slot_name) -> bool {
-    std::set<std::pair<ParallelTensorSpaceCoordinate,
-                       MappedOperatorAtomicTaskShardBinding>>
-        s = transform(mapped_bindings,
-                      [&](MappedOperatorAtomicTaskShardBinding const &b)
-                          -> std::pair<ParallelTensorSpaceCoordinate,
-                                       MappedOperatorAtomicTaskShardBinding> {
-                        return project_out_key(b, slot_name);
-                      });
+  bool is_valid_standard_op_task_group =
+      all_of(slot_names, [&](TensorSlotName slot_name) -> bool {
+        return mapped_op_task_shard_bindings_are_unique_on_slot(mapped_bindings,
+                                                                slot_name);
+      });
 
-    BinaryRelation<ParallelTensorSpaceCoordinate,
-                   MappedOperatorAtomicTaskShardBinding>
-        r = BinaryRelation{s};
+  std::set<TensorSlotName> valid_parallelism_op_slots = {
+      TensorSlotName::INPUT, TensorSlotName::OUTPUT};
 
-    return binary_relation_is_biunique(r);
-  };
+  bool is_valid_expansive_parallelism_op_task_group =
+      slot_names == valid_parallelism_op_slots &&
+      mapped_op_task_shard_bindings_are_unique_on_slot(mapped_bindings,
+                                                       TensorSlotName::INPUT) &&
+      mapped_op_task_shard_bindings_are_strictly_k_unique_on_slot(
+          mapped_bindings, TensorSlotName::OUTPUT);
 
-  for (TensorSlotName const &slot_name : slot_names) {
-    ASSERT(is_1_unique(slot_name));
+  bool is_valid_contractive_parallelism_op_task_group =
+      slot_names == valid_parallelism_op_slots &&
+      mapped_op_task_shard_bindings_are_unique_on_slot(
+          mapped_bindings, TensorSlotName::OUTPUT) &&
+      mapped_op_task_shard_bindings_are_strictly_k_unique_on_slot(
+          mapped_bindings, TensorSlotName::INPUT);
 
-    std::vector<OperatorAtomicTaskShardBinding> signatures_for_key =
-        vector_of(shard_bindings.right_values());
+  ASSERT(is_valid_standard_op_task_group ||
+         is_valid_expansive_parallelism_op_task_group ||
+         is_valid_contractive_parallelism_op_task_group);
 
+  for (TensorSlotName slot_name : slot_names) {
     std::vector<ParallelTensorSpaceCoordinate> coords_for_key = transform(
-        signatures_for_key,
+        vector_of(shard_bindings.right_values()),
         [&](OperatorAtomicTaskShardBinding const &signature) {
           return ptensor_space_coord_for_slot_name(signature, slot_name);
         });
