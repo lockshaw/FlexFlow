@@ -21,6 +21,7 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/values.h"
 #include "utils/containers/vector_of.h"
+#include "utils/containers/generate_map2.h"
 
 namespace FlexFlow {
 

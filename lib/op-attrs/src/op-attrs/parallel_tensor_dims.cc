@@ -12,6 +12,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/integer_conversions.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 
 namespace FlexFlow {
 
@@ -43,13 +44,7 @@ ParallelTensorDimDegrees get_parallel_degrees(ParallelTensorDims const &d) {
 }
 
 ParallelTensorDims lift_to_parallel(TensorDims const &dims) {
-  std::vector<positive_int> shard_degrees = repeat_element(
-      /*num_times=*/get_num_dims(dims).nonnegative_int_from_num_tensor_dims(),
-      /*element=*/1_p);
-  return lift_to_parallel_with_degrees(dims,
-                                       SumDegree{1_p},
-                                       DiscardCopyDegree{1_p},
-                                       ff_ordered_of(shard_degrees));
+  return lift_to_parallel_with_degrees(dims, trivial_degrees_for_tensor_dims(dims));
 }
 
 ParallelTensorDims lift_to_parallel_with_degrees(

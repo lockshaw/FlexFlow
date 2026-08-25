@@ -10,4 +10,7 @@ template T const &unwrap(std::optional<T> const &,
                          std::function<void()> const &);
 template T const &assert_unwrap(std::optional<T> const &);
 
+template
+  bool has_value_satisfying(std::optional<T> const &, std::function<bool(T const &)> &&);
+
 } // namespace FlexFlow

@@ -62,8 +62,16 @@ public:
     return this->coord_mapping.require_biunique();
   }
 
+  OneToMany<DimCoord<L>, DimCoord<R>> require_weakly_left_unique() const {
+    return this->coord_mapping.require_weakly_left_unique();
+  }
+
   OneToMany<DimCoord<L>, DimCoord<R>> require_strictly_left_unique() const {
     return this->coord_mapping.require_strictly_left_unique();
+  }
+
+  ManyToOne<DimCoord<L>, DimCoord<R>> require_weakly_right_unique() const {
+    return this->coord_mapping.require_weakly_right_unique();
   }
 
   ManyToOne<DimCoord<L>, DimCoord<R>> require_strictly_right_unique() const {
@@ -147,7 +155,7 @@ DimDomainHemiuniqueMapping<L, R>
 {
   return DimDomainHemiuniqueMapping<L, R>{
     /*coord_mapping=*/hemiunique_binrel_transform_l(
-      m.coord_mapping, 
+      m.coord_mapping,
       [&](DimCoord<L> const &coord) -> DimCoord<L> {
         return lift_dim_coord(coord, target_dims);
       }),
@@ -164,7 +172,7 @@ DimDomainHemiuniqueMapping<L, R>
 {
   return DimDomainHemiuniqueMapping<L, R>{
     /*coord_mapping=*/hemiunique_binrel_transform_r(
-      m.coord_mapping, 
+      m.coord_mapping,
       [&](DimCoord<R> const &coord) -> DimCoord<R> {
         return lift_dim_coord(coord, target_dims);
       }),

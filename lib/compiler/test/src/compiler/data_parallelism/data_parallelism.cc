@@ -15,7 +15,6 @@ TEST_SUITE(FF_TEST_SUITE) {
         TensorDims{
             FFOrdered<positive_int>{
                 9_p,
-                3_p,
                 6_p,
             },
         },
@@ -25,8 +24,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape weight_shape = TensorShape{
         TensorDims{
             FFOrdered<positive_int>{
-                9_p,
-                6_p,
+                3_p,
                 6_p,
             },
         },
@@ -42,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       tensor_guid_t t3 = b.add(t1, t2);
       tensor_guid_t t4 = b.dense(
           /*input=*/t1,
-          /*outDim=*/6_p,
+          /*outDim=*/3_p,
           /*activation=*/std::nullopt,
           /*use_bias=*/false,
           /*data_type=*/DataType::FLOAT,
@@ -91,7 +89,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       parallel_tensor_guid_t t4 = b.dense(
           /*input=*/t1,
-          /*outDim=*/6_p,
+          /*outDim=*/3_p,
           /*projector=*/t_projector,
           /*bias=*/std::nullopt,
           /*activation=*/std::nullopt,
@@ -124,7 +122,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       return ParallelTensorSpaceCoordinate{
           /*sum_component=*/0_n,
           /*discard_copy_component=*/discard_copy_component,
-          /*shard_components=*/FFOrdered{batch_component, 0_n, 0_n},
+          /*shard_components=*/FFOrdered{batch_component, 0_n},
       };
     };
 
@@ -226,6 +224,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      ptensor_coord(0_n, 0_n)},
                                     {TensorSlotName::RHS_INPUT,
                                      ptensor_coord(0_n, 0_n)},
+                                    {TensorSlotName::OUTPUT,
+                                     ptensor_coord(0_n, 0_n)},
                                 },
                             },
                         },
@@ -237,6 +237,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      ptensor_coord(0_n, 1_n)},
                                     {TensorSlotName::RHS_INPUT,
                                      ptensor_coord(0_n, 1_n)},
+                                    {TensorSlotName::OUTPUT,
+                                     ptensor_coord(0_n, 1_n)},
                                 },
                             },
                         },
@@ -247,6 +249,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                     {TensorSlotName::LHS_INPUT,
                                      ptensor_coord(0_n, 2_n)},
                                     {TensorSlotName::RHS_INPUT,
+                                     ptensor_coord(0_n, 2_n)},
+                                    {TensorSlotName::OUTPUT,
                                      ptensor_coord(0_n, 2_n)},
                                 },
                             },
@@ -267,6 +271,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      ptensor_coord(0_n, 0_n)},
                                     {TensorSlotName::WEIGHT,
                                      ptensor_coord(0_n, 0_n)},
+                                    {TensorSlotName::OUTPUT,
+                                     ptensor_coord(0_n, 0_n)},
                                 },
                             },
                         },
@@ -278,6 +284,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      ptensor_coord(0_n, 1_n)},
                                     {TensorSlotName::WEIGHT,
                                      ptensor_coord(1_n, 0_n)},
+                                    {TensorSlotName::OUTPUT,
+                                     ptensor_coord(0_n, 1_n)},
                                 },
                             },
                         },
@@ -289,6 +297,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                                      ptensor_coord(0_n, 2_n)},
                                     {TensorSlotName::WEIGHT,
                                      ptensor_coord(2_n, 0_n)},
+                                    {TensorSlotName::OUTPUT,
+                                     ptensor_coord(0_n, 2_n)},
                                 },
                             },
                         },

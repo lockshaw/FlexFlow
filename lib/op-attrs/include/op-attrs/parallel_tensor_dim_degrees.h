@@ -8,6 +8,7 @@
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "utils/orthotope/dim_domain.dtg.h"
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
+#include "op-attrs/tensor_dims.dtg.h"
 
 namespace FlexFlow {
 
@@ -34,6 +35,8 @@ std::map<parallel_tensor_dim_idx_t, positive_int>
 
 std::set<ParallelTensorSpaceCoordinate>
     get_parallel_tensor_space_coordinates(ParallelTensorDimDegrees const &);
+
+ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &);
 
 DimDomain<parallel_tensor_dim_idx_t>
     dim_domain_from_parallel_tensor_dim_degrees(

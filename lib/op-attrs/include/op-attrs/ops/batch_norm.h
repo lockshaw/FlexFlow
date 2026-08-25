@@ -15,7 +15,7 @@ std::map<TensorSlotName, IncomingTensorRole>
     get_batch_norm_incoming_tensor_roles(BatchNormAttrs const &);
 
 TensorShape batch_norm_get_output_shape(BatchNormAttrs const &,
-                                                        TensorShape const &);
+                                        TensorShape const &);
 TensorShape
     batch_norm_get_gamma_weights_shape(BatchNormAttrs const &, TensorShape const &);
 TensorShape

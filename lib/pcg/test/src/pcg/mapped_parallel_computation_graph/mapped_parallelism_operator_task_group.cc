@@ -6,7 +6,7 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("MappedParallelismOperatorTaskGroup constructor") {
-    auto machine_coord = [&](nonnegative_int idx) 
+    auto machine_coord = [&](nonnegative_int idx)
       -> MachineSpaceCoordinate
     {
       return MachineSpaceCoordinate{
@@ -15,9 +15,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
     };
 
-    auto op_binding = [&](nonnegative_int input_idx, 
+    auto op_binding = [&](nonnegative_int input_idx,
                           nonnegative_int output_idx,
-                          nonnegative_int output_idx2 = 0_n) 
+                          nonnegative_int output_idx2 = 0_n)
       -> ParallelismOperatorAtomicTaskShardBinding
     {
       return ParallelismOperatorAtomicTaskShardBinding{
@@ -49,7 +49,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MappedParallelismOperatorTaskGroup result = MappedParallelismOperatorTaskGroup{rel};
-   }   
+   }
 
     SUBCASE("relation k-unique for k > 1 for output") {
       bidict<MachineSpaceCoordinate, ParallelismOperatorAtomicTaskShardBinding> rel = {
@@ -62,7 +62,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       MappedParallelismOperatorTaskGroup result = MappedParallelismOperatorTaskGroup{rel};
-    }   
+    }
 
     SUBCASE("relation k-unique for k > 1 and there are multiple output dims") {
       bidict<MachineSpaceCoordinate, ParallelismOperatorAtomicTaskShardBinding> rel = {
@@ -77,7 +77,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       CHECK_THROWS(MappedParallelismOperatorTaskGroup{rel});
-    }   
+    }
 
     SUBCASE("relation is biunique") {
       bidict<MachineSpaceCoordinate, ParallelismOperatorAtomicTaskShardBinding> rel = {
@@ -88,7 +88,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       CHECK_THROWS(MappedParallelismOperatorTaskGroup{rel});
-    }   
+    }
 
     SUBCASE("relation is not k-unique for any k") {
       SUBCASE("relation is left-unique with inconsistent cardinality") {
@@ -125,7 +125,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
 
           CHECK_THROWS(MappedParallelismOperatorTaskGroup{rel});
-        }   
+        }
 
         SUBCASE("relation is hemiunique-composite") {
           bidict<MachineSpaceCoordinate, ParallelismOperatorAtomicTaskShardBinding> rel = {
@@ -138,6 +138,6 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK_THROWS(MappedParallelismOperatorTaskGroup{rel});
         }
       }
-    }   
+    }
   }
 }

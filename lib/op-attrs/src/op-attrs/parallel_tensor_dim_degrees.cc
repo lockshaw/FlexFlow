@@ -20,6 +20,8 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/minimal_dim_domain.h"
+#include "op-attrs/tensor_dims.h"
+#include "utils/containers/repeat_element.h"
 
 namespace FlexFlow {
 
@@ -127,6 +129,18 @@ std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(
       [](std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &m) {
         return parallel_tensor_space_coord_from_map(m);
       });
+}
+
+ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &dims) {
+  std::vector<positive_int> shard_degrees = repeat_element(
+      /*num_times=*/get_num_dims(dims).nonnegative_int_from_num_tensor_dims(),
+      /*element=*/1_p);
+
+  return ParallelTensorDimDegrees{
+    /*sum_degree=*/SumDegree{1_p},
+    /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+    /*shard_degrees=*/ff_ordered_of(shard_degrees),
+  };
 }
 
 DimDomain<parallel_tensor_dim_idx_t>

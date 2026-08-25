@@ -15,6 +15,8 @@
 #include "utils/containers/zip_values_strict.h"
 #include "utils/overload.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
+#include "op-attrs/ops/reduction.h"
+#include "op-attrs/ops/replicate.h"
 
 namespace FlexFlow {
 
@@ -100,6 +102,20 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
             return result;
           },
+          [&](ReductionAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    reduction_get_operator_to_input_mapping(attrs,
+                                                              input_degrees),
+                },
+            };
+          },
           [&](RepartitionAttrs const &attrs)
               -> std::map<TensorSlotName,
                           OperatorSpaceToParallelTensorSpaceMapping> {
@@ -110,6 +126,20 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                 {
                     TensorSlotName::INPUT,
                     repartition_get_operator_to_input_mapping(attrs,
+                                                              input_degrees),
+                },
+            };
+          },
+          [&](ReplicateAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    replicate_get_operator_to_input_mapping(attrs,
                                                               input_degrees),
                 },
             };
@@ -254,6 +284,20 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                 },
             };
           },
+          [&](ReductionAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::OUTPUT,
+                    reduction_get_operator_to_output_mapping(attrs,
+                                                               input_degrees),
+                },
+            };
+          },
           [&](RepartitionAttrs const &attrs)
               -> std::map<TensorSlotName,
                           OperatorSpaceToParallelTensorSpaceMapping> {
@@ -266,6 +310,20 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                     operator_ptensor_space_mapping_from_biunique(
                       repartition_get_operator_to_output_mapping(attrs,
                                                                  input_degrees)),
+                },
+            };
+          },
+          [&](ReplicateAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::OUTPUT,
+                    replicate_get_operator_to_output_mapping(attrs,
+                                                               input_degrees),
                 },
             };
           },

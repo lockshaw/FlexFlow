@@ -42,7 +42,7 @@ ParallelTensorDimDegrees get_parallel_tensor_space_for_mapping(
 
 DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
     get_projection_for_op_to_ptensor_identity_mapping(
-        std::set<operator_task_space_dim_idx_t> const &task_space_dims, 
+        std::set<operator_task_space_dim_idx_t> const &task_space_dims,
         std::set<parallel_tensor_dim_idx_t> const &parallel_tensor_space_dims)
 {
   ASSERT(task_space_dims.size() == parallel_tensor_space_dims.size());
@@ -77,7 +77,7 @@ OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
 
   DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
       projection = get_projection_for_op_to_ptensor_identity_mapping(
-          operator_task_space_get_dim_idxs(operator_task_space), 
+          operator_task_space_get_dim_idxs(operator_task_space),
           get_nontrivial_parallel_tensor_dim_indices(parallel_tensor_dim_degrees));
 
   return operator_ptensor_space_mapping_from_projection(
@@ -135,7 +135,7 @@ OperatorSpaceToParallelTensorSpaceMapping
               output_dims_of_projection(projection)),
           /*l_dim_ordering=*/get_operator_task_space_dim_ordering(),
           /*r_dim_ordering=*/get_parallel_tensor_dim_ordering()),
-      get_parallel_tensor_dim_indices(parallel_tensor_dim_degrees)),  
+      get_parallel_tensor_dim_indices(parallel_tensor_dim_degrees)),
   };
 }
 
@@ -160,7 +160,7 @@ ParallelTensorSpaceCoordinate ptensor_coord_for_task_space_coord(
       dim_idxs_for_num_shard_dims(num_dims);
 
   DimCoord<parallel_tensor_dim_idx_t> mapped_dim_coord =
-      mapping.raw_mapping.require_biunique().at_l(
+      mapping.raw_mapping.require_weakly_right_unique().at_l(
           dim_coord_from_task_space_coordinate(task_space_coordinate));
 
   DimCoord<parallel_tensor_dim_idx_t> lifted_dim_coord =

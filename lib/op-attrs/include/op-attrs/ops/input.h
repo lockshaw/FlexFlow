@@ -6,10 +6,12 @@
 #include "op-attrs/ops/input_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 
 namespace FlexFlow {
 
 TensorShape input_get_output_shape(InputAttrs const &);
+ParallelTensorDimDegrees input_get_output_parallel_dim_degrees(InputAttrs const &);
 ParallelTensorShape input_get_output_parallel_shape(InputAttrs const &);
 
 OperatorTaskSpace input_get_operator_task_space(InputAttrs const &);
