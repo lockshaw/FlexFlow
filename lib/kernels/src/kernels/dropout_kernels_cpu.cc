@@ -1,5 +1,4 @@
 #include "kernels/dropout_kernels_cpu.h"
-#include "utils/exception.h"
 
 namespace FlexFlow::Kernels::Dropout {
 

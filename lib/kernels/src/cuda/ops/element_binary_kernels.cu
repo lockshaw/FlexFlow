@@ -18,7 +18,6 @@
 #include "kernels/ff_handle.h"
 #include "op-attrs/datatype.h"
 #include "op-attrs/operator_type.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 namespace Kernels {

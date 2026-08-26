@@ -1,5 +1,4 @@
 #include "kernels/element_binary_kernels_cpu.h"
-#include "utils/exception.h"
 
 namespace FlexFlow::Kernels::ElementBinary {
 

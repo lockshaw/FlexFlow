@@ -2,6 +2,7 @@
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice_inclusive.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/all_of.h"
@@ -79,6 +80,26 @@ ParallelTensorShape
       attrs, get_parallel_degrees(input_shape));
 
   return lift_to_parallel_with_degrees(unpar, degrees);
+}
+
+OperatorTaskSpace flat_get_operator_task_space(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    flat_get_operator_to_input_mapping(
+        FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    flat_get_operator_to_output_mapping(
+        FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow

@@ -1,6 +1,7 @@
 #include "op-attrs/ops/embedding.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
 #include "op-attrs/ff_ordered/ff_ordered_transform.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/ops/embedding_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/parallel_tensor_shape.h"
@@ -115,6 +116,37 @@ ParallelTensorShape
                                                  get_parallel_degrees(input));
 
   return lift_to_parallel_with_degrees(unpar, weight_degrees);
+}
+
+OperatorTaskSpace embedding_get_operator_task_space(
+    EmbeddingAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_input_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_weights_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_output_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, InitializerAttrs> embedding_get_initializers(

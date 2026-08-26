@@ -6,7 +6,6 @@
 #include "utils/containers/generate_map.h"
 #include "utils/containers/require_all_same1.h"
 #include "utils/containers/values.h"
-#include "utils/exception.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
 #include "utils/nonnegative_int/num_elements.h"
 

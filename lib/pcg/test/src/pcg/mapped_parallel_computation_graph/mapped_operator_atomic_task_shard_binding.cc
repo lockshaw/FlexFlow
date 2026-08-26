@@ -1,6 +1,6 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.h"
 #include "test/utils/doctest/fmt/optional.h"
-#include "utils/exception.h"
+#include "utils/not_implemented.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;

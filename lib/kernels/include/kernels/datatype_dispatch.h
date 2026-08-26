@@ -2,7 +2,6 @@
 #define _FLEXFLOW_KERNELS_DATATYPE_DISPATCH_H
 
 #include "op-attrs/datatype.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 
@@ -23,7 +22,7 @@ Out dispatch(DataType dt, Args &&...args) {
     case DataType::BOOL:
       return F<DataType::BOOL>{}(std::forward<Args>(args)...);
     default:
-      throw mk_runtime_error(fmt::format("Unknown datatype {}", dt));
+      PANIC(fmt::format("Unknown datatype {}", dt));
   }
 }
 

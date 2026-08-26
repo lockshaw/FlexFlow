@@ -4,6 +4,7 @@
 #include "op-attrs/tensor_dims.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
+#include "utils/not_implemented.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -290,6 +291,59 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
           attrs.groups);
   }
 }
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    conv2d_get_weight_parallel_dim_degrees(
+        Conv2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorTaskSpace
+    conv2d_get_operator_task_space(Conv2DAttrs const &attrs,
+                                   ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    conv2d_get_operator_to_input_mapping(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    conv2d_get_operator_to_kernel_mapping(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    conv2d_get_operator_to_bias_mapping(Conv2DAttrs const &attrs,
+                                        ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    conv2d_get_operator_to_output_mapping(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    conv2d_get_operator_to_parallel_tensor_mappings(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    conv2d_get_operator_to_parallel_tensor_mappings(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input);
 
 ParallelTensorShape
     conv2d_get_kernel_parallel_shape(Conv2DAttrs const &attrs,
