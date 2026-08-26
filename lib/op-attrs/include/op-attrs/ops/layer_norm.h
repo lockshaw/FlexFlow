@@ -3,11 +3,13 @@
 
 #include "op-attrs/incoming_tensor_role.dtg.h"
 #include "op-attrs/initializer_attrs.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/layer_norm_attrs.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include <tl/expected.hpp>
 
 namespace FlexFlow {
 
@@ -25,6 +27,18 @@ std::map<TensorSlotName, TensorShape>
     layer_norm_get_weight_shapes(LayerNormAttrs const &attrs,
                                  TensorShape const &input_shape);
 
+ParallelTensorDimDegrees layer_norm_get_output_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees layer_norm_get_gamma_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees layer_norm_get_beta_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    layer_norm_get_weight_parallel_dim_degrees(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_shape);
+
 ParallelTensorShape
     layer_norm_get_output_parallel_shape(LayerNormAttrs const &,
                                          ParallelTensorShape const &);
@@ -38,6 +52,29 @@ ParallelTensorShape
 std::map<TensorSlotName, ParallelTensorShape>
     layer_norm_get_weight_parallel_shapes(
         LayerNormAttrs const &attrs, ParallelTensorShape const &input_shape);
+
+OperatorTaskSpace layer_norm_get_operator_task_space(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_input_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_gamma_weights_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_beta_weights_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_output_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

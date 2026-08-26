@@ -180,4 +180,26 @@ ParallelTensorDimDegrees pool2d_get_output_parallel_dim_degrees(
   return input_degrees;
 }
 
+OperatorTaskSpace pool2d_get_operator_task_space(
+    Pool2DAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    pool2d_get_operator_to_input_mapping(
+        Pool2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    pool2d_get_operator_to_output_mapping(
+        Pool2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 } // namespace FlexFlow

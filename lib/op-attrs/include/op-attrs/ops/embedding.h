@@ -2,6 +2,8 @@
 #define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPS_EMBEDDING_H
 
 #include "op-attrs/initializer_attrs.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/embedding_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
@@ -27,6 +29,24 @@ ParallelTensorShape
 ParallelTensorShape
     embedding_get_weights_parallel_shape(EmbeddingAttrs const &,
                                          ParallelTensorShape const &);
+
+OperatorTaskSpace embedding_get_operator_task_space(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_input_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_weights_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_operator_to_output_mapping(
+        EmbeddingAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

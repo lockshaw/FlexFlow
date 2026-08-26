@@ -13,6 +13,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/integer_conversions.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

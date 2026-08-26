@@ -8,7 +8,6 @@
 #include "utils/containers/require_all_same.h"
 #include "utils/containers/transform_pairs.h"
 #include "utils/containers/vector_of.h"
-#include "utils/exception.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/tuple.h"
 

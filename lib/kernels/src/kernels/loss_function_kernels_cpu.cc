@@ -2,7 +2,6 @@
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "kernels/tensor_accessor_unary_ops.h"
 #include "op-attrs/datatype_value.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 

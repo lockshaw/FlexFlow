@@ -1,4 +1,5 @@
 #include "op-attrs/ops/transpose.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
@@ -69,7 +70,7 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
       DimProjection{inp_to_out}, input_degrees, output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     transpose_get_operator_to_input_mapping(
         TransposeAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
@@ -79,13 +80,14 @@ OperatorSpaceToParallelTensorSpaceMapping
   ParallelTensorSpaceToParallelTensorSpaceMapping out_to_inp =
       invert_parallel_tensor_space_mapping(inp_to_out);
 
-  OperatorSpaceToParallelTensorSpaceMapping op_to_out =
+  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
       transpose_get_operator_to_output_mapping(attrs, input_degrees);
 
-  return operator_ptensor_space_mapping_from_composition(op_to_out, out_to_inp);
+  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out,
+                                                                  out_to_inp);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     transpose_get_operator_to_output_mapping(
         TransposeAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {

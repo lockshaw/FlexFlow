@@ -156,8 +156,8 @@ struct CreateFilledAccessorW {
                                     DataTypeValue val) {
     using T = real_type_t<DT>;
     if (!val.template has<T>()) {
-      throw mk_runtime_error("create_filed_accessor expected data type of "
-                             "shape and passed-in value to match");
+      PANIC("create_filed_accessor expected data type of "
+            "shape and passed-in value to match");
     }
 
     auto unwrapped_value = val.get<T>();

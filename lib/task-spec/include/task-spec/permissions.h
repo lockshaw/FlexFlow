@@ -1,7 +1,6 @@
 #ifndef _FLEXFLOW_LIB_TASK_SPEC_INCLUDE_TASK_SPEC_PERMISSIONS_H
 #define _FLEXFLOW_LIB_TASK_SPEC_INCLUDE_TASK_SPEC_PERMISSIONS_H
 
-#include "utils/exception.h"
 #include "utils/fmt.h"
 
 namespace FlexFlow {

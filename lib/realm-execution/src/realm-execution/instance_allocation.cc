@@ -16,7 +16,6 @@
 #include "utils/containers/map_values.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/values.h"
-#include "utils/exception.h"
 #include "utils/optional.h"
 
 namespace FlexFlow {

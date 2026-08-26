@@ -1,5 +1,4 @@
 #include "realm-execution/tasks/serializer/serializable_realm_instance.h"
-#include "utils/exception.h"
 #include <type_traits>
 
 namespace FlexFlow {
