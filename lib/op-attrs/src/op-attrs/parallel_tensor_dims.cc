@@ -13,6 +13,7 @@
 #include "utils/integer_conversions.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

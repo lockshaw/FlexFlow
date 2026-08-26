@@ -14,7 +14,7 @@ TensorAttributeValue eval_list_size(ParallelTensorAttrs const &attrs,
         return TensorAttributeValue{num_elements(v)};
       },
       [](auto &&) -> TensorAttributeValue {
-        throw mk_runtime_error("Invalid operand");
+        PANIC("Invalid operand");
       },
   });
 }

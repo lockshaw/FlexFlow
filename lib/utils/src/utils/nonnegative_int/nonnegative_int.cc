@@ -1,5 +1,5 @@
 #include "utils/nonnegative_int/nonnegative_int.h"
-#include "utils/exception.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
@@ -203,7 +203,7 @@ int format_as(nonnegative_int const &x) {
 nonnegative_int operator""_n(unsigned long long int x) {
   if (x >
       static_cast<unsigned long long int>(std::numeric_limits<int>::max())) {
-    throw mk_runtime_error(
+    PANIC(
         fmt::format("Value too large to wrap as nonnegative_int: {}", x));
   }
 

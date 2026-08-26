@@ -7,6 +7,7 @@
 #include "utils/containers/all_of.h"
 #include "utils/containers/product.h"
 #include <cassert>
+#include "op-attrs/operator_task_space.dtg.h"
 
 namespace FlexFlow {
 
@@ -80,5 +81,27 @@ ParallelTensorShape
 
   return lift_to_parallel_with_degrees(unpar, degrees);
 }
+
+OperatorTaskSpace flat_get_operator_task_space(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_input_mapping(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_output_mapping(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 
 } // namespace FlexFlow

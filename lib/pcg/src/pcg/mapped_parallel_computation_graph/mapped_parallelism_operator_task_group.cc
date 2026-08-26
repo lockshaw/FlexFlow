@@ -1,5 +1,4 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_parallelism_operator_task_group.h"
-#include "utils/exception.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/tuple.h"
 #include "utils/containers/vector_of.h"

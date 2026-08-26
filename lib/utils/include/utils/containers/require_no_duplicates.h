@@ -1,7 +1,6 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_REQUIRE_NO_DUPLICATES_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_REQUIRE_NO_DUPLICATES_H
 
-#include "utils/exception.h"
 #include "utils/fmt/multiset.h"
 #include "utils/fmt/unordered_multiset.h"
 #include <fmt/format.h>
@@ -16,7 +15,7 @@ std::unordered_set<T>
   std::unordered_set<T> result{s.cbegin(), s.cend()};
 
   if (result.size() != s.size()) {
-    throw mk_runtime_error(fmt::format(
+    PANIC(fmt::format(
         "require_no_duplicates encountered duplicate in set {}", s));
   }
 
@@ -28,7 +27,7 @@ std::set<T> require_no_duplicates(std::multiset<T> const &s) {
   std::set<T> result{s.cbegin(), s.cend()};
 
   if (result.size() != s.size()) {
-    throw mk_runtime_error(fmt::format(
+    PANIC(fmt::format(
         "require_no_duplicates encountered duplicate in set {}", s));
   }
 

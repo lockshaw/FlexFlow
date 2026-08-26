@@ -3,6 +3,8 @@
 
 #include "op-attrs/ops/gather_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -18,6 +20,19 @@ ParallelTensorDimDegrees gather_get_output_parallel_dim_degrees(
 ParallelTensorShape gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
                                      ParallelTensorShape const &index);
+
+OperatorTaskSpace gather_get_operator_task_space(
+    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_input_mapping(
+    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_index_mapping(
+    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_output_mapping(
+    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
 
 } // namespace FlexFlow
 

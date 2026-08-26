@@ -2,6 +2,7 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -18,6 +19,14 @@ TensorShape
   );
 
   return input_shape;
+}
+
+ParallelTensorDimDegrees
+    softmax_get_output_parallel_dim_degrees(SoftmaxAttrs const &attrs,
+                     ParallelTensorDimDegrees const &input_shape)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 ParallelTensorShape
@@ -47,6 +56,27 @@ ParallelTensorShape
   );
 
   return input_shape;
+}
+
+OperatorTaskSpace softmax_get_operator_task_space(
+    SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping softmax_get_operator_to_input_mapping(
+    SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping softmax_get_operator_to_output_mapping(
+    SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow

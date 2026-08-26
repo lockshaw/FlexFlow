@@ -7,6 +7,7 @@
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.h"
 #include "utils/bidict/algorithms/bidict_transform_keys.h"
 #include "utils/bidict/algorithms/bidict_transform_values.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -67,7 +68,7 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
       DimProjection{inp_to_out}, input_degrees, output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping transpose_get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_input_mapping(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorSpaceToParallelTensorSpaceMapping inp_to_out =
@@ -76,13 +77,13 @@ OperatorSpaceToParallelTensorSpaceMapping transpose_get_operator_to_input_mappin
   ParallelTensorSpaceToParallelTensorSpaceMapping out_to_inp =
       invert_parallel_tensor_space_mapping(inp_to_out);
 
-  OperatorSpaceToParallelTensorSpaceMapping op_to_out =
+  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
       transpose_get_operator_to_output_mapping(attrs, input_degrees);
 
-  return operator_ptensor_space_mapping_from_composition(op_to_out, out_to_inp);
+  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_inp);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping transpose_get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_output_mapping(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =

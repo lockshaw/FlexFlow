@@ -1,6 +1,5 @@
 #include <doctest/doctest.h>
 #include "pcg/mapped_parallel_computation_graph/mapped_standard_operator_task_group.h"
-#include "utils/exception.h"
 
 using namespace ::FlexFlow;
 

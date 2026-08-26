@@ -7,6 +7,8 @@
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -20,6 +22,19 @@ ParallelTensorDimDegrees embedding_get_weights_parallel_dim_degrees(
 
 ParallelTensorShape embedding_get_output_parallel_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
 ParallelTensorShape embedding_get_weights_parallel_shape(EmbeddingAttrs const &, ParallelTensorShape const &);
+
+OperatorTaskSpace embedding_get_operator_task_space(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_input_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_weights_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_output_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
 
 /**
  * @brief Chosen to match pytorch

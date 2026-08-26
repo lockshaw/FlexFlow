@@ -7,6 +7,8 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_shape.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 
 namespace FlexFlow {
 
@@ -34,6 +36,10 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees);
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    conv2d_get_weight_parallel_dim_degrees(Conv2DAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_degrees);
+
 ParallelTensorShape
     conv2d_get_kernel_parallel_shape(Conv2DAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
@@ -47,6 +53,35 @@ ParallelTensorShape
 std::map<TensorSlotName, ParallelTensorShape>
     conv2d_get_weight_parallel_shapes(Conv2DAttrs const &attrs,
                                       ParallelTensorShape const &input_shape);
+
+OperatorTaskSpace conv2d_get_operator_task_space(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  conv2d_get_operator_to_input_mapping(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  conv2d_get_operator_to_kernel_mapping(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  conv2d_get_operator_to_bias_mapping(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  conv2d_get_operator_to_output_mapping(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+  conv2d_get_operator_to_parallel_tensor_mappings(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input);
 
 std::map<TensorSlotName, InitializerAttrs> conv2d_get_initializers(
     Conv2DAttrs const &attrs,

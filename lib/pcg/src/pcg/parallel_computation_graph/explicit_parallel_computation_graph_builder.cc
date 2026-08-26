@@ -77,7 +77,7 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::add(
 
   DataType datatype = [&] {
     if (lhs_shape.data_type != rhs_shape.data_type) {
-      throw mk_runtime_error(
+      PANIC(
           fmt::format("Datatypes do not match: {} (lhs) != {} (rhs)",
                       lhs_shape.data_type,
                       rhs_shape.data_type));

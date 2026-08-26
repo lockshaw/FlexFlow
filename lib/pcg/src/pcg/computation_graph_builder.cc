@@ -163,7 +163,7 @@ tensor_guid_t ComputationGraphBuilder::as_type(tensor_guid_t const &x,
   if (x_datatype < data_type) {
     return this->cast(x, data_type, name);
   } else if (x_datatype > data_type) {
-    throw mk_runtime_error(
+    PANIC(
         fmt::format("Could not convert provided tensor data type {} to "
                     "desired data type {}",
                     x_datatype,
@@ -700,7 +700,7 @@ tensor_guid_t ComputationGraphBuilder::adaptive_pool2d(
 
   LayerAttrs layer = LayerAttrs{ComputationGraphOpAttrs{attrs}, name};
 
-  TensorShape output_shape = 
+  TensorShape output_shape =
       pool2d_get_output_shape(attrs, this->get_shape(casted_input));
 
   return require_only_key(this->add_layer(layer,
@@ -842,7 +842,7 @@ TensorDims ComputationGraphBuilder::get_broadcast_target_dims(
   if (maybe_result.has_value()) {
     return maybe_result.value();
   } else {
-    throw mk_runtime_error(fmt::format(
+    PANIC(fmt::format(
         "ComputationGraphBuilder::get_broadcast_target_dims failed to find "
         "target tensor dims for input tensor dims {}",
         inputs_dims));
@@ -970,7 +970,7 @@ tensor_guid_t ComputationGraphBuilder::layer_norm(
   if (any_of(axes, [&](ff_dim_t axis) {
         return axis.value >= get_num_dims(input_shape.dims);
       })) {
-    throw mk_runtime_error(fmt::format(
+    PANIC(fmt::format(
         "ComputationGraphBuilder::layer_norm received axes {} with "
         "out-of-bound element (input tensor has num dimensions = {})",
         axes,

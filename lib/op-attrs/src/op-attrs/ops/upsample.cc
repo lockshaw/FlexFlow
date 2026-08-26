@@ -46,4 +46,26 @@ ParallelTensorShape upsample_get_output_parallel_shape(UpsampleAttrs const &attr
   return lift_to_parallel_with_degrees(unpar, degrees);
 }
 
+OperatorTaskSpace upsample_get_operator_task_space(
+    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping upsample_get_operator_to_input_mapping(
+    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping upsample_get_operator_to_output_mapping(
+    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+
 } // namespace FlexFlow

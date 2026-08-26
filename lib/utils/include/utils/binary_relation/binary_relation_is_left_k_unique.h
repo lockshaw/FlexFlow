@@ -3,7 +3,6 @@
 
 #include "utils/binary_relation/binary_relation.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
-#include "utils/exception.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/containers/generate_map.h"
 #include "utils/containers/require_all_same.h"

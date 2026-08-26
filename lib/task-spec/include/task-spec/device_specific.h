@@ -2,7 +2,6 @@
 #define _FLEXFLOW_LOCAL_EXECUTION_DEVICE_SPECIFIC_H
 
 #include "task-spec/global_device_id_t.dtg.h"
-#include "utils/exception.h"
 #include "utils/hash/tuple.h"
 #include <libassert/assert.hpp>
 #include <nlohmann/json.hpp>

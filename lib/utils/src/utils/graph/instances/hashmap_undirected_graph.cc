@@ -2,7 +2,6 @@
 #include "utils/commutative_pair.h"
 #include "utils/containers/contains_key.h"
 #include "utils/containers/keys.h"
-#include "utils/exception.h"
 #include "utils/graph/undirected/algorithms/make_undirected_edge.h"
 
 namespace FlexFlow {
@@ -28,12 +27,12 @@ void HashmapUndirectedGraph::remove_node_unsafe(Node const &n) {
 
 void HashmapUndirectedGraph::add_edge(UndirectedEdge const &e) {
   if (!contains_key(this->adjacency, e.endpoints.max())) {
-    throw mk_runtime_error(
+    PANIC(
         fmt::format("Could not add edge connected to non-existent node {}",
                     e.endpoints.max()));
   }
   if (!contains_key(this->adjacency, e.endpoints.min())) {
-    throw mk_runtime_error(
+    PANIC(
         fmt::format("Could not add edge connected to non-existent node {}",
                     e.endpoints.min()));
   }

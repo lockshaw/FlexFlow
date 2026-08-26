@@ -38,4 +38,25 @@ ParallelTensorShape
   return lift_to_parallel_with_degrees(unpar, degrees);
 }
 
+OperatorTaskSpace reshape_get_operator_task_space(
+    ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping reshape_get_operator_to_input_mapping(
+    ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping reshape_get_operator_to_output_mapping(
+    ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 } // namespace FlexFlow

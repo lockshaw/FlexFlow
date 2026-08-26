@@ -9,7 +9,6 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_of.h"
 #include "utils/containers/zip_with_strict.h"
-#include "utils/exception.h"
 #include "utils/nonnegative_int/num_elements.h"
 
 namespace FlexFlow {
@@ -54,6 +53,28 @@ std::vector<ParallelTensorShape>
           ParallelTensorDimDegrees const &d) -> ParallelTensorShape {
         return lift_to_parallel_with_degrees(s, d);
       });
+}
+
+OperatorTaskSpace split_get_operator_task_space(
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping split_get_operator_to_input_mapping(
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+  split_get_operator_to_output_mappings(
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow

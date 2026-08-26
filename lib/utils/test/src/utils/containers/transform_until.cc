@@ -1,6 +1,5 @@
 #include "utils/containers/transform_until.h"
 #include "test/utils/doctest/fmt/vector.h"
-#include "utils/exception.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -47,7 +46,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       std::vector<int> result =
           transform_until(input, [](int x) -> std::optional<int> {
-            throw mk_runtime_error("err");
+            PANIC("err");
           });
       std::vector<int> correct = {};
 

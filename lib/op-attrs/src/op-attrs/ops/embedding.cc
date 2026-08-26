@@ -8,6 +8,7 @@
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -114,6 +115,34 @@ ParallelTensorShape
       embedding_get_weights_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
   return lift_to_parallel_with_degrees(unpar, weight_degrees);
+}
+
+OperatorTaskSpace embedding_get_operator_task_space(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_input_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_weights_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_output_mapping(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, InitializerAttrs> embedding_get_initializers(

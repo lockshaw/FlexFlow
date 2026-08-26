@@ -17,8 +17,67 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/ops/reduction.h"
 #include "op-attrs/ops/replicate.h"
+#include "utils/containers/map_from_keys_and_values.h"
+#include "utils/containers/slice.h"
+#include "op-attrs/ops/batch_norm.h"
+#include "op-attrs/ops/batch_matmul.h"
+#include "op-attrs/ops/broadcast.h"
+#include "op-attrs/ops/combine.h"
+#include "op-attrs/ops/concat.h"
+#include "op-attrs/ops/conv_2d.h"
+#include "op-attrs/ops/dropout.h"
+#include "op-attrs/ops/embedding.h"
+#include "op-attrs/ops/flat.h"
+#include "op-attrs/tensor_slot_name.h"
+#include "utils/containers/restrict_keys_strict.h"
+#include "op-attrs/ops/upsample.h"
+#include "op-attrs/ops/topk.h"
+#include "op-attrs/ops/softmax.h"
+#include "op-attrs/ops/split.h"
+#include "op-attrs/ops/reshape.h"
+#include "op-attrs/ops/reverse.h"
+#include "op-attrs/ops/pool_2d.h"
+#include "op-attrs/ops/reduce.h"
+#include "op-attrs/ops/noop.h"
+#include "op-attrs/ops/attention.h"
+#include "op-attrs/ops/cast.h"
 
 namespace FlexFlow {
+
+template <typename T>
+static std::tuple<T, T, T> require_3(std::map<TensorSlotName, T> const &v,
+                                     TensorSlotName k1,
+                                     TensorSlotName k2,
+                                     TensorSlotName k3) {
+  ASSERT(v.size() == 3);
+
+  return {v.at(k1), v.at(k2), v.at(k3)};
+}
+
+template <typename T>
+static std::vector<T>
+    require_only_slots_sequence(std::map<TensorSlotName, T> const &v,
+                                std::vector<TensorSlotName> const &slots) {
+  nonnegative_int v_num_slots = num_elements(v);
+  ASSERT(v_num_slots <= slots.size());
+
+  std::vector<TensorSlotName> expected_slots =
+      slice(slots, 0, v_num_slots.unwrap_nonnegative());
+
+  ASSERT(set_of(expected_slots) == keys(v));
+
+  return transform(expected_slots, [&](TensorSlotName const &slot_name) {
+    return v.at(slot_name);
+  });
+};
+
+static 
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
+  lift_biunique_mappings(
+    std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping> const &biunique)
+{
+  return map_values(biunique, operator_ptensor_space_mapping_from_biunique);
+}
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_incoming_mappings(
@@ -28,26 +87,141 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
   return op_attrs.visit<
       std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
       overload{
-          [&](ElementBinaryAttrs const &attrs)
+          [&](BatchNormAttrs const &attrs)
               -> std::map<TensorSlotName,
                           OperatorSpaceToParallelTensorSpaceMapping> {
-            ASSERT(inputs_degrees.size() == 2);
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
 
-            ParallelTensorDimDegrees lhs_degrees =
-                inputs_degrees.at(TensorSlotName::LHS_INPUT);
-            ParallelTensorDimDegrees rhs_degrees =
-                inputs_degrees.at(TensorSlotName::RHS_INPUT);
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      batch_norm_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](BatchMatmulAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            auto [lhs, rhs] = require_two_keys(
+                inputs_degrees, TensorSlotName::LHS_INPUT, TensorSlotName::RHS_INPUT);
 
             return {
                 {
                     TensorSlotName::LHS_INPUT,
-                    element_binary_get_operator_to_lhs_input_mapping(
-                        attrs, lhs_degrees, rhs_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                      batch_matmul_get_operator_to_lhs_input_mapping(attrs, lhs, rhs)),
                 },
                 {
                     TensorSlotName::RHS_INPUT,
-                    element_binary_get_operator_to_rhs_input_mapping(
-                        attrs, lhs_degrees, rhs_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                      batch_matmul_get_operator_to_rhs_input_mapping(attrs, lhs, rhs)),
+                },
+            };
+          },
+          [&](BroadcastAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      broadcast_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](CastAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      cast_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](CombineAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    combine_get_operator_to_input_mapping(attrs, input_degrees),
+                },
+            };
+          },
+          [&](ConcatAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            std::vector<ParallelTensorDimDegrees> inputs 
+              = require_only_slots_sequence(inputs_degrees,
+                                            get_variadic_inputs_slot_name_sequence());
+
+            std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+              concat_get_operator_to_input_mappings(attrs, inputs);
+
+            return lift_biunique_mappings(
+              map_from_keys_and_values(
+                slice(get_variadic_inputs_slot_name_sequence(), 0, inputs.size()),
+                concat_get_operator_to_input_mappings(attrs, inputs)));
+          },
+          [&](Conv2DAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            std::set<TensorSlotName> incoming_slots = 
+              keys(get_conv2d_incoming_tensor_roles(attrs));
+
+            return lift_biunique_mappings(
+              restrict_keys_strict(
+                conv2d_get_operator_to_parallel_tensor_mappings(attrs, input_degrees),
+                incoming_slots));
+          },
+          [&](DropoutAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      dropout_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](ElementBinaryAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            auto [lhs, rhs] = require_two_keys(
+                inputs_degrees, TensorSlotName::LHS_INPUT, TensorSlotName::RHS_INPUT);
+
+            return {
+                {
+                    TensorSlotName::LHS_INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      element_binary_get_operator_to_lhs_input_mapping(
+                          attrs, lhs, rhs)),
+                },
+                {
+                    TensorSlotName::RHS_INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      element_binary_get_operator_to_rhs_input_mapping(
+                          attrs, lhs, rhs)),
                 },
             };
           },
@@ -60,7 +234,63 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::INPUT,
-                    element_unary_get_operator_to_input_mapping(attrs, input_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                      element_unary_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](EmbeddingAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                  TensorSlotName::INPUT,
+                  operator_ptensor_space_mapping_from_biunique(
+                    embedding_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+                {
+                  TensorSlotName::WEIGHT,
+                  operator_ptensor_space_mapping_from_biunique(
+                    embedding_get_operator_to_weights_mapping(attrs, input_degrees)),
+                },
+            };
+
+          },
+          [&](FlatAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      flat_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](GatherAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            auto [input_degrees, index_degrees] =
+                require_two_keys(inputs_degrees, 
+                                 TensorSlotName::INPUT,
+                                 TensorSlotName::INDEX);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      gather_get_operator_to_input_mapping(attrs, input_degrees, index_degrees)),
+                },
+                {
+                    TensorSlotName::INDEX,
+                    operator_ptensor_space_mapping_from_biunique(
+                      gather_get_operator_to_input_mapping(attrs, input_degrees, index_degrees)),
                 },
             };
           },
@@ -69,6 +299,30 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
             return std::map<TensorSlotName,
                             OperatorSpaceToParallelTensorSpaceMapping>{};
+          },
+          [&](LayerNormAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      layer_norm_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+                {
+                    TensorSlotName::GAMMA,
+                    operator_ptensor_space_mapping_from_biunique(
+                      layer_norm_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+                {
+                    TensorSlotName::BETA,
+                    operator_ptensor_space_mapping_from_biunique(
+                      layer_norm_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
           },
           [&](LinearAttrs const &attrs)
               -> std::map<TensorSlotName,
@@ -101,6 +355,65 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             };
 
             return result;
+          },
+          [&](MultiHeadAttentionAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            auto [query, key, value] =
+                require_only_key(inputs_degrees, 
+                                 TensorSlotName::QUERY,
+                                 TensorSlotName::KEY,
+                                 TensorSlotName::VALUE);
+
+            std::set<TensorSlotName> incoming_slots = 
+              keys(get_attention_incoming_tensor_roles(attrs));
+
+            return lift_biunique_mappings(
+              restrict_keys_strict(
+                attention_get_operator_to_parallel_tensor_mappings(attrs, query, key, value),
+                incoming_slots));
+          },
+          [&](NoopAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      noop_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](Pool2DAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      pool2d_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](ReduceAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      reduce_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
           },
           [&](ReductionAttrs const &attrs)
               -> std::map<TensorSlotName,
@@ -144,6 +457,76 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
                 },
             };
           },
+          [&](ReverseAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      reverse_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](ReshapeAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      reshape_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](SplitAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      split_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](SoftmaxAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      softmax_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](TopKAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      topk_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
           [&](TransposeAttrs const &attrs)
               -> std::map<TensorSlotName,
                           OperatorSpaceToParallelTensorSpaceMapping> {
@@ -153,7 +536,22 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
             return {
                 {
                     TensorSlotName::INPUT,
-                    transpose_get_operator_to_input_mapping(attrs, input_degrees),
+                    operator_ptensor_space_mapping_from_biunique(
+                      transpose_get_operator_to_input_mapping(attrs, input_degrees)),
+                },
+            };
+          },
+          [&](UpsampleAttrs const &attrs)
+              -> std::map<TensorSlotName,
+                          OperatorSpaceToParallelTensorSpaceMapping> {
+            ParallelTensorDimDegrees input_degrees =
+                require_only_key(inputs_degrees, TensorSlotName::INPUT);
+
+            return {
+                {
+                    TensorSlotName::INPUT,
+                    operator_ptensor_space_mapping_from_biunique(
+                      upsample_get_operator_to_input_mapping(attrs, input_degrees)),
                 },
             };
           },
@@ -162,12 +560,6 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
             return std::map<TensorSlotName,
                             OperatorSpaceToParallelTensorSpaceMapping>{};
-          },
-          [](auto const &attrs)
-              -> std::map<TensorSlotName,
-                          OperatorSpaceToParallelTensorSpaceMapping> {
-            PANIC("Missing implmentation of get_operator_to_input_mappings",
-                  attrs);
           },
       });
 }

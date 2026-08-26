@@ -9,7 +9,6 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/try_at.h"
 #include "utils/containers/values.h"
-#include "utils/exception.h"
 #include "utils/fmt/map.h"
 #include "utils/fmt/set.h"
 #include "utils/hash-utils.h"
@@ -24,6 +23,7 @@
 #include <nlohmann/json.hpp>
 #include <rapidcheck.h>
 #include <set>
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

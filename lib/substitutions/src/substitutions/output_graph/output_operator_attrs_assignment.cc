@@ -4,7 +4,6 @@
 #include "substitutions/output_graph/output_operator_attribute_expr.h"
 #include "utils/containers/binary_merge_maps_with_right_dominating.h"
 #include "utils/containers/map_values.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 

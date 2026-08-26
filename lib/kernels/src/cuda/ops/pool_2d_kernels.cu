@@ -15,7 +15,6 @@
 
 #include "internal/device.h"
 #include "kernels/pool_2d_kernels_gpu.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 

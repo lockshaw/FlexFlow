@@ -12,6 +12,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/expected.h"
 #include "utils/fmt/set.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -106,6 +107,36 @@ std::map<TensorSlotName, TensorShape>
   };
 }
 
+ParallelTensorDimDegrees
+    layer_norm_get_output_parallel_dim_degrees(LayerNormAttrs const &, ParallelTensorDimDegrees const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees
+    layer_norm_get_gamma_weights_parallel_dim_degrees(LayerNormAttrs const &,
+                            ParallelTensorDimDegrees const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees
+    layer_norm_get_beta_weights_parallel_dim_degrees(LayerNormAttrs const &, ParallelTensorDimDegrees const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    layer_norm_get_weight_parallel_dim_degrees(LayerNormAttrs const &attrs,
+                      ParallelTensorDimDegrees const &input_shape)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 static void
     check_input_parallel_shape(LayerNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape) {
@@ -180,7 +211,7 @@ ParallelTensorShape
 ParallelTensorShape
     layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs const &attrs,
                            ParallelTensorShape const &input_shape) {
-  
+
   ASSERT(attrs.elementwise_affine, "No beta weights exist for attrs.elementwise_affine = false");
 
   return layer_norm_get_gamma_weights_parallel_shape(attrs, input_shape);
@@ -205,6 +236,41 @@ std::map<TensorSlotName, ParallelTensorShape>
           beta_shape,
       },
   };
+}
+
+OperatorTaskSpace layer_norm_get_operator_task_space(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping layer_norm_get_operator_to_input_mapping(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping layer_norm_get_operator_to_gamma_weights_mapping(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping layer_norm_get_operator_to_beta_weights_mapping(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping layer_norm_get_operator_to_output_mapping(
+    LayerNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, InitializerAttrs>

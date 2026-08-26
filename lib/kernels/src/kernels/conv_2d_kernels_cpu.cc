@@ -1,5 +1,4 @@
 #include "kernels/conv_2d_kernels_cpu.h"
-#include "utils/exception.h"
 
 namespace FlexFlow::Kernels::Conv2D {
 

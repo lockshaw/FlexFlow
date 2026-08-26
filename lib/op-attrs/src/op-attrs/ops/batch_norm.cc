@@ -258,6 +258,43 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 }
 
+OperatorTaskSpace batch_norm_get_operator_task_space(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_input_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    batch_norm_get_operator_to_gamma_weights_mapping(
+        BatchNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_beta_weights_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_output_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 std::map<TensorSlotName, InitializerAttrs>
     batch_norm_get_initializers(BatchNormAttrs const &attrs) {
   if (attrs.affine) {

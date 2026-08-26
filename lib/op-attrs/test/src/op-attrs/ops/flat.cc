@@ -231,4 +231,19 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
+
+  TEST_CASE("flat_get_operator_task_space") {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+
+  TEST_CASE("flat_get_operator_to_input_mapping") {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+
+  TEST_CASE("flat_get_operator_to_output_mapping") {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
 }

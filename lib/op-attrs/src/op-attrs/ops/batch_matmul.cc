@@ -7,7 +7,6 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/require_same.h"
-#include "utils/exception.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -101,6 +100,42 @@ ParallelTensorShape
           attrs, get_parallel_degrees(lhs), get_parallel_degrees(rhs));
 
   return lift_to_parallel_with_degrees(output_shape, output_degrees);
+}
+
+OperatorTaskSpace batch_matmul_get_operator_task_space(
+    BatchMatmulAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs,
+    ParallelTensorDimDegrees const &rhs)
+{
+  // TODO(@lockshawj(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_lhs_input_mapping(
+    BatchMatmulAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs,
+    ParallelTensorDimDegrees const &rhs)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_rhs_input_mapping(
+    BatchMatmulAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs,
+    ParallelTensorDimDegrees const &rhs)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_output_mapping(
+    BatchMatmulAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs,
+    ParallelTensorDimDegrees const &rhs)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow

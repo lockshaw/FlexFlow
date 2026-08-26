@@ -5,10 +5,10 @@
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/extend.h"
-#include "utils/exception.h"
 #include "utils/expected.h"
 #include "utils/integer_conversions.h"
 #include <libassert/assert.hpp>
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -182,7 +182,7 @@ TensorShape
                          TensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionInputs parsed = 
+  MultiHeadAttentionInputs parsed =
         parse_attention_input_shape(input_q, input_k, input_v);
 
   return TensorShape{
@@ -200,7 +200,7 @@ TensorShape
                           TensorShape const &input_v) {
   check_attrs(attrs);
 
-  MultiHeadAttentionInputs parsed = 
+  MultiHeadAttentionInputs parsed =
         parse_attention_input_shape(input_q, input_k, input_v);
 
   return TensorShape{
@@ -275,7 +275,7 @@ ParallelTensorShape
   MultiHeadAttentionParallelInputs parsed =
         parse_attention_parallel_input_shape(input_q, input_k, input_v);
 
-  TensorShape unpar_shape = 
+  TensorShape unpar_shape =
         attention_get_input_bias_shape(attrs,
                              get_reduced_shape(input_q),
                              get_reduced_shape(input_k),
@@ -299,7 +299,7 @@ ParallelTensorShape
   MultiHeadAttentionParallelInputs parsed =
         parse_attention_parallel_input_shape(input_q, input_k, input_v);
 
-  TensorShape unpar_shape = 
+  TensorShape unpar_shape =
         attention_get_output_bias_shape(attrs,
                               get_reduced_shape(input_q),
                               get_reduced_shape(input_k),
@@ -350,6 +350,56 @@ positive_int attention_get_oSize(TensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
+ParallelTensorDimDegrees
+    attention_get_weights_parallel_dim_degrees(MultiHeadAttentionAttrs const &,
+                      ParallelTensorDimDegrees const &input_q,
+                      ParallelTensorDimDegrees const &input_k,
+                      ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees
+    attention_get_input_bias_parallel_dim_degrees(MultiHeadAttentionAttrs const &,
+                         ParallelTensorDimDegrees const &input_q,
+                         ParallelTensorDimDegrees const &input_k,
+                         ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees
+    attention_get_output_bias_parallel_dim_degrees(MultiHeadAttentionAttrs const &,
+                          ParallelTensorDimDegrees const &input_q,
+                          ParallelTensorDimDegrees const &input_k,
+                          ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees
+    attention_get_output_parallel_dim_degrees(MultiHeadAttentionAttrs const &,
+                     ParallelTensorDimDegrees const &input_q,
+                     ParallelTensorDimDegrees const &input_k,
+                     ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees(MultiHeadAttentionAttrs const &,
+                      ParallelTensorDimDegrees const &input_q,
+                      ParallelTensorDimDegrees const &input_k,
+                      ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 std::map<TensorSlotName, ParallelTensorShape>
     attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &attrs,
                       ParallelTensorShape const &input_q,
@@ -376,6 +426,104 @@ std::map<TensorSlotName, ParallelTensorShape>
   }
 
   return weight_shapes;
+}
+
+OperatorTaskSpace attention_get_operator_task_space(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_query_input_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_key_input_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_value_input_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_weights_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_input_bias_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_output_bias_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+  attention_get_operator_to_output_mapping(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+  attention_get_operator_to_parallel_tensor_mappings(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, InitializerAttrs>

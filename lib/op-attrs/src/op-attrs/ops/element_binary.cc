@@ -2,7 +2,6 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "utils/containers/require_same.h"
-#include "utils/exception.h"
 
 namespace FlexFlow {
 
@@ -92,7 +91,7 @@ OperatorTaskSpace
       output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping element_binary_get_operator_to_lhs_input_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_lhs_input_mapping(
     ElementBinaryAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
@@ -102,7 +101,7 @@ OperatorSpaceToParallelTensorSpaceMapping element_binary_get_operator_to_lhs_inp
       lhs_input_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping element_binary_get_operator_to_rhs_input_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_rhs_input_mapping(
     ElementBinaryAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
@@ -112,7 +111,7 @@ OperatorSpaceToParallelTensorSpaceMapping element_binary_get_operator_to_rhs_inp
       rhs_input_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping element_binary_get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_output_mapping(
     ElementBinaryAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {

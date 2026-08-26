@@ -8,6 +8,8 @@
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 
 namespace FlexFlow {
 
@@ -51,6 +53,23 @@ ParallelTensorShape
 std::map<TensorSlotName, ParallelTensorShape>
     batch_norm_get_weight_parallel_shapes(BatchNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape);
+
+OperatorTaskSpace batch_norm_get_operator_task_space(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_input_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    batch_norm_get_operator_to_gamma_weights_mapping(
+        BatchNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_beta_weights_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_output_mapping(
+    BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

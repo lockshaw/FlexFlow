@@ -112,7 +112,7 @@ tensor_guid_t
 
 ComputationGraph get_bert_computation_graph(BertConfig const &config) {
   if (config.position_embedding_type != "absolute") {
-    throw mk_runtime_error(
+    PANIC(
         fmt::format("Currently only position_embedding_type=absolute is "
                     "supported, but found position_embedding_type={}. "
                     "If you need support for additional "

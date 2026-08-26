@@ -10,6 +10,7 @@
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
 #include "utils/fmt/map.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -53,6 +54,14 @@ TensorShape concat_get_output_shape(ConcatAttrs const &attrs,
   };
 }
 
+ParallelTensorDimDegrees
+    concat_get_output_parallel_dim_degrees(ConcatAttrs const &,
+                                           std::vector<ParallelTensorDimDegrees> const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 ParallelTensorShape concat_get_output_parallel_shape(
     ConcatAttrs const &attrs, std::vector<ParallelTensorShape> const &inputs) {
   TensorShape unpar =
@@ -83,5 +92,32 @@ ParallelTensorShape concat_get_output_parallel_shape(
 
   return lift_to_parallel_with_degrees(unpar, degrees);
 }
+
+OperatorTaskSpace concat_get_operator_task_space(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+  concat_get_operator_to_input_mappings(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+  concat_get_operator_to_output_mapping(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 
 } // namespace FlexFlow
