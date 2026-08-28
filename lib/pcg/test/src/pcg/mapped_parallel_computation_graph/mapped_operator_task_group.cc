@@ -1,9 +1,9 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/device_type.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include <doctest/doctest.h>
 #include <nlohmann/json.hpp>
 

@@ -1,7 +1,7 @@
 #ifndef _FLEXFLOW_OP_ATTRS_OPS_OP_ATTRS_INPUT_H
 #define _FLEXFLOW_OP_ATTRS_OPS_OP_ATTRS_INPUT_H
 
-#include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/input_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
@@ -17,7 +17,7 @@ ParallelTensorShape input_get_output_parallel_shape(InputAttrs const &);
 
 OperatorTaskSpace input_get_operator_task_space(InputAttrs const &);
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     input_get_operator_to_output_mapping(InputAttrs const &);
 
 } // namespace FlexFlow

@@ -27,7 +27,9 @@ ParallelTensorShape
 }
 
 OperatorTaskSpace gather_get_operator_task_space(
-    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+    GatherAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
@@ -35,7 +37,8 @@ OperatorTaskSpace gather_get_operator_task_space(
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     gather_get_operator_to_input_mapping(
         GatherAttrs const &attrs,
-        ParallelTensorDimDegrees const &input_degrees) {
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
@@ -43,7 +46,8 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     gather_get_operator_to_index_mapping(
         GatherAttrs const &attrs,
-        ParallelTensorDimDegrees const &input_degrees) {
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
@@ -51,7 +55,8 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     gather_get_operator_to_output_mapping(
         GatherAttrs const &attrs,
-        ParallelTensorDimDegrees const &input_degrees) {
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }

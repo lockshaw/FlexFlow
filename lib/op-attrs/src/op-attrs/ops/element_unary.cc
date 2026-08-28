@@ -1,4 +1,5 @@
 #include "op-attrs/ops/element_unary.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
@@ -50,17 +51,17 @@ OperatorTaskSpace element_unary_get_operator_task_space(
       output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     element_unary_get_operator_to_input_mapping(
         ElementUnaryAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       element_unary_get_operator_task_space(attrs, input_degrees),
       input_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     element_unary_get_operator_to_output_mapping(
         ElementUnaryAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
@@ -68,7 +69,7 @@ OperatorSpaceToParallelTensorSpaceMapping
   ParallelTensorDimDegrees output_degrees =
       element_unary_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       element_unary_get_operator_task_space(attrs, input_degrees),
       output_degrees);
 }

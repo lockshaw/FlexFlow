@@ -1,4 +1,5 @@
 #include "op-attrs/ops/weight.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/operator_task_space_to_operator_task_space_mapping.h"
@@ -25,10 +26,10 @@ OperatorTaskSpace weight_get_operator_task_space(WeightAttrs const &) {
   return trivial_op_task_space();
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     weight_get_operator_to_output_mapping(WeightAttrs const &attrs) {
 
-  return empty_operator_space_to_ptensor_space_map();
+  return empty_operator_space_to_ptensor_space_biunique_map();
 }
 
 } // namespace FlexFlow

@@ -25,11 +25,7 @@ src_includes = [
 
 [[fields]]
 name = "axes"
-type = "std::vector<::FlexFlow::ff_dim_t>"
-
-[[fields]]
-name = "op_type"
-type = "::FlexFlow::OperatorType"
+type = "::FlexFlow::nonempty_set<::FlexFlow::ff_dim_t>"
 
 [[fields]]
 name = "keepdims"
