@@ -1,4 +1,4 @@
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.h"
+#include "op-attrs/operator_atomic_task_shard_binding.h"
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "utils/containers/at_idx.h"

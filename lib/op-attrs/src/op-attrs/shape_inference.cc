@@ -29,6 +29,7 @@
 #include "utils/containers/get_only.h"
 #include "utils/containers/require_only_key.h"
 #include "utils/containers/require_two_keys.h"
+#include "utils/containers/require_three_keys.h"
 #include "utils/containers/slice.h"
 #include "utils/containers/zip_strict.h"
 #include "utils/overload.h"
@@ -39,16 +40,6 @@
 #include "op-attrs/ops/noop.h"
 
 namespace FlexFlow {
-
-template <typename T>
-static std::tuple<T, T, T> require_3(std::map<TensorSlotName, T> const &v,
-                                     TensorSlotName k1,
-                                     TensorSlotName k2,
-                                     TensorSlotName k3) {
-  ASSERT(v.size() == 3);
-
-  return {v.at(k1), v.at(k2), v.at(k3)};
-}
 
 template <typename T>
 static std::vector<T>
@@ -244,7 +235,7 @@ std::map<TensorSlotName, TensorShape> get_output_shapes(
       },
       [&](MultiHeadAttentionAttrs const &attrs)
           -> std::map<TensorSlotName, TensorShape> {
-        auto [query, key, value] = require_3(input_shapes,
+        auto [query, key, value] = require_three_keys(input_shapes,
                                              TensorSlotName::QUERY,
                                              TensorSlotName::KEY,
                                              TensorSlotName::VALUE);
@@ -473,7 +464,7 @@ std::map<TensorSlotName, TensorShape> get_weight_shapes(
       },
       [&](MultiHeadAttentionAttrs const &attrs)
           -> std::map<TensorSlotName, TensorShape> {
-        auto [query, key, value] = require_3(input_shapes,
+        auto [query, key, value] = require_three_keys(input_shapes,
                                              TensorSlotName::QUERY,
                                              TensorSlotName::KEY,
                                              TensorSlotName::VALUE);
@@ -735,7 +726,7 @@ std::map<TensorSlotName, ParallelTensorShape> get_output_shapes(
       },
       [&](MultiHeadAttentionAttrs const &attrs)
           -> std::map<TensorSlotName, ParallelTensorShape> {
-        auto [i1, i2, i3] = require_3(input_shapes,
+        auto [i1, i2, i3] = require_three_keys(input_shapes,
                                       TensorSlotName::QUERY,
                                       TensorSlotName::KEY,
                                       TensorSlotName::VALUE);
@@ -1034,7 +1025,7 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
           },
           [&](MultiHeadAttentionAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorShape> {
-            auto [query, key, value] = require_3(input_shapes,
+            auto [query, key, value] = require_three_keys(input_shapes,
                                                  TensorSlotName::QUERY,
                                                  TensorSlotName::KEY,
                                                  TensorSlotName::VALUE);
@@ -1325,7 +1316,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
         },
         [&](MultiHeadAttentionAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-          auto [query, key, value] = require_3(input_degrees,
+          auto [query, key, value] = require_three_keys(input_degrees,
                                                TensorSlotName::QUERY,
                                                TensorSlotName::KEY,
                                                TensorSlotName::VALUE);
@@ -1611,7 +1602,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
         },
         [&](MultiHeadAttentionAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-          auto [query, key, value] = require_3(input_degrees,
+          auto [query, key, value] = require_three_keys(input_degrees,
                                                TensorSlotName::QUERY,
                                                TensorSlotName::KEY,
                                                TensorSlotName::VALUE);

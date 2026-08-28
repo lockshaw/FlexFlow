@@ -6,6 +6,54 @@
 
 using namespace ::FlexFlow;
 
+static mk_1d_dim_degrees(int sum_degree, 
+                         int discard_copy_degree,
+                         int inner_degree) 
+      -> ParallelTensorDimDegrees
+{
+  return ParallelTensorDimDegrees{
+    SumDegree{positive_int{sum_degree}},
+    DiscardCopyDegree{positive_int{discard_copy_degree}},
+    FFOrdered<positive_int>{
+      positive_int{inner_degree},
+    },
+  };
+}
+
+static mk_2d_dim_degrees(int sum_degree, 
+                         int discard_copy_degree,
+                         int embedding_dim_degree,
+                         int head_dim_degree) 
+      -> ParallelTensorDimDegrees
+{
+  return ParallelTensorDimDegrees{
+    SumDegree{positive_int{sum_degree}},
+    DiscardCopyDegree{positive_int{discard_copy_degree}},
+    FFOrdered<positive_int>{
+      positive_int{embedding_dim_degree},
+      positive_int{head_dim_degree},
+    },
+  };
+}
+
+static mk_3d_dim_degrees(int sum_degree, 
+                         int discard_copy_degree,
+                         int batch_degree,
+                         int sequence_degree,
+                         int inner_degree) 
+      -> ParallelTensorDimDegrees
+{
+  return ParallelTensorDimDegrees{
+    SumDegree{positive_int{sum_degree}},
+    DiscardCopyDegree{positive_int{discard_copy_degree}},
+    FFOrdered<positive_int>{
+      positive_int{batch_degree},
+      positive_int{sequence_degree},
+      positive_int{inner_degree},
+    },
+  };
+}
+
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("get_attention_incoming_tensor_roles") {
     auto make_attrs = [](bool bias) {
@@ -86,73 +134,38 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("shape inference (Attention)") {
-    positive_int embed_dim = 32_p;
-    positive_int num_heads = 10_p;
 
-    /* Parameter meanings match those at
-     * https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
-     */
+  TEST_CASE("attention_get_weights_shape") {
     MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
-        /*embed_dim=*/embed_dim,
-        /*num_heads=*/num_heads,
-        /*kdim=*/embed_dim,
-        /*vdim=*/embed_dim,
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
         /*dropout=*/0.0,
         /*bias=*/true,
         /*add_bias_kv=*/false,
         /*add_zero_attn=*/false,
     };
 
-    positive_int batch_size = 40_p;
-    positive_int seq_len = 48_p;
-    positive_int feature_size = 36_p;
-
     TensorShape input_q = TensorShape{
         TensorDims{
             FFOrdered{
-                batch_size,
-                seq_len,
-                feature_size,
+                40_p,
+                48_p,
+                36_p,
             },
         },
         DataType::FLOAT,
     };
 
-    TensorShape input_k = TensorShape{
-        TensorDims{
-            FFOrdered{
-                batch_size,
-                seq_len,
-                feature_size,
-            },
-        },
-        DataType::FLOAT,
-    };
+    Tensorshape input_k = input_q;
+    Tensorshape input_v = input_q;
 
-    TensorShape input_v = TensorShape{
-        TensorDims{
-            FFOrdered{
-                batch_size,
-                seq_len,
-                feature_size,
-            },
-        },
-        DataType::FLOAT,
-    };
+    TensorShape result =
+        attention_get_weights_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape output = TensorShape{
-        TensorDims{
-            FFOrdered{
-                batch_size,
-                seq_len,
-                attrs.embed_dim,
-            },
-        },
-        DataType::FLOAT,
-    };
-
-    TensorShape weights = TensorShape{
+    TensorShape correct = 
+      TensorShape{
         TensorDims{
             FFOrdered{
                 (feature_size * embed_dim) * 3_p + (embed_dim * embed_dim),
@@ -160,243 +173,351 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         },
         DataType::FLOAT,
+      };
+
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("attention_get_input_bias_shape") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
     };
 
-    TensorShape input_bias = TensorShape{
+    TensorShape input_q = TensorShape{
         TensorDims{
             FFOrdered{
-                embed_dim * 3_p,
+                40_p,
+                48_p,
+                36_p,
             },
         },
         DataType::FLOAT,
     };
 
-    TensorShape output_bias = TensorShape{
+    Tensorshape input_k = input_q;
+    Tensorshape input_v = input_q;
+
+    TensorShape result =
+        attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
+
+    TensorShape correct = 
+      TensorShape{
         TensorDims{
             FFOrdered{
-                embed_dim,
+                32_p * 3_p,
             },
         },
         DataType::FLOAT,
     };
 
-    SUBCASE("attention_get_output_shape") {
-      TensorShape result =
-          attention_get_output_shape(attrs, input_q, input_k, input_v);
+    CHECK(result == correct);
+  }
 
-      TensorShape correct = output;
+  TEST_CASE("attention_get_output_bias_shape") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    TensorShape input_q = TensorShape{
+        TensorDims{
+            FFOrdered{
+                40_p,
+                48_p,
+                36_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    Tensorshape input_k = input_q;
+    Tensorshape input_v = input_q;
+
+    TensorShape result =
+        attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
+
+    TensorShape correct = 
+      TensorShape{
+        TensorDims{
+            FFOrdered{
+                32_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    ASSERT(result == correct);
+  }
+
+  TEST_CASE("attention_get_output_shape") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    TensorShape input_q = TensorShape{
+        TensorDims{
+            FFOrdered{
+                40_p,
+                48_p,
+                36_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    Tensorshape input_k = input_q;
+    Tensorshape input_v = input_q;
+
+    TensorShape result =
+        attention_get_output_shape(attrs, input_q, input_k, input_v);
+
+    TensorShape correct = 
+        TensorDims{
+            FFOrdered{
+                40_p,
+                48_p,
+                attrs.embed_dim,
+            },
+        },
+        DataType::FLOAT,
+    };
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("attention_get_weights_parallel_dim_degrees") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 1, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_weights_parallel_dim_degrees(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_2d_dim_degrees(1, 4, 1, 1);
+
       CHECK(result == correct);
     }
 
-    SUBCASE("attention_get_weights_shape") {
-      TensorShape result =
-          attention_get_weights_shape(attrs, input_q, input_k, input_v);
+    SUBCASE("attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 1, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
 
-      TensorShape correct = weights;
+      ParallelTensorDimDegrees result =
+          attention_get_weights_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_2d_dim_degrees(1, 1, 1, 2);
+
       CHECK(result == correct);
     }
 
-    SUBCASE("attention_get_input_bias_shape") {
-      TensorShape result =
-          attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
-      TensorShape correct = input_bias;
+    SUBCASE("combined data & attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_weights_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_2d_dim_degrees(1, 4, 1, 2);
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("attention_get_input_bias_parallel_dim_degrees") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 1, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_input_bias_parallel_dim_degrees(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 4, 1);
+
       CHECK(result == correct);
     }
 
-    SUBCASE("attention_get_output_bias_shape") {
-      TensorShape result =
-          attention_get_output_bias_shape(attrs, input_q, input_k, input_v);
-      TensorShape correct = output_bias;
+    SUBCASE("attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 1, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_input_bias_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2, 1);
+
       CHECK(result == correct);
     }
 
-    SUBCASE("parallel shape inference") {
-      auto make_q = [&](SumDegree o_sum,
-                        DiscardCopyDegree o_eq,
-                        positive_int o_batch,
-                        positive_int o_seq_len,
-                        positive_int o_q) {
-        return lift_to_parallel_with_degrees(
-            input_q, o_sum, o_eq, FFOrdered{o_batch, o_seq_len, o_q});
-      };
+    SUBCASE("combined data & attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
 
-      auto make_k = [&](SumDegree o_sum,
-                        DiscardCopyDegree o_eq,
-                        positive_int o_batch,
-                        positive_int o_seq_len,
-                        positive_int o_k) {
-        return lift_to_parallel_with_degrees(
-            input_k, o_sum, o_eq, FFOrdered{o_batch, o_seq_len, o_k});
-      };
+      ParallelTensorDimDegrees result =
+          attention_get_input_bias_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
 
-      auto make_v = [&](SumDegree o_sum,
-                        DiscardCopyDegree o_eq,
-                        positive_int o_batch,
-                        positive_int o_seq_len,
-                        positive_int o_v) {
-        return lift_to_parallel_with_degrees(
-            input_v, o_sum, o_eq, FFOrdered{o_batch, o_seq_len, o_v});
-      };
-
-      auto make_o = [&](SumDegree o_sum,
-                        DiscardCopyDegree o_eq,
-                        positive_int o_batch,
-                        positive_int o_seq_len,
-                        positive_int o_o) {
-        return lift_to_parallel_with_degrees(
-            output, o_sum, o_eq, FFOrdered{o_batch, o_seq_len, o_o});
-      };
-
-      auto make_w = [&](SumDegree o_sum,
-                        DiscardCopyDegree o_eq,
-                        positive_int o_e,
-                        positive_int o_h) {
-        return lift_to_parallel_with_degrees(
-            weights, o_sum, o_eq, FFOrdered{o_e, o_h});
-      };
-
-      auto make_input_bias = [&](SumDegree o_sum,
-                                 DiscardCopyDegree o_eq,
-                                 positive_int o_in_proj_channel) {
-        return lift_to_parallel_with_degrees(
-            input_bias, o_sum, o_eq, FFOrdered{o_in_proj_channel});
-      };
-
-      auto make_output_bias = [&](SumDegree o_sum,
-                                  DiscardCopyDegree o_eq,
-                                  positive_int o_out_proj_channel) {
-        return lift_to_parallel_with_degrees(
-            output_bias, o_sum, o_eq, FFOrdered{o_out_proj_channel});
-      };
-
-      SUBCASE("data parallelism") {
-        positive_int o_b = 4_p;
-        ParallelTensorShape q =
-            make_q(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
-        ParallelTensorShape k =
-            make_k(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
-        ParallelTensorShape v =
-            make_v(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
-
-        SUBCASE("attention_get_output_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_o(SumDegree{1_p}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_weights_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_weights_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_w(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_input_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_input_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_input_bias(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_output_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_output_bias(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p);
-          CHECK(result == correct);
-        }
-      }
-
-      SUBCASE("attention head parallelism") {
-        positive_int o_h = 2_p;
-        ParallelTensorShape q =
-            make_q(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p, 1_p, 1_p);
-        ParallelTensorShape k =
-            make_k(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p, 1_p, 1_p);
-        ParallelTensorShape v =
-            make_v(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p, 1_p, 1_p);
-
-        SUBCASE("attention_get_output_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_o(SumDegree{o_h}, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("get_weight_shape") {
-          ParallelTensorShape result =
-              attention_get_weights_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_w(SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, o_h);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_input_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_input_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_input_bias(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_output_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_output_bias(SumDegree{1_p}, DiscardCopyDegree{o_h}, 1_p);
-          CHECK(result == correct);
-        }
-      }
-
-      SUBCASE("combined data & attention head parallelism") {
-        positive_int o_b = 4_p;
-        positive_int o_h = 2_p;
-        ParallelTensorShape q =
-            make_q(SumDegree{1_p}, DiscardCopyDegree{o_h}, o_b, 1_p, 1_p);
-        ParallelTensorShape k =
-            make_k(SumDegree{1_p}, DiscardCopyDegree{o_h}, o_b, 1_p, 1_p);
-        ParallelTensorShape v =
-            make_v(SumDegree{1_p}, DiscardCopyDegree{o_h}, o_b, 1_p, 1_p);
-
-        SUBCASE("attention_get_output_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_o(SumDegree{o_h}, DiscardCopyDegree{1_p}, o_b, 1_p, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_weights_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_weights_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_w(SumDegree{1_p}, DiscardCopyDegree{o_b}, 1_p, o_h);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_input_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_input_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_input_bias(
-                  SumDegree{1_p}, DiscardCopyDegree{o_b * o_h}, 1_p);
-          CHECK(result == correct);
-        }
-
-        SUBCASE("attention_get_output_bias_parallel_shape") {
-          ParallelTensorShape result =
-              attention_get_output_bias_parallel_shape(attrs, q, k, v);
-          ParallelTensorShape correct =
-              make_output_bias(
-                  SumDegree{1_p}, DiscardCopyDegree{o_b * o_h}, 1_p);
-          CHECK(result == correct);
-        }
-      }
+      CHECK(result == correct);
     }
+  }
+
+  TEST_CASE("attention_get_output_bias_parallel_dim_degrees") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 1, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_bias_parallel_dim_degrees(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 4, 1);
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 1, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_bias_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2, 1);
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("combined data & attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_bias_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("attention_get_output_parallel_dim_degrees") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 1, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_parallel_dim_degrees(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_3d_dim_degrees(1, 1, 4, 1, 1);
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 1, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_3d_dim_degrees(2, 1, 1, 1, 1);
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("combined data & attention head parallelism") {
+      ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
+      ParallelTensorDimDegrees k = q;
+      ParallelTensorDimDegrees v = q;
+
+      ParallelTensorDimDegrees result =
+          attention_get_output_parallel_shape(attrs, q, k, v);
+      ParallelTensorDimDegrees correct = mk_3d_dim_degrees(2, 1, 4, 1, 1);
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("attention_get_operator_to_parallel_tensor_mappings") {
+    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
+        /*embed_dim=*/32_p,
+        /*num_heads=*/10_p,
+        /*kdim=*/32_p,
+        /*vdim=*/32_p,
+        /*dropout=*/0.0,
+        /*bias=*/true,
+        /*add_bias_kv=*/false,
+        /*add_zero_attn=*/false,
+    };
+
+    ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
+    ParallelTensorDimDegrees k = q;
+    ParallelTensorDimDegrees v = q;
+
+    attention_get_operator_to_parallel_tensor_mappings(attrs, q, k, v);
+    
+    // for now just check that it doesn't crash
   }
 }

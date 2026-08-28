@@ -113,6 +113,23 @@ std::map<parallel_tensor_dim_idx_t, positive_int>
       }));
 }
 
+ParallelTensorDimDegrees
+    parallel_dim_degrees_drop_shard_dims(
+      ParallelTensorDimDegrees const &d,
+      std::function<bool(ff_dim_t)> const &f)
+{
+  return ParallelTensorDimDegrees{
+    /*sum_degree=*/d.sum_degree,
+    /*discard_copy_degree=*/d.discard_copy_degree,
+    /*shard_degrees=*/
+      ff_ordered_from_map(
+        filter_keys(
+          map_from_ff_ordered(d.shard_degrees),
+          f)),
+
+  };
+}
+
 std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(
     ParallelTensorDimDegrees const &degrees) {
 

@@ -8,6 +8,7 @@
 #include "utils/bidict/algorithms/bidict_transform_keys.h"
 #include "utils/bidict/algorithms/bidict_transform_values.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -43,7 +44,7 @@ OperatorTaskSpace
       output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceMapping
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
     transpose_get_input_to_output_mapping(TransposeAttrs const &attrs,
                                 ParallelTensorDimDegrees const &input_degrees) {
   auto ff_dim_to_pt_dim = [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
@@ -64,18 +65,19 @@ static ParallelTensorSpaceToParallelTensorSpaceMapping
   ParallelTensorDimDegrees output_degrees =
       transpose_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return parallel_tensor_space_mapping_from_projection(
+  return parallel_tensor_space_biunique_mapping_from_projection(
       DimProjection{inp_to_out}, input_degrees, output_degrees);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_input_mapping(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
-  ParallelTensorSpaceToParallelTensorSpaceMapping inp_to_out =
+
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping inp_to_out =
       transpose_get_input_to_output_mapping(attrs, input_degrees);
 
-  ParallelTensorSpaceToParallelTensorSpaceMapping out_to_inp =
-      invert_parallel_tensor_space_mapping(inp_to_out);
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_inp =
+      invert_parallel_tensor_space_biunique_mapping(inp_to_out);
 
   OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
       transpose_get_operator_to_output_mapping(attrs, input_degrees);
@@ -86,11 +88,13 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_inpu
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_output_mapping(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
+
   ParallelTensorDimDegrees output_degrees =
       transpose_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_identity_mapping(transpose_get_operator_task_space(attrs, input_degrees),
-                              output_degrees);
+  return get_identity_biunique_mapping(
+      transpose_get_operator_task_space(attrs, input_degrees),
+      output_degrees);
 }
 
 } // namespace FlexFlow

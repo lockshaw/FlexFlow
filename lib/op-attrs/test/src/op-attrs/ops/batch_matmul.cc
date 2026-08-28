@@ -320,4 +320,33 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
+
+  TEST_CASE("batch_matmul_get_operator_to_lhs_input_mapping") {
+    BatchMatmulAttrs attrs = BatchMatmulAttrs{};
+
+    auto mk_degrees = [](positive_int sum_degree,
+                         positive_int discard_copy_degree,
+                         positive_int batch_dim_degree,
+                         positive_int row_degree,
+                         positive_int col_degree) -> ParallelTensorDimDegrees {
+      return ParallelTensorDimDegrees{
+          /*sum_degree=*/SumDegree{sum_degree},
+          /*discard_copy_degree=*/DiscardCopyDegree{discard_copy_degree},
+          /*shard_degrees=*/
+          FFOrdered<positive_int>{
+              batch_dim_degree,
+              row_degree,
+              col_degree,
+          },
+      };
+    };
+
+    OperatorSpaceToParallelTensorSpaceBiuniqueMapping result =
+        batch_matmul_get_operator_to_lhs_input_mapping(
+            /*attrs=*/attrs,
+            /*lhs=*/mk_degrees(13_p, 11_p * 3_p, 2_p, 7_p, 5_p),
+            /*rhs=*/mk_degrees(11_p, 13_p * 7_p, 2_p, 5_p, 3_p));
+
+    // for now just check that it doesn't crash
+  }
 }

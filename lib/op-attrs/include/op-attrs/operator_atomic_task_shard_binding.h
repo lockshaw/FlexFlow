@@ -1,9 +1,9 @@
-#ifndef _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
-#define _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
+#ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
+#define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
 
 #include "op-attrs/tensor_role.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 
 namespace FlexFlow {
 

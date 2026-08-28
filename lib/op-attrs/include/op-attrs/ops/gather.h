@@ -22,16 +22,24 @@ ParallelTensorShape gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &index);
 
 OperatorTaskSpace gather_get_operator_task_space(
-    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    GatherAttrs const &attrs, 
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees);
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_input_mapping(
-    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    GatherAttrs const &attrs, 
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees);
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_index_mapping(
-    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    GatherAttrs const &attrs, 
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees);
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_output_mapping(
-    GatherAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    GatherAttrs const &attrs, 
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees);
 
 
 } // namespace FlexFlow

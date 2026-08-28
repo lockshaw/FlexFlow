@@ -148,49 +148,49 @@ OperatorTaskSpace attention_get_operator_task_space(
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_query_input_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_key_input_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_value_input_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_weights_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_input_bias_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_output_bias_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_operator_to_output_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,

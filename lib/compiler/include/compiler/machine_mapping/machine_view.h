@@ -10,7 +10,7 @@
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/operator_space_to_machine_space_mapping.dtg.h"
 #include "utils/bidict/bidict.h"
 #include <cstddef>

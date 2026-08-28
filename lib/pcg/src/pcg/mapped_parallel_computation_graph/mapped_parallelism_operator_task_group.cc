@@ -2,7 +2,7 @@
 #include "utils/hash-utils.h"
 #include "utils/hash/tuple.h"
 #include "utils/containers/vector_of.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "utils/containers/keys.h"
 #include "utils/containers/require_all_same.h"
 #include "utils/containers/transform_pairs.h"

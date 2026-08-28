@@ -5,6 +5,7 @@
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "utils/orthotope/minimal_dim_domain.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -49,23 +50,25 @@ OperatorTaskSpace
       output_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping element_unary_get_operator_to_input_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_unary_get_operator_to_input_mapping(
     ElementUnaryAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
 
-  return get_identity_mapping(element_unary_get_operator_task_space(attrs, input_degrees),
-                              input_degrees);
+  return get_identity_biunique_mapping(
+    element_unary_get_operator_task_space(attrs, input_degrees),
+    input_degrees);
 }
 
-OperatorSpaceToParallelTensorSpaceMapping element_unary_get_operator_to_output_mapping(
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_unary_get_operator_to_output_mapping(
     ElementUnaryAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
 
   ParallelTensorDimDegrees output_degrees =
       element_unary_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_identity_mapping(element_unary_get_operator_task_space(attrs, input_degrees),
-                              output_degrees);
+  return get_identity_biunique_mapping(
+    element_unary_get_operator_task_space(attrs, input_degrees),
+    output_degrees);
 }
 
 } // namespace FlexFlow

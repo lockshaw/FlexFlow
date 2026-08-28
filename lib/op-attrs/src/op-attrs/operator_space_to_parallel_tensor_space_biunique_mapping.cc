@@ -9,6 +9,15 @@
 namespace FlexFlow {
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    empty_operator_space_to_ptensor_space_biunique_map()
+{
+  return OperatorSpaceToParallelTensorSpaceBiuniqueMapping{
+      empty_dim_domain_biunique_mapping<operator_task_space_dim_idx_t,
+        parallel_tensor_dim_idx_t>(),
+  };
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     operator_ptensor_space_biunique_mapping_from_projection(
         DimProjection<operator_task_space_dim_idx_t,
                       parallel_tensor_dim_idx_t> const &projection,

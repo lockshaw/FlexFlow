@@ -1,7 +1,7 @@
 #ifndef _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_PARALLELISM_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
 #define _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_PARALLELISM_OPERATOR_ATOMIC_TASK_SHARD_BINDING_H
 
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/parallelism_operator_atomic_task_shard_binding.dtg.h"
 
 namespace FlexFlow {

@@ -117,32 +117,122 @@ ParallelTensorShape
   return lift_to_parallel_with_degrees(unpar, weight_degrees);
 }
 
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_input_to_output_mapping(EmbeddingAttrs const &attrs,
+                                          ParallelTensorDimDegrees const &input_degrees) {
+
+  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
+      inp_to_out = make_empty_eq_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+
+  num_tensor_dims_t input_num_dims = get_ptensor_dim_degrees_num_tensor_dims(input_degrees);
+
+  ParallelTensorDimDegrees output_degrees =
+      embedding_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  num_tensor_dims_t output_num_dims = get_ptensor_dim_degrees_num_tensor_dims(output_degrees);
+
+  parallel_tensor_dim_idx_t input_inner_dim =
+    shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{-1}, input_num_dims));
+
+  parallel_tensor_dim_idx_t output_inner_dim =
+    shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{-1}, output_num_dims));
+
+  project_dims(inp_to_out, input_inner_dim, shard_dim_idx());
+  project_dims(inp_to_out, discard_copy_dim_idx(), output_inner_dim);
+  for (ff_dim_t const &d :
+       slice(tensor_dims_range(input_num_dims), 0, -1)) {
+    project_dims(inp_to_output, d, d);
+  }
+
+  return parallel_tensor_space_biunique_mapping_from_projection(
+      DimProjection{inp_to_out}, input_degrees, output_degrees);
+}
+
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
+    embedding_get_weights_to_output_mapping(EmbeddingAttrs const &attrs,
+                                            ParallelTensorDimDegrees const &input_degrees) {
+
+  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
+      weights_to_out = make_empty_eq_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+
+  ParallelTensorDimDegrees weights_degrees =
+      embedding_get_weights_parallel_dim_degrees(attrs, input_degrees);
+
+  ParallelTensorDimDegrees output_degrees =
+      embedding_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  num_tensor_dims_t output_num_dims = get_ptensor_dim_degrees_num_tensor_dims(output_degrees);
+
+  parallel_tensor_dim_idx_t weights_entries_dim =
+    shard_dim_idx(ff_dim_t{0_n});
+
+  parallel_tensor_dim_idx_t weights_channel_dim =
+    shard_dim_idx(ff_dim_t{1_n});
+
+  parallel_tensor_dim_idx_t output_channel_dim =
+    shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{-1}, output_num_dims));
+
+  project_dims(weights_to_out, discard_copy_dim_idx(), sum_dim_idx());
+  project_dims(weights_to_out, weights_channel_dim, output_channel_dim);
+
+  for (ff_dim_t const &d :
+       slice(tensor_dims_range(output_num_dims), 0, -1)) {
+    project_dims(weights_to_output, discard_copy_dim_idx(), d);
+  }
+
+  return parallel_tensor_space_biunique_mapping_from_projection(
+      DimProjection{weights_to_out}, weights_degrees, output_degrees);
+}
+
 OperatorTaskSpace embedding_get_operator_task_space(
     EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  ParallelTensorDimDegrees output_degrees =
+      embedding_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
+      output_degrees);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_input_mapping(
     EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping inp_to_out =
+      embedding_get_input_to_output_mapping(attrs, input_degrees);
+
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_inp =
+      invert_parallel_tensor_space_biunique_mapping(inp_to_out);
+
+  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
+      embedding_get_operator_to_output_mapping(attrs, input_degrees);
+
+  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_inp);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_weights_mapping(
     EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping weights_to_out =
+      embedding_get_weights_to_output_mapping(attrs, input_degrees);
+
+  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_weights =
+      invert_parallel_tensor_space_biunique_mapping(weights_to_out);
+
+  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
+      embedding_get_operator_to_output_mapping(attrs, input_degrees);
+
+  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_weights);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_output_mapping(
     EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  ParallelTensorDimDegrees output_degrees =
+      embedding_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return get_identity_biunique_mapping(
+      embedding_get_operator_task_space(attrs, input_degrees),
+      output_degrees);
 }
 
 std::map<TensorSlotName, InitializerAttrs> embedding_get_initializers(

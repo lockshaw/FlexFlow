@@ -3,6 +3,7 @@
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -22,10 +23,10 @@ OperatorTaskSpace input_get_operator_task_space(InputAttrs const &) {
   return trivial_op_task_space();
 }
 
-OperatorSpaceToParallelTensorSpaceMapping
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     input_get_operator_to_output_mapping(InputAttrs const &attrs) {
 
-  return empty_operator_space_to_ptensor_space_map();
+  return empty_operator_space_to_ptensor_space_biunique_map();
 }
 
 } // namespace FlexFlow

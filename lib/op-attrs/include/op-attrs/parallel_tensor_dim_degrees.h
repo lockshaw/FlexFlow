@@ -33,6 +33,11 @@ positive_int
 std::map<parallel_tensor_dim_idx_t, positive_int>
     get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &);
 
+ParallelTensorDimDegrees
+    parallel_dim_degrees_drop_shard_dims(
+      ParallelTensorDimDegrees const &,
+      std::function<bool(ff_dim_t)> const &);
+
 std::set<ParallelTensorSpaceCoordinate>
     get_parallel_tensor_space_coordinates(ParallelTensorDimDegrees const &);
 

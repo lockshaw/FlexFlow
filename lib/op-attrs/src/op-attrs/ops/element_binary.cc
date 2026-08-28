@@ -2,6 +2,7 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "utils/containers/require_same.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -96,7 +97,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
       lhs_input_degrees);
 }
@@ -106,7 +107,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
       rhs_input_degrees);
 }
@@ -119,7 +120,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
   ParallelTensorDimDegrees output_dim_degrees = element_binary_get_output_parallel_dim_degrees(
       attrs, lhs_input_degrees, rhs_input_degrees);
 
-  return get_identity_mapping(
+  return get_identity_biunique_mapping(
       element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
       output_dim_degrees);
 }
