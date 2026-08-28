@@ -1,4 +1,5 @@
 #include "op-attrs/ops/element_binary.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "utils/containers/require_same.h"
@@ -102,9 +103,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         ParallelTensorDimDegrees const &lhs_input_degrees,
         ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_mapping(element_binary_get_operator_task_space(
-                                  attrs, lhs_input_degrees, rhs_input_degrees),
-                              lhs_input_degrees);
+  return get_identity_biunique_mapping(
+      element_binary_get_operator_task_space(
+          attrs, lhs_input_degrees, rhs_input_degrees),
+      lhs_input_degrees);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -113,9 +115,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         ParallelTensorDimDegrees const &lhs_input_degrees,
         ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_mapping(element_binary_get_operator_task_space(
-                                  attrs, lhs_input_degrees, rhs_input_degrees),
-                              rhs_input_degrees);
+  return get_identity_biunique_mapping(
+      element_binary_get_operator_task_space(
+          attrs, lhs_input_degrees, rhs_input_degrees),
+      rhs_input_degrees);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -128,9 +131,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
       element_binary_get_output_parallel_dim_degrees(
           attrs, lhs_input_degrees, rhs_input_degrees);
 
-  return get_identity_mapping(element_binary_get_operator_task_space(
-                                  attrs, lhs_input_degrees, rhs_input_degrees),
-                              output_dim_degrees);
+  return get_identity_biunique_mapping(
+      element_binary_get_operator_task_space(
+          attrs, lhs_input_degrees, rhs_input_degrees),
+      output_dim_degrees);
 }
 
 } // namespace FlexFlow

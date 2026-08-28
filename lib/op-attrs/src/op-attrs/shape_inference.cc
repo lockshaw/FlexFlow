@@ -33,22 +33,13 @@
 #include "op-attrs/tensor_slot_name.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/require_only_key.h"
+#include "utils/containers/require_three_keys.h"
 #include "utils/containers/require_two_keys.h"
 #include "utils/containers/slice.h"
 #include "utils/containers/zip_strict.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
-
-template <typename T>
-static std::tuple<T, T, T> require_3(std::map<TensorSlotName, T> const &v,
-                                     TensorSlotName k1,
-                                     TensorSlotName k2,
-                                     TensorSlotName k3) {
-  ASSERT(v.size() == 3);
-
-  return {v.at(k1), v.at(k2), v.at(k3)};
-}
 
 template <typename T>
 static std::vector<T>
@@ -244,10 +235,10 @@ std::map<TensorSlotName, TensorShape> get_output_shapes(
       },
       [&](MultiHeadAttentionAttrs const &attrs)
           -> std::map<TensorSlotName, TensorShape> {
-        auto [query, key, value] = require_3(input_shapes,
-                                             TensorSlotName::QUERY,
-                                             TensorSlotName::KEY,
-                                             TensorSlotName::VALUE);
+        auto [query, key, value] = require_three_keys(input_shapes,
+                                                      TensorSlotName::QUERY,
+                                                      TensorSlotName::KEY,
+                                                      TensorSlotName::VALUE);
 
         return {
             {
@@ -473,10 +464,10 @@ std::map<TensorSlotName, TensorShape> get_weight_shapes(
       },
       [&](MultiHeadAttentionAttrs const &attrs)
           -> std::map<TensorSlotName, TensorShape> {
-        auto [query, key, value] = require_3(input_shapes,
-                                             TensorSlotName::QUERY,
-                                             TensorSlotName::KEY,
-                                             TensorSlotName::VALUE);
+        auto [query, key, value] = require_three_keys(input_shapes,
+                                                      TensorSlotName::QUERY,
+                                                      TensorSlotName::KEY,
+                                                      TensorSlotName::VALUE);
 
         return attention_get_weight_shapes(attrs, query, key, value);
       },
@@ -738,10 +729,10 @@ std::map<TensorSlotName, ParallelTensorShape> get_output_shapes(
           },
           [&](MultiHeadAttentionAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorShape> {
-            auto [i1, i2, i3] = require_3(input_shapes,
-                                          TensorSlotName::QUERY,
-                                          TensorSlotName::KEY,
-                                          TensorSlotName::VALUE);
+            auto [i1, i2, i3] = require_three_keys(input_shapes,
+                                                   TensorSlotName::QUERY,
+                                                   TensorSlotName::KEY,
+                                                   TensorSlotName::VALUE);
 
             return {
                 {
@@ -1039,10 +1030,11 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
           },
           [&](MultiHeadAttentionAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorShape> {
-            auto [query, key, value] = require_3(input_shapes,
-                                                 TensorSlotName::QUERY,
-                                                 TensorSlotName::KEY,
-                                                 TensorSlotName::VALUE);
+            auto [query, key, value] =
+                require_three_keys(input_shapes,
+                                   TensorSlotName::QUERY,
+                                   TensorSlotName::KEY,
+                                   TensorSlotName::VALUE);
 
             return attention_get_weight_parallel_shapes(
                 attrs, query, key, value);
@@ -1137,389 +1129,385 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
 std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
     PCGOperatorAttrs const &pcg_op_attrs,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_degrees) {
-  return pcg_op_attrs.visit<std::map<TensorSlotName, ParallelTensorDimDegrees>>(
-      overload{
-          [&](BatchMatmulAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            auto [lhs, rhs] = require_two_keys(input_degrees,
-                                               TensorSlotName::LHS_INPUT,
-                                               TensorSlotName::RHS_INPUT);
+  return pcg_op_attrs.visit<
+      std::map<TensorSlotName, ParallelTensorDimDegrees>>(overload{
+      [&](BatchMatmulAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        auto [lhs, rhs] = require_two_keys(input_degrees,
+                                           TensorSlotName::LHS_INPUT,
+                                           TensorSlotName::RHS_INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    batch_matmul_get_output_parallel_dim_degrees(
-                        attrs, lhs, rhs),
-                },
-            };
-          },
-          [&](BatchNormAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                batch_matmul_get_output_parallel_dim_degrees(attrs, lhs, rhs),
+            },
+        };
+      },
+      [&](BatchNormAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    batch_norm_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](BroadcastAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                batch_norm_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](BroadcastAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    broadcast_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](CombineAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                broadcast_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](CombineAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    combine_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ConcatAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            std::vector<ParallelTensorDimDegrees> inputs =
-                require_only_slots_sequence(
-                    input_degrees, get_variadic_inputs_slot_name_sequence());
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                combine_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ConcatAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        std::vector<ParallelTensorDimDegrees> inputs =
+            require_only_slots_sequence(
+                input_degrees, get_variadic_inputs_slot_name_sequence());
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    concat_get_output_parallel_dim_degrees(attrs, inputs),
-                },
-            };
-          },
-          [&](Conv2DAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                concat_get_output_parallel_dim_degrees(attrs, inputs),
+            },
+        };
+      },
+      [&](Conv2DAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    conv2d_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](CastAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                conv2d_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](CastAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    cast_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](DropoutAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                cast_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](DropoutAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    dropout_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ElementBinaryAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            auto [lhs, rhs] = require_two_keys(input_degrees,
-                                               TensorSlotName::LHS_INPUT,
-                                               TensorSlotName::RHS_INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                dropout_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ElementBinaryAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        auto [lhs, rhs] = require_two_keys(input_degrees,
+                                           TensorSlotName::LHS_INPUT,
+                                           TensorSlotName::RHS_INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    element_binary_get_output_parallel_dim_degrees(
-                        attrs, lhs, rhs),
-                },
-            };
-          },
-          [&](ElementUnaryAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                element_binary_get_output_parallel_dim_degrees(attrs, lhs, rhs),
+            },
+        };
+      },
+      [&](ElementUnaryAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    element_unary_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](EmbeddingAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                element_unary_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](EmbeddingAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    embedding_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](FlatAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                embedding_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](FlatAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    flat_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](GatherAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            auto [input, index] = require_two_keys(
-                input_degrees, TensorSlotName::INPUT, TensorSlotName::INDEX);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                flat_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](GatherAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        auto [input, index] = require_two_keys(
+            input_degrees, TensorSlotName::INPUT, TensorSlotName::INDEX);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    gather_get_output_parallel_dim_degrees(attrs, input, index),
-                },
-            };
-          },
-          [&](InputAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ASSERT(input_degrees.size() == 0);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                gather_get_output_parallel_dim_degrees(attrs, input, index),
+            },
+        };
+      },
+      [&](InputAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ASSERT(input_degrees.size() == 0);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    input_get_output_parallel_dim_degrees(attrs),
-                },
-            };
-          },
-          [&](LayerNormAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                input_get_output_parallel_dim_degrees(attrs),
+            },
+        };
+      },
+      [&](LayerNormAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    layer_norm_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](LinearAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                layer_norm_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](LinearAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    linear_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](MultiHeadAttentionAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            auto [query, key, value] = require_3(input_degrees,
-                                                 TensorSlotName::QUERY,
-                                                 TensorSlotName::KEY,
-                                                 TensorSlotName::VALUE);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                linear_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](MultiHeadAttentionAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        auto [query, key, value] = require_three_keys(input_degrees,
+                                                      TensorSlotName::QUERY,
+                                                      TensorSlotName::KEY,
+                                                      TensorSlotName::VALUE);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    attention_get_output_parallel_dim_degrees(
-                        attrs, query, key, value),
-                },
-            };
-          },
-          [&](NoopAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                attention_get_output_parallel_dim_degrees(
+                    attrs, query, key, value),
+            },
+        };
+      },
+      [&](NoopAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    noop_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](Pool2DAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                noop_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](Pool2DAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    pool2d_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ReduceAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                pool2d_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ReduceAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    reduce_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ReductionAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                reduce_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ReductionAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    reduction_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](RepartitionAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                reduction_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](RepartitionAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    repartition_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ReplicateAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                repartition_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ReplicateAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    replicate_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ReshapeAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                replicate_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ReshapeAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    reshape_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](ReverseAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                reshape_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](ReverseAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    reverse_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](SoftmaxAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                reverse_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](SoftmaxAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    softmax_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](SplitAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                softmax_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](SplitAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            std::vector<ParallelTensorDimDegrees> output_degrees =
-                split_get_output_parallel_dim_degrees(attrs, input);
-            std::vector<TensorSlotName> output_slots =
-                slice(get_variadic_outputs_slot_name_sequence(),
-                      0,
-                      attrs.splits.size());
+        std::vector<ParallelTensorDimDegrees> output_degrees =
+            split_get_output_parallel_dim_degrees(attrs, input);
+        std::vector<TensorSlotName> output_slots = slice(
+            get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size());
 
-            return map_from_pairs(zip_strict(output_slots, output_degrees));
-          },
-          [&](TopKAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return map_from_pairs(zip_strict(output_slots, output_degrees));
+      },
+      [&](TopKAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    topk_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](TransposeAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                topk_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](TransposeAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    transpose_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](UpsampleAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ParallelTensorDimDegrees input =
-                require_only_key(input_degrees, TensorSlotName::INPUT);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                transpose_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](UpsampleAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ParallelTensorDimDegrees input =
+            require_only_key(input_degrees, TensorSlotName::INPUT);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    upsample_get_output_parallel_dim_degrees(attrs, input),
-                },
-            };
-          },
-          [&](WeightAttrs const &attrs)
-              -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            ASSERT(input_degrees.size() == 0);
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                upsample_get_output_parallel_dim_degrees(attrs, input),
+            },
+        };
+      },
+      [&](WeightAttrs const &attrs)
+          -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+        ASSERT(input_degrees.size() == 0);
 
-            return {
-                {
-                    TensorSlotName::OUTPUT,
-                    weight_get_output_parallel_dim_degrees(attrs),
-                },
-            };
-          },
-      });
+        return {
+            {
+                TensorSlotName::OUTPUT,
+                weight_get_output_parallel_dim_degrees(attrs),
+            },
+        };
+      },
+  });
 }
 
 std::map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
@@ -1634,10 +1622,11 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_weight_degrees(
           },
           [&](MultiHeadAttentionAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
-            auto [query, key, value] = require_3(input_degrees,
-                                                 TensorSlotName::QUERY,
-                                                 TensorSlotName::KEY,
-                                                 TensorSlotName::VALUE);
+            auto [query, key, value] =
+                require_three_keys(input_degrees,
+                                   TensorSlotName::QUERY,
+                                   TensorSlotName::KEY,
+                                   TensorSlotName::VALUE);
 
             return attention_get_weight_parallel_dim_degrees(
                 attrs, query, key, value);

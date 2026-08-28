@@ -1,6 +1,7 @@
 #include "utils/containers/transform_until.h"
 #include "test/utils/doctest/fmt/vector.h"
 #include <doctest/doctest.h>
+#include <libassert/assert.hpp>
 
 using namespace ::FlexFlow;
 

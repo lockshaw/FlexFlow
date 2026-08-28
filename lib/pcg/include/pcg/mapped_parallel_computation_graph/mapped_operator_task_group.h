@@ -1,12 +1,12 @@
 #ifndef _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_MAPPED_OPERATOR_TASK_GROUP_H
 #define _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_MAPPED_OPERATOR_TASK_GROUP_H
 
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallelism_operator_task_group.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_standard_operator_task_group.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "utils/bidict/bidict.h"
 #include <nlohmann/json.hpp>
 

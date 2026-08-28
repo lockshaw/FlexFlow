@@ -1,7 +1,7 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_parallelism_operator_task_group.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/parallelism_operator_atomic_task_shard_binding.h"
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/containers/keys.h"
