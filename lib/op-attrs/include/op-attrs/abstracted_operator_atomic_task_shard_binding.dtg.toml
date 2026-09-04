@@ -1,0 +1,29 @@
+namespace = "FlexFlow"
+name = "AbstractedOperatorAtomicTaskShardBinding"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "fmt",
+]
+
+includes = [
+  "op-attrs/parallel_tensor_space_coordinate.dtg.h",
+  "op-attrs/tensor_slot_name.dtg.h",
+  "op-attrs/task_space_coordinate.dtg.h",
+]
+
+src_includes = [
+  "utils/hash/map.h",
+  "utils/fmt/map.h",
+]
+
+[[fields]]
+name = "tensor_coords"
+type = "std::map<::FlexFlow::TensorSlotName, ::FlexFlow::ParallelTensorSpaceCoordinate>"
+
+[[fields]]
+name = "task_coord"
+type = "::FlexFlow::TaskSpaceCoordinate"

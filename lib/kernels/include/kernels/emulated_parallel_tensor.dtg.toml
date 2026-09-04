@@ -1,0 +1,25 @@
+namespace = "FlexFlow"
+name = "EmulatedParallelTensor"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json_serialize",
+  "fmt",
+]
+
+includes = [
+  "kernels/accessor.h",
+  "op-attrs/parallel_tensor_space_coordinate.dtg.h",
+  "<map>",
+]
+
+src_includes = [
+  "utils/hash/map.h",
+  "utils/fmt/map.h",
+]
+
+[[fields]]
+name = "shards"
+type = "std::map<::FlexFlow::ParallelTensorSpaceCoordinate, ::FlexFlow::GenericTensorAccessorR>"
