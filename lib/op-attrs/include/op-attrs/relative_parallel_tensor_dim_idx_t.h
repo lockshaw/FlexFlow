@@ -1,0 +1,12 @@
+#ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_RELATIVE_PARALLEL_TENSOR_DIM_IDX_T_H
+#define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_RELATIVE_PARALLEL_TENSOR_DIM_IDX_T_H
+
+namespace FlexFlow {
+
+relative_parallel_tensor_dim_idx_t relative_sum_dim_idx();
+relative_parallel_tensor_dim_idx_t relative_discard_copy_dim_idx();
+relative_parallel_tensor_dim_idx_t relative_shard_dim_idx(int);
+
+} // namespace FlexFlow
+
+#endif

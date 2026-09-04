@@ -65,6 +65,10 @@ std::map<TensorSlotName, InitializerAttrs>
                      std::optional<InitializerAttrs> const &kernel_initializer =
                          std::nullopt);
 
+StandardOperatorTaskGroup linear_get_task_group(
+    LinearAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace linear_get_operator_task_space(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 

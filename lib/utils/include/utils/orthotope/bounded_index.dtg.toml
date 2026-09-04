@@ -1,0 +1,23 @@
+namespace = "FlexFlow"
+name = "BoundedIndex"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "fmt",
+]
+
+includes = [
+  "utils/nonnegative_int/nonnegative_int.h",
+  "utils/positive_int/positive_int.h",
+]
+
+[[fields]]
+name = "index"
+type = "::FlexFlow::nonnegative_int"
+
+[[fields]]
+name = "bound"
+type = "::FlexFlow::positive_int"

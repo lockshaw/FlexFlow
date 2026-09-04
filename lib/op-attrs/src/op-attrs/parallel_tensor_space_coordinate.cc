@@ -44,6 +44,18 @@ nonnegative_int ptensor_coord_component_for_ptensor_dim_idx(
   }
 }
 
+nonnegative_int &ptensor_coord_component_for_ptensor_dim_idx(
+    ParallelTensorSpaceCoordinate &coord,
+    parallel_tensor_dim_idx_t dim_idx) {
+  if (dim_idx == sum_dim_idx()) {
+    return coord.sum_component;
+  } else if (dim_idx == discard_copy_dim_idx()) {
+    return coord.discard_copy_component;
+  } else {
+    return coord.shard_components.at(dim_idx.require_shard_dim());
+  }
+}
+
 ParallelTensorSpaceCoordinate parallel_tensor_space_coord_from_map(
     std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &m) {
   ASSERT(contains_key(m, sum_dim_idx()));

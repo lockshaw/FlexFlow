@@ -54,6 +54,122 @@ TensorShape batch_matmul_get_output_shape(BatchMatmulAttrs const &,
   };
 }
 
+StandardOperatorTaskGroup batch_matmul_get_task_group(
+    LinearAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs_input_degrees,
+    ParallelTensorDimDegrees const &rhs_input_degrees)
+{
+  num_ptensor_shard_dims_t num_input_shard_dims =
+    require_same(
+      get_ptensor_dim_degrees_num_shard_dims(lhs_input_degrees),
+      get_ptensor_dim_degrees_num_shard_dims(rhs_input_degrees));
+
+  return StandardOperatorTaskGroup{
+    filtrans(
+      binary_cartesian_product(
+        get_parallel_tensor_space_coordinates(lhs_input_degrees),
+        get_parallel_tensor_space_coordinates(rhs_input_degrees)),
+      [&](std::pair<ParallelTensorSpaceCoordinate, ParallelTensorSpaceCoordinate> const &coords)
+        -> std::optional<AbstractedOperatorAtomicTaskShardBinding>
+      {
+        ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
+        ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
+
+        parallel_tensor_dim_idx_t sum_dim = sum_dim_idx();
+        parallel_tensor_dim_idx_t discard_copy_dim = discard_copy_dim_idx();
+
+        std::set<parallel_tensor_dim_idx_t> leading_dims =
+          shard_dim_idxs_for_interval(0, -2, input_num_shard_dims);
+
+        parallel_tensor_dim_idx_t row_dim =
+          shard_dim_idx_for_relative(-2, input_num_shard_dims);
+
+        parallel_tensor_dim_idx_t col_dim =
+          shard_dim_idx_for_relative(-1, input_num_shard_dims);
+
+        // c
+        OrthotopeBoundedCoord data_parallelism_coord =
+          require_same(
+            orthotope_bounded_coord_for_ptensor_dims(
+              lhs_input_degrees,
+              lhs_input_coord,
+              leading_dims),
+            orthotope_bounded_coord_for_ptensor_dims(
+              rhs_input_degrees,
+              rhs_input_coord,
+              leading_dims));
+
+        // h
+        OrthotopeBoundedCoord output_column_parallelism_coord =
+          require_same(
+            orthotope_bounded_coord_for_ptensor_dims(
+              rhs_input_degrees,
+              rhs_input_coord,
+              std::set{col_dim});
+
+        // d
+        OrthotopeBoundedCoord output_row_parallelism_coord =
+            orthotope_bounded_coord_for_ptensor_dims(
+              lhs_input_degrees,
+              lhs_input_coord,
+              std::set{row_dim});
+
+        // e
+        OrthotopeBoundedCoord reduction_parallelism =
+          require_same(
+            orthotope_bounded_coord_for_ptensor_dims(
+              lhs_input_degrees,
+              lhs_input_coord,
+              std::set{col_dim}),
+            orthotope_bounded_coord_for_ptensor_dims(
+              rhs_input_degrees,
+              rhs_input_coord,
+              std::set{row_dim}));
+
+        // a
+        OrthotopeBoundedCoord lhs_preexisting_sum_parallelism_coord =
+            orthotope_bounded_coord_for_ptensor_dims(
+              lhs_input_degrees,
+              lhs_input_coord,
+              std::set{sum_dim});
+
+        // f
+        OrthotopeBoundedCoord rhs_preexisting_sum_parallelism_coord =
+            orthotope_bounded_coord_for_ptensor_dims(
+              rhs_input_degrees,
+              rhs_input_coord,
+              std::set{sum_dim});
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::LHS_INPUT,
+              lhs_input_coord,
+            },
+            {
+              TensorSlotName::RHS_INPUT,
+              rhs_input_coord,
+            {
+              TensorSlotName::OUTPUT,
+              parallel_tensor_space_coordinate_from_ff_ordered(
+                /*sum_degree=*/reduction_parallelism_component,
+                /*discard_copy_degree=*/0_n,
+                /*shard_coords=*/std::vector<nonnegative_int>{
+                  data_parallelism_component,
+                  output_channel_parallelism_component,
+                }),
+            },
+          },
+          /*task_coord=*/make_task_space_coordinate({
+            data_parallelism_component,
+            reduction_parallelism_component,
+            output_channel_parallelism_component,
+          }),
+        };
+      }),
+  };
+}
+
 ParallelTensorDimDegrees batch_matmul_get_output_parallel_dim_degrees(
     BatchMatmulAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs,
@@ -126,7 +242,7 @@ OperatorTaskSpace batch_matmul_get_operator_task_space(
       output_degrees);
 }
 
-static std::set<OperatorAtomicTaskShardBinding>
+std::set<OperatorAtomicTaskShardBinding>
     batch_matmul_get_parallel_task_signatures(BatchMatmulAttrs const &attrs,
                                 ParallelTensorDimDegrees const &lhs_input_degrees,
                                 ParallelTensorDimDegrees const &rhs_input_degrees) {
@@ -173,7 +289,7 @@ static std::set<OperatorAtomicTaskShardBinding>
 
         positive_int rhs_sum_degree = rhs_input_degrees.sum_degree.value;
 
-        nonnegative_int leading_dim_component = 
+        nonnegative_int leading_dim_component =
           require_same(
             get_shard_component(lhs_coord, leading_dim_idx),
             get_shard_component(rhs_coord, leading_dim_idx));

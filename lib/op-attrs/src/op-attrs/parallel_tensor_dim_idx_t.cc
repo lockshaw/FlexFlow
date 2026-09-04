@@ -13,6 +13,10 @@ parallel_tensor_dim_idx_t discard_copy_dim_idx() {
   return parallel_tensor_dim_idx_t{ReplicaType::DISCARD_COPY};
 }
 
+parallel_tensor_dim_idx_t shard_dim_idx_for_relative(int, num_ptensor_shard_dims_t) {
+  return parallel_tensor_dim_idx_t{idx};
+}
+
 parallel_tensor_dim_idx_t shard_dim_idx(ff_dim_t idx) {
   return parallel_tensor_dim_idx_t{idx};
 }

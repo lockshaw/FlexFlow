@@ -15,6 +15,12 @@ namespace FlexFlow {
 positive_int
     get_total_degree_of_ptensor_dim_degrees(ParallelTensorDimDegrees const &);
 
+ParallelTensorDimDegrees
+  mk_dim_degrees_from_ff_ordered(
+    positive_int sum_degree,
+    positive_int discard_copy_degree,
+    std::vector<positive_int> const &shard_degrees);
+
 num_ptensor_shard_dims_t
     get_ptensor_dim_degrees_num_shard_dims(ParallelTensorDimDegrees const &);
 num_tensor_dims_t
@@ -29,6 +35,15 @@ std::set<parallel_tensor_dim_idx_t> get_nontrivial_parallel_tensor_dim_indices(
 positive_int
     get_degree_for_parallel_tensor_dim_idx(ParallelTensorDimDegrees const &,
                                            parallel_tensor_dim_idx_t const &);
+
+positive_int
+    get_degree_for_relative_ff_dim_t(ParallelTensorDimDegrees const &,
+                                     relative_ff_dim_t const &);
+
+std::vector<positive_int>
+    get_degrees_for_relative_ff_dim_interval(ParallelTensorDimDegrees const &degrees,
+                                            relative_ff_dim_t const &start,
+                                            relative_ff_dim_t const &end);
 
 std::map<parallel_tensor_dim_idx_t, positive_int>
     get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &);

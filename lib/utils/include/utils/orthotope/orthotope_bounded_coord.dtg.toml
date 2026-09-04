@@ -1,19 +1,23 @@
 namespace = "FlexFlow"
-name = "TaskSpaceCoordinate"
+name = "OrthotopeBoundedCoord"
 type = "struct"
 features = [
   "eq",
   "ord",
   "hash",
   "json",
-  # "rapidcheck",
   "fmt",
 ]
 
 includes = [
   "utils/orthotope/orthotope_coord.dtg.h",
+  "utils/orthotope/orthotope.dtg.h",
 ]
 
 [[fields]]
-name = "orthotope_coord"
+name = "coord"
 type = "::FlexFlow::OrthotopeCoord"
+
+[[fields]]
+name = "bounds"
+type = "::FlexFlow::Orthotope"

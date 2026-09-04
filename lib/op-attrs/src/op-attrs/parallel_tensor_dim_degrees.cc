@@ -22,6 +22,7 @@
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/repeat_element.h"
+#include "op-attrs/ff_ordered/ff_ordered_slice.h"
 
 namespace FlexFlow {
 
@@ -91,6 +92,32 @@ positive_int get_degree_for_parallel_tensor_dim_idx(
   } else {
     return dim_degrees.shard_degrees.at(idx.require_shard_dim());
   }
+}
+
+positive_int
+    get_degree_for_relative_ff_dim_t(ParallelTensorDimDegrees const &degrees,
+                                     relative_ff_dim_t const &dim)
+{
+  num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
+
+  return
+    get_degree_for_parallel_tensor_dim_idx(
+      shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(dim, num_dims)));
+}
+
+std::vector<positive_int>
+    get_degrees_for_relative_ff_dim_interval(ParallelTensorDimDegrees const &degrees,
+                                            relative_ff_dim_t const &start,
+                                            relative_ff_dim_t const &end)
+{
+  num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
+
+  ff_dim_t absolute_start = ff_dim_t_from_relative_ff_dim_t(start, num_dims);
+  ff_dim_t absolute_end = ff_dim_t_from_relative_ff_dim_t(start, end);
+
+  ASSERT(absolute_end > absolute_start);
+
+  return ff_ordered_slice(degrees.shard_degrees, absolute_start, absolute_end);
 }
 
 std::map<parallel_tensor_dim_idx_t, positive_int>

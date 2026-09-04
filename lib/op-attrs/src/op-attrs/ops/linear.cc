@@ -292,6 +292,93 @@ std::map<TensorSlotName, InitializerAttrs>
   }
 }
 
+StandardOperatorTaskGroup linear_get_task_group(
+    LinearAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        num_ptensor_shard_dims_t input_num_shard_dims = 
+          get_ptensor_dim_degrees_num_shard_dims(input_degrees);
+
+        parallel_tensor_dim_idx_t input_sum_dim = sum_dim_idx();
+        parallel_tensor_dim_idx_t input_discard_copy_dim = discard_copy_dim_idx();
+
+        std::set<parallel_tensor_dim_idx_t> input_leading_dims = 
+          shard_dim_idxs_for_interval(0, -1, input_num_shard_dims);
+
+        parallel_tensor_dim_idx_t input_channel_dim = 
+          shard_dim_idx_for_relative(-1, input_num_shard_dims);
+
+        nonnegative_int data_parallelism_component = 
+            flattened_component_for_ptensor_dims(
+              input_degrees,
+              input_coord,
+              input_leading_dims);
+
+        nonnegative_int output_channel_parallelism_component = 
+            flattened_component_for_ptensor_dims(
+              input_degrees,
+              input_coord,
+              std::set{input_discard_copy_dim}));
+          
+        nonnegative_int reduction_parallelism_component = 
+            flattened_component_for_ptensor_dims(
+              input_degrees,
+              input_coord,
+              std::set{input_sum_dim, input_channl_dim}));
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::WEIGHT,
+              parallel_tensor_space_coordinate_from_ff_ordered(
+                /*sum_coord=*/0_n,
+                /*discard_copy_coord=*/data_parallelism_component
+                /*shard_coords=*/std::vector<nonnegative_int>{
+                  output_channel_parallelism_component,
+                  reduction_parallelism_component,
+                }),
+            },
+            {
+              TensorSlotName::BIAS,
+              parallel_tensor_space_coordinate_from_ff_ordered(
+                /*sum_coord=*/reduction_parallelism_component,
+                /*discard_copy_coord=*/data_parallelism_component,
+                /*shard_coords=*/std::vector<nonnegative_int>{
+                  output_channel_parallelism_component,
+                }),
+            },
+            {
+              TensorSlotName::OUTPUT,
+              parallel_tensor_space_coordinate_from_ff_ordered(
+                /*sum_degree=*/reduction_parallelism_component,
+                /*discard_copy_degree=*/0_n,
+                /*shard_coords=*/std::vector<nonnegative_int>{
+                  data_parallelism_component,
+                  output_channel_parallelism_component,
+                }),
+            },
+          },
+          /*task_coord=*/make_task_space_coordinate({
+            data_parallelism_component,
+            reduction_parallelism_component,
+            output_channel_parallelism_component,
+          }),
+        };
+      }),
+  };
+}
+
+
 OperatorTaskSpace linear_get_operator_task_space(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
 

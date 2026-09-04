@@ -24,6 +24,11 @@ ParallelTensorShape
                                            ParallelTensorShape const &lhs,
                                            ParallelTensorShape const &rhs);
 
+StandardOperatorTaskGroup batch_matmul_get_task_group(
+    LinearAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs_input_degrees,
+    ParallelTensorDimDegrees const &rhs_input_degrees);
+
 OperatorTaskSpace batch_matmul_get_operator_task_space(
     BatchMatmulAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs,
@@ -44,6 +49,11 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_o
     ParallelTensorDimDegrees const &lhs,
     ParallelTensorDimDegrees const &rhs);
 
+std::set<OperatorAtomicTaskShardBinding>
+    batch_matmul_get_parallel_task_signatures(
+          BatchMatmulAttrs const &attrs,
+          ParallelTensorDimDegrees const &lhs_input_degrees,
+          ParallelTensorDimDegrees const &rhs_input_degrees);
 
 } // namespace FlexFlow
 
