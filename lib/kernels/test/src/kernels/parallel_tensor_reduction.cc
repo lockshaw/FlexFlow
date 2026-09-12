@@ -1,4 +1,10 @@
 #include "kernels/parallel_tensor_reduction.h"
+#include "kernels/accessors_are_equal.h"
+#include "kernels/create_accessor_with_contents.h"
+#include "kernels/emulated_parallel_tensor.h"
+#include "kernels/format_accessor_contents.h"
+#include "kernels/local_cpu_allocator.h"
+#include "test/utils/doctest/check_kv.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -39,10 +45,10 @@ GenericTensorAccessorR mk_shard4(Allocator &allocator) {
       allocator);
 }
 
-ParallelTensorSpaceCoordinate
-    mk_coord(int sum_component int discard_copy_component,
-             int shard_dim0_component,
-             int shard_dim1_component) {
+ParallelTensorSpaceCoordinate mk_coord(int sum_component,
+                                       int discard_copy_component,
+                                       int shard_dim0_component,
+                                       int shard_dim1_component) {
   return ParallelTensorSpaceCoordinate{
       /*sum_component=*/nonnegative_int{sum_component},
       /*discard_copy_component=*/nonnegative_int{discard_copy_component},
@@ -63,19 +69,19 @@ TEST_SUITE(FF_TEST_SUITE) {
                             GenericTensorAccessorR>{
             {
                 mk_coord(0, 0, 0, 0),
-                mk_shard1(allocator),
+                mk_shard1(cpu_allocator),
             },
             {
                 mk_coord(1, 0, 0, 0),
-                mk_shard2(allocator),
+                mk_shard2(cpu_allocator),
             },
             {
                 mk_coord(0, 0, 1, 0),
-                mk_shard3(allocator),
+                mk_shard3(cpu_allocator),
             },
             {
                 mk_coord(1, 0, 1, 0),
-                mk_shard4(allocator),
+                mk_shard4(cpu_allocator),
             },
         },
     };
@@ -119,10 +125,10 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("perform_parallel_tensor_discard_copy") {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
-    GenericTensorAccessorR shard1 = mk_shard1(allocator);
-    GenericTensorAccessorR shard2 = mk_shard2(allocator);
-    GenericTensorAccessorR shard3 = mk_shard3(allocator);
-    GenericTensorAccessorR shard4 = mk_shard4(allocator);
+    GenericTensorAccessorR shard1 = mk_shard1(cpu_allocator);
+    GenericTensorAccessorR shard2 = mk_shard2(cpu_allocator);
+    GenericTensorAccessorR shard3 = mk_shard3(cpu_allocator);
+    GenericTensorAccessorR shard4 = mk_shard4(cpu_allocator);
 
     SUBCASE("are actually copies") {
       EmulatedParallelTensor input = EmulatedParallelTensor{
@@ -202,19 +208,19 @@ TEST_SUITE(FF_TEST_SUITE) {
                             GenericTensorAccessorR>{
             {
                 mk_coord(0, 0, 0, 0),
-                mk_shard1(allocator),
+                mk_shard1(cpu_allocator),
             },
             {
                 mk_coord(0, 0, 0, 1),
-                mk_shard2(allocator),
+                mk_shard2(cpu_allocator),
             },
             {
                 mk_coord(0, 0, 1, 0),
-                mk_shard3(allocator),
+                mk_shard3(cpu_allocator),
             },
             {
                 mk_coord(0, 0, 1, 1),
-                mk_shard4(allocator),
+                mk_shard4(cpu_allocator),
             },
         },
     };
@@ -306,35 +312,35 @@ TEST_SUITE(FF_TEST_SUITE) {
                             GenericTensorAccessorR>{
             {
                 mk_coord(0, 0, 0, 0),
-                mk_shard1(allocator),
+                mk_shard1(cpu_allocator),
             },
             {
                 mk_coord(0, 0, 0, 1),
-                mk_shard2(allocator),
+                mk_shard2(cpu_allocator),
             },
             {
                 mk_coord(0, 1, 0, 0),
-                mk_shard1(allocator),
+                mk_shard1(cpu_allocator),
             },
             {
                 mk_coord(0, 1, 0, 1),
-                mk_shard2(allocator),
+                mk_shard2(cpu_allocator),
             },
             {
                 mk_coord(1, 0, 0, 0),
-                mk_shard3(allocator),
+                mk_shard3(cpu_allocator),
             },
             {
                 mk_coord(1, 0, 0, 1),
-                mk_shard4(allocator),
+                mk_shard4(cpu_allocator),
             },
             {
                 mk_coord(1, 1, 0, 0),
-                mk_shard3(allocator),
+                mk_shard3(cpu_allocator),
             },
             {
                 mk_coord(1, 1, 0, 1),
-                mk_shard4(allocator),
+                mk_shard4(cpu_allocator),
             },
         },
     };
@@ -344,12 +350,12 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
         {
-            {7, 0, 15, 3, 4, 6},
+            {7, 3, 15, 3, 4, 6},
             {3, 3, 2, 8, 4, 7},
         },
         cpu_allocator);
 
     CHECK_MESSAGE(accessors_are_equal(result, correct),
-                  check_kv("result", format_accessor_w_contents(result)));
+                  check_kv("result", format_accessor_r_contents(result)));
   }
 }

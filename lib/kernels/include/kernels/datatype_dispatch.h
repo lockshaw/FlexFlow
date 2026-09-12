@@ -2,6 +2,7 @@
 #define _FLEXFLOW_KERNELS_DATATYPE_DISPATCH_H
 
 #include "op-attrs/datatype.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

@@ -1,12 +1,29 @@
 #include "kernels/parallel_tensor_reduction.h"
+#include "kernels/accessors_are_equal.h"
+#include "kernels/tensor_accessor_binary_ops.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "utils/containers/foldl1.h"
+#include "utils/containers/generate_map.h"
+#include "utils/containers/get_only.h"
+#include "utils/containers/is_subseteq_of.h"
+#include "utils/containers/map_keys_and_values.h"
+#include "utils/containers/map_values.h"
+#include "utils/containers/require_all_same1.h"
+#include "utils/containers/sorted_by.h"
+#include "utils/containers/transform.h"
+#include "utils/containers/values.h"
+#include "utils/many_to_one/many_to_one_from_map.h"
+#include "utils/nonnegative_int/num_elements.h"
 
 namespace FlexFlow {
 
 static std::map<TensorSlotName, GenericTensorAccessorR> get_inputs_for_binding(
     std::map<TensorSlotName, EmulatedParallelTensor> const &inputs,
     OperatorAtomicTaskShardBinding const &binding) {
-  std::set<TensorSlotName> input_slots =
-      require_same(keys(inputs), keys(binding.tensor_coords));
+  ASSERT(is_subseteq_of(keys(inputs), keys(binding.tensor_coords)));
+
+  std::set<TensorSlotName> input_slots = keys(inputs);
 
   return generate_map(input_slots,
                       [&](TensorSlotName slot_name) -> GenericTensorAccessorR {
@@ -23,10 +40,10 @@ static std::map<TensorSlotName, GenericTensorAccessorR>
         std::map<TensorSlotName, EmulatedParallelTensor> const &parallel_inputs,
         OperatorAtomicTaskShardBinding const &binding,
         std::function<std::map<TensorSlotName, GenericTensorAccessorR>(
-            std::map < TensorSlotName, GenericTensorAccessorR) const &> const
+            std::map<TensorSlotName, GenericTensorAccessorR> const &)> const
             &operation) {
   std::map<TensorSlotName, GenericTensorAccessorR> inputs =
-      get_inputs_for_binding(inputs, binding);
+      get_inputs_for_binding(parallel_inputs, binding);
 
   return operation(inputs);
 }
@@ -39,6 +56,7 @@ static EmulatedParallelTensor reconstruct_parallel_tensor_for_slot(
   return EmulatedParallelTensor{
       /*shards=*/
       map_keys_and_values(
+          raw_outputs_for_bindings,
           [&](OperatorAtomicTaskShardBinding const &b)
               -> ParallelTensorSpaceCoordinate {
             return b.tensor_coords.at(slot_name);
@@ -71,17 +89,16 @@ std::map<TensorSlotName, EmulatedParallelTensor> parallelize_tensor_operation(
     std::map<TensorSlotName, EmulatedParallelTensor> const &inputs,
     std::set<OperatorAtomicTaskShardBinding> const &bindings,
     std::function<std::map<TensorSlotName, GenericTensorAccessorR>(
-        std::map < TensorSlotName, GenericTensorAccessorR) const &> const
+        std::map<TensorSlotName, GenericTensorAccessorR> const &)> const
         &operation) {
   std::map<OperatorAtomicTaskShardBinding,
            std::map<TensorSlotName, GenericTensorAccessorR>>
-      raw_outputs_for_bindings =
-          generate_map(bindings,
-                       [&](OperatorAtomicTaskShardBinding const &b)
-                           -> std::map<TensorSlotName, GenericTensorAccessorR> {
-                         return apply_tensor_operation_to_binding(
-                             inputs, binding, operation);
-                       });
+      raw_outputs_for_bindings = generate_map(
+          bindings,
+          [&](OperatorAtomicTaskShardBinding const &b)
+              -> std::map<TensorSlotName, GenericTensorAccessorR> {
+            return apply_tensor_operation_to_binding(inputs, b, operation);
+          });
 
   return reconstruct_parallel_tensors(raw_outputs_for_bindings);
 }
@@ -95,9 +112,10 @@ static EmulatedParallelTensor fold_parallel_tensor_dimension(
   std::set<ParallelTensorSpaceCoordinate> input_coords = keys(input.shards);
 
   std::map<ParallelTensorSpaceCoordinate, ParallelTensorSpaceCoordinate>
-      input_coord_to_output_coord_map =
-          generate_map([&](ParallelTensorSpaceCoordinate const &input_coord)
-                           -> ParallelTensorSpaceCoordinate {
+      input_coord_to_output_coord_map = generate_map(
+          input_coords,
+          [&](ParallelTensorSpaceCoordinate const &input_coord)
+              -> ParallelTensorSpaceCoordinate {
             ParallelTensorSpaceCoordinate output_coord = input_coord;
             ptensor_coord_component_for_ptensor_dim_idx(output_coord, dim_idx) =
                 0_n;
@@ -109,10 +127,10 @@ static EmulatedParallelTensor fold_parallel_tensor_dimension(
           many_to_one_from_map(input_coord_to_output_coord_map);
 
   nonnegative_int input_space_size =
-      num_elements(input_coords_to_output_coord.left_entries());
+      num_elements(input_coords_to_output_coord.left_values());
 
   nonnegative_int output_space_size =
-      num_elements(input_coords_to_output_coord.left_entries());
+      num_elements(input_coords_to_output_coord.right_values());
 
   ASSERT(input_space_size % output_space_size == 0);
 
@@ -123,33 +141,40 @@ static EmulatedParallelTensor fold_parallel_tensor_dimension(
     return input;
   }
 
-  return EmulatedParallelTensor{
-    transform_values(
-      input_coords_to_output_coord.r_to_l(),
-      [&](nonempty_set<ParallelTensorSpaceCoordinate> const &for_single_output_coord)
-        -> GenericTensorAccessorR
-      {
-    std::vector<ParallelTensorSpaceCoordinate> ordered_input_coords =
-        sorted_by(for_single_output_coord,
-                  [&](ParallelTensorSpaceCoordinate const &input_coord)
-                      -> nonnegative_int {
-                    return ptensor_coord_component_for_ptensor_dim_idx(
-                        input_coord, dim_idx);
-                  });
+  std::map<ParallelTensorSpaceCoordinate, GenericTensorAccessorR>
+      result_shards = map_values(
+          input_coords_to_output_coord.r_to_l(),
+          [&](nonempty_set<ParallelTensorSpaceCoordinate> const
+                  &for_single_output_coord) -> GenericTensorAccessorR {
+            std::vector<ParallelTensorSpaceCoordinate> ordered_input_coords =
+                sorted_by(
+                    for_single_output_coord,
+                    [&](ParallelTensorSpaceCoordinate const &lhs,
+                        ParallelTensorSpaceCoordinate const &rhs) -> bool {
+                      nonnegative_int lhs_value =
+                          ptensor_coord_component_for_ptensor_dim_idx(lhs,
+                                                                      dim_idx);
 
-    std::set<GenericTensorAccessorR> input_shards = transform(
-        ordered_input_coords,
-        [&](ParallelTensorSpaceCoordinate const &c) -> GenericTensorAccessorR {
-          return input.shards.at(c);
-        });
+                      nonnegative_int rhs_value =
+                          ptensor_coord_component_for_ptensor_dim_idx(rhs,
+                                                                      dim_idx);
 
-    return foldl1(input_shards, f);
-      }
-  };
+                      return lhs < rhs;
+                    });
+
+            std::vector<GenericTensorAccessorR> input_shards = transform(
+                ordered_input_coords,
+                [&](ParallelTensorSpaceCoordinate const &c)
+                    -> GenericTensorAccessorR { return input.shards.at(c); });
+
+            return foldl1(input_shards, f);
+          });
+
+  return EmulatedParallelTensor{result_shards};
 }
 
 EmulatedParallelTensor
-    perform_parallel_tensor_reduction(EmulatedParallelTensor const &input,
+    perform_parallel_tensor_reduction(EmulatedParallelTensor const &ptensor,
                                       Allocator &allocator) {
   return fold_parallel_tensor_dimension(
       ptensor,
@@ -157,12 +182,12 @@ EmulatedParallelTensor
       [&](GenericTensorAccessorR const &lhs,
           GenericTensorAccessorR const &rhs) -> GenericTensorAccessorR {
         return read_only_accessor_from_write_accessor(
-            tensor_accessor_add_to(lhs, rhs, allocator));
+            tensor_accessor_elementwise_add(lhs, rhs, allocator));
       });
 }
 
-EmulatedParallelTensor
-    perform_parallel_tensor_discard_copy(EmulatedParallelTensor const &) {
+EmulatedParallelTensor perform_parallel_tensor_discard_copy(
+    EmulatedParallelTensor const &ptensor) {
   return fold_parallel_tensor_dimension(
       ptensor,
       discard_copy_dim_idx(),
@@ -173,7 +198,7 @@ EmulatedParallelTensor
       });
 }
 
-GenericTensorAccessorR
+EmulatedParallelTensor
     perform_parallel_tensor_combination(EmulatedParallelTensor const &ptensor,
                                         ff_dim_t dim_idx,
                                         Allocator &allocator) {
@@ -186,12 +211,12 @@ GenericTensorAccessorR
       });
 }
 
-GenericTensorAccessorR unparallelize_parallel_tensor_in_dimension(
+EmulatedParallelTensor unparallelize_parallel_tensor_in_dimension(
     EmulatedParallelTensor const &ptensor,
     parallel_tensor_dim_idx_t dim_idx,
-    Allocator &) {
+    Allocator &allocator) {
   if (dim_idx == sum_dim_idx()) {
-    return perform_parallel_tensor_reduction(ptensor);
+    return perform_parallel_tensor_reduction(ptensor, allocator);
   } else if (dim_idx == discard_copy_dim_idx()) {
     return perform_parallel_tensor_discard_copy(ptensor);
   } else {
@@ -201,7 +226,8 @@ GenericTensorAccessorR unparallelize_parallel_tensor_in_dimension(
 }
 
 GenericTensorAccessorR
-    unparallelize_parallel_tensor(EmulatedParallelTensor const &ptensor) {
+    unparallelize_parallel_tensor(EmulatedParallelTensor const &ptensor,
+                                  Allocator &allocator) {
   std::set<ParallelTensorSpaceCoordinate> ptensor_shard_coords =
       keys(ptensor.shards);
 
@@ -218,7 +244,7 @@ GenericTensorAccessorR
         result, parallel_dim_idx, allocator);
   }
 
-  return get_only(result.shards);
+  return get_only(values(result.shards));
 }
 
 } // namespace FlexFlow

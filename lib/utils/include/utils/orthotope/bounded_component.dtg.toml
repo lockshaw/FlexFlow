@@ -1,5 +1,5 @@
 namespace = "FlexFlow"
-name = "BoundedIndex"
+name = "BoundedComponent"
 type = "struct"
 features = [
   "eq",
@@ -15,7 +15,7 @@ includes = [
 ]
 
 [[fields]]
-name = "index"
+name = "component"
 type = "::FlexFlow::nonnegative_int"
 
 [[fields]]
