@@ -6,6 +6,9 @@
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "utils/orthotope/dim_coord.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "utils/orthotope/bounded_component.dtg.h"
+#include "utils/orthotope/orthotope_bounded_coord.dtg.h"
 
 namespace FlexFlow {
 
@@ -23,32 +26,31 @@ nonnegative_int ptensor_coord_component_for_ptensor_dim_idx(
 nonnegative_int &ptensor_coord_component_for_ptensor_dim_idx(
     ParallelTensorSpaceCoordinate &, parallel_tensor_dim_idx_t);
 
-nonnegative_int
-    flattened_component_for_ptensor_dims(ParallelTensorDimDegrees const &,
-                                         ParallelTensorSpaceCoordinate const &,
-                                         std::set<parallel_tensor_dim_idx_t> const &);
+ParallelTensorSpaceCoordinate
+  parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+    BoundedComponent const &sum_component,
+    BoundedComponent const &discard_copy_component,
+    OrthotopeBoundedCoord const &shard_components);
+
+ParallelTensorDimDegrees
+  smallest_parallel_tensor_dim_degrees_for_coord_set(
+     std::set<ParallelTensorSpaceCoordinate> const &);
+
+std::optional<ParallelTensorDimDegrees>
+  strict_parallel_tensor_dim_degrees_for_coord_set(
+     std::set<ParallelTensorSpaceCoordinate> const &);
+
+bool parallel_tensor_coord_set_is_orthotopic(std::set<ParallelTensorSpaceCoordinate> const &);
 
 OrthotopeBoundedCoord
     orthotope_bounded_coord_for_ptensor_dims(ParallelTensorDimDegrees const &,
                                              ParallelTensorSpaceCoordinate const &,
                                              std::set<parallel_tensor_dim_idx_t> const &);
 
-ParallelTensorSpaceCoordinate
-  parallel_tensor_space_coordinate_from_bounded_orthotope_coords(
-    BoundedOrthotopeCoord const &sum_coord,
-    BoundedOrthotopeCoord const &discard_copy_coord,
-    std::vector<BoundedOrthotopeCoord> const &shard_coords);
-
-ParallelTensorSpaceCoordinate
-  parallel_tensor_space_coordinate_from_ff_ordered(
-    nonnegative_int const &sum_component,
-    nonnegative_int const &discard_copy_component,
-    std::vector<nonnegative_int> const &shard_components);
-
-OrthotopeBoundedCoord
-    orthotope_bounded_coord_for_ptensor_dims(ParallelTensorDimDegrees const &,
-                                             ParallelTensorSpaceCoordinate const &,
-                                             std::set<parallel_tensor_dim_idx_t> const &);
+BoundedComponent
+    bounded_component_for_ptensor_dim(ParallelTensorDimDegrees const &,
+                                      ParallelTensorSpaceCoordinate const &,
+                                      parallel_tensor_dim_idx_t const &);
 
 ParallelTensorSpaceCoordinate parallel_tensor_space_coord_from_map(
     std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &);

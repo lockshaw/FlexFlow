@@ -6,10 +6,10 @@
 
 using namespace ::FlexFlow;
 
-static mk_1d_dim_degrees(int sum_degree, 
-                         int discard_copy_degree,
-                         int inner_degree) 
-      -> ParallelTensorDimDegrees
+static ParallelTensorDimDegrees 
+  mk_1d_dim_degrees(int sum_degree, 
+                    int discard_copy_degree,
+                    int inner_degree) 
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -20,11 +20,11 @@ static mk_1d_dim_degrees(int sum_degree,
   };
 }
 
-static mk_2d_dim_degrees(int sum_degree, 
+static ParallelTensorDimDegrees
+       mk_2d_dim_degrees(int sum_degree, 
                          int discard_copy_degree,
                          int embedding_dim_degree,
                          int head_dim_degree) 
-      -> ParallelTensorDimDegrees
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -36,12 +36,12 @@ static mk_2d_dim_degrees(int sum_degree,
   };
 }
 
-static mk_3d_dim_degrees(int sum_degree, 
+static ParallelTensorDimDegrees
+       mk_3d_dim_degrees(int sum_degree, 
                          int discard_copy_degree,
                          int batch_degree,
                          int sequence_degree,
                          int inner_degree) 
-      -> ParallelTensorDimDegrees
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -158,8 +158,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    Tensorshape input_k = input_q;
-    Tensorshape input_v = input_q;
+    TensorShape input_k = input_q;
+    TensorShape input_v = input_q;
 
     TensorShape result =
         attention_get_weights_shape(attrs, input_q, input_k, input_v);
@@ -168,8 +168,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       TensorShape{
         TensorDims{
             FFOrdered{
-                (feature_size * embed_dim) * 3_p + (embed_dim * embed_dim),
-                num_heads,
+                (32_p * 36_p) * 3_p + (32_p * 32_p),
+                10_p,
             },
         },
         DataType::FLOAT,
@@ -201,8 +201,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    Tensorshape input_k = input_q;
-    Tensorshape input_v = input_q;
+    TensorShape input_k = input_q;
+    TensorShape input_v = input_q;
 
     TensorShape result =
         attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
@@ -243,8 +243,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    Tensorshape input_k = input_q;
-    Tensorshape input_v = input_q;
+    TensorShape input_k = input_q;
+    TensorShape input_v = input_q;
 
     TensorShape result =
         attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
@@ -285,13 +285,13 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    Tensorshape input_k = input_q;
-    Tensorshape input_v = input_q;
+    TensorShape input_k = input_q;
+    TensorShape input_v = input_q;
 
     TensorShape result =
         attention_get_output_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct = 
+    TensorShape correct = TensorShape{
         TensorDims{
             FFOrdered{
                 40_p,
@@ -334,7 +334,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_weights_parallel_shape(attrs, q, k, v);
+          attention_get_weights_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_2d_dim_degrees(1, 1, 1, 2);
 
       CHECK(result == correct);
@@ -346,7 +346,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_weights_parallel_shape(attrs, q, k, v);
+          attention_get_weights_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_2d_dim_degrees(1, 4, 1, 2);
 
       CHECK(result == correct);
@@ -383,7 +383,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_input_bias_parallel_shape(attrs, q, k, v);
+          attention_get_input_bias_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2, 1);
 
       CHECK(result == correct);
@@ -395,7 +395,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_input_bias_parallel_shape(attrs, q, k, v);
+          attention_get_input_bias_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
 
       CHECK(result == correct);
@@ -432,7 +432,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_output_bias_parallel_shape(attrs, q, k, v);
+          attention_get_output_bias_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2, 1);
 
       CHECK(result == correct);
@@ -444,7 +444,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_output_bias_parallel_shape(attrs, q, k, v);
+          attention_get_output_bias_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
 
       CHECK(result == correct);
@@ -481,7 +481,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_output_parallel_shape(attrs, q, k, v);
+          attention_get_output_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_3d_dim_degrees(2, 1, 1, 1, 1);
 
       CHECK(result == correct);
@@ -493,7 +493,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelTensorDimDegrees v = q;
 
       ParallelTensorDimDegrees result =
-          attention_get_output_parallel_shape(attrs, q, k, v);
+          attention_get_output_parallel_dim_degrees(attrs, q, k, v);
       ParallelTensorDimDegrees correct = mk_3d_dim_degrees(2, 1, 4, 1, 1);
 
       CHECK(result == correct);

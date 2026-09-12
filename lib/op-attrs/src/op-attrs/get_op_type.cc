@@ -75,7 +75,7 @@ OperatorType get_op_type(Pool2DAttrs const &) {
 }
 
 OperatorType get_op_type(ReduceAttrs const &attrs) {
-  return attrs.op_type;
+  return OperatorType::REDUCE_SUM;
 }
 
 OperatorType get_op_type(ReshapeAttrs const &) {

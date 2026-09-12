@@ -1,5 +1,4 @@
 #include "kernels/linear_kernels.h"
-#include "internal/test_utils.h"
 #include "kernels/copy_tensor_accessor.h"
 #include "kernels/create_accessor_with_contents.h"
 #include "kernels/create_local_allocator_for_device_type.h"
@@ -9,6 +8,8 @@
 #include "kernels/managed_per_device_ff_handle.h"
 #include "test/utils/doctest/check_kv.h"
 #include <doctest/doctest.h>
+#include "kernels/accessors_are_equal.h"
+#include "kernels/create_zero_filled_accessor.h"
 
 using namespace ::FlexFlow;
 

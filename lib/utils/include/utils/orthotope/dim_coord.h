@@ -23,6 +23,8 @@
 #include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "utils/orthotope/orthotope.h"
+#include "utils/containers/require_all_same1.h"
+#include "utils/containers/maximum.h"
 
 namespace FlexFlow {
 
@@ -169,6 +171,45 @@ DimCoord<T> unflatten_dim_coord(nonnegative_int flattened,
 
   return dim_coord_from_orthotope_coord(
       orthotope_coord, get_domain_dims(domain), dim_ordering);
+}
+
+template <typename T>
+DimDomain<T>
+  smallest_dim_domain_for_coord_set(std::set<DimCoord<T>> const &coord_set) {
+
+  if (coord_set.size() == 0) {
+    return DimDomain<T>{{}};
+  }
+
+  std::set<T> coord_set_dims =
+    require_all_same1(
+      transform(coord_set,
+                [](DimCoord<T> const &c) -> std::set<T> {
+                  return get_coord_dims(c);
+                }));
+
+  auto component_for_dim = [&](T const &dim) -> positive_int {
+    return maximum(
+      transform(coord_set,
+                [&](DimCoord<T> const &c) -> positive_int {
+                  return c.raw.at(dim) + 1_p;
+                }));
+  };
+
+  return DimDomain<T>{
+    generate_map(coord_set_dims, component_for_dim),
+  };
+}
+
+template <typename T>
+std::optional<DimDomain<T>> strict_dim_domain_for_coord_set(std::set<DimCoord<T>> const &coord_set) {
+  DimDomain<T> smallest = smallest_dim_domain_for_coord_set(coord_set);
+
+  if (get_coords_in_dim_domain(smallest) == coord_set) {
+    return smallest;
+  } else {
+    return std::nullopt;
+  }
 }
 
 } // namespace FlexFlow

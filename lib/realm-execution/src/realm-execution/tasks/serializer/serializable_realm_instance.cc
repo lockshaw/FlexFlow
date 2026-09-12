@@ -1,5 +1,6 @@
 #include "realm-execution/tasks/serializer/serializable_realm_instance.h"
 #include <type_traits>
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

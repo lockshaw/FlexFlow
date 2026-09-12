@@ -10,4 +10,5 @@ ff_add_test_executable(
     op-attrs
     deps::doctest
     utils-test-common
+    kernels
 )

@@ -1,7 +1,7 @@
-#include "internal/test_utils.h"
 #include <doctest/doctest.h>
 
 #include <random>
+#include "kernels/device.h"
 
 namespace FlexFlow {
 TEST_SUITE(FF_CUDA_TEST_SUITE) {

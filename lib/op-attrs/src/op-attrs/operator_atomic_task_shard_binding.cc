@@ -6,6 +6,15 @@
 
 namespace FlexFlow {
 
+OperatorAtomicTaskShardBinding
+  operator_atomic_task_shard_binding_from_abstracted(
+    AbstractedOperatorAtomicTaskShardBinding const &abstracted)
+{
+  return OperatorAtomicTaskShardBinding{
+    /*tensor_coords=*/abstracted.tensor_coords,
+  };
+}
+
 ParallelTensorSpaceCoordinate ptensor_space_coord_for_slot_name(
     OperatorAtomicTaskShardBinding const &op_task_signature,
     TensorSlotName const &slot_name) {

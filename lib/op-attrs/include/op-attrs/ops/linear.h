@@ -14,16 +14,19 @@
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "utils/record_formatter.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
 std::map<TensorSlotName, IncomingTensorRole>
     get_linear_incoming_tensor_roles(LinearAttrs const &);
 
+std::set<TensorSlotName> linear_get_slots(LinearAttrs const &);
+
 TensorShape
     linear_get_projection_shape(LinearAttrs const &attrs, TensorShape const &input);
 TensorShape linear_get_bias_shape(LinearAttrs const &attrs,
-                                                      TensorShape const &input);
+                                  TensorShape const &input);
 TensorShape
     linear_get_output_shape(LinearAttrs const &attrs, TensorShape const &input);
 
@@ -68,6 +71,11 @@ std::map<TensorSlotName, InitializerAttrs>
 StandardOperatorTaskGroup linear_get_task_group(
     LinearAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    linear_get_shard_signature_instance(
+          LinearAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace linear_get_operator_task_space(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

@@ -1,6 +1,12 @@
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "kernels/map_tensor_accessors.h"
 #include "op-attrs/tensor_shape.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
+#include "utils/containers/generate_map.h"
+#include "op-attrs/tensor_dims.h"
+#include "op-attrs/ff_ordered/ff_ordered_from_map.h"
+#include "op-attrs/tensor_dims_coord.h"
+#include "utils/nonnegative_int/nonnegative_int.h"
 
 namespace FlexFlow {
 
@@ -229,10 +235,10 @@ static TensorShape get_concat_output_shape(TensorShape const &lhs,
                                            TensorShape const &rhs,
                                            ff_dim_t dim_idx) {
   std::map<ff_dim_t, positive_int> lhs_dim_sizes =
-    map_from_ff_ordered(lhs);
+    map_from_ff_ordered(ff_ordered(lhs.dims));
 
   std::map<ff_dim_t, positive_int> rhs_dim_sizes =
-    map_from_ff_ordered(rhs);
+    map_from_ff_ordered(ff_ordered(rhs.dims));
 
   std::set<ff_dim_t> output_dims =
     require_same(keys(lhs_dim_sizes), keys(rhs_dim_sizes));
@@ -266,7 +272,7 @@ struct CPUConcatAccessors2 {
                   GenericTensorAccessorW &output,
                   ff_dim_t dim_idx) {
 
-    using ValueType = type_to_data_type_enum_v<DT>;
+    using ValueType = real_type_t<DT>;
 
     positive_int lhs_concat_dim_size =
       dim_at_idx(lhs.shape.dims, dim_idx);
@@ -275,7 +281,7 @@ struct CPUConcatAccessors2 {
     ASSERT(rhs.device_type == DeviceType::CPU);
     ASSERT(output.device_type == DeviceType::CPU);
 
-    auto get_output_value = [&](DimCoord const &output_coord) -> ValueType
+    auto get_output_value = [&](TensorDimsCoord const &output_coord) -> ValueType
     {
       nonnegative_int dim_idx_component = tensor_dims_coord_at_idx(output_coord, dim_idx);
 
@@ -285,7 +291,7 @@ struct CPUConcatAccessors2 {
         TensorDimsCoord rhs_coord = output_coord;
         tensor_dims_coord_at_idx(rhs_coord, dim_idx) = nonnegative_int{
           dim_idx_component.int_from_nonnegative_int()
-            - lhs_concat_dim_size.int_from_positive_int();
+            - lhs_concat_dim_size.int_from_positive_int(),
         };
 
         return rhs.at<DT>(rhs_coord);
@@ -305,12 +311,13 @@ GenericTensorAccessorW
                                   Allocator &output_allocator) {
   TensorShape output_shape =
       get_concat_output_shape(get_tensor_shape_for_accessor_r(lhs),
-                              get_tensor_shape_for_accessor_r(rhs));
+                              get_tensor_shape_for_accessor_r(rhs),
+                              dim_idx);
 
   GenericTensorAccessorW output =
       output_allocator.allocate_tensor(output_shape);
 
-  tensor_accessor_elementwise_concat_to(lhs, rhs, dim_idx, output);
+  tensor_accessor_binary_concat_to(lhs, rhs, dim_idx, output);
 
   return output;
 }
@@ -322,7 +329,8 @@ void tensor_accessor_binary_concat_to(GenericTensorAccessorR const &lhs,
 {
   TensorShape output_shape =
       get_concat_output_shape(get_tensor_shape_for_accessor_r(lhs),
-                              get_tensor_shape_for_accessor_r(rhs));
+                              get_tensor_shape_for_accessor_r(rhs),
+                              dim_idx);
 
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
   GenericTensorAccessorR lhs_cpu =
@@ -341,7 +349,8 @@ void tensor_accessor_binary_concat_to(GenericTensorAccessorR const &lhs,
     data_type,
     lhs_cpu,
     rhs_cpu,
-    output_cpu);
+    output_cpu,
+    dim_idx);
 
   return copy_accessor_data_to_l_from_r(output, output_cpu);
 }

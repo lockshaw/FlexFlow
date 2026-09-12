@@ -1,8 +1,12 @@
-#include "internal/test_utils.h"
 #include "kernels/split_kernels_gpu.h"
 #include "op-attrs/datatype_value.h"
 #include "utils/containers/repeat.h"
 #include <doctest/doctest.h>
+#include "kernels/managed_ff_stream.h"
+#include "kernels/managed_per_device_ff_handle.h"
+#include "kernels/create_random_filled_accessor.h"
+#include "kernels/local_cuda_allocator.h"
+#include "kernels/create_constant_filled_accessor_r.h"
 
 using namespace ::FlexFlow;
 
@@ -56,7 +60,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         output_grad_ptrs[i] = output_grad_accessor.get_float_ptr();
       }
 
-      GenericTensorAccessorW input_grad_accessor = create_filled_accessor_w(
+      GenericTensorAccessorW input_grad_accessor = create_constant_filled_accessor_w(
           input_shape, allocator, make_float_data_type_value(0));
 
       Kernels::Split::gpu_backward_kernel(

@@ -1,5 +1,6 @@
 #include "utils/orthotope/dim_coord.h"
 #include "test/utils/doctest/fmt/set.h"
+#include "test/utils/doctest/fmt/optional.h"
 #include "utils/orthotope/dim_ordering.h"
 #include <doctest/doctest.h>
 
@@ -177,6 +178,146 @@ TEST_SUITE(FF_TEST_SUITE) {
       std::set<DimCoord<int>> correct = {
           DimCoord<int>{{}},
       };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("smallest_dim_domain_for_coord_set") {
+    SUBCASE("coord set is empty") {
+      std::set<DimCoord<int>> coord_set = {};
+
+      DimDomain<int> result = smallest_dim_domain_for_coord_set(coord_set);
+      DimDomain<int> correct = empty_dim_domain<int>();
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set contains coords of different dimensionalities") {
+      std::set<DimCoord<int>> coord_set = {
+        DimCoord<int>{{
+          {2, 1_n},
+        }},
+        DimCoord<int>{{
+          {1, 2_n},
+          {2, 3_n},
+        }},
+      };
+
+      CHECK_THROWS(smallest_dim_domain_for_coord_set(coord_set));
+    }
+
+    SUBCASE("coord set contains only 0-d coords") {
+      std::set<DimCoord<int>> coord_set = {
+        DimCoord<int>{{}},
+      };
+
+      DimDomain<int> result = smallest_dim_domain_for_coord_set(coord_set);
+      DimDomain<int> correct = empty_dim_domain<int>();
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("correct usage") {
+      auto coord = [](nonnegative_int x,
+                      nonnegative_int y)
+        -> DimCoord<int>
+      {
+        return DimCoord<int>{{
+          {2, x},
+          {-6, y},
+        }};
+      };
+
+      std::set<DimCoord<int>> coord_set = {
+        coord(0_n, 1_n),
+        coord(2_n, 4_n),
+        coord(3_n, 0_n),
+      };
+
+      DimDomain<int> result = smallest_dim_domain_for_coord_set(coord_set);
+      DimDomain<int> correct = DimDomain<int>{{
+        {2, 4_p},
+        {-6, 5_p},
+      }};
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("strict_dim_domain_for_coord_set") {
+    SUBCASE("coord set is empty") {
+      std::set<DimCoord<int>> coord_set = {};
+
+      std::optional<DimDomain<int>> result = strict_dim_domain_for_coord_set(coord_set);
+      std::optional<DimDomain<int>> correct = std::nullopt;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set contains coords of different dimensionalities") {
+      std::set<DimCoord<int>> coord_set = {
+        DimCoord<int>{{
+          {2, 1_n},
+        }},
+        DimCoord<int>{{
+          {1, 2_n},
+          {2, 3_n},
+        }},
+      };
+
+      CHECK_THROWS(strict_dim_domain_for_coord_set(coord_set));
+    }
+
+    SUBCASE("coord set contains only 0-d coords") {
+      std::set<DimCoord<int>> coord_set = {
+        DimCoord<int>{{}},
+      };
+
+      std::optional<DimDomain<int>> result = strict_dim_domain_for_coord_set(coord_set);
+      std::optional<DimDomain<int>> correct = empty_dim_domain<int>();
+
+      CHECK(result == correct);
+    }
+
+    auto coord = [](nonnegative_int x,
+                    nonnegative_int y)
+      -> DimCoord<int>
+    {
+      return DimCoord<int>{{
+        {2, x},
+        {-6, y},
+      }};
+    };
+
+    SUBCASE("coord set is not orthotopic") {
+      std::set<DimCoord<int>> coord_set = {
+        coord(0_n, 1_n),
+        coord(2_n, 4_n),
+        coord(3_n, 0_n),
+      };
+
+      std::optional<DimDomain<int>> result = strict_dim_domain_for_coord_set(coord_set);
+      std::optional<DimDomain<int>> correct = std::nullopt;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set is orthotopic") {
+      std::set<DimCoord<int>> coord_set = {
+        coord(0_n, 0_n),
+        coord(1_n, 0_n),
+        coord(2_n, 0_n),
+        coord(0_n, 1_n),
+        coord(1_n, 1_n),
+        coord(2_n, 1_n),
+      };
+
+      std::optional<DimDomain<int>> result = strict_dim_domain_for_coord_set(coord_set);
+      std::optional<DimDomain<int>> correct = DimDomain<int>{{
+        {2, 3_p},
+        {-6, 2_p},
+      }};
 
       CHECK(result == correct);
     }

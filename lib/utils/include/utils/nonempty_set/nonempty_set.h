@@ -12,6 +12,7 @@
 #include "utils/positive_int/positive_int.h"
 #include <libassert/assert.hpp>
 #include <set>
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -147,6 +148,18 @@ struct adl_serializer<::FlexFlow::nonempty_set<T>> {
 };
 
 } // namespace nlohmann
+
+namespace rc {
+
+template <typename T>
+struct Arbitrary<::FlexFlow::nonempty_set<T>> {
+  static Gen<::FlexFlow::nonempty_set<T>> arbitrary() {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+};
+
+} // namespace rc
 
 namespace std {
 

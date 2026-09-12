@@ -4,8 +4,13 @@
 #include "op-attrs/tensor_role.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/abstracted_operator_atomic_task_shard_binding.dtg.h"
 
 namespace FlexFlow {
+
+OperatorAtomicTaskShardBinding
+  operator_atomic_task_shard_binding_from_abstracted(
+    AbstractedOperatorAtomicTaskShardBinding const &);
 
 ParallelTensorSpaceCoordinate
     ptensor_space_coord_for_slot_name(OperatorAtomicTaskShardBinding const &,

@@ -41,7 +41,7 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
         [&](OperatorAtomicTaskShardBinding const &s) -> std::set<TensorSlotName> {
           return keys(s.tensor_coords);
         });
-    
+
     return require_all_same1(binding_slot_sets);
   }();
 
@@ -58,7 +58,7 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
       });
 
   bool is_valid_standard_op_task_group = all_of(
-      slot_names, 
+      slot_names,
       [&](TensorSlotName slot_name) -> bool {
         return mapped_op_task_shard_bindings_are_unique_on_slot(mapped_bindings, slot_name);
       });
@@ -76,10 +76,10 @@ MappedOperatorTaskGroup::MappedOperatorTaskGroup(
     && mapped_op_task_shard_bindings_are_strictly_k_unique_on_slot(mapped_bindings, TensorSlotName::INPUT);
 
   ASSERT(
-    is_valid_standard_op_task_group 
-    || 
-    is_valid_expansive_parallelism_op_task_group 
-    || 
+    is_valid_standard_op_task_group
+    ||
+    is_valid_expansive_parallelism_op_task_group
+    ||
     is_valid_contractive_parallelism_op_task_group
   );
 

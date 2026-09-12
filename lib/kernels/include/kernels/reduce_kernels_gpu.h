@@ -6,11 +6,12 @@
 #include "kernels/reduce_per_device_state.dtg.h"
 #include "op-attrs/operator_type.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
+#include "op-attrs/ops/reduce_op.dtg.h"
 
 namespace FlexFlow::Kernels::Reduce {
 
 ReducePerDeviceState gpu_init_kernel(PerDeviceFFHandle const &,
-                                     OperatorType const &,
+                                     ReduceOp const &reduce_op,
                                      size_t const &,
                                      TensorShape const &input_shape,
                                      TensorShape const &output_shape);

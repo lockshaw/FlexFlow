@@ -1,5 +1,6 @@
 #include "utils/orthotope/orthotope.h"
 #include <doctest/doctest.h>
+#include "test/utils/doctest/fmt/optional.h"
 
 using namespace ::FlexFlow;
 
@@ -306,6 +307,114 @@ TEST_SUITE(FF_TEST_SUITE) {
       nonnegative_int offset = 6_n;
 
       CHECK_THROWS(unflatten_orthotope_coord(offset, orthotope));
+    }
+  }
+
+  TEST_CASE("smallest_orthotope_for_coord_set") {
+    SUBCASE("coord set is empty") {
+      std::set<OrthotopeCoord> coord_set = {};
+
+      Orthotope result = smallest_orthotope_for_coord_set(coord_set);
+      Orthotope correct = trivial_orthotope();
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set contains coords of different dimensionalities") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{1_n}},
+        OrthotopeCoord{{2_n, 3_n}},
+      };
+
+      CHECK_THROWS(smallest_orthotope_for_coord_set(coord_set));
+    }
+
+    SUBCASE("coord set contains only 0-d coords") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{}},
+      };
+
+      Orthotope result = smallest_orthotope_for_coord_set(coord_set);
+      Orthotope correct = trivial_orthotope();
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("correct usage") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{0_n, 1_n}},
+        OrthotopeCoord{{2_n, 4_n}},
+        OrthotopeCoord{{3_n, 0_n}},
+      };
+
+      Orthotope result = smallest_orthotope_for_coord_set(coord_set);
+      Orthotope correct = Orthotope{
+        /*dims=*/{4_p, 5_p},
+      };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("strict_orthotope_for_coord_set") {
+    SUBCASE("coord set is empty") {
+      std::set<OrthotopeCoord> coord_set = {};
+
+      std::optional<Orthotope> result = strict_orthotope_for_coord_set(coord_set);
+      std::optional<Orthotope> correct = std::nullopt;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set contains coords of different dimensionalities") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{1_n}},
+        OrthotopeCoord{{2_n, 3_n}},
+      };
+
+      CHECK_THROWS(strict_orthotope_for_coord_set(coord_set));
+    }
+
+    SUBCASE("coord set contains only 0-d coords") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{}},
+      };
+
+      std::optional<Orthotope> result = strict_orthotope_for_coord_set(coord_set);
+      std::optional<Orthotope> correct = trivial_orthotope();
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set is not orthotopic") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{0_n, 1_n}},
+        OrthotopeCoord{{2_n, 4_n}},
+        OrthotopeCoord{{3_n, 0_n}},
+      };
+
+      std::optional<Orthotope> result = strict_orthotope_for_coord_set(coord_set);
+      std::optional<Orthotope> correct = std::nullopt;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set is orthotopic") {
+      std::set<OrthotopeCoord> coord_set = {
+        OrthotopeCoord{{0_n, 0_n}},
+        OrthotopeCoord{{1_n, 0_n}},
+        OrthotopeCoord{{2_n, 0_n}},
+        OrthotopeCoord{{0_n, 1_n}},
+        OrthotopeCoord{{1_n, 1_n}},
+        OrthotopeCoord{{2_n, 1_n}},
+      };
+
+      std::optional<Orthotope> result = strict_orthotope_for_coord_set(coord_set);
+      std::optional<Orthotope> correct = Orthotope{
+        /*dims=*/{3_p, 2_p},
+      };
+
+      CHECK(result == correct);
     }
   }
 }

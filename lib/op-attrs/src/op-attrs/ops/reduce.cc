@@ -1,5 +1,12 @@
 #include "op-attrs/ops/reduce.h"
 #include "utils/not_implemented.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "utils/containers/is_subseteq_of.h"
+#include "op-attrs/tensor_shape.h"
+#include "op-attrs/tensor_dims.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "utils/containers/filtrans.h"
 
 namespace FlexFlow {
 
@@ -31,10 +38,10 @@ ParallelTensorDimDegrees reduce_get_output_parallel_dim_degrees(
   auto only_shard_dims = [&](std::set<parallel_tensor_dim_idx_t> const &ds)
     -> std::set<ff_dim_t>
   {
-    filter(
+    return filtrans(
       ds,
-      [&](parallel_tensor_dim_idx_t d) -> bool {
-        return d.is_shard_dim();
+      [&](parallel_tensor_dim_idx_t const &d) -> std::optional<ff_dim_t> {
+        return d.try_require_shard_dim();
       });
   };
 
@@ -63,8 +70,8 @@ ParallelTensorDimDegrees reduce_get_output_parallel_dim_degrees(
   }
 }
 
-ParallelTensorShape reduce_get_output_parallel_shape(ReduceAttrs const &,
-                                                     ParallelTensorShape const &)
+ParallelTensorShape reduce_get_output_parallel_shape(ReduceAttrs const &attrs,
+                                                     ParallelTensorShape const &input_shape)
 {
   TensorShape output_shape =
       reduce_get_output_shape(attrs, get_reduced_shape(input_shape));
@@ -75,63 +82,49 @@ ParallelTensorShape reduce_get_output_parallel_shape(ReduceAttrs const &,
   return lift_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
+StandardOperatorTaskGroup reduce_get_task_group(
+    ReduceAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) 
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 OperatorTaskSpace reduce_get_operator_task_space(
     ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorDimDegrees output_degrees =
-      reduce_get_output_parallel_dim_degrees(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    reduce_get_task_group(attrs, input_degrees);
 
-  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
-      output_degrees);
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-  reduce_get_input_to_output_mapping(
-    ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
-{
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      inp_to_out = make_empty_eq_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+ShardSignatureInstance
+    reduce_get_shard_signature_instance(ReduceAttrs const &attrs,
+                                        ParallelTensorDimDegrees const &input_degrees) {
 
-  ParallelTensorDimDegrees output_degrees =
-      reduce_get_output_parallel_dim_degrees(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    reduce_get_task_group(attrs, input_degrees);
 
-  project_dims(inp_to_out, sum_dim_idx(), sum_dim_idx());
-  project_dims(inp_to_out, discard_copy_dim_idx(), discard_copy_dim_idx());
-
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
-
-  ParallelTensorDimDegrees output_degrees =
-      flat_get_output_parallel_dim_degrees(attrs, input_degrees);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{inp_to_out}, input_degrees, output_degrees);
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping reduce_get_operator_to_input_mapping(
     ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping inp_to_out =
-      reduce_get_input_to_output_mapping(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    reduce_get_task_group(attrs, input_degrees);
 
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_inp =
-      invert_parallel_tensor_space_biunique_mapping(inp_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      reduce_get_operator_to_output_mapping(attrs, input_degrees);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_inp);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping reduce_get_operator_to_output_mapping(
     ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorDimDegrees output_degrees =
-      reduce_get_output_parallel_dim_degrees(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    reduce_get_task_group(attrs, input_degrees);
 
-  return get_identity_biunique_mapping(
-      reduce_get_operator_task_space(attrs, input_degrees),
-      output_degrees);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 

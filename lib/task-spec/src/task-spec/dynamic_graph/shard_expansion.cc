@@ -95,7 +95,7 @@ static DynamicNodeInvocationShardingInfo invocation_sharding_info_for_binding(
       [&](DynamicTensorSlot const &s,
           DynamicValueAttrs const &v) -> DynamicValueAttrsShardingInfo {
     ParallelTensorSpaceCoordinate parallel_tensor_coord =
-        binding.tensor_coords.at(s.slot_name);
+        binding.tensor_coords.at(s.pcg_slot_name);
 
     return DynamicValueAttrsShardingInfo{
         /*shard_coord=*/parallel_tensor_coord,
@@ -206,8 +206,8 @@ static std::set<DynamicNodeInvocationShardingInfo>
             i,
             device_id,
             OperatorAtomicTaskShardBinding{{
-                {input_slot.slot_name, p},
-                {output_slot.slot_name, p},
+                {input_slot.pcg_slot_name, p},
+                {output_slot.pcg_slot_name, p},
             }});
       });
 }

@@ -1,6 +1,10 @@
-#include "internal/test_utils.h"
 #include "kernels/transpose_kernels_gpu.h"
 #include <doctest/doctest.h>
+#include "kernels/accessor_contains_non_zero_value.h"
+#include "kernels/create_random_filled_accessor.h"
+#include "kernels/managed_per_device_ff_handle.h"
+#include "kernels/managed_ff_stream.h"
+#include "kernels/local_cuda_allocator.h"
 
 using namespace ::FlexFlow;
 TEST_SUITE(FF_CUDA_TEST_SUITE) {
@@ -33,7 +37,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW output_accessor =
           allocator.allocate_tensor(output_shape);
 
-      Kernels::Transpose::gpu_forward_kernel(
+      transpose_gpu_forward_kernel(
           managed_stream.raw_stream(), attrs, input_accessor, output_accessor);
 
       CHECK(contains_non_zero(output_accessor));
@@ -45,7 +49,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW input_grad_accessor =
           create_random_filled_accessor_w(input_shape, allocator);
 
-      Kernels::Transpose::gpu_backward_kernel(managed_stream.raw_stream(),
+      transpose_gpu_backward_kernel(managed_stream.raw_stream(),
                                               attrs,
                                               output_grad_accessor,
                                               input_grad_accessor);

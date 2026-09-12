@@ -11,6 +11,7 @@
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/series_parallel/digraph_generation.h"
 #include <libassert/assert.hpp>
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

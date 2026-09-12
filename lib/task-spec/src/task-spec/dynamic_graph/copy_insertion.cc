@@ -289,7 +289,7 @@ std::map<InternalDynamicSlotSite, ParallelTensorMapping>
 
     {
       InternalDynamicSlotSite slot_site = get_only(slot_sites);
-      ASSERT(slot_site.slot_name.slot_name == TensorSlotName::OUTPUT);
+      ASSERT(slot_site.slot_name.pcg_slot_name == TensorSlotName::OUTPUT);
     };
 
     return slot_sites;
@@ -316,7 +316,7 @@ std::map<InternalDynamicSlotSite, ParallelTensorMapping>
           return ParallelTensorMapping{
               dynamic_node_mapping_bindings_for_slot_name(
                   assert_unwrap(invocation.node_attrs.mapping),
-                  s.slot_name.slot_name),
+                  s.slot_name.pcg_slot_name),
           };
         });
   };

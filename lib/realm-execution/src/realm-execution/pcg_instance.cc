@@ -119,15 +119,11 @@ PCGInstance create_pcg_instance(
   }
 
   dg = perform_update_insertion(dg, optimizer_attrs);
-  // std::cerr << "After update insertion" << std::endl;
-  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
   dg = perform_copy_insertion(dg);
-  // std::cerr << "After copy insertion" << std::endl;
-  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
   dg = perform_shard_expansion(dg);
 
   TensorInstanceBacking tensor_instance_backing =
-      perform_instance_allocation(dg, inputs, ctx, device_type);
+      perform_instance_allocation(dg, inputs, ctx);
 
   logit_grad_value =
       transform(logit_grad_value, [&](DynamicValueAttrs const &lgv) {

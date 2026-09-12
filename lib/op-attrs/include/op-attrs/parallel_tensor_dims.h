@@ -38,7 +38,6 @@ ShardParallelDim &shard_dim_at_idx(ParallelTensorDims &, relative_ff_dim_t);
 
 bool is_valid(ParallelTensorDims const &);
 TensorDims get_piece_dims(ParallelTensorDims const &);
-TensorDims get_tensor_dims_unsafe(ParallelTensorDims const &);
 
 TensorDims get_reduced_dims(ParallelTensorDims const &);
 

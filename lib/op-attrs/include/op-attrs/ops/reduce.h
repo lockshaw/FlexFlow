@@ -7,6 +7,8 @@
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/shard_signature_instance.h"
 
 namespace FlexFlow {
 
@@ -20,8 +22,17 @@ ParallelTensorDimDegrees reduce_get_output_parallel_dim_degrees(
 ParallelTensorShape reduce_get_output_parallel_shape(ReduceAttrs const &,
                                                      ParallelTensorShape const &);
 
+StandardOperatorTaskGroup reduce_get_task_group(
+    ReduceAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance reduce_get_shard_signature_instance(
+    ReduceAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace reduce_get_operator_task_space(
-    ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    ReduceAttrs const &attrs, 
+    ParallelTensorDimDegrees const &input_degrees);
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping reduce_get_operator_to_input_mapping(
     ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

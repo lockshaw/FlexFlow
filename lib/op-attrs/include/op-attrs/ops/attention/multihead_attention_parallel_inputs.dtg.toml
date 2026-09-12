@@ -13,35 +13,30 @@ features = [
 includes = [
   "<cstddef>",
   "op-attrs/datatype.dtg.h",
-  "op-attrs/shard_parallel_dim.dtg.h",
   "op-attrs/parallel_tensor_shape/discard_copy_degree.dtg.h",
-  "op-attrs/parallel_tensor_shape/sum_degree.dtg.h",
+  "utils/positive_int/positive_int.h",
 ]
 
 [[fields]]
-name = "batch_dim"
-type = "::FlexFlow::ShardParallelDim"
+name = "batch_degree"
+type = "::FlexFlow::positive_int"
 
 [[fields]]
-name = "sequence_dim"
-type = "::FlexFlow::ShardParallelDim"
+name = "sequence_degree"
+type = "::FlexFlow::positive_int"
 
 [[fields]]
-name = "query_dim"
-type = "::FlexFlow::ShardParallelDim"
+name = "query_degree"
+type = "::FlexFlow::positive_int"
 
 [[fields]]
-name = "key_dim"
-type = "::FlexFlow::ShardParallelDim"
+name = "key_degree"
+type = "::FlexFlow::positive_int"
 
 [[fields]]
-name = "value_dim"
-type = "::FlexFlow::ShardParallelDim"
+name = "value_degree"
+type = "::FlexFlow::positive_int"
 
 [[fields]]
 name = "discard_copy_degree"
 type = "::FlexFlow::DiscardCopyDegree"
-
-[[fields]]
-name = "datatype"
-type = "::FlexFlow::DataType"

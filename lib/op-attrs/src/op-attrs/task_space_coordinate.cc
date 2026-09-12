@@ -8,6 +8,7 @@
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/orthotope_coord.h"
+#include "op-attrs/ops/embedding.h"
 
 namespace FlexFlow {
 
@@ -49,6 +50,17 @@ DimCoord<operator_task_space_dim_idx_t>
       operator_task_space_dim_idx_range(
           orthotope_coord_num_dims(coord.orthotope_coord)),
       get_operator_task_space_dim_ordering());
+}
+
+TaskSpaceCoordinate
+    task_space_coordinate_from_orthotope_coord(OrthotopeCoord const &orthotope_coord)
+{
+  return TaskSpaceCoordinate{orthotope_coord};
+}
+
+bool task_space_coord_set_is_orthotopic(std::set<TaskSpaceCoordinate> const &coord_set)
+{
+  return strict_operator_task_space_for_coord_set(coord_set).has_value();
 }
 
 } // namespace FlexFlow

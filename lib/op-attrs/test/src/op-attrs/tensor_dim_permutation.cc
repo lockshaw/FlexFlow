@@ -4,6 +4,13 @@
 
 using namespace ::FlexFlow;
 
+static std::pair<ff_dim_t, ff_dim_t> map_dim(int src, int dst) {
+  return std::pair{
+    ff_dim_t{nonnegative_int{src}},
+    ff_dim_t{nonnegative_int{dst}},
+  };
+}
+
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("TensorDimPermutation") {
     SUBCASE("fails if constructed with a non-contiguous key set") {
@@ -81,10 +88,10 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("permute_tensor_dims") {
     TensorDimPermutation p = TensorDimPermutation{
         bidict<ff_dim_t, ff_dim_t>{
-            {ff_dim_t{0_n}, ff_dim_t{3_n}},
-            {ff_dim_t{1_n}, ff_dim_t{1_n}},
-            {ff_dim_t{2_n}, ff_dim_t{0_n}},
-            {ff_dim_t{3_n}, ff_dim_t{2_n}},
+          map_dim(0, 3),
+          map_dim(1, 1),
+          map_dim(2, 0),
+          map_dim(3, 2)
         },
     };
 
@@ -101,10 +108,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     TensorDims correct = TensorDims{
         FFOrdered<positive_int>{
-            12_p,
-            3_p,
-            4_p,
             10_p,
+            3_p,
+            12_p,
+            4_p,
         },
     };
   }

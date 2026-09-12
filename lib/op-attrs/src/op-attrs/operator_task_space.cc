@@ -22,6 +22,8 @@
 #include "utils/orthotope/minimal_orthotope.h"
 #include "utils/orthotope/orthotope.dtg.h"
 #include "utils/orthotope/orthotope.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "utils/orthotope/dim_coord.h"
 
 namespace FlexFlow {
 
@@ -113,6 +115,48 @@ OperatorTaskSpace get_operator_task_space_matching_parallel_tensor_dim_degrees(
           minimal_dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
           get_parallel_tensor_dim_ordering()),
   };
+}
+
+OperatorTaskSpace
+  smallest_operator_task_space_for_coord_set(
+     std::set<TaskSpaceCoordinate> const &coord_set)
+{
+  std::set<DimCoord<operator_task_space_dim_idx_t>>
+    dim_coord_set = transform(coord_set,
+                              [&](TaskSpaceCoordinate const &c)
+                                -> DimCoord<operator_task_space_dim_idx_t>
+                              {
+                                return dim_coord_from_task_space_coordinate(c);
+                              });
+
+  DimDomain<operator_task_space_dim_idx_t>
+    dim_domain = smallest_dim_domain_for_coord_set(dim_coord_set);
+
+  return operator_task_space_from_minimal_dim_domain(
+    require_dim_domain_is_minimal(dim_domain));
+}
+
+std::optional<OperatorTaskSpace>
+  strict_operator_task_space_for_coord_set(
+     std::set<TaskSpaceCoordinate> const &coord_set)
+{
+  std::set<DimCoord<operator_task_space_dim_idx_t>>
+    dim_coord_set = transform(coord_set,
+                              [&](TaskSpaceCoordinate const &c)
+                                -> DimCoord<operator_task_space_dim_idx_t>
+                              {
+                                return dim_coord_from_task_space_coordinate(c);
+                              });
+
+  std::optional<DimDomain<operator_task_space_dim_idx_t>>
+    dim_domain = strict_dim_domain_for_coord_set(dim_coord_set);
+
+  if (dim_domain.has_value()) {
+    return operator_task_space_from_minimal_dim_domain(
+      require_dim_domain_is_minimal(dim_domain.value()));
+  } else {
+    return std::nullopt;
+  }
 }
 
 } // namespace FlexFlow

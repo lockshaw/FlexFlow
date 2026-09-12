@@ -7,6 +7,9 @@
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
+#include "op-attrs/shard_signature_instance.h"
 
 namespace FlexFlow {
 
@@ -23,11 +26,6 @@ ParallelTensorShape
     batch_matmul_get_output_parallel_shape(BatchMatmulAttrs const &,
                                            ParallelTensorShape const &lhs,
                                            ParallelTensorShape const &rhs);
-
-StandardOperatorTaskGroup batch_matmul_get_task_group(
-    LinearAttrs const &attrs,
-    ParallelTensorDimDegrees const &lhs_input_degrees,
-    ParallelTensorDimDegrees const &rhs_input_degrees);
 
 OperatorTaskSpace batch_matmul_get_operator_task_space(
     BatchMatmulAttrs const &attrs,
@@ -49,11 +47,16 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_o
     ParallelTensorDimDegrees const &lhs,
     ParallelTensorDimDegrees const &rhs);
 
-std::set<OperatorAtomicTaskShardBinding>
-    batch_matmul_get_parallel_task_signatures(
+ShardSignatureInstance
+    batch_matmul_get_shard_signature_instance(
           BatchMatmulAttrs const &attrs,
           ParallelTensorDimDegrees const &lhs_input_degrees,
           ParallelTensorDimDegrees const &rhs_input_degrees);
+
+StandardOperatorTaskGroup batch_matmul_get_task_group(
+    BatchMatmulAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs_input_degrees,
+    ParallelTensorDimDegrees const &rhs_input_degrees);
 
 } // namespace FlexFlow
 

@@ -3,8 +3,11 @@
 
 #include "utils/orthotope/orthotope.dtg.h"
 #include "utils/orthotope/orthotope_coord.dtg.h"
+#include <optional>
 
 namespace FlexFlow {
+
+Orthotope trivial_orthotope();
 
 nonnegative_int orthotope_get_num_dims(Orthotope const &);
 
@@ -25,6 +28,10 @@ OrthotopeCoord orthotope_get_maximum_coord(Orthotope const &);
 nonnegative_int orthotope_get_maximum_offset(Orthotope const &);
 
 OrthotopeCoord unflatten_orthotope_coord(nonnegative_int, Orthotope const &);
+
+Orthotope smallest_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
+
+std::optional<Orthotope> strict_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
 
 } // namespace FlexFlow
 

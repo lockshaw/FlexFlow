@@ -9,6 +9,8 @@
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -35,6 +37,14 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_weig
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping embedding_get_operator_to_output_mapping(
     EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
+ShardSignatureInstance
+    embedding_get_shard_signature_instance(
+          EmbeddingAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
+StandardOperatorTaskGroup embedding_get_task_group(
+    EmbeddingAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

@@ -5,6 +5,7 @@
 #include "utils/hash/tuple.h"
 #include <libassert/assert.hpp>
 #include <nlohmann/json.hpp>
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

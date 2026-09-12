@@ -45,6 +45,14 @@ DimOrdering<operator_task_space_dim_idx_t>
 OperatorTaskSpace get_operator_task_space_matching_parallel_tensor_dim_degrees(
     ParallelTensorDimDegrees const &dim_degrees);
 
+OperatorTaskSpace
+  smallest_operator_task_space_for_coord_set(
+     std::set<TaskSpaceCoordinate> const &);
+
+std::optional<OperatorTaskSpace>
+  strict_operator_task_space_for_coord_set(
+     std::set<TaskSpaceCoordinate> const &);
+
 } // namespace FlexFlow
 
 #endif

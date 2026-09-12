@@ -11,6 +11,9 @@ std::vector<nonnegative_int> nonnegative_range(positive_int end);
 std::vector<nonnegative_int>
     nonnegative_range(nonnegative_int start, nonnegative_int end, int step = 1);
 
+std::vector<nonnegative_int>
+    nonnegative_range_inclusive(nonnegative_int start, nonnegative_int end, int step = 1);
+
 } // namespace FlexFlow
 
 #endif

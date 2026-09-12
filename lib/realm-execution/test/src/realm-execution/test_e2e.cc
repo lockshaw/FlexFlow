@@ -11,7 +11,6 @@
 #include "pcg/device_type.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_layer_guid_t.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_tensor_guid_t.dtg.h"
@@ -24,6 +23,7 @@
 #include "test/utils/doctest/check_kv.h"
 #include "utils/containers/require_only_key.h"
 #include <doctest/doctest.h>
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 
 namespace test {
 
@@ -276,7 +276,7 @@ MappedParallelComputationGraph
   parallel_tensor_guid_t t_add_1 =
       require_only_key(add_operator_1.outputs, TensorSlotName::OUTPUT);
 
-  positive_int replicate_degree = 2_p;
+  int_ge_two replicate_degree = 2_ge2;
   ReplicateAttrs repl_attrs = ReplicateAttrs{replicate_degree};
   ParallelLayerAddedResult repl_operator_1 =
       add_parallel_layer(pcg,

@@ -2,6 +2,8 @@
 #include "op-attrs/ff_dim_t.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/transform.h"
+#include "op-attrs/relative_ff_dim_t.h"
+#include "op-attrs/num_tensor_dims_t.h"
 
 namespace FlexFlow {
 
@@ -13,8 +15,12 @@ parallel_tensor_dim_idx_t discard_copy_dim_idx() {
   return parallel_tensor_dim_idx_t{ReplicaType::DISCARD_COPY};
 }
 
-parallel_tensor_dim_idx_t shard_dim_idx_for_relative(int, num_ptensor_shard_dims_t) {
-  return parallel_tensor_dim_idx_t{idx};
+parallel_tensor_dim_idx_t shard_dim_idx_for_relative(int relative, num_ptensor_shard_dims_t num_shard_dims) {
+  num_tensor_dims_t num_tensor_dims = num_tensor_dims_from_num_ptensor_shard_dims(num_shard_dims);
+
+  ff_dim_t non_relative = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{relative}, num_tensor_dims);
+
+  return shard_dim_idx(non_relative);
 }
 
 parallel_tensor_dim_idx_t shard_dim_idx(ff_dim_t idx) {
@@ -23,6 +29,36 @@ parallel_tensor_dim_idx_t shard_dim_idx(ff_dim_t idx) {
 
 bool is_dim_idx_for_reduction_dimension(parallel_tensor_dim_idx_t dim_idx) {
   return (dim_idx == sum_dim_idx()) || (dim_idx == discard_copy_dim_idx());
+}
+
+std::set<parallel_tensor_dim_idx_t>
+    shard_dim_idxs_for_inclusive_interval(int start, int stop, num_ptensor_shard_dims_t num_shard_dims)
+{
+  num_tensor_dims_t num_tensor_dims = num_tensor_dims_from_num_ptensor_shard_dims(num_shard_dims);
+  ff_dim_t start_idx = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{start}, num_tensor_dims);
+  ff_dim_t stop_idx = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{stop}, num_tensor_dims);
+
+  return set_of(
+    transform(
+      ff_dim_range2_inclusive(start_idx, stop_idx),
+      [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
+        return shard_dim_idx(d);
+      }));
+}
+
+std::set<parallel_tensor_dim_idx_t>
+    shard_dim_idxs_for_exclusive_interval(int start, int stop, num_ptensor_shard_dims_t num_shard_dims)
+{
+  num_tensor_dims_t num_tensor_dims = num_tensor_dims_from_num_ptensor_shard_dims(num_shard_dims);
+  ff_dim_t start_idx = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{start}, num_tensor_dims);
+  ff_dim_t stop_idx = ff_dim_t_from_relative_ff_dim_t(relative_ff_dim_t{stop}, num_tensor_dims);
+
+  return set_of(
+    transform(
+      ff_dim_range2_exclusive(start_idx, stop_idx),
+      [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
+        return shard_dim_idx(d);
+      }));
 }
 
 std::set<parallel_tensor_dim_idx_t>

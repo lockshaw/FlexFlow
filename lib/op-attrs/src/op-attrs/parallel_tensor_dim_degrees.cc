@@ -23,6 +23,9 @@
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/repeat_element.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
+#include "op-attrs/relative_ff_dim_t.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
+#include "utils/containers/filter_keys.h"
 
 namespace FlexFlow {
 
@@ -102,6 +105,7 @@ positive_int
 
   return
     get_degree_for_parallel_tensor_dim_idx(
+      degrees,
       shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(dim, num_dims)));
 }
 
@@ -113,11 +117,11 @@ std::vector<positive_int>
   num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
 
   ff_dim_t absolute_start = ff_dim_t_from_relative_ff_dim_t(start, num_dims);
-  ff_dim_t absolute_end = ff_dim_t_from_relative_ff_dim_t(start, end);
+  ff_dim_t absolute_end = ff_dim_t_from_relative_ff_dim_t(end, num_dims);
 
-  ASSERT(absolute_end > absolute_start);
+  ASSERT(absolute_end.value > absolute_start.value);
 
-  return ff_ordered_slice(degrees.shard_degrees, absolute_start, absolute_end);
+  return vector_of(ff_ordered_slice(degrees.shard_degrees, absolute_start, absolute_end));
 }
 
 std::map<parallel_tensor_dim_idx_t, positive_int>
