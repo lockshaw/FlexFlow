@@ -9,6 +9,7 @@
 #include "utils/hash/tuple.h"
 #include "utils/json/check_is_json_deserializable.h"
 #include "utils/json/check_is_json_serializable.h"
+#include "utils/not_implemented.h"
 #include "utils/positive_int/positive_int.h"
 #include <libassert/assert.hpp>
 #include <set>
@@ -147,6 +148,18 @@ struct adl_serializer<::FlexFlow::nonempty_set<T>> {
 };
 
 } // namespace nlohmann
+
+namespace rc {
+
+template <typename T>
+struct Arbitrary<::FlexFlow::nonempty_set<T>> {
+  static Gen<::FlexFlow::nonempty_set<T>> arbitrary() {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
+  }
+};
+
+} // namespace rc
 
 namespace std {
 

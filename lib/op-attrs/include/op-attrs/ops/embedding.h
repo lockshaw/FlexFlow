@@ -7,6 +7,8 @@
 #include "op-attrs/ops/embedding_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 
@@ -47,6 +49,13 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     embedding_get_operator_to_output_mapping(
         EmbeddingAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance embedding_get_shard_signature_instance(
+    EmbeddingAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+StandardOperatorTaskGroup
+    embedding_get_task_group(EmbeddingAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

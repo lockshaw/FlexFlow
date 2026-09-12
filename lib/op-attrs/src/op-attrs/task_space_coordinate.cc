@@ -1,6 +1,7 @@
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/operator_task_space_dim_idx_t.h"
+#include "op-attrs/ops/embedding.h"
 #include "utils/containers/map_keys.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_from_idx_map.h"
@@ -49,6 +50,16 @@ DimCoord<operator_task_space_dim_idx_t>
       operator_task_space_dim_idx_range(
           orthotope_coord_num_dims(coord.orthotope_coord)),
       get_operator_task_space_dim_ordering());
+}
+
+TaskSpaceCoordinate task_space_coordinate_from_orthotope_coord(
+    OrthotopeCoord const &orthotope_coord) {
+  return TaskSpaceCoordinate{orthotope_coord};
+}
+
+bool task_space_coord_set_is_orthotopic(
+    std::set<TaskSpaceCoordinate> const &coord_set) {
+  return strict_operator_task_space_for_coord_set(coord_set).has_value();
 }
 
 } // namespace FlexFlow

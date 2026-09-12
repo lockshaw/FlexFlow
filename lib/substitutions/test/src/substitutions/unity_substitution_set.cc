@@ -226,7 +226,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_replicate_linear_combine, use_bias = false") {
-    positive_int num_dims = 1_p;
+    positive_int num_dims = 2_p;
     int_ge_two degree = 2_ge2;
     std::string linear_match = "linear_match";
 
@@ -255,7 +255,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape projection_weight_shape =
-        throw_if_unexpected(get_projection_shape(linear_attrs, input_shape));
+        linear_get_projection_shape(linear_attrs, input_shape);
 
     RepartitionAttrs partition_projection_attrs = RepartitionAttrs{
         /*repartition_dim=*/ff_dim_t{1_n},
@@ -336,7 +336,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_replicate_linear_combine, use_bias = true") {
-    positive_int num_dims = 1_p;
+    positive_int num_dims = 2_p;
     int_ge_two degree = 2_ge2;
     std::string linear_match = "linear_match";
 
@@ -361,10 +361,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape projection_weight_shape =
-        throw_if_unexpected(get_projection_shape(linear_attrs, input_shape));
+        linear_get_projection_shape(linear_attrs, input_shape);
 
-    TensorShape bias_shape =
-        throw_if_unexpected(get_bias_shape(linear_attrs, input_shape));
+    TensorShape bias_shape = linear_get_bias_shape(linear_attrs, input_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -453,7 +452,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_partition_linear_combine, use_bias = false") {
-    positive_int num_dims = 1_p;
+    positive_int num_dims = 2_p;
     int_ge_two degree = 2_ge2;
     std::string linear_match = "linear_match";
 
@@ -478,7 +477,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape projection_weight_shape =
-        throw_if_unexpected(get_projection_shape(linear_attrs, input_shape));
+        linear_get_projection_shape(linear_attrs, input_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -554,7 +553,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   }
 
   TEST_CASE("create_partition_linear_combine, use_bias = true") {
-    positive_int num_dims = 1_p;
+    positive_int num_dims = 2_p;
     int_ge_two degree = 2_ge2;
     std::string linear_match = "linear_match";
 
@@ -579,10 +578,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape projection_weight_shape =
-        throw_if_unexpected(get_projection_shape(linear_attrs, input_shape));
+        linear_get_projection_shape(linear_attrs, input_shape);
 
-    TensorShape bias_shape =
-        throw_if_unexpected(get_bias_shape(linear_attrs, input_shape));
+    TensorShape bias_shape = linear_get_bias_shape(linear_attrs, input_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -819,8 +817,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*add_zero_attn=*/false,
     };
 
-    TensorShape weights_shape = throw_if_unexpected(get_weights_shape(
-        attention_attrs, query_shape, key_shape, value_shape));
+    TensorShape weights_shape = attention_get_weights_shape(
+        attention_attrs, query_shape, key_shape, value_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -939,8 +937,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*add_zero_attn=*/false,
     };
 
-    TensorShape weight_shape = throw_if_unexpected(get_weights_shape(
-        attention_attrs, query_shape, key_shape, value_shape));
+    TensorShape weight_shape = attention_get_weights_shape(
+        attention_attrs, query_shape, key_shape, value_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();

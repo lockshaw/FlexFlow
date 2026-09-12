@@ -1,4 +1,5 @@
 #include "realm-execution/redops/redop_id_t.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

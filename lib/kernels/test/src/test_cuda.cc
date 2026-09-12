@@ -1,6 +1,6 @@
-#include "internal/test_utils.h"
 #include <doctest/doctest.h>
 
+#include "kernels/device.h"
 #include <random>
 
 namespace FlexFlow {
