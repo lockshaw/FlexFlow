@@ -132,9 +132,6 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
   ParallelTensorDimDegrees output_degrees = 
     batch_matmul_get_output_parallel_dim_degrees(attrs, lhs_input_degrees, rhs_input_degrees);
 
-  std::set<parallel_tensor_dim_idx_t>
-    nontrivial_output_dims = get_nontrivial_parallel_tensor_dim_indices(output_degrees);
-
   return StandardOperatorTaskGroup{
     filtrans(
       binary_cartesian_product(
@@ -249,14 +246,6 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
                 /*discard_copy_degree=*/output_copy_component,
                 /*shard_coords=*/output_shard_components);
 
-        // TODO(@lockshaw)(#pr): pull this logic out so it doesn't have to go in every operator
-        OrthotopeCoord raw_output_coord =
-          orthotope_coord_from_dim_coord(
-            restrict_coord_to_dims(
-              dim_coord_from_parallel_tensor_space_coord(output_coord),
-              nontrivial_output_dims),
-            get_parallel_tensor_dim_ordering());
-
         return AbstractedOperatorAtomicTaskShardBinding{
           /*tensor_corods=*/{
             {
@@ -272,7 +261,8 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
               output_coord,
             },
           },
-          /*task_coord=*/task_space_coordinate_from_orthotope_coord(raw_output_coord),
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
         };
       }),
   };

@@ -54,6 +54,15 @@ std::map<TensorSlotName, ParallelTensorShape>
     batch_norm_get_weight_parallel_shapes(BatchNormAttrs const &attrs,
                       ParallelTensorShape const &input_shape);
 
+StandardOperatorTaskGroup batch_norm_get_task_group(
+    BatchNormAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    batch_norm_get_shard_signature_instance(
+          BatchNormAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace batch_norm_get_operator_task_space(
     BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 

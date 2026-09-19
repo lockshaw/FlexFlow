@@ -23,6 +23,20 @@ std::map<TensorSlotName, IncomingTensorRole>
   return result;
 }
 
+std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &) {
+  std::set<TensorSlotName> result = {
+    TensorSlotName::INPUT,
+    TensorSlotName::FILTER,
+    TensorSlotName::OUTPUT,
+  };
+
+  if (attrs.use_bias) {
+    result.insert(TensorSlotName::BIAS);
+  }
+
+  return result;
+}
+
 TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
                                     TensorShape const &raw_input_shape) {
   ASSERT(get_num_dims(raw_input_shape.dims) == 4);
@@ -292,6 +306,141 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
   }
 }
 
+StandardOperatorTaskGroup conv2d_get_task_group(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    conv2d_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  StandardOperatorTaskGroup task_group = StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        num_ptensor_shard_dims_t input_num_shard_dims =
+          get_ptensor_dim_degrees_num_shard_dims(input_degrees);
+
+        parallel_tensor_dim_idx_t input_sum_dim = sum_dim_idx();
+        parallel_tensor_dim_idx_t input_discard_copy_dim = discard_copy_dim_idx();
+
+        parallel_tensor_dim_idx_t input_batch_dim =
+          shard_dim_idx(ff_dim_t{0_n});
+
+        parallel_tensor_dim_idx_t input_channel_dim =
+          shard_dim_idx(ff_dim_t{1_n});
+
+        parallel_tensor_dim_idx_t input_height_dim =
+          shard_dim_idx(ff_dim_t{2_n});
+
+        parallel_tensor_dim_idx_t input_width_dim =
+          shard_dim_idx(ff_dim_t{3_n});
+
+        BoundedComponent data_parallelism_component =
+            orthotope_bounded_coord_for_ptensor_dims(
+              input_degrees,
+              input_coord,
+              input_batch_dim);
+
+        BoundedComponent output_channel_parallelism_component =
+            bounded_component_for_ptensor_dim(
+              input_degrees,
+              input_coord,
+              input_discard_copy_dim);
+
+        BoundedComponent preexisting_sum_parallelism_component =
+            bounded_component_for_ptensor_dim(
+              input_degrees,
+              input_coord,
+              input_sum_dim);
+
+        BoundedComponent input_channel_parallelism_component =
+            bounded_component_for_ptensor_dim(
+              input_degrees,
+              input_coord,
+              input_channel_dim);
+
+        BoundedComponent input_height_parallelism_component =
+            require_same(
+              bounded_component_for_ptensor_dim(
+                input_degrees,
+                input_coord,
+                input_height_dim),
+              trivial_bounded_component());
+
+        BoundedComponent input_width_parallelism_component =
+            require_same(
+              bounded_component_for_ptensor_dim(
+                input_degrees,
+                input_coord,
+                input_width_dim),
+              trivial_bounded_component());
+
+        ParallelTensorSpaceCoordinate output_coord =
+              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                /*sum_degree=*/assert_unwrap(flatten_orthotope_bounded_coord(
+                  make_2d_orthotope_bounded_coord(
+                    preexisting_sum_parallelism_component,
+                    input_channel_parallelism_component))),
+                /*discard_copy_degree=*/trivial_bounded_component(),
+                /*shard_coords=*/make_4d_orthotope_bounded_coord(
+                  data_parallelism_component,
+                  output_channel_parallelism_component,
+                  input_height_parallelism_component,
+                  input_width_parallelism_component,
+                );
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::FILTER,
+              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                /*sum_coord=*/trivial_bounded_component(),
+                /*discard_copy_coord=*/assert_unwrap(flatten_orthotope_bounded_coord(
+                  make_4d_orthotope_bounded_coord(
+                    data_parallelism_component,
+                    preexisting_sum_parallelism_component,
+                    input_height_parallelism_component,
+                    input_width_parallelism_component))),
+                /*shard_coords=*/make_4d_orthotope_bounded_coord(
+                  output_channel_parallelism,
+                  input_channel_parallelism_component,
+                  trivial_bounded_component(),
+                  trivial_bounded_component(),
+                ),
+            },
+            {
+              TensorSlotName::BIAS,
+              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                /*sum_coord=*/preexisting_sum_parallelism_component,
+                /*discard_copy_coord=*/assert_unwrap(flatten_orthotope_bounded_coord(
+                  make_4d_orthotope_bounded_coord(
+                    data_parallelism_component,
+                    input_channel_parallelism_component,
+                    input_height_parallelism_component,
+                    input_width_parallelism_component))),
+                /*shard_coords=*/lift_bounded_component(output_channel_parallelism_component)),
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+        };
+      }),
+  };
+
+  return restrict_standard_operator_task_group_to_slots(
+    task_group,
+    conv2d_get_slots(attrs));
+}
+
 std::map<TensorSlotName, ParallelTensorDimDegrees>
     conv2d_get_weight_parallel_dim_degrees(Conv2DAttrs const &attrs,
                              ParallelTensorDimDegrees const &input_degrees)
@@ -308,7 +457,7 @@ OperatorTaskSpace conv2d_get_operator_task_space(
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_input_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input)
@@ -317,7 +466,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_kernel_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input)
@@ -326,7 +475,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_bias_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input)
@@ -335,7 +484,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_output_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input)

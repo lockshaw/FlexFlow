@@ -119,27 +119,6 @@ static void
     fmt::format("Expected sum degree 1, but receieved sum degree {}",
                 input_degrees.sum_degree)
   );
-
-  ASSERT(
-    input_degrees.discard_copy_degree == DiscardCopyDegree{1_p},
-    fmt::format(
-        "Expected discard copy degree 1, but receieved discard copy degree {}",
-        input_degrees.discard_copy_degree)
-  );
-
-  FFOrdered<positive_int> non_channel_degrees = ff_ordered_concat(
-      ff_ordered_slice(
-          input_degrees.shard_degrees, ff_dim_t{0_n}, ff_dim_t{1_n}),
-      ff_ordered_slice(
-          input_degrees.shard_degrees, ff_dim_t{2_n}, std::nullopt));
-
-  ASSERT(
-      all_of(non_channel_degrees,
-             [](positive_int degree) { return degree == 1_p; }),
-    fmt::format("Expected parallel degree of all non-channel dimensions "
-                "to be 1, but received input with degrees {}",
-                input_degrees)
-  );
 }
 
 ParallelTensorDimDegrees
@@ -258,18 +237,99 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 }
 
+StandardOperatorTaskGroup batch_norm_get_task_group(
+    BatchNormAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    batch_norm_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        parallel_tensor_dim_idx_t channel_dim = shard_dim_idx(ff_dim_t{1_n});
+
+        std::set<parallel_tensor_dim_idx_t> non_channel_dims =
+          set_minus(
+            get_parallel_tensor_dim_indices(input_degrees),
+            std::set{channel_dim});
+
+        BoundedComponent channel_parallelism_component =
+          bounded_component_for_ptensor_dim(
+            input_degrees,
+            input_coord,
+            channel_dim);
+
+        OrthotopeBoundedCoord non_channel_parallelism_components =
+          orthotope_bounded_coord_for_ptensor_dims(
+            input_degrees,
+            input_coord,
+            non_channel_dims);
+
+        ParallelTensorSpaceCoordinate weight_coord =
+              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                /*sum_degree=*/trivial_bounded_component(),
+                /*discard_copy_degree=*/non_channel_parallelism_components,
+                /*shard_coords=*/channel_parallelism_component);
+
+        ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::GAMMA,
+              weight_coord,
+            },
+            {
+              TensorSlotName::BETA,
+              weight_coord,
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord,
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
+        };
+      }),
+  };
+}
+
+ShardSignatureInstance
+    batch_norm_get_shard_signature_instance(
+          BatchNormAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
+
 OperatorTaskSpace batch_norm_get_operator_task_space(
     BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_input_mapping(
     BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -277,22 +337,28 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         BatchNormAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::GAMMA);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_beta_weights_mapping(
     BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::BETA);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_norm_get_operator_to_output_mapping(
     BatchNormAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    batch_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 std::map<TensorSlotName, InitializerAttrs>

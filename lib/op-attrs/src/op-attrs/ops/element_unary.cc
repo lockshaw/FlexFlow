@@ -40,35 +40,76 @@ ParallelTensorDimDegrees element_unary_get_output_parallel_dim_degrees(
   return input_degrees;
 }
 
+StandardOperatorTaskGroup element_unary_get_task_group(
+    ElementUnaryAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    element_unary_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+      }),
+  };
+}
+
+ShardSignatureInstance
+    element_unary_get_shard_signature_instance(
+          ElementUnaryAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    element_unary_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
+
 OperatorTaskSpace
     element_unary_get_operator_task_space(ElementUnaryAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees) {
-  ParallelTensorDimDegrees output_degrees =
-      element_unary_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
-      output_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_unary_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_unary_get_operator_to_input_mapping(
     ElementUnaryAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
 
-  return get_identity_biunique_mapping(
-    element_unary_get_operator_task_space(attrs, input_degrees),
-    input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_unary_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_unary_get_operator_to_output_mapping(
     ElementUnaryAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
 
-  ParallelTensorDimDegrees output_degrees =
-      element_unary_get_output_parallel_dim_degrees(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_unary_get_task_group(attrs, input_degrees);
 
-  return get_identity_biunique_mapping(
-    element_unary_get_operator_task_space(attrs, input_degrees),
-    output_degrees);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow

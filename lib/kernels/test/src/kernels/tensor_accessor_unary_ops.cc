@@ -10,6 +10,30 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
+  TEST_CASE("tensor_accessor_exp") {
+    Allocator cpu_allocator = create_local_cpu_memory_allocator();
+
+    GenericTensorAccessorR input = create_2d_accessor_r_with_contents<float>(
+        {
+            {3, 3, 6},
+            {0, -1, 0.75},
+        },
+        cpu_allocator);
+
+    GenericTensorAccessorW result =
+        tensor_accessor_exp(input, cpu_allocator);
+
+    GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
+        {
+            {std::expf(3), std::expf(3), std::expf(6)},
+            {std::expf(0), std::expf(-1), std::expf(0.75)},
+        },
+        cpu_allocator);
+
+    CHECK_MESSAGE(accessors_are_equal(result, correct),
+                  check_kv("result", format_accessor_w_contents(result)));
+  }
+
   TEST_CASE("tensor_accessor_scale_by_constant") {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 

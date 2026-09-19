@@ -123,4 +123,105 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_THROWS(softmax_get_output_parallel_shape(attrs, par_input));
     }
   }
+
+  TEST_CASE("softmax_get_shard_signature_instance") {
+    Allocator cpu_allocator = create_local_cpu_memory_allocator();
+
+    SoftmaxAttrs attrs = SoftmaxAttrs{
+      /*dim=*/ff_dim_t{1_n},
+    };
+
+    TensorShape input_shape = TensorShape{
+      TensorDims{
+        FFOrdered{
+          6_p,
+          4_p,
+          5_p,
+        },
+      },
+      DataType::FLOAT,
+    };
+
+    auto mk_dim_degrees = [&](int sum_degree,
+                              int discard_copy_degree,
+                              int dim0_shard_degree,
+                              int dim1_shard_degree,
+                              int dim2_shard_degree)
+      -> ParallelTensorDimDegrees
+    {
+      return ParallelTensorDimDegrees{
+        /*sum_degree=*/SumDegree{positive_int{sum_degree}},
+        /*discard_copy_degree=*/DiscardCopyDegree{positive_int{discard_copy_degree}},
+        /*shard_degrees=*/FFOrdered{
+          positive_int{dim0_shard_degree},
+          positive_int{dim1_shard_degree},
+          positive_int{dim2_shard_degree},
+        },
+      };
+    };
+
+    auto run_softmax = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &incoming_shards)
+      -> std::map<TensorSlotName, GenericTensorAccessorR>
+    {
+      GenericTensorAccessorR input_shard = incoming_shards.at(TensorSlotName::INPUT);
+      TensorShape output_shard_shape =
+        softmax_get_output_shape(attrs, get_tensor_shape_for_accessor_r(input_shard));
+      GenericTensorAccessorW output_shard = create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
+
+      softmax_cpu_forward_kernel(
+        /*attrs=*/attrs,
+        /*input=*/input_shard,
+        /*output=*/output_shard);
+
+      return std::map<TensorSlotName, GenericTensorAccessorR>{
+        {
+          TensorSlotName::OUTPUT,
+          read_only_accessor_from_write_accessor(output_shard),
+        },
+      };
+    };
+
+    auto softmax_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &input_degrees)
+      -> bool
+    {
+      ParallelTensorShape input_parallel_shape = lift_to_parallel_with_degrees(input_shape, input_degrees);
+
+      std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
+        {
+          TensorSlotName::INPUT,
+          input_parallel_shape,
+        },
+      };
+
+      return shard_signature_instance_is_valid(
+        /*attrs=*/ComputationGraphOpAttrs{attrs},
+        /*input_shapes=*/input_shapes,
+        /*run_op=*/run_softmax,
+        /*seed=*/0);
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 1, 2, 1, 1);
+
+      CHECK(softmax_shard_signature_instance_is_valid(input_dim_degrees));
+    }
+
+    SUBCASE("non-dim parallelism") {
+      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 1, 1, 1, 2);
+
+      CHECK(softmax_shard_signature_instance_is_valid(input_dim_degrees));
+    }
+
+    SUBCASE("discard copy parallelism") {
+      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 2, 1, 1, 1);
+
+      CHECK(softmax_shard_signature_instance_is_valid(input_dim_degrees));
+    }
+
+    SUBCASE("hybrid parallelism") {
+      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 2, 2, 1, 2);
+
+      CHECK(softmax_shard_signature_instance_is_valid(input_dim_degrees));
+    }
+  }
 }

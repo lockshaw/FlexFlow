@@ -20,6 +20,15 @@ ParallelTensorDimDegrees element_unary_get_output_parallel_dim_degrees(
     ElementUnaryAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees);
 
+StandardOperatorTaskGroup element_unary_get_task_group(
+    ElementUnaryAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    element_unary_get_shard_signature_instance(
+          ElementUnaryAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace
     element_unary_get_operator_task_space(ElementUnaryAttrs const &attrs,
                             ParallelTensorDimDegrees const &input_degrees);

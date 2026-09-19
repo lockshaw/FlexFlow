@@ -21,6 +21,10 @@ DimCoord<operator_task_space_dim_idx_t>
 TaskSpaceCoordinate
     task_space_coordinate_from_orthotope_coord(OrthotopeCoord const &);
 
+TaskSpaceCoordinate
+  task_coord_matching_parallel_tensor_space_coordinate(ParallelTensorSpaceCoordinate const &,
+                                                       ParallelTensorDimDegrees const &);
+
 bool task_space_coord_set_is_orthotopic(std::set<TaskSpaceCoordinate> const &);
 
 } // namespace FlexFlow

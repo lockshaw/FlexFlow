@@ -26,6 +26,15 @@ ParallelTensorDimDegrees
     pool2d_get_output_parallel_dim_degrees(Pool2DAttrs const &,
                                     ParallelTensorDimDegrees const &);
 
+StandardOperatorTaskGroup pool2d_get_task_group(
+    Pool2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    pool2d_get_shard_signature_instance(
+          Pool2DAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace pool2d_get_operator_task_space(
     Pool2DAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 

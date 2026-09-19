@@ -22,6 +22,17 @@ ParallelTensorDimDegrees element_binary_get_output_parallel_dim_degrees(
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees);
 
+StandardOperatorTaskGroup element_binary_get_task_group(
+    ElementBinaryAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs_input_degrees,
+    ParallelTensorDimDegrees const &rhs_input_degrees);
+
+ShardSignatureInstance
+    element_binary_get_shard_signature_instance(
+          ElementBinaryAttrs const &attrs,
+          ParallelTensorDimDegrees const &lhs_input_degrees,
+          ParallelTensorDimDegrees const &rhs_input_degrees);
+
 OperatorTaskSpace
     element_binary_get_operator_task_space(ElementBinaryAttrs const &attrs,
                             ParallelTensorDimDegrees const &lhs_input_degrees,

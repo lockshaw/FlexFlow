@@ -45,9 +45,6 @@ StandardOperatorTaskGroup transpose_get_task_group(
   ParallelTensorDimDegrees output_degrees = 
     transpose_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  std::set<parallel_tensor_dim_idx_t>
-    nontrivial_output_dims = get_nontrivial_parallel_tensor_dim_indices(output_degrees);
-
   return StandardOperatorTaskGroup{
     transform(
       get_parallel_tensor_space_coordinates(input_degrees),
@@ -56,13 +53,6 @@ StandardOperatorTaskGroup transpose_get_task_group(
       {
         ParallelTensorSpaceCoordinate output_coord = 
               permute_parallel_tensor_space_coordinate(attrs.permutation, input_coord);
-
-        OrthotopeCoord raw_output_coord =
-          orthotope_coord_from_dim_coord(
-            restrict_coord_to_dims(
-              dim_coord_from_parallel_tensor_space_coord(output_coord),
-              nontrivial_output_dims),
-            get_parallel_tensor_dim_ordering());
 
         return AbstractedOperatorAtomicTaskShardBinding{
           /*tensor_coords=*/{
@@ -75,7 +65,8 @@ StandardOperatorTaskGroup transpose_get_task_group(
               output_coord,
             },
           },
-          /*task_coord=*/task_space_coordinate_from_orthotope_coord(raw_output_coord),
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
         };
       }),
   };

@@ -92,6 +92,27 @@ OrthotopeBoundedCoord make_3d_orthotope_bounded_coord(
   };
 }
 
+OrthotopeBoundedCoord make_3d_orthotope_bounded_coord(
+    BoundedComponent const &c1,
+    BoundedComponent const &c2,
+    BoundedComponent const &c3,
+    BoundedComponent const &c4)
+{
+  return make_orthotope_bounded_coord_from_components(std::vector{
+    c1, c2, c3, c4,
+  });
+}
+
+OrthotopeBoundedCoord make_orthotope_bounded_coord_from_head_and_tail(
+    BoundedComponent const &head,
+    OrthotopeBoundedCoord const &tail) 
+{
+  std::vector<BoundedComponent> tail_components = components_of_orthotope_bounded_coord(tail);
+
+  return make_orthotope_bounded_coord_from_components(
+    concat_vectors(std::vector{head}, tail_components));
+}
+
 OrthotopeBoundedCoord make_orthotope_bounded_coord_from_components(
     std::vector<BoundedComponent> const &components)
 {
@@ -213,6 +234,90 @@ std::optional<BoundedComponent> flatten_orthotope_bounded_coord(OrthotopeBounded
     /*component=*/flattened_leading.component * last_component.bound + last_component.component,
     /*bound=*/flattened_leading.bound * last_component.bound,
   };
+}
+
+std::pair<BoundedComponent, BoundedComponent> orthotope_unflatten_bounded_component_2d(
+    BoundedComponent const &input,
+    positive_int output_tail_bound) 
+{
+  positive_int output_head_bound = positive_int{input.bound / output_tail_bound};
+  ASSERT(output_head_bound * output_tail_volume == input.bound);
+
+  nonnegative_int output_head_component = input.component / output_tail_bound;
+  nonnegative_int output_tail_component = input.component % output_tail_bound;
+
+  return std::pair{
+    BoundedComponent{
+      /*component=*/output_head_component,
+      /*bound=*/output_head_bound,
+    },
+    BoundedComponent{
+      /*component=*/output_tail_component,
+      /*bound=*/output_tail_bound,
+    },
+  };
+}
+
+std::pair<BoundedComponent, BoundedComponent> orthotope_opportunistically_unflatten_bounded_component_2d(
+    BoundedComponent const &input,
+    positive_int tail_domain_size) 
+{
+  std::multiset<int_ge_two> input_bound_factors = prime_factorization(input.bound);
+  std::multiset<int_ge_two> tail_domain_size_factors = prime_factorization(tail_domain_size);
+
+  std::multiset<int_ge_two> tail_degree_factors = multiset_intersection(tail_domain_size_factors);
+
+  auto as_positive_ints = [&](std::multiset<int_ge_two> const &xs) 
+    -> std::multiset<positive_int>
+  {
+    return transform(xs,
+                     [](int_ge_two x) -> positive_int {
+                       return x.positive_int_from_int_ge_two(); 
+                     });
+  };
+
+  positive_int tail_degree = product(as_positive_ints(tail_degree_factors));
+
+  return orthotope_unflatten_bounded_component_2d(input, tail_degree);
+}
+
+OrthotopeBoundedCoord orthotope_unflatten_bounded_component(
+    BoundedComponent const &input,
+    Orthotope const &output_tail_orthotope)
+{
+  auto get_tail_coord = [&](BoundedComponent const &tail_bounded_component) 
+    -> OrthotopeBoundedComponent
+  {
+    if (orthotope_get_num_dims(output_tail_orthotope) > 1_n) {
+      Orthotope tail_tail = orthotope_tail(output_tail_orthotope);
+
+       return orthotope_unflatten_bounded_component(
+        tail_bounded_component,
+        tail_tail);
+    } else {
+      return lift_bounded_component(tail_bounded_component);
+    }
+  }
+
+  std::positive_int<positive_int> tail_volume = orthotope_get_volume(output_tail_orthotope);
+  
+  std::pair<BoundedComponent, BoundedComponent> 
+    head_tail_bounded_components = orthotope_unflatten_bounded_component_2d(input, tail_volume);
+
+  BoundedComponent head_bounded_component = head_tail_bounded_components.first;
+  BoundedComponent tail_bounded_component = head_tail_bounded_components.second;
+
+  return make_orthotope_bounded_coord_from_head_and_tail(
+    head_bounded_component,
+    tail_bounded_component);
+}
+
+OrthotopeCoordinate project_coordinate_to_orthotope(OrthotopeBoundedCoordinate const &input_coord,
+                                                    Orthotope const &output)
+{
+  nonnegative_int flattened_coord = flatten_orthotope_bounded_coord(input_coord);
+
+  return unflatten_orthotope_coord(flattened_coord, output);
 }
 
 } // namespace FlexFlow

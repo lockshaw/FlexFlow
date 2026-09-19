@@ -1,22 +1,16 @@
 #ifndef _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_SPLIT_KERNELS_CPU_H
 #define _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_SPLIT_KERNELS_CPU_H
 
-namespace FlexFlow::Kernels::Split {
+namespace FlexFlow {
 
-void cpu_forward_kernel(float **out_ptrs,
-                        float const *in_ptr,
-                        int const *out_blk_sizes,
-                        int in_blk_size,
-                        int num_blks,
-                        int numOutputs);
+void split_cpu_forward_kernel(SplitAttrs const &attrs,
+                              GenericTensorAccessorR const &,
+                              std::vector<GenericTensorAccessorW> const &outputs);
 
-void cpu_backward_kernel(float *in_grad_ptr,
-                         float const **out_grad_ptr,
-                         int const *out_blk_sizes,
-                         int in_blk_size,
-                         int num_blks,
-                         int numOutputs);
+void split_cpu_backward_kernel(SplitAttrs const &attrs,
+                               std::vector<GenericTensorAccessorR> const &output_grads,
+                               GenericTensorAccessorW const &input_grad);
 
-} // namespace FlexFlow::Kernels::Split
+} // namespace FlexFlow
 
 #endif

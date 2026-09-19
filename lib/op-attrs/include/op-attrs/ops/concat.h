@@ -11,6 +11,8 @@
 
 namespace FlexFlow {
 
+std::vector<TensorSlotName> concat_get_input_slot_names(ConcatAttrs const &);
+
 TensorShape concat_get_output_shape(ConcatAttrs const &,
                                     std::vector<TensorShape> const &);
 
@@ -21,6 +23,15 @@ ParallelTensorDimDegrees
 ParallelTensorShape
     concat_get_output_parallel_shape(ConcatAttrs const &,
                                      std::vector<ParallelTensorShape> const &);
+
+StandardOperatorTaskGroup concat_get_task_group(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &inputs_degrees);
+
+ShardSignatureInstance
+    concat_get_shard_signature_instance(
+          ConcatAttrs const &attrs,
+          std::vector<ParallelTensorDimDegrees> const &inputs_degrees);
 
 OperatorTaskSpace concat_get_operator_task_space(
     ConcatAttrs const &attrs,

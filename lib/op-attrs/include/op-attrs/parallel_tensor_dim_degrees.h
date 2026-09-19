@@ -69,6 +69,14 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
     minimal_dim_domain_from_parallel_tensor_dim_degrees(
         ParallelTensorDimDegrees const &);
 
+ParallelTensorDimDegrees 
+    parallel_tensor_dim_degrees_restrict_dims(ParallelTensorDimDegrees const &,
+                                                 std::set<ff_dim_t> const &);
+
+ParallelTensorDimDegrees 
+    parallel_tensor_dim_degrees_without_dims(ParallelTensorDimDegrees const &,
+                                                std::set<ff_dim_t> const &);
+
 } // namespace FlexFlow
 
 #endif

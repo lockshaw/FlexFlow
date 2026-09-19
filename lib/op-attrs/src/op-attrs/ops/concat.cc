@@ -14,6 +14,10 @@
 
 namespace FlexFlow {
 
+std::vector<TensorSlotName> concat_get_input_slot_names(ConcatAttrs const &attrs) {
+  return slice(get_variadic_inputs_slot_name_sequence(), 0, attrs.num_inputs.int_from_int_ge_two());
+}
+
 TensorShape concat_get_output_shape(ConcatAttrs const &attrs,
                                     std::vector<TensorShape> const &inputs) {
   ASSERT(attrs.num_inputs == inputs.size());
@@ -58,12 +62,6 @@ ParallelTensorDimDegrees
     concat_get_output_parallel_dim_degrees(ConcatAttrs const &,
                                            std::vector<ParallelTensorDimDegrees> const &)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
-}
-
-ParallelTensorShape concat_get_output_parallel_shape(
-    ConcatAttrs const &attrs, std::vector<ParallelTensorShape> const &inputs) {
   TensorShape unpar =
       concat_get_output_shape(attrs, transform(inputs, get_reduced_shape));
 
@@ -89,34 +87,102 @@ ParallelTensorShape concat_get_output_parallel_shape(
       require_all_same1(transform(inputs, [](ParallelTensorShape const &s) {
         return get_parallel_degrees(s);
       }));
+}
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+ParallelTensorShape concat_get_output_parallel_shape(
+    ConcatAttrs const &attrs, std::vector<ParallelTensorShape> const &input_shapes) {
+
+  TensorShape output_shape =
+      concat_get_output_shape(attrs, transform(input_shapes, get_reduced_shape));
+
+  ParallelTensorDimDegrees output_degrees =
+      concat_get_output_parallel_dim_degrees(attrs, transform(input_shapes, get_parallel_degrees));
+
+  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+}
+
+StandardOperatorTaskGroup concat_get_task_group(
+    TransposeAttrs const &attrs,
+    ParallelTensorDimDegrees const &inputs_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    concat_get_output_parallel_dim_degrees(attrs, inputs_degrees);
+
+  std::vector<TensorSlotName> input_slot_names = concat_get_input_slot_names(attrs);
+
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/binary_merge_disjoint_map(
+            generate_map(
+              input_slot_names,
+              [&](TensorSlotName) -> ParallelTensorSpaceCoordinate {
+                return input_coord;
+              }),
+            {
+              TensorSlotName::OUTPUT,
+              output_coord,
+            }),
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
+        };
+      }),
+  };
+}
+
+ShardSignatureInstance
+    concat_get_shard_signature_instance(
+          ConcatAttrs const &attrs,
+          std::vector<ParallelTensorDimDegrees> const &inputs_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    concat_get_task_group(attrs, inputs_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
 }
 
 OperatorTaskSpace concat_get_operator_task_space(
     ConcatAttrs const &attrs,
-    std::vector<ParallelTensorDimDegrees> const &)
+    std::vector<ParallelTensorDimDegrees> const &inputs_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    concat_get_task_group(attrs, inputs_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
   concat_get_operator_to_input_mappings(
     ConcatAttrs const &attrs,
-    std::vector<ParallelTensorDimDegrees> const &)
+    std::vector<ParallelTensorDimDegrees> const &inputs_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    concat_get_task_group(attrs, inputs_degrees);
+
+  std::vector<TensorSlotName> input_slot_names = concat_get_input_slot_names(attrs);
+
+  return transform(input_slot_names,
+                   [&](TensorSlotName slot_name) -> OperatorSpaceToParallelTensorSpaceBiuniqueMapping {
+                     return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, slot_name);
+                   });
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   concat_get_operator_to_output_mapping(
     ConcatAttrs const &attrs,
-    std::vector<ParallelTensorDimDegrees> const &)
+    std::vector<ParallelTensorDimDegrees> const &inputs_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    concat_get_task_group(attrs, inputs_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 

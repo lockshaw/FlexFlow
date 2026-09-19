@@ -154,4 +154,122 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_THROWS(element_binary_get_output_parallel_shape(attrs, input_lhs, input_rhs));
     }
   }
+
+  TEST_CASE("element_binary_get_shard_signature_instance") {
+    Allocator cpu_allocator = create_local_cpu_memory_allocator();
+
+    auto mk_degrees = [](int sum_degree,
+                         int discard_copy_degree,
+                         int batch_dim_degree,
+                         int d1_degree,
+                         int d2_degree) -> ParallelTensorDimDegrees {
+      return ParallelTensorDimDegrees{
+          /*sum_degree=*/SumDegree{positive_int{sum_degree}},
+          /*discard_copy_degree=*/DiscardCopyDegree{positive_int{discard_copy_degree}},
+          /*shard_degrees=*/
+          FFOrdered<positive_int>{
+              positive_int{batch_dim_degree},
+              positive_int{d1_degree},
+              positive_int{d2_degree},
+          },
+      };
+    };
+
+    TensorShape lhs_shard_shape = TensorShape{
+      /*dims=*/TensorDims{
+        FFOrdered<positive_int>{
+          4_p,
+          2_p,
+          3_p,
+        },
+      },
+      /*data_type=*/DataType::FLOAT,
+    };
+
+    TensorShape rhs_shard_shape = lhs_shard_shape;
+
+    ElementBinaryAttrs attrs = ElementBinaryAttrs{
+      /*type=*/OperatorType::EW_ADD,
+      /*compute_type=*/DataType::FLOAT,
+      /*should_broadcast_lhs=*/false,
+      /*should_broadcast_rhs=*/false,
+    };
+
+    auto run_element_binary = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards) 
+      -> std::map<TensorSlotName, GenericTensorAccessorR>
+    {
+      GenericTensorAccessorR lhs_input_shard = input_shards.at(TensorSlotName::LHS_INPUT);
+      GenericTensorAccessorR rhs_input_shard = input_shards.at(TensorSlotName::RHS_INPUT);
+      TensorShape output_shard_shape = 
+        element_binary_get_output_shape(attrs,
+                                      lhs_input_shard.shape,
+                                      rhs_input_shard.shape);
+      GenericTensorAccessorW output_shard = create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
+
+      element_binary_cpu_forward_kernel(
+        /*input_lhs=*/lhs_input_shard,
+        /*input_rhs=*/rhs_input_shard,
+        /*output=*/output_shard);
+
+      return std::map<TensorSlotName, GenericTensorAccessorR>{
+        {
+          TensorSlotName::OUTPUT,
+          read_only_accessor_from_write_accessor(output_shard),
+        },
+      };
+    };
+
+    auto element_binary_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &lhs_degrees,
+                                                     ParallelTensorDimDegrees const &rhs_degrees) 
+      -> bool
+    {
+      ParallelTensorShape lhs_shape = lift_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
+      ParallelTensorShape rhs_shape = lift_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
+
+      std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
+        {
+          TensorSlotName::LHS_INPUT,
+          lhs_shape,
+        },
+        {
+          TensorSlotName::RHS_INPUT,
+          rhs_shape,
+        },
+      };
+
+      return shard_signature_instance_is_valid(
+        /*attrs=*/ComputationGraphOpAttrs{BatchMatmulAttrs{}},
+        /*input_shapes=*/input_shapes,
+        /*run_op=*/run_element_binary,
+        /*seed=*/0);
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees lhs_degrees = mk_degrees(1, 1, 2, 1, 1);
+      ParallelTensorDimDegrees rhs_degrees = mk_degrees(1, 1, 2, 1, 1);
+
+      CHECK(element_binary_shard_signature_instance_is_valid(lhs_degrees, rhs_degrees));
+    }
+
+    SUBCASE("inner dimension 1 parallelism") {
+      ParallelTensorDimDegrees lhs_degrees = mk_degrees(1, 1, 1, 2, 1);
+      ParallelTensorDimDegrees rhs_degrees = mk_degrees(1, 1, 1, 2, 1);
+
+      CHECK(element_binary_shard_signature_instance_is_valid(lhs_degrees, rhs_degrees));
+    }
+
+    SUBCASE("inner dimension 2 parallelism") {
+      ParallelTensorDimDegrees lhs_degrees = mk_degrees(1, 1, 1, 1, 2);
+      ParallelTensorDimDegrees rhs_degrees = mk_degrees(1, 1, 1, 1, 2);
+
+      CHECK(element_binary_shard_signature_instance_is_valid(lhs_degrees, rhs_degrees));
+    }
+
+    SUBCASE("parallelism in all shard dims") {
+      ParallelTensorDimDegrees lhs_degrees = mk_degrees(1, 1, 2, 2, 2);
+      ParallelTensorDimDegrees rhs_degrees = mk_degrees(1, 1, 2, 2, 2);
+
+      CHECK(element_binary_shard_signature_instance_is_valid(lhs_degrees, rhs_degrees));
+    }
+  }
 }

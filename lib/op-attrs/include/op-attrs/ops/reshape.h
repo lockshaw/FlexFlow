@@ -21,6 +21,15 @@ ParallelTensorShape
     reshape_get_output_parallel_shape(ReshapeAttrs const &attrs,
                                       ParallelTensorShape const &input_shape);
 
+StandardOperatorTaskGroup reshape_get_task_group(
+    ReshapeAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    reshape_get_shard_signature_instance(
+          ReshapeAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace reshape_get_operator_task_space(
     ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 

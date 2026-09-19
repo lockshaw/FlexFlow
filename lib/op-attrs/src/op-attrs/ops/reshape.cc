@@ -38,25 +38,79 @@ ParallelTensorShape
   return lift_to_parallel_with_degrees(unpar, degrees);
 }
 
+StandardOperatorTaskGroup reshape_get_task_group(
+    ReshapeAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees = 
+    reshape_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        // TODO(@lockshaw)(#pr):
+        NOT_IMPLEMENTED();
+
+        ParallelTensorSpaceCoordinate output_coord = 
+              permute_parallel_tensor_space_coordinate(attrs.permutation, input_coord);
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord,
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
+        };
+      }),
+  };
+}
+
+ShardSignatureInstance
+    reshape_get_shard_signature_instance(
+          ReshapeAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    reshape_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
+
 OperatorTaskSpace reshape_get_operator_task_space(
     ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    reshape_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping reshape_get_operator_to_input_mapping(
     ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    reshape_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorShape::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping reshape_get_operator_to_output_mapping(
     ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    reshape_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorShape::OUTPUT);
 }
 
 } // namespace FlexFlow

@@ -21,6 +21,15 @@ ParallelTensorShape
     softmax_get_output_parallel_shape(SoftmaxAttrs const &attrs,
                      ParallelTensorShape const &input_shape);
 
+StandardOperatorTaskGroup softmax_get_task_group(
+    SoftmaxAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    softmax_get_shard_signature_instance(
+          SoftmaxAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace softmax_get_operator_task_space(
     SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 

@@ -20,7 +20,16 @@ std::vector<ParallelTensorDimDegrees>
 
 std::vector<ParallelTensorShape>
     split_get_output_parallel_shapes(SplitAttrs const &attrs,
-                      ParallelTensorShape const &input_shape);
+                                     ParallelTensorShape const &input_shape);
+
+StandardOperatorTaskGroup split_get_task_group(
+    SplitAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    split_get_shard_signature_instance(
+          TransposeAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace split_get_operator_task_space(
     SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

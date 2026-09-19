@@ -80,16 +80,74 @@ ParallelTensorDimDegrees element_binary_get_output_parallel_dim_degrees(
   }
 }
 
+StandardOperatorTaskGroup element_binary_get_task_group(
+    ElementBinaryAttrs const &attrs,
+    ParallelTensorDimDegrees const &lhs_input_degrees,
+    ParallelTensorDimDegrees const &rhs_input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    element_binary_get_output_parallel_dim_degrees(attrs, lhs_input_degrees, rhs_input_degrees);
+
+  return StandardOperatorTaskGroup{
+    filtrans(
+      binary_cartesian_product(
+        get_parallel_tensor_space_coordinates(lhs_input_degrees),
+        get_parallel_tensor_space_coordinates(rhs_input_degrees)),
+      [&](std::pair<ParallelTensorSpaceCoordinate, ParallelTensorSpaceCoordinate> const &coords)
+        -> std::optional<AbstractedOperatorAtomicTaskShardBinding>
+      {
+        ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
+        ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
+
+        if (lhs_input_coord != rhs_input_coord) {
+          retrun std::nullopt;
+        }
+
+        ParallelTensorSpaceCoordinate output_coord = require_same(lhs_input_coord, rhs_input_coord);
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::LHS_INPUT,
+              lhs_input_coord,
+            },
+            {
+              TensorSlotName::RHS_INPUT,
+              rhs_input_coord,
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord,
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                              output_degrees),
+        };
+      }),
+  };
+}
+
+ShardSignatureInstance
+    element_binary_get_shard_signature_instance(
+          ElementBinaryAttrs const &attrs,
+          ParallelTensorDimDegrees const &lhs_input_degrees,
+          ParallelTensorDimDegrees const &rhs_input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    element_binary_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
+
 OperatorTaskSpace
     element_binary_get_operator_task_space(ElementBinaryAttrs const &attrs,
                             ParallelTensorDimDegrees const &lhs_input_degrees,
                             ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  ParallelTensorDimDegrees output_degrees = element_binary_get_output_parallel_dim_degrees(
-      attrs, lhs_input_degrees, rhs_input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_binary_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
-  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
-      output_degrees);
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_lhs_input_mapping(
@@ -97,9 +155,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_biunique_mapping(
-      element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
-      lhs_input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_binary_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::LHS_INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_rhs_input_mapping(
@@ -107,9 +166,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  return get_identity_biunique_mapping(
-      element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
-      rhs_input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_binary_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::RHS_INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to_output_mapping(
@@ -117,12 +177,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping element_binary_get_operator_to
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  ParallelTensorDimDegrees output_dim_degrees = element_binary_get_output_parallel_dim_degrees(
-      attrs, lhs_input_degrees, rhs_input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    element_binary_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
-  return get_identity_biunique_mapping(
-      element_binary_get_operator_task_space(attrs, lhs_input_degrees, rhs_input_degrees),
-      output_dim_degrees);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow

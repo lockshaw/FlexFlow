@@ -232,4 +232,26 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
       dim_domain_from_parallel_tensor_dim_degrees(dim_degrees));
 }
 
+ParallelTensorDimDegrees 
+    parallel_tensor_dim_degrees_restrict_dims(ParallelTensorDimDegrees const &degrees,
+                                                 std::set<ff_dim_t> const &dim_set)
+{
+  return ParallelTensorDimDegrees{
+    /*sum_degree=*/degrees.sum_degree,
+    /*discard_copy_degree=*/degrees.discard_copy_degree,
+    /*shard_degrees=*/ff_ordered_restrict_dims(degrees.shard_degrees, dim_set),
+  };
+}
+
+ParallelTensorDimDegrees 
+    parallel_tensor_dim_degrees_without_dims(ParallelTensorDimDegrees const &degrees,
+                                             std::set<ff_dim_t> const &dim_set)
+{
+  return ParallelTensorDimDegrees{
+    /*sum_degree=*/degrees.sum_degree,
+    /*discard_copy_degree=*/degrees.discard_copy_degree,
+    /*shard_degrees=*/ff_ordered_without_dims(degrees.shard_degrees, dim_set),
+  };
+}
+
 } // namespace FlexFlow

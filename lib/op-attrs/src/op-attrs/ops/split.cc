@@ -55,26 +55,85 @@ std::vector<ParallelTensorShape>
       });
 }
 
+static std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &attrs) {
+  return slice(get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size());
+}
+
+StandardOperatorTaskGroup split_get_task_group(
+    SplitAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  ParallelTensorDimDegrees output_degrees =
+    require_all_same(split_get_output_parallel_shapes(attrs, input_degrees));
+
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        std::map<TensorSlotName, ParallelTensorSpaceCoordinate>
+          output_coords = generate_map(
+            split_get_output_slot_names(attrs),
+            [&](TensorSlotName) -> ParallelTensorSpaceCoordinate {
+              return input_coord;
+            });
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_coords=*/binary_merge_disjoint_maps(
+              {
+                TensorSlotName::INPUT,
+                input_coord,
+              },
+              output_coords),
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(input_coord,
+                                                                              output_degrees),
+        };
+      }),
+  };
+}
+
+ShardSignatureInstance
+    split_get_shard_signature_instance(
+          TransposeAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    split_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
+
 OperatorTaskSpace split_get_operator_task_space(
     SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    split_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping split_get_operator_to_input_mapping(
     SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    split_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_ptensor_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
   split_get_operator_to_output_mappings(
     SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+    split_get_task_group(attrs, input_degrees);
+
+  return transform(
+    slice(get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size()),
+    [&](TensorSlotName slot_name) -> OperatorSpaceToParallelTensorSpaceBiuniqueMapping {
+      return standard_operator_task_group_get_ptensor_to_ptensor_mapping(op_task_group, slot_name);
+    });
 }
 
 } // namespace FlexFlow

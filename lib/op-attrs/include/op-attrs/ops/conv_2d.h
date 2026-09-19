@@ -9,11 +9,15 @@
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/shard_signature_instance.h"
 
 namespace FlexFlow {
 
 std::map<TensorSlotName, IncomingTensorRole>
     get_conv2d_incoming_tensor_roles(Conv2DAttrs const &);
+
+std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &);
 
 TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
                                     TensorShape const &input);
@@ -54,26 +58,35 @@ std::map<TensorSlotName, ParallelTensorShape>
     conv2d_get_weight_parallel_shapes(Conv2DAttrs const &attrs,
                                       ParallelTensorShape const &input_shape);
 
+StandardOperatorTaskGroup conv2d_get_task_group(
+    Conv2DAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    conv2d_get_shard_signature_instance(
+          Conv2DAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
+
 OperatorTaskSpace conv2d_get_operator_task_space(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_input_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_kernel_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_bias_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping 
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
   conv2d_get_operator_to_output_mapping(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input);
