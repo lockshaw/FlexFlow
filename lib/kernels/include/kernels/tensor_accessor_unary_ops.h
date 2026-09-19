@@ -7,6 +7,14 @@
 
 namespace FlexFlow {
 
+GenericTensorAccessorW tensor_accessor_exp(GenericTensorAccessorR const &input,
+                                           Allocator &output_allocator);
+
+void tensor_accessor_exp_to(GenericTensorAccessorR const &input,
+                            GenericTensorAccessorW const &output);
+
+void tensor_accessor_exp_inplace(GenericTensorAccessorW const &input);
+
 GenericTensorAccessorW
     tensor_accessor_scale_by_constant(GenericTensorAccessorR const &input,
                                       float constant,

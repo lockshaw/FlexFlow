@@ -2,6 +2,9 @@
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/operator_task_space_dim_idx_t.h"
 #include "op-attrs/ops/embedding.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "utils/containers/map_keys.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_from_idx_map.h"
@@ -55,6 +58,19 @@ DimCoord<operator_task_space_dim_idx_t>
 TaskSpaceCoordinate task_space_coordinate_from_orthotope_coord(
     OrthotopeCoord const &orthotope_coord) {
   return TaskSpaceCoordinate{orthotope_coord};
+}
+
+TaskSpaceCoordinate task_coord_matching_parallel_tensor_space_coordinate(
+    ParallelTensorSpaceCoordinate const &output_coord,
+    ParallelTensorDimDegrees const &output_degrees) {
+  std::set<parallel_tensor_dim_idx_t> nontrivial_output_dims =
+      get_nontrivial_parallel_tensor_dim_indices(output_degrees);
+
+  return orthotope_coord_from_dim_coord(
+      restrict_coord_to_dims(
+          dim_coord_from_parallel_tensor_space_coord(output_coord),
+          nontrivial_output_dims),
+      get_parallel_tensor_dim_ordering());
 }
 
 bool task_space_coord_set_is_orthotopic(
