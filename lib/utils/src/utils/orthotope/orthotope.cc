@@ -21,6 +21,11 @@
 #include "utils/containers/require_all_same1.h"
 #include "utils/fmt/set.h"
 #include "utils/containers/tail.h"
+#include "utils/int_ge_two/int_ge_two.h"
+#include "utils/containers/require_same.h"
+#include "utils/containers/prime_factorization.h"
+#include "utils/containers/multiset_intersection.h"
+#include "utils/containers/multiset_minus.h"
 
 namespace FlexFlow {
 
@@ -204,7 +209,8 @@ bool is_orthotope_divisor_of(Orthotope const &dividend,
   return all_of(  
     nonnegative_range(num_dims),
     [&](nonnegative_int dim_idx) -> bool {
-      return dividend.dims.at(dim_idx) % divisor.dims.at(dim_idx) == 0;
+      int d = dim_idx.int_from_nonnegative_int();
+      return dividend.dims.at(d) % divisor.dims.at(d) == 0;
     });
 }
 
@@ -228,7 +234,7 @@ Orthotope orthotope_find_lexicographically_first_divisor_of_volume(
   for (std::multiset<int_ge_two> const &dividend_dim_factorization : dividend_dim_factorizations) {
     std::multiset<int_ge_two> divisor_dim_factorization = multiset_intersection(
       remaining_divisor_volume_factors,
-      dividend_dim_factorizations);
+      dividend_dim_factorization);
 
     remaining_divisor_volume_factors = 
       multiset_minus(remaining_divisor_volume_factors, divisor_dim_factorization);

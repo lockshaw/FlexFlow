@@ -70,8 +70,8 @@ OrthotopeBoundedCoord orthotope_opportunistically_unflatten_bounded_component_fo
     BoundedComponent const &component,
     Orthotope const &ground_domain);
 
-OrthotopeCoordinate project_coordinate_to_orthotope(OrthotopeCoordinate const &input_coord,
-                                                    Orthotope const &output);
+OrthotopeCoord project_bounded_coordinate_to_orthotope(OrthotopeBoundedCoord const &input_coord,
+                                                       Orthotope const &output);
 
 } // namespace FlexFlow
 

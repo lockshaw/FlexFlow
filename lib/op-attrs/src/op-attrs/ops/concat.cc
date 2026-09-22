@@ -11,6 +11,12 @@
 #include "utils/containers/transform.h"
 #include "utils/fmt/map.h"
 #include "utils/not_implemented.h"
+#include "op-attrs/tensor_slot_name.h"
+#include "utils/containers/slice.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "utils/containers/generate_map.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -59,34 +65,34 @@ TensorShape concat_get_output_shape(ConcatAttrs const &attrs,
 }
 
 ParallelTensorDimDegrees
-    concat_get_output_parallel_dim_degrees(ConcatAttrs const &,
-                                           std::vector<ParallelTensorDimDegrees> const &)
+    concat_get_output_parallel_dim_degrees(ConcatAttrs const &attrs,
+                                           std::vector<ParallelTensorDimDegrees> const &inputs)
 {
-  TensorShape unpar =
-      concat_get_output_shape(attrs, transform(inputs, get_reduced_shape));
-
   SumDegree sum_degree = SumDegree{
-      require_all_same1(transform(inputs, get_sum_degree)),
+      require_all_same1(
+        transform(inputs, 
+                  [&](ParallelTensorDimDegrees const &d) -> SumDegree {
+                    return d.sum_degree; 
+                  })),
   };
 
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      require_all_same1(transform(inputs, get_discard_copy_degree)),
+      require_all_same1(
+        transform(inputs, 
+                  [&](ParallelTensorDimDegrees const &d) -> DiscardCopyDegree {
+                    return d.discard_copy_degree;
+                  })),
   };
 
   ASSERT(all_of(inputs,
-                [&](ParallelTensorShape const &s) {
-                  return shard_dim_at_idx(
-                             s, relative_ff_dim_t_from_ff_dim_t(attrs.axis))
-                             .degree == 1;
+                [&](ParallelTensorDimDegrees const &d) -> bool {
+                  return d.shard_degrees.at(attrs.axis) == 1;
                 }),
          "get_output_shape for Concat expected input tensors to have parallel "
          "degree 1 in the concat axis dimension",
          inputs);
 
-  ParallelTensorDimDegrees degrees =
-      require_all_same1(transform(inputs, [](ParallelTensorShape const &s) {
-        return get_parallel_degrees(s);
-      }));
+  return require_all_same1(inputs);
 }
 
 ParallelTensorShape concat_get_output_parallel_shape(
@@ -102,13 +108,15 @@ ParallelTensorShape concat_get_output_parallel_shape(
 }
 
 StandardOperatorTaskGroup concat_get_task_group(
-    TransposeAttrs const &attrs,
-    ParallelTensorDimDegrees const &inputs_degrees)
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &inputs_degrees)
 {
   ParallelTensorDimDegrees output_degrees =
     concat_get_output_parallel_dim_degrees(attrs, inputs_degrees);
 
   std::vector<TensorSlotName> input_slot_names = concat_get_input_slot_names(attrs);
+
+  ParallelTensorDimDegrees input_degrees = require_all_same1(inputs_degrees);
 
   return StandardOperatorTaskGroup{
     transform(
@@ -119,19 +127,20 @@ StandardOperatorTaskGroup concat_get_task_group(
         ParallelTensorSpaceCoordinate output_coord = input_coord;
 
         return AbstractedOperatorAtomicTaskShardBinding{
-          /*tensor_coords=*/binary_merge_disjoint_map(
+          /*tensor_coords=*/binary_merge_disjoint_maps(
             generate_map(
               input_slot_names,
               [&](TensorSlotName) -> ParallelTensorSpaceCoordinate {
                 return input_coord;
               }),
-            {
-              TensorSlotName::OUTPUT,
-              output_coord,
-            }),
-          },
-          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
-                                                                              output_degrees),
+              std::map<TensorSlotName, ParallelTensorSpaceCoordinate>{
+                {
+                  TensorSlotName::OUTPUT,
+                  output_coord,
+                },
+              }),
+            /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
+                                                                                output_degrees),
         };
       }),
   };

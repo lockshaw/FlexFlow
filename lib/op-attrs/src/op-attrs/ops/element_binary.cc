@@ -100,7 +100,7 @@ StandardOperatorTaskGroup element_binary_get_task_group(
         ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
 
         if (lhs_input_coord != rhs_input_coord) {
-          retrun std::nullopt;
+          return std::nullopt;
         }
 
         ParallelTensorSpaceCoordinate output_coord = require_same(lhs_input_coord, rhs_input_coord);

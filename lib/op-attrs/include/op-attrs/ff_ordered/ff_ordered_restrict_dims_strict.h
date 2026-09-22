@@ -4,6 +4,7 @@
 #include "op-attrs/ff_ordered/ff_ordered_restrict_dims.h"
 #include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
 #include "utils/containers/is_subseteq_of.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

@@ -1,4 +1,5 @@
 #include "op-attrs/ff_ordered/ff_ordered_restrict_dims.h"
+#include "utils/archetypes/value_type.h"
 
 namespace FlexFlow {
 

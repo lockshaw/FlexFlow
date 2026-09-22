@@ -4,6 +4,7 @@
 #include "op-attrs/operator_task_space_dim_idx_t.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "utils/orthotope/dim_coord.dtg.h"
+#include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 
 namespace FlexFlow {
 

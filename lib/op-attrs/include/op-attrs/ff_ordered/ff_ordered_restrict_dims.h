@@ -4,6 +4,7 @@
 #include "op-attrs/ff_ordered/ff_ordered.h"
 #include <set>
 #include "utils/containers/contains.h"
+#include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
 
 namespace FlexFlow {
 
@@ -19,7 +20,7 @@ FFOrdered<T> ff_ordered_restrict_dims(FFOrdered<T> const &input,
     }
   }
 
-  return result;
+  return FFOrdered<T>{result};
 }
 
 } // namespace FlexFlow
