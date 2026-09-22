@@ -1,10 +1,17 @@
 #include "op-attrs/ops/conv_2d.h"
 #include "op-attrs/initializers/kaiming_initializer_mode.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
+#include "utils/containers/require_same.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
 #include "utils/not_implemented.h"
+#include "utils/optional.h"
+#include "utils/orthotope/bounded_component.h"
+#include "utils/orthotope/orthotope_bounded_coord.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -23,7 +30,7 @@ std::map<TensorSlotName, IncomingTensorRole>
   return result;
 }
 
-std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &) {
+std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &attrs) {
   std::set<TensorSlotName> result = {
       TensorSlotName::INPUT,
       TensorSlotName::FILTER,
@@ -337,7 +344,7 @@ StandardOperatorTaskGroup
                 shard_dim_idx(ff_dim_t{3_n});
 
             BoundedComponent data_parallelism_component =
-                orthotope_bounded_coord_for_ptensor_dims(
+                bounded_component_for_ptensor_dim(
                     input_degrees, input_coord, input_batch_dim);
 
             BoundedComponent output_channel_parallelism_component =
@@ -377,7 +384,7 @@ StandardOperatorTaskGroup
                 );
 
         return AbstractedOperatorAtomicTaskShardBinding{
-          /*tensor_corods=*/{
+          /*tensor_coords=*/std::map<TensorSlotName, ParallelTensorSpaceCoordinate>{
             {
               TensorSlotName::INPUT,
               input_coord,
@@ -393,7 +400,7 @@ StandardOperatorTaskGroup
                     input_height_parallelism_component,
                     input_width_parallelism_component))),
                 /*shard_coords=*/make_4d_orthotope_bounded_coord(
-                  output_channel_parallelism,
+                  output_channel_parallelism_component,
                   input_channel_parallelism_component,
                   trivial_bounded_component(),
                   trivial_bounded_component(),

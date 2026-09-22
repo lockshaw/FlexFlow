@@ -5,8 +5,12 @@
 #include "utils/containers/contains.h"
 #include "utils/containers/filter_idxs.h"
 #include "utils/containers/maximum.h"
+#include "utils/containers/multiset_intersection.h"
+#include "utils/containers/multiset_minus.h"
+#include "utils/containers/prime_factorization.h"
 #include "utils/containers/product.h"
 #include "utils/containers/require_all_same1.h"
+#include "utils/containers/require_same.h"
 #include "utils/containers/scanr.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/slice.h"
@@ -17,6 +21,7 @@
 #include "utils/containers/zip_strict.h"
 #include "utils/containers/zip_with_strict.h"
 #include "utils/fmt/set.h"
+#include "utils/int_ge_two/int_ge_two.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/nonnegative_int/range.h"
@@ -193,10 +198,11 @@ bool is_orthotope_divisor_of(Orthotope const &dividend,
 
   nonnegative_int num_dims = require_same(dividend_num_dims, divisor_num_dims);
 
-  return all_of(
-      nonnegative_range(num_dims), [&](nonnegative_int dim_idx) -> bool {
-        return dividend.dims.at(dim_idx) % divisor.dims.at(dim_idx) == 0;
-      });
+  return all_of(nonnegative_range(num_dims),
+                [&](nonnegative_int dim_idx) -> bool {
+                  int d = dim_idx.int_from_nonnegative_int();
+                  return dividend.dims.at(d) % divisor.dims.at(d) == 0;
+                });
 }
 
 Orthotope orthotope_find_lexicographically_first_divisor_of_volume(
@@ -218,7 +224,7 @@ Orthotope orthotope_find_lexicographically_first_divisor_of_volume(
   for (std::multiset<int_ge_two> const &dividend_dim_factorization :
        dividend_dim_factorizations) {
     std::multiset<int_ge_two> divisor_dim_factorization = multiset_intersection(
-        remaining_divisor_volume_factors, dividend_dim_factorizations);
+        remaining_divisor_volume_factors, dividend_dim_factorization);
 
     remaining_divisor_volume_factors = multiset_minus(
         remaining_divisor_volume_factors, divisor_dim_factorization);

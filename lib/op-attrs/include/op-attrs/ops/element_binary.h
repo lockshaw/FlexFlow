@@ -7,6 +7,7 @@
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/element_binary_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
