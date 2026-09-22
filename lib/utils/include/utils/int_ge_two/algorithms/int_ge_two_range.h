@@ -6,7 +6,7 @@
 
 namespace FlexFlow {
 
-std::set<int_ge_two> int_ge_two_range(int_ge_two);
+std::vector<int_ge_two> int_ge_two_range(int_ge_two);
 
 } // namespace FlexFlow
 

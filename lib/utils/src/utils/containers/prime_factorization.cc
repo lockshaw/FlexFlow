@@ -1,4 +1,5 @@
 #include "utils/containers/prime_factorization.h"
+#include "utils/int_ge_two/algorithms/int_ge_two_range.h"
 
 namespace FlexFlow {
 
@@ -16,8 +17,8 @@ std::multiset<int_ge_two> prime_factorization(int_ge_two x) {
 
   for (int_ge_two candidate : int_ge_two_range(x)) {
     while (remaining % candidate == 0) {
-      remaining /= candidate;
-      factors.insert(candidate)
+      remaining = positive_int{remaining / candidate};
+      factors.insert(candidate);
     }
   }
 

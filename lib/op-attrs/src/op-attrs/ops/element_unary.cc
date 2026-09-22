@@ -5,6 +5,7 @@
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 
 namespace FlexFlow {

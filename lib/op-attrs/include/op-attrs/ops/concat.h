@@ -7,6 +7,7 @@
 #include "op-attrs/ops/concat_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 
 namespace FlexFlow {

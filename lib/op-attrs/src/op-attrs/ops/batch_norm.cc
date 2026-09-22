@@ -1,13 +1,20 @@
 #include "op-attrs/ops/batch_norm.h"
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/all_of.h"
 #include "utils/containers/any_of.h"
 #include "utils/containers/extend.h"
 #include "utils/expected.h"
+#include "utils/optional.h"
+#include "utils/orthotope/bounded_component.h"
+#include "utils/orthotope/orthotope_bounded_coord.h"
 
 namespace FlexFlow {
 
@@ -254,8 +261,11 @@ StandardOperatorTaskGroup
             ParallelTensorSpaceCoordinate weight_coord =
                 parallel_tensor_space_coordinate_from_bounded_orthotope_components(
                     /*sum_degree=*/trivial_bounded_component(),
-                    /*discard_copy_degree=*/non_channel_parallelism_components,
-                    /*shard_coords=*/channel_parallelism_component);
+                    /*discard_copy_degree=*/
+                    assert_unwrap(flatten_orthotope_bounded_coord(
+                        non_channel_parallelism_components)),
+                    /*shard_coords=*/
+                    lift_bounded_component(channel_parallelism_component));
 
             ParallelTensorSpaceCoordinate output_coord = input_coord;
 
