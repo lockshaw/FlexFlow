@@ -1,4 +1,9 @@
 #include "kernels/split_kernels_cpu.h"
+#include "kernels/accessor.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/tensor_accessor_binary_ops.h"
+#include "kernels/tensor_accessor_split.h"
+#include "utils/containers/foldl1.h"
 #include "utils/not_implemented.h"
 
 namespace FlexFlow {
@@ -10,7 +15,7 @@ void split_cpu_forward_kernel(
   tensor_accessor_split_to(
       /*input=*/input,
       /*axis=*/attrs.axis,
-      /*sizes=*/attrs.sizes,
+      /*sizes=*/attrs.splits,
       /*outputs=*/outputs);
 }
 
@@ -20,7 +25,7 @@ void split_cpu_backward_kernel(
     GenericTensorAccessorW const &input_grad) {
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
-  GenericTensorAccessorW result =
+  GenericTensorAccessorR result =
       foldl1(output_grads,
              [&](GenericTensorAccessorR const &accum,
                  GenericTensorAccessorR const &elem) -> GenericTensorAccessorR {

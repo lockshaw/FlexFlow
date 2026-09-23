@@ -1,7 +1,9 @@
 #ifndef _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_CONV_2D_KERNELS_CPU_H
 #define _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_CONV_2D_KERNELS_CPU_H
 
+#include "kernels/accessor.h"
 #include "op-attrs/activation.dtg.h"
+#include "op-attrs/ops/conv_2d_attrs.dtg.h"
 #include <optional>
 
 namespace FlexFlow {

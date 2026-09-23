@@ -8,30 +8,33 @@
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_dims_coord.h"
+#include <cmath>
 
 namespace FlexFlow {
 
 GenericTensorAccessorW tensor_accessor_exp(GenericTensorAccessorR const &input,
                                            Allocator &output_allocator) {
-  ASSERT(t.shape.data_type == DataType::FLOAT);
+  ASSERT(input.shape.data_type == DataType::FLOAT);
 
-  return map_tensor_accessor_inplace(
-      t, [&](auto const &elem) { return std::expf(elem); });
+  return map_tensor_accessor(
+      input,
+      [&](auto const &elem) { return std::exp(elem); },
+      output_allocator);
 }
 
 void tensor_accessor_exp_to(GenericTensorAccessorR const &input,
                             GenericTensorAccessorW const &output) {
-  ASSERT(t.shape.data_type == DataType::FLOAT);
+  ASSERT(input.shape.data_type == DataType::FLOAT);
 
   map_tensor_accessor_to(
-      input, [](auto elem) { return std::expf(elem); }, output);
+      input, [](auto elem) { return std::exp(elem); }, output);
 }
 
 void tensor_accessor_exp_inplace(GenericTensorAccessorW const &input) {
-  ASSERT(t.shape.data_type == DataType::FLOAT);
+  ASSERT(input.shape.data_type == DataType::FLOAT);
 
-  return map_tensor_accessor_inplace(
-      t, [&](auto const &elem) { return std::expf(elem); });
+  map_tensor_accessor_inplace(input,
+                              [&](auto &elem) { return std::exp(elem); });
 }
 
 GenericTensorAccessorW
@@ -48,7 +51,7 @@ void tensor_accessor_scale_by_constant_inplace(GenericTensorAccessorW const &t,
                                                float constant) {
   ASSERT(t.shape.data_type == DataType::FLOAT);
 
-  return map_tensor_accessor_inplace(
+  map_tensor_accessor_inplace(
       t, [&](auto const &elem) { return elem * constant; });
 }
 

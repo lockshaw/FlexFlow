@@ -175,7 +175,7 @@ ParallelTensorShape
                                                  get_parallel_degrees(input_k),
                                                  get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape attention_get_input_bias_parallel_shape(
@@ -196,7 +196,7 @@ ParallelTensorShape attention_get_input_bias_parallel_shape(
           get_parallel_degrees(input_k),
           get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape attention_get_output_bias_parallel_shape(
@@ -217,7 +217,7 @@ ParallelTensorShape attention_get_output_bias_parallel_shape(
           get_parallel_degrees(input_k),
           get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape
@@ -238,7 +238,7 @@ ParallelTensorShape
                                                 get_parallel_degrees(input_k),
                                                 get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 positive_int attention_get_oSize(ParallelTensorShape const &) {

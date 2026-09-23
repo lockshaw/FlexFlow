@@ -1,7 +1,12 @@
 #include "kernels/concat_kernels_cpu.h"
-#include "utils/not_implemented.h"
+#include "kernels/accessor.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/tensor_accessor_binary_ops.h"
+#include "kernels/tensor_accessor_split.h"
+#include "op-attrs/tensor_dims.h"
+#include "utils/containers/foldl1.h"
 
-namespace FlexFlow::Kernels::Concat {
+namespace FlexFlow {
 
 void concat_cpu_forward_kernel(
     GenericTensorAccessorW const &output,
@@ -9,8 +14,8 @@ void concat_cpu_forward_kernel(
     ff_dim_t axis) {
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
-  GenericTensorAccessorW result = foldl1(
-      input,
+  GenericTensorAccessorR result = foldl1(
+      inputs,
       [&](GenericTensorAccessorR const &accum,
           GenericTensorAccessorR const &elem) -> GenericTensorAccessorR {
         return tensor_accessor_binary_concat(accum, elem, axis, cpu_allocator);
@@ -39,4 +44,4 @@ void concat_cpu_backward_kernel(
       /*outputs=*/input_grads);
 }
 
-} // namespace FlexFlow::Kernels::Concat
+} // namespace FlexFlow

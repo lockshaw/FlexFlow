@@ -2,6 +2,7 @@
 #define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_TASK_SPACE_COORDINATE_H
 
 #include "op-attrs/operator_task_space_dim_idx_t.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "utils/orthotope/dim_coord.dtg.h"

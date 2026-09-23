@@ -146,7 +146,7 @@ ParallelTensorShape
       linear_get_projection_parallel_dim_degrees(attrs,
                                                  get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, projection_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, projection_degrees);
 }
 //! [parallel shape inference composition example]
 
@@ -159,7 +159,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees bias_degrees =
       linear_get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, bias_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, bias_degrees);
 }
 
 ParallelTensorShape
@@ -171,7 +171,7 @@ ParallelTensorShape
       linear_get_output_parallel_dim_degrees(attrs,
                                              get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, output_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 ParallelTensorDimDegrees linear_get_projection_parallel_dim_degrees(

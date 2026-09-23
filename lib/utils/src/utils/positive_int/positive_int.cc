@@ -207,6 +207,10 @@ nonnegative_int operator*(nonnegative_int lhs, positive_int rhs) {
   return lhs * rhs.nonnegative_int_from_positive_int();
 }
 
+nonnegative_int &operator*=(nonnegative_int &lhs, positive_int rhs) {
+  return (lhs *= rhs.nonnegative_int_from_positive_int());
+}
+
 float positive_int::operator*(float other) const {
   return this->value_ * other;
 }

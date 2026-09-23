@@ -93,7 +93,7 @@ OrthotopeBoundedCoord
 }
 
 OrthotopeBoundedCoord
-    make_3d_orthotope_bounded_coord(BoundedComponent const &c1,
+    make_4d_orthotope_bounded_coord(BoundedComponent const &c1,
                                     BoundedComponent const &c2,
                                     BoundedComponent const &c3,
                                     BoundedComponent const &c4) {

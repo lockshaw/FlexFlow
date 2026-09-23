@@ -25,6 +25,7 @@
 #include "op-attrs/ops/linear_attrs.dtg.h"
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/ops/pool_2d_attrs.dtg.h"
+#include "op-attrs/ops/reshape_attrs.dtg.h"
 #include "op-attrs/ops/softmax_attrs.dtg.h"
 #include "op-attrs/ops/upsample_attrs.dtg.h"
 #include "op-attrs/ops/weight_attrs.dtg.h"
@@ -1005,13 +1006,20 @@ tensor_guid_t ComputationGraphBuilder::reshape(
     tensor_guid_t const &input,
     std::vector<positive_int> const &shape,
     std::optional<std::string> const &maybe_name) {
-  TensorShape input_shape = this->get_shape(input);
+
+  TensorDims input_dims = this->get_shape(input).dims;
+  TensorDims output_dims = TensorDims{ff_ordered_of(shape)};
+
+  TensorDims shared_leading_dims = get_shared_leading_dims(std::set<TensorDims>{
+      input_dims,
+      output_dims,
+  });
 
   ReshapeAttrs attrs = ReshapeAttrs{
-      /*shape=*/TensorShape{
-          /*dims=*/TensorDims{ff_ordered_of(shape)},
-          /*data_type=*/input_shape.data_type,
-      },
+      /*core_input_dims=*/tensor_dims_remove_leading_dims(input_dims,
+                                                          shared_leading_dims),
+      /*core_output_dims=*/
+      tensor_dims_remove_leading_dims(output_dims, shared_leading_dims),
   };
 
   std::string name =

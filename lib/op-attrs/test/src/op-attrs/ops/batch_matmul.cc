@@ -436,9 +436,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         [&](ParallelTensorDimDegrees const &lhs_degrees,
             ParallelTensorDimDegrees const &rhs_degrees) -> bool {
       ParallelTensorShape lhs_shape =
-          lift_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
+          lift_shape_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
       ParallelTensorShape rhs_shape =
-          lift_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
+          lift_shape_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
           {

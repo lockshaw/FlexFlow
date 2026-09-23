@@ -19,7 +19,7 @@ ParallelTensorDimDegrees
 
 ParallelTensorShape
     weight_get_output_parallel_tensor_shape(WeightAttrs const &attrs) {
-  return lift_to_parallel(attrs.tensor_shape);
+  return lift_shape_to_parallel(attrs.tensor_shape);
 }
 
 OperatorTaskSpace weight_get_operator_task_space(WeightAttrs const &) {
