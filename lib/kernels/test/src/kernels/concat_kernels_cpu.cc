@@ -43,15 +43,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             cpu_allocator);
 
     GenericTensorAccessorW output =
-        create_zero_filled_accessor_w(correct_output.shape, allocator);
+        create_zero_filled_accessor_w(correct_output.shape, cpu_allocator);
 
     concat_cpu_forward_kernel(
         /*output=*/output,
         /*inputs=*/{input_0, input_1, input_2},
         /*axis=*/ff_dim_t{1_n});
 
-    CHECK_MESSAGE(accessors_are_equal(output, correct_output)
-                      check_kv("output", format_accessor_w_contents(output)));
+    CHECK_MESSAGE(accessors_are_equal(output, correct_output),
+                  check_kv("output", format_accessor_w_contents(output)));
   }
 
   TEST_CASE("concat_cpu_backward_kernel") {
@@ -89,28 +89,28 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
             cpu_allocator);
 
-    GenericTensorAccessorW input_grad_0 =
-        create_zero_filled_accessor_w(correct_input_grad_0.shape, allocator);
+    GenericTensorAccessorW input_grad_0 = create_zero_filled_accessor_w(
+        correct_input_grad_0.shape, cpu_allocator);
 
-    GenericTensorAccessorW input_grad_1 =
-        create_zero_filled_accessor_w(correct_input_grad_1.shape, allocator);
+    GenericTensorAccessorW input_grad_1 = create_zero_filled_accessor_w(
+        correct_input_grad_1.shape, cpu_allocator);
 
-    GenericTensorAccessorW input_grad_2 =
-        create_zero_filled_accessor_w(correct_input_grad_2.shape, allocator);
+    GenericTensorAccessorW input_grad_2 = create_zero_filled_accessor_w(
+        correct_input_grad_2.shape, cpu_allocator);
 
-    split_cpu_backward_kernel(
+    concat_cpu_backward_kernel(
         /*output_grad=*/output_grad,
         /*input_grads=*/{input_grad_0, input_grad_1, input_grad_2},
         /*axis=*/ff_dim_t{1_n});
 
     CHECK_MESSAGE(
-        accessors_are_equal(input_grad_0, correct_input_grad_0)
-            check_kv("input_grad_0", format_accessor_w_contents(input_grad_0)));
+        accessors_are_equal(input_grad_0, correct_input_grad_0),
+        check_kv("input_grad_0", format_accessor_w_contents(input_grad_0)));
     CHECK_MESSAGE(
-        accessors_are_equal(input_grad_1, correct_input_grad_1)
-            check_kv("input_grad_1", format_accessor_w_contents(input_grad_1)));
+        accessors_are_equal(input_grad_1, correct_input_grad_1),
+        check_kv("input_grad_1", format_accessor_w_contents(input_grad_1)));
     CHECK_MESSAGE(
-        accessors_are_equal(input_grad_2, correct_input_grad_2)
-            check_kv("input_grad_2", format_accessor_w_contents(input_grad_2)));
+        accessors_are_equal(input_grad_2, correct_input_grad_2),
+        check_kv("input_grad_2", format_accessor_w_contents(input_grad_2)));
   }
 }

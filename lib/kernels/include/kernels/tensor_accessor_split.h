@@ -1,6 +1,11 @@
 #ifndef _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_TENSOR_ACCESSOR_SPLIT_H
 #define _FLEXFLOW_LIB_KERNELS_INCLUDE_KERNELS_TENSOR_ACCESSOR_SPLIT_H
 
+#include "kernels/accessor.h"
+#include "kernels/allocation.h"
+#include "op-attrs/ff_dim_t.dtg.h"
+#include <vector>
+
 namespace FlexFlow {
 
 std::vector<GenericTensorAccessorW>

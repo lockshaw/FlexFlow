@@ -2,6 +2,10 @@
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "utils/containers/binary_cartesian_product.h"
 #include "utils/containers/require_same.h"
 
 namespace FlexFlow {
@@ -37,7 +41,7 @@ ParallelTensorShape element_binary_get_output_parallel_shape(
           get_parallel_degrees(input_lhs),
           get_parallel_degrees(input_rhs));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 ParallelTensorDimDegrees element_binary_get_output_parallel_dim_degrees(

@@ -1,4 +1,10 @@
 #include "kernels/pool_2d_kernels_cpu.h"
+#include "kernels/accessors_are_equal.h"
+#include "kernels/create_accessor_with_contents.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/format_accessor_contents.h"
+#include "test/utils/doctest/check_kv.h"
+#include "utils/not_implemented.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -34,8 +40,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*kernel_w=*/2_p,
           /*stride_h=*/1_p,
           /*stride_w=*/1_p,
-          /*padding_h=*/0_p,
-          /*padding_w=*/0_p,
+          /*padding_h=*/0_n,
+          /*padding_w=*/0_n,
           /*pool_type=*/PoolOp::MAX,
           /*activation=*/std::nullopt,
       };
@@ -67,8 +73,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*kernel_w=*/2_p,
           /*stride_h=*/1_p,
           /*stride_w=*/1_p,
-          /*padding_h=*/0_p,
-          /*padding_w=*/0_p,
+          /*padding_h=*/0_n,
+          /*padding_w=*/0_n,
           /*pool_type=*/PoolOp::AVG,
           /*activation=*/std::nullopt,
       };

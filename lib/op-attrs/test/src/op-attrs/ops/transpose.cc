@@ -219,7 +219,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto transpose_shard_signature_instance_is_valid =
         [&](ParallelTensorDimDegrees const &input_degrees) -> bool {
       ParallelTensorShape input_parallel_shape =
-          lift_to_parallel_with_degrees(input_shape, input_degrees);
+          lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
           {

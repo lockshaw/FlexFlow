@@ -9,11 +9,15 @@
 #include "op-attrs/shard_parallel_dim.dtg.h"
 #include "utils/containers/all_are_true.h"
 #include "utils/containers/all_of.h"
+#include "utils/containers/are_all_same.h"
 #include "utils/containers/cartesian_product.h"
 #include "utils/containers/contains.h"
+#include "utils/containers/get_only.h"
+#include "utils/containers/minimum.h"
 #include "utils/containers/product.h"
 #include "utils/containers/reversed.h"
 #include "utils/containers/set_of.h"
+#include "utils/containers/take_while.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_of.h"
 #include "utils/containers/zip.h"
@@ -145,6 +149,45 @@ TensorDimsCoord get_broadcast_src_coord(TensorDims const &input_dims,
          result);
 
   return result;
+}
+
+TensorDims get_shared_leading_dims(std::set<TensorDims> const &not_reduced) {
+  num_tensor_dims_t min_dims = minimum(
+      transform(not_reduced, [&](TensorDims const &d) -> num_tensor_dims_t {
+        return get_num_dims(d);
+      }));
+
+  nonnegative_int num_leading_dims = num_elements(take_while(
+      ff_dim_range(min_dims.nonnegative_int_from_num_tensor_dims()),
+      [&](ff_dim_t d) -> bool {
+        std::set<positive_int> dim_sizes =
+            transform(not_reduced, [&](TensorDims const &t) -> positive_int {
+              return dim_at_idx(t, d);
+            });
+
+        return are_all_same(dim_sizes);
+      }));
+
+  ff_dim_t first_nonleading_dim = ff_dim_t{num_leading_dims};
+
+  return get_only(
+      transform(not_reduced, [&](TensorDims const &d) -> TensorDims {
+        return slice_tensor_dims(d, ff_dim_t{0_n}, first_nonleading_dim);
+      }));
+}
+
+TensorDims tensor_dims_remove_leading_dims(TensorDims const &d,
+                                           TensorDims const &leading_dims) {
+  nonnegative_int num_leading_dims =
+      get_num_dims(leading_dims).nonnegative_int_from_num_tensor_dims();
+
+  ff_dim_t first_nonleading_dim = ff_dim_t{num_leading_dims};
+
+  TensorDims d_leading_dims =
+      slice_tensor_dims(d, ff_dim_t{0_n}, first_nonleading_dim);
+  ASSERT(leading_dims == d_leading_dims);
+
+  return slice_tensor_dims(d, first_nonleading_dim, std::nullopt);
 }
 
 std::set<TensorDimsCoord>

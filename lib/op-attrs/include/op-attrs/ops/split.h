@@ -6,6 +6,7 @@
 #include "op-attrs/ops/split_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include <vector>
 
@@ -21,12 +22,14 @@ std::vector<ParallelTensorShape>
     split_get_output_parallel_shapes(SplitAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
 
+std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &);
+
 StandardOperatorTaskGroup
     split_get_task_group(SplitAttrs const &attrs,
                          ParallelTensorDimDegrees const &input_degrees);
 
 ShardSignatureInstance split_get_shard_signature_instance(
-    TransposeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace split_get_operator_task_space(
     SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

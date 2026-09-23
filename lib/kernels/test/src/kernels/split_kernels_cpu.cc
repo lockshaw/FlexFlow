@@ -21,18 +21,18 @@ TEST_SUITE(FF_TEST_SUITE) {
         cpu_allocator);
 
     SplitAttrs attrs = SplitAttrs{
-        /*splits=*/{3, 1, 2},
+        /*splits=*/{3_p, 1_p, 2_p},
         /*axis=*/ff_dim_t{1_n},
     };
 
     GenericTensorAccessorW output_0 =
-        create_zero_filled_accessor_w(input.shape, allocator);
+        create_zero_filled_accessor_w(input.shape, cpu_allocator);
 
     GenericTensorAccessorW output_1 =
-        create_zero_filled_accessor_w(input.shape, allocator);
+        create_zero_filled_accessor_w(input.shape, cpu_allocator);
 
     GenericTensorAccessorW output_2 =
-        create_zero_filled_accessor_w(input.shape, allocator);
+        create_zero_filled_accessor_w(input.shape, cpu_allocator);
 
     split_cpu_forward_kernel(
         /*attrs=*/attrs,
@@ -63,19 +63,19 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
             cpu_allocator);
 
-    CHECK_MESSAGE(accessors_are_equal(output_0, correct_0) check_kv(
-        "output_0", format_accessor_w_contents(output_0)));
-    CHECK_MESSAGE(accessors_are_equal(output_1, correct_1) check_kv(
-        "output_1", format_accessor_w_contents(output_1)));
-    CHECK_MESSAGE(accessors_are_equal(output_2, correct_2) check_kv(
-        "output_2", format_accessor_w_contents(output_2)));
+    CHECK_MESSAGE(accessors_are_equal(output_0, correct_0),
+                  check_kv("output_0", format_accessor_w_contents(output_0)));
+    CHECK_MESSAGE(accessors_are_equal(output_1, correct_1),
+                  check_kv("output_1", format_accessor_w_contents(output_1)));
+    CHECK_MESSAGE(accessors_are_equal(output_2, correct_2),
+                  check_kv("output_2", format_accessor_w_contents(output_2)));
   }
 
   TEST_CASE("split_cpu_backward_kernel") {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     SplitAttrs attrs = SplitAttrs{
-        /*splits=*/{3, 1, 2},
+        /*splits=*/{3_p, 1_p, 2_p},
         /*axis=*/ff_dim_t{1_n},
     };
 
@@ -112,14 +112,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             cpu_allocator);
 
     GenericTensorAccessorW input_grad =
-        create_zero_filled_accessor_w(correct_input_grad.shape, allocator);
+        create_zero_filled_accessor_w(correct_input_grad.shape, cpu_allocator);
 
     split_cpu_backward_kernel(
         /*attrs=*/attrs,
         /*output_grads=*/{output_grad_0, output_grad_1, output_grad_2},
         /*input_grad=*/input_grad);
 
-    CHECK_MESSAGE(accessors_are_equal(input_grad, correct_input_grad) check_kv(
-        "input_grad", format_accessor_w_contents(input_grad)));
+    CHECK_MESSAGE(
+        accessors_are_equal(input_grad, correct_input_grad),
+        check_kv("input_grad", format_accessor_w_contents(input_grad)));
   }
 }

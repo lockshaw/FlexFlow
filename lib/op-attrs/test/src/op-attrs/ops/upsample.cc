@@ -1,4 +1,11 @@
 #include "op-attrs/ops/upsample.h"
+#include "kernels/accessor.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "kernels/upsample_kernels_cpu.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "op-attrs/parallel_tensor_shape.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -72,7 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto upsample_shard_signature_instance_is_valid =
         [&](ParallelTensorDimDegrees const &input_degrees) -> bool {
       ParallelTensorShape input_shape =
-          lift_to_parallel_with_degrees(input_shard_shape, input_degrees);
+          lift_shape_to_parallel_with_degrees(input_shard_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
           {

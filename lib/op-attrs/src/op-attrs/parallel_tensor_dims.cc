@@ -44,12 +44,12 @@ ParallelTensorDimDegrees get_parallel_degrees(ParallelTensorDims const &d) {
   };
 }
 
-ParallelTensorDims lift_to_parallel(TensorDims const &dims) {
-  return lift_to_parallel_with_degrees(dims,
-                                       trivial_degrees_for_tensor_dims(dims));
+ParallelTensorDims lift_dims_to_parallel(TensorDims const &dims) {
+  return lift_dims_to_parallel_with_degrees(
+      dims, trivial_degrees_for_tensor_dims(dims));
 }
 
-ParallelTensorDims lift_to_parallel_with_degrees(
+ParallelTensorDims lift_dims_to_parallel_with_degrees(
     TensorDims const &unpar,
     SumDegree const &sum_degree,
     DiscardCopyDegree const &discard_copy_degree,
@@ -69,13 +69,12 @@ ParallelTensorDims lift_to_parallel_with_degrees(
                             }};
 }
 
-ParallelTensorDims
-    lift_to_parallel_with_degrees(TensorDims const &unpar,
-                                  ParallelTensorDimDegrees const &degrees) {
-  return lift_to_parallel_with_degrees(unpar,
-                                       degrees.sum_degree,
-                                       degrees.discard_copy_degree,
-                                       degrees.shard_degrees);
+ParallelTensorDims lift_dims_to_parallel_with_degrees(
+    TensorDims const &unpar, ParallelTensorDimDegrees const &degrees) {
+  return lift_dims_to_parallel_with_degrees(unpar,
+                                            degrees.sum_degree,
+                                            degrees.discard_copy_degree,
+                                            degrees.shard_degrees);
 }
 
 positive_int total_replica_degree(ParallelTensorDims const &dims) {

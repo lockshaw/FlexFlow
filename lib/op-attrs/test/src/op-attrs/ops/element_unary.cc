@@ -1,4 +1,9 @@
 #include "op-attrs/ops/element_unary.h"
+#include "kernels/accessor.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/element_unary_kernels_cpu.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/shard_signature_instance_is_valid.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
@@ -34,8 +39,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                           DiscardCopyDegree o_eq,
                           positive_int o_1,
                           positive_int o_2,
-                          positive_int o_3) {
-      return lift_to_parallel_with_degrees(
+                          positive_int o_3) -> ParallelTensorShape {
+      return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
 
@@ -139,7 +144,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         [&](ElementUnaryAttrs const &attrs,
             ParallelTensorDimDegrees const &input_degrees) -> bool {
       ParallelTensorShape input_shape =
-          lift_to_parallel_with_degrees(input_shard_shape, input_degrees);
+          lift_shape_to_parallel_with_degrees(input_shard_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
           {

@@ -36,7 +36,7 @@ ParallelTensorShape transpose_get_output_parallel_shape(
       transpose_get_output_parallel_dim_degrees(
           attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup
@@ -72,15 +72,6 @@ StandardOperatorTaskGroup
   };
 }
 
-OperatorTaskSpace transpose_get_operator_task_space(
-    TransposeAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees) {
-  StandardOperatorTaskGroup op_task_group =
-      transpose_get_task_group(attrs, input_degrees);
-
-  return task_space_for_standard_operator_task_group(op_task_group);
-}
-
 ShardSignatureInstance transpose_get_shard_signature_instance(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
@@ -90,6 +81,15 @@ ShardSignatureInstance transpose_get_shard_signature_instance(
 
   return shard_signature_instance_from_standard_operator_task_group(
       op_task_group);
+}
+
+OperatorTaskSpace transpose_get_operator_task_space(
+    TransposeAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      transpose_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping

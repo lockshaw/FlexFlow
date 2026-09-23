@@ -106,7 +106,7 @@ ParallelTensorShape concat_get_output_parallel_shape(
       concat_get_output_parallel_dim_degrees(
           attrs, transform(input_shapes, get_parallel_degrees));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup concat_get_task_group(

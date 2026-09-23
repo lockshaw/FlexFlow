@@ -55,7 +55,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*dtype=*/DataType::INT32,
       };
 
-      ParallelTensorShape input_shape = lift_to_parallel(TensorShape{
+      ParallelTensorShape input_shape = lift_shape_to_parallel(TensorShape{
           TensorDims{FFOrdered<positive_int>{40_p, 48_p, 36_p}},
           DataType::FLOAT,
       });
@@ -146,7 +146,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       positive_int feature_size = 36_p;
 
       DataType dtype = DataType::FLOAT;
-      ParallelTensorShape inputs_shape = lift_to_parallel(TensorShape{
+      ParallelTensorShape inputs_shape = lift_shape_to_parallel(TensorShape{
           TensorDims{
               FFOrdered<positive_int>{batch_size, seq_len, feature_size}},
           DataType::FLOAT,
