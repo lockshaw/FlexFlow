@@ -15,5 +15,9 @@ includes = [
 ]
 
 [[fields]]
-name = "shape"
-type = "::FlexFlow::TensorShape"
+name = "core_input_dims"
+type = "::FlexFlow::TensorDims"
+
+[[fields]]
+name = "core_output_dims"
+type = "::FlexFlow::TensorDims"

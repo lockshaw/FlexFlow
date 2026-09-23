@@ -339,8 +339,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                          int discard_copy_degree,
                          int batch_dim_degree,
                          int row_degree,
-                         int col_degree) 
-      -> ParallelTensorDimDegrees 
+                         int col_degree)
+      -> ParallelTensorDimDegrees
     {
       return ParallelTensorDimDegrees{
           /*sum_degree=*/SumDegree{positive_int{sum_degree}},
@@ -407,12 +407,12 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     BatchMatmulAttrs attrs = BatchMatmulAttrs{};
 
-    auto run_bmm = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards) 
+    auto run_bmm = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards)
       -> std::map<TensorSlotName, GenericTensorAccessorR>
     {
       GenericTensorAccessorR lhs_input_shard = input_shards.at(TensorSlotName::LHS_INPUT);
       GenericTensorAccessorR rhs_input_shard = input_shards.at(TensorSlotName::RHS_INPUT);
-      TensorShape output_shard_shape = 
+      TensorShape output_shard_shape =
         batch_matmul_get_output_shape(attrs,
                                       lhs_input_shard.shape,
                                       rhs_input_shard.shape);
@@ -432,11 +432,11 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     auto bmm_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &lhs_degrees,
-                                                     ParallelTensorDimDegrees const &rhs_degrees) 
+                                                     ParallelTensorDimDegrees const &rhs_degrees)
       -> bool
     {
-      ParallelTensorShape lhs_shape = lift_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
-      ParallelTensorShape rhs_shape = lift_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
+      ParallelTensorShape lhs_shape = lift_shape_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
+      ParallelTensorShape rhs_shape = lift_shape_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {

@@ -4,6 +4,11 @@
 #include "test/utils/doctest/fmt/optional.h"
 #include "utils/expected.h"
 #include <doctest/doctest.h>
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/concat_kernels_cpu.h"
 
 using namespace ::FlexFlow;
 
@@ -139,8 +144,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o0,
                            positive_int o1,
-                           positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o2) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input_shape1, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -148,8 +155,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o0,
                            positive_int o1,
-                           positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o2)
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input_shape2, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -157,8 +166,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o0,
                            positive_int o1,
-                           positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o2) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input_shape3, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -166,8 +177,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o0,
                            positive_int o1,
-                           positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o2) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           output_shape, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -395,21 +408,21 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                         ParallelTensorDimDegrees const &input3_degrees)
       -> bool
     {
-      ParallelTensorShape input1_parallel_shape = lift_to_parallel_with_degrees(input1_shape, input1_degrees);
-      ParallelTensorShape input2_parallel_shape = lift_to_parallel_with_degrees(input2_shape, input2_degrees);
-      ParallelTensorShape input3_parallel_shape = lift_to_parallel_with_degrees(input3_shape, input3_degrees);
+      ParallelTensorShape input1_parallel_shape = lift_shape_to_parallel_with_degrees(input1_shape, input1_degrees);
+      ParallelTensorShape input2_parallel_shape = lift_shape_to_parallel_with_degrees(input2_shape, input2_degrees);
+      ParallelTensorShape input3_parallel_shape = lift_shape_to_parallel_with_degrees(input3_shape, input3_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {
-          TensorSlotName::INPUT1,
+          TensorSlotName::INPUT_01,
           input1_parallel_shape,
         },
         {
-          TensorSlotName::INPUT2,
+          TensorSlotName::INPUT_02,
           input2_parallel_shape,
         },
         {
-          TensorSlotName::INPUT3,
+          TensorSlotName::INPUT_03,
           input3_parallel_shape,
         },
       };

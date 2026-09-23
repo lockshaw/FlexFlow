@@ -132,8 +132,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                           positive_int o0,
                           positive_int o1,
                           positive_int o2,
-                          positive_int o3) {
-      return lift_to_parallel_with_degrees(
+                          positive_int o3)
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o0, o1, o2, o3});
     };
 
@@ -142,24 +144,30 @@ TEST_SUITE(FF_TEST_SUITE) {
                            positive_int o0,
                            positive_int o1,
                            positive_int o2,
-                           positive_int o3) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o3)
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o0, o1, o2, o3});
     };
 
     auto make_gamma_weights = [&](SumDegree o_sum,
                                   DiscardCopyDegree o_eq,
                                   positive_int o0,
-                                  positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                                  positive_int o2)
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           gamma, o_sum, o_eq, FFOrdered{o0, o2});
     };
 
     auto make_beta_weights = [&](SumDegree o_sum,
                                  DiscardCopyDegree o_eq,
                                  positive_int o0,
-                                 positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                                 positive_int o2)
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           beta, o_sum, o_eq, FFOrdered{o0, o2});
     };
 

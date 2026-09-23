@@ -5,6 +5,7 @@
 #include <libassert/assert.hpp>
 #include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 
 namespace FlexFlow {
 
@@ -45,7 +46,7 @@ ParallelTensorShape upsample_get_output_parallel_shape(UpsampleAttrs const &attr
   ParallelTensorDimDegrees degrees =
       upsample_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 StandardOperatorTaskGroup upsample_get_task_group(
@@ -75,6 +76,7 @@ StandardOperatorTaskGroup upsample_get_task_group(
             },
           },
           /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+        };
       }),
   };
 }

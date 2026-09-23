@@ -8,6 +8,7 @@
 #include <vector>
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -22,13 +23,15 @@ std::vector<ParallelTensorShape>
     split_get_output_parallel_shapes(SplitAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
 
+std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &);
+
 StandardOperatorTaskGroup split_get_task_group(
     SplitAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees);
 
 ShardSignatureInstance
     split_get_shard_signature_instance(
-          TransposeAttrs const &attrs,
+          SplitAttrs const &attrs,
           ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace split_get_operator_task_space(

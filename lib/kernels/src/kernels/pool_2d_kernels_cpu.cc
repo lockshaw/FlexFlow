@@ -1,5 +1,10 @@
 #include "kernels/pool_2d_kernels_cpu.h"
 #include "utils/not_implemented.h"
+#include "utils/containers/binary_cartesian_product.h"
+#include "op-attrs/ops/pool_2d.h"
+#include "op-attrs/tensor_dims_coord.h"
+#include "kernels/datatype_dispatch.h"
+#include "utils/containers/sum.h"
 
 namespace FlexFlow {
 
@@ -8,13 +13,13 @@ static std::set<TensorDimsCoord> get_input_coords_for_output_coord(
     positive_int kernel_h,
     positive_int kernel_w,
     positive_int stride_h,
-    positive_int stride_w) 
+    positive_int stride_w)
 {
   return transform(
     binary_cartesian_product(
       set_of(nonnegative_range(kernel_h)),
       set_of(nonnegative_range(kernel_w))),
-    [&](std::pair<nonnegative_int, nonnegative_int> const &p) 
+    [&](std::pair<nonnegative_int, nonnegative_int> const &p)
       -> TensorDimsCoord
     {
       nonnegative_int h_offset = p.first;
@@ -27,7 +32,7 @@ static std::set<TensorDimsCoord> get_input_coords_for_output_coord(
       tensor_dims_coord_at_rel_idx(result, h_dim) *= stride_h;
       tensor_dims_coord_at_rel_idx(result, h_dim) += h_offset;
 
-      tensor_dims_coord_at_rel_idx(result, w_dim) += stride_w;
+      tensor_dims_coord_at_rel_idx(result, w_dim) *= stride_w;
       tensor_dims_coord_at_rel_idx(result, w_dim) += w_offset;
 
       return result;
@@ -36,23 +41,13 @@ static std::set<TensorDimsCoord> get_input_coords_for_output_coord(
 
 template <DataType DT>
 struct CPUPPool2DTensorAccessor {
-  template <typename F>
   void operator()(GenericTensorAccessorR const &input,
                   GenericTensorAccessorW const &output,
                   Pool2DAttrs const &attrs) {
     using T = real_type_t<DT>;
 
     ASSERT(input.device_type == DeviceType::CPU);
-
-    for (GenericTensorAccessorW const &output : outputs) {
-      ASSERT(output.device_type == DeviceType::CPU);
-    }
-
-    std::vector<positive_int> output_tensor_sizes_in_axis =
-      transform(outputs,
-                [&](GenericTensorAccessorW const &output) -> positive_int {
-                  return output.shape.dims.at(axis);
-                });
+    ASSERT(output.device_type == DeviceType::CPU);
 
     std::function<T(std::set<T> const &)> compute_output;
     switch (attrs.pool_type) {
@@ -61,7 +56,7 @@ struct CPUPPool2DTensorAccessor {
           return maximum(inputs);
         };
       }
-      case PoolOp::AVG {
+      case PoolOp::AVG: {
         compute_output = [&](std::set<T> const &inputs) -> T {
           return sum(inputs) / inputs.size();
         };

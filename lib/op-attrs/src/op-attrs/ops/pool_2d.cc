@@ -3,6 +3,10 @@
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/integer_conversions.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -159,7 +163,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees degrees = pool2d_get_output_parallel_dim_degrees(attrs,
                                         get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 ParallelTensorDimDegrees

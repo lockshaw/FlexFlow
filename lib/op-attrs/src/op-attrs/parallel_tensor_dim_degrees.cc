@@ -26,6 +26,8 @@
 #include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/ff_ordered/map_from_ff_ordered.h"
 #include "utils/containers/filter_keys.h"
+#include "op-attrs/ff_ordered/ff_ordered_restrict_dims.h"
+#include "op-attrs/ff_ordered/ff_ordered_without_dims.h"
 
 namespace FlexFlow {
 
@@ -232,7 +234,7 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
       dim_domain_from_parallel_tensor_dim_degrees(dim_degrees));
 }
 
-ParallelTensorDimDegrees 
+ParallelTensorDimDegrees
     parallel_tensor_dim_degrees_restrict_dims(ParallelTensorDimDegrees const &degrees,
                                                  std::set<ff_dim_t> const &dim_set)
 {
@@ -243,7 +245,7 @@ ParallelTensorDimDegrees
   };
 }
 
-ParallelTensorDimDegrees 
+ParallelTensorDimDegrees
     parallel_tensor_dim_degrees_without_dims(ParallelTensorDimDegrees const &degrees,
                                              std::set<ff_dim_t> const &dim_set)
 {

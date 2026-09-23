@@ -6,6 +6,8 @@
 #include "op-attrs/tensor_dims.dtg.h"
 #include "op-attrs/tensor_dims_coord.dtg.h"
 #include "utils/bidict/bidict.h"
+#include "utils/containers/map_from_keys_and_values.h"
+#include "utils/containers/keys.h"
 
 namespace FlexFlow {
 
@@ -36,6 +38,12 @@ bool tensor_dims_contains_coord(TensorDims const &tensor_dims,
 TensorDimsCoord get_broadcast_src_coord(TensorDims const &input_dims,
                                         TensorDims const &output_dims,
                                         TensorDimsCoord const &dst_coord);
+
+TensorDims get_shared_leading_dims(std::set<TensorDims> const &);
+
+TensorDims
+  tensor_dims_remove_leading_dims(TensorDims const &,
+                                  TensorDims const &leading_dims);
 
 std::set<TensorDimsCoord>
     get_tensor_dims_coord_set(TensorDims const &tensor_dims);

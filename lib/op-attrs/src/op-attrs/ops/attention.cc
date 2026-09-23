@@ -172,21 +172,21 @@ ParallelTensorShape
                         get_reduced_shape(input_k),
                         get_reduced_shape(input_v));
 
-  ParallelTensorDimDegrees degrees = 
+  ParallelTensorDimDegrees degrees =
       attention_get_weights_parallel_dim_degrees(
         attrs,
         get_parallel_degrees(input_q),
         get_parallel_degrees(input_k),
         get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape
     attention_get_input_bias_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                          ParallelTensorShape const &input_q,
                          ParallelTensorShape const &input_k,
-                         ParallelTensorShape const &input_v) 
+                         ParallelTensorShape const &input_v)
 {
   TensorShape unpar_shape =
         attention_get_input_bias_shape(attrs,
@@ -194,14 +194,14 @@ ParallelTensorShape
                              get_reduced_shape(input_k),
                              get_reduced_shape(input_v));
 
-  ParallelTensorDimDegrees degrees = 
+  ParallelTensorDimDegrees degrees =
       attention_get_input_bias_parallel_dim_degrees(
         attrs,
         get_parallel_degrees(input_q),
         get_parallel_degrees(input_k),
         get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape
@@ -215,14 +215,14 @@ ParallelTensorShape
                               get_reduced_shape(input_k),
                               get_reduced_shape(input_v));
 
-  ParallelTensorDimDegrees degrees = 
+  ParallelTensorDimDegrees degrees =
       attention_get_output_bias_parallel_dim_degrees(
         attrs,
         get_parallel_degrees(input_q),
         get_parallel_degrees(input_k),
         get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape
@@ -244,7 +244,7 @@ ParallelTensorShape
       get_parallel_degrees(input_k),
       get_parallel_degrees(input_v));
 
-  return lift_to_parallel_with_degrees(unpar_shape, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 positive_int attention_get_oSize(ParallelTensorShape const &) {
@@ -420,7 +420,7 @@ OperatorTaskSpace attention_get_operator_task_space(
       output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping 
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_any_input_to_output_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
@@ -432,7 +432,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
                       parallel_tensor_dim_idx_t,
                       parallel_tensor_dim_idx_t>();
 
-  parallel_tensor_dim_idx_t batch_dim = 
+  parallel_tensor_dim_idx_t batch_dim =
     shard_dim_idx(ff_dim_t{0_n});
 
   project_dims(inp_to_out, discard_copy_dim_idx(), sum_dim_idx());
@@ -445,7 +445,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
       DimProjection{inp_to_out}, input_q, output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping 
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_weights_to_output_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
@@ -457,10 +457,10 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
                       parallel_tensor_dim_idx_t,
                       parallel_tensor_dim_idx_t>();
 
-  parallel_tensor_dim_idx_t output_batch_dim = 
+  parallel_tensor_dim_idx_t output_batch_dim =
     shard_dim_idx(ff_dim_t{0_n});
 
-  parallel_tensor_dim_idx_t weights_head_dim = 
+  parallel_tensor_dim_idx_t weights_head_dim =
     shard_dim_idx(ff_dim_t{0_n});
 
   project_dims(weights_to_out, weights_head_dim, sum_dim_idx());
@@ -476,7 +476,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
       DimProjection{weights_to_out}, weights_degrees, output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping 
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_input_bias_to_output_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
@@ -488,7 +488,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
                       parallel_tensor_dim_idx_t,
                       parallel_tensor_dim_idx_t>();
 
-  parallel_tensor_dim_idx_t output_batch_dim = 
+  parallel_tensor_dim_idx_t output_batch_dim =
     shard_dim_idx(ff_dim_t{0_n});
 
   project_dims(input_bias_to_out, discard_copy_dim_idx(), sum_dim_idx());
@@ -504,7 +504,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
       DimProjection{input_bias_to_out}, input_bias_degrees, output_degrees);
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping 
+static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
   attention_get_output_bias_to_output_mapping(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
@@ -516,7 +516,7 @@ static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
                       parallel_tensor_dim_idx_t,
                       parallel_tensor_dim_idx_t>();
 
-  parallel_tensor_dim_idx_t output_batch_dim = 
+  parallel_tensor_dim_idx_t output_batch_dim =
     shard_dim_idx(ff_dim_t{0_n});
 
   project_dims(output_bias_to_out, discard_copy_dim_idx(), sum_dim_idx());

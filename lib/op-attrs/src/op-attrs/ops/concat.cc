@@ -70,15 +70,15 @@ ParallelTensorDimDegrees
 {
   SumDegree sum_degree = SumDegree{
       require_all_same1(
-        transform(inputs, 
+        transform(inputs,
                   [&](ParallelTensorDimDegrees const &d) -> SumDegree {
-                    return d.sum_degree; 
+                    return d.sum_degree;
                   })),
   };
 
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
       require_all_same1(
-        transform(inputs, 
+        transform(inputs,
                   [&](ParallelTensorDimDegrees const &d) -> DiscardCopyDegree {
                     return d.discard_copy_degree;
                   })),
@@ -104,7 +104,7 @@ ParallelTensorShape concat_get_output_parallel_shape(
   ParallelTensorDimDegrees output_degrees =
       concat_get_output_parallel_dim_degrees(attrs, transform(input_shapes, get_parallel_degrees));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup concat_get_task_group(

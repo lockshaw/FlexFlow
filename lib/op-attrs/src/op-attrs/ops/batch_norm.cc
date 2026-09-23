@@ -196,7 +196,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees degrees = batch_norm_get_output_parallel_dim_degrees(attrs,
                                         get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 ParallelTensorShape
@@ -208,7 +208,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees degrees = batch_norm_get_gamma_weights_parallel_dim_degrees(
             attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 ParallelTensorShape
@@ -220,7 +220,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees degrees = batch_norm_get_beta_weights_parallel_dim_degrees(
             attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 std::map<TensorSlotName, ParallelTensorShape>

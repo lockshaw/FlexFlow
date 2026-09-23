@@ -10,6 +10,13 @@
 #include "utils/containers/vector_of.h"
 #include "utils/containers/zip_with_strict.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "op-attrs/tensor_slot_name.h"
+#include "utils/containers/slice.h"
+#include "utils/containers/require_all_same.h"
+#include "utils/containers/generate_map.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "utils/containers/require_all_same1.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -51,11 +58,11 @@ std::vector<ParallelTensorShape>
       degrees,
       [&](TensorShape const &s,
           ParallelTensorDimDegrees const &d) -> ParallelTensorShape {
-        return lift_to_parallel_with_degrees(s, d);
+        return lift_shape_to_parallel_with_degrees(s, d);
       });
 }
 
-static std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &attrs) {
+std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &attrs) {
   return slice(get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size());
 }
 
@@ -64,7 +71,7 @@ StandardOperatorTaskGroup split_get_task_group(
     ParallelTensorDimDegrees const &input_degrees)
 {
   ParallelTensorDimDegrees output_degrees =
-    require_all_same(split_get_output_parallel_shapes(attrs, input_degrees));
+    require_all_same1(split_get_output_parallel_dim_degrees(attrs, input_degrees));
 
   return StandardOperatorTaskGroup{
     transform(
@@ -81,9 +88,11 @@ StandardOperatorTaskGroup split_get_task_group(
 
         return AbstractedOperatorAtomicTaskShardBinding{
           /*tensor_coords=*/binary_merge_disjoint_maps(
-              {
-                TensorSlotName::INPUT,
-                input_coord,
+              std::map<TensorSlotName, ParallelTensorSpaceCoordinate>{
+                {
+                  TensorSlotName::INPUT,
+                  input_coord,
+                },
               },
               output_coords),
           /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(input_coord,
@@ -95,7 +104,7 @@ StandardOperatorTaskGroup split_get_task_group(
 
 ShardSignatureInstance
     split_get_shard_signature_instance(
-          TransposeAttrs const &attrs,
+          SplitAttrs const &attrs,
           ParallelTensorDimDegrees const &input_degrees)
 {
   StandardOperatorTaskGroup op_task_group =
@@ -119,7 +128,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping split_get_operator_to_input_ma
   StandardOperatorTaskGroup op_task_group =
     split_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_ptensor_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
@@ -132,7 +141,7 @@ std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
   return transform(
     slice(get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size()),
     [&](TensorSlotName slot_name) -> OperatorSpaceToParallelTensorSpaceBiuniqueMapping {
-      return standard_operator_task_group_get_ptensor_to_ptensor_mapping(op_task_group, slot_name);
+      return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, slot_name);
     });
 }
 

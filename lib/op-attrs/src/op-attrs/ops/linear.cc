@@ -146,7 +146,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees projection_degrees =
       linear_get_projection_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, projection_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, projection_degrees);
 }
 //! [parallel shape inference composition example]
 
@@ -158,7 +158,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees bias_degrees =
       linear_get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, bias_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, bias_degrees);
 }
 
 ParallelTensorShape
@@ -170,7 +170,7 @@ ParallelTensorShape
       linear_get_output_parallel_dim_degrees(attrs,
                                              get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, output_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 ParallelTensorDimDegrees
@@ -321,43 +321,43 @@ StandardOperatorTaskGroup linear_get_task_group(
       [&](ParallelTensorSpaceCoordinate const &input_coord)
         -> AbstractedOperatorAtomicTaskShardBinding
       {
-        num_ptensor_shard_dims_t input_num_shard_dims = 
+        num_ptensor_shard_dims_t input_num_shard_dims =
           get_ptensor_dim_degrees_num_shard_dims(input_degrees);
 
         parallel_tensor_dim_idx_t input_sum_dim = sum_dim_idx();
         parallel_tensor_dim_idx_t input_discard_copy_dim = discard_copy_dim_idx();
 
-        std::set<parallel_tensor_dim_idx_t> input_leading_dims = 
+        std::set<parallel_tensor_dim_idx_t> input_leading_dims =
           shard_dim_idxs_for_exclusive_interval(0, -1, input_num_shard_dims);
 
-        parallel_tensor_dim_idx_t input_channel_dim = 
+        parallel_tensor_dim_idx_t input_channel_dim =
           shard_dim_idx_for_relative(-1, input_num_shard_dims);
 
-        OrthotopeBoundedCoord data_parallelism_component = 
+        OrthotopeBoundedCoord data_parallelism_component =
             orthotope_bounded_coord_for_ptensor_dims(
               input_degrees,
               input_coord,
               input_leading_dims);
 
-        BoundedComponent output_channel_parallelism_component = 
+        BoundedComponent output_channel_parallelism_component =
             bounded_component_for_ptensor_dim(
               input_degrees,
               input_coord,
               input_discard_copy_dim);
-          
-        OrthotopeBoundedCoord reduction_parallelism_component = 
+
+        OrthotopeBoundedCoord reduction_parallelism_component =
             orthotope_bounded_coord_for_ptensor_dims(
               input_degrees,
               input_coord,
               std::set{input_sum_dim, input_channel_dim});
 
-        BoundedComponent output_sum_component = 
+        BoundedComponent output_sum_component =
             assert_unwrap(flatten_orthotope_bounded_coord(reduction_parallelism_component));
 
-        BoundedComponent output_discard_copy_component = 
+        BoundedComponent output_discard_copy_component =
             trivial_bounded_component();
 
-        OrthotopeBoundedCoord output_shard_components = 
+        OrthotopeBoundedCoord output_shard_components =
           orthotope_bounded_coord_product(
                             data_parallelism_component,
                             lift_bounded_component(output_channel_parallelism_component));
@@ -430,7 +430,7 @@ ShardSignatureInstance
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_operator_to_projection_mapping(
         LinearAttrs const &attrs,
-        ParallelTensorDimDegrees const &input_degrees) 
+        ParallelTensorDimDegrees const &input_degrees)
 {
   StandardOperatorTaskGroup op_task_group =
     linear_get_task_group(attrs, input_degrees);
@@ -439,7 +439,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_input_mapping(
-    LinearAttrs const &attrs, 
+    LinearAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees
 ) {
   StandardOperatorTaskGroup op_task_group =

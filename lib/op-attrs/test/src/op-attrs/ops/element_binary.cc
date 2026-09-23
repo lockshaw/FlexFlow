@@ -3,6 +3,10 @@
 #include "op-attrs/tensor_dims.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/element_binary_kernels_cpu.h"
 
 using namespace ::FlexFlow;
 
@@ -79,8 +83,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                         DiscardCopyDegree o_eq,
                         positive_int o_1,
                         positive_int o_2,
-                        positive_int o_3) {
-      return lift_to_parallel_with_degrees(
+                        positive_int o_3) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           unpar_lhs, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
 
@@ -88,8 +94,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                         DiscardCopyDegree o_eq,
                         positive_int o_1,
                         positive_int o_2,
-                        positive_int o_3) {
-      return lift_to_parallel_with_degrees(
+                        positive_int o_3) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           unpar_rhs, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
 
@@ -97,8 +105,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o_1,
                            positive_int o_2,
-                           positive_int o_3) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o_3) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           unpar_output, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
 
@@ -195,18 +205,19 @@ TEST_SUITE(FF_TEST_SUITE) {
       /*should_broadcast_rhs=*/false,
     };
 
-    auto run_element_binary = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards) 
+    auto run_element_binary = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards)
       -> std::map<TensorSlotName, GenericTensorAccessorR>
     {
       GenericTensorAccessorR lhs_input_shard = input_shards.at(TensorSlotName::LHS_INPUT);
       GenericTensorAccessorR rhs_input_shard = input_shards.at(TensorSlotName::RHS_INPUT);
-      TensorShape output_shard_shape = 
+      TensorShape output_shard_shape =
         element_binary_get_output_shape(attrs,
                                       lhs_input_shard.shape,
                                       rhs_input_shard.shape);
       GenericTensorAccessorW output_shard = create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
 
       element_binary_cpu_forward_kernel(
+        /*attrs=*/attrs,
         /*input_lhs=*/lhs_input_shard,
         /*input_rhs=*/rhs_input_shard,
         /*output=*/output_shard);
@@ -220,11 +231,11 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     auto element_binary_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &lhs_degrees,
-                                                     ParallelTensorDimDegrees const &rhs_degrees) 
+                                                     ParallelTensorDimDegrees const &rhs_degrees)
       -> bool
     {
-      ParallelTensorShape lhs_shape = lift_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
-      ParallelTensorShape rhs_shape = lift_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
+      ParallelTensorShape lhs_shape = lift_shape_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
+      ParallelTensorShape rhs_shape = lift_shape_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {

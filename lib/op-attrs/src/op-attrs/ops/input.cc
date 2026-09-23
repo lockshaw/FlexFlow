@@ -16,7 +16,7 @@ ParallelTensorDimDegrees input_get_output_parallel_dim_degrees(InputAttrs const 
 }
 
 ParallelTensorShape input_get_output_parallel_shape(InputAttrs const &attrs) {
-  return lift_to_parallel(attrs.tensor_shape);
+  return lift_shape_to_parallel(attrs.tensor_shape);
 }
 
 OperatorTaskSpace input_get_operator_task_space(InputAttrs const &) {

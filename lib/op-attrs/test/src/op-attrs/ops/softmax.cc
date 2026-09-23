@@ -4,6 +4,12 @@
 #include "utils/expected.h"
 #include "utils/fmt/expected.h"
 #include <doctest/doctest.h>
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/accessor.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "kernels/softmax_kernels_cpu.h"
 
 using namespace ::FlexFlow;
 
@@ -50,8 +56,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                           DiscardCopyDegree o_eq,
                           positive_int o0,
                           positive_int o1,
-                          positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                          positive_int o2) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -59,8 +67,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o0,
                            positive_int o1,
-                           positive_int o2) {
-      return lift_to_parallel_with_degrees(
+                           positive_int o2) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o0, o1, o2});
     };
 
@@ -184,7 +194,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto softmax_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &input_degrees)
       -> bool
     {
-      ParallelTensorShape input_parallel_shape = lift_to_parallel_with_degrees(input_shape, input_degrees);
+      ParallelTensorShape input_parallel_shape = lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {

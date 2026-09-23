@@ -2,6 +2,11 @@
 #include <doctest/doctest.h>
 #include "utils/containers/map_from_keys_and_values.h"
 #include "kernels/split_kernels_cpu.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/shard_signature_instance_is_valid.h"
 
 using namespace ::FlexFlow;
 
@@ -135,7 +140,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     SplitAttrs attrs = SplitAttrs{
-      /*splits=*/{3, 8, 2},
+      /*splits=*/{3_p, 8_p, 2_p},
       /*axis=*/ff_dim_t{1_n},
     };
 
@@ -186,14 +191,18 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*outputs=*/output_shards);
 
       return map_from_keys_and_values(
-        slice(get_variadic_outputs_slot_name_sequence(), 0, attrs.splits.size()),
-        output_shards);
+        split_get_output_slot_names(attrs),
+        transform(
+          output_shards,
+          [&](GenericTensorAccessorW const &t) -> GenericTensorAccessorR {
+            return read_only_accessor_from_write_accessor(t);
+          }));
     };
 
     auto split_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &input_degrees)
       -> bool
     {
-      ParallelTensorShape input_parallel_shape = lift_to_parallel_with_degrees(input_shape, input_degrees);
+      ParallelTensorShape input_parallel_shape = lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {

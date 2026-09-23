@@ -35,14 +35,14 @@ ParallelTensorShape transpose_get_output_parallel_shape(TransposeAttrs const &at
   ParallelTensorDimDegrees output_degrees =
       transpose_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup transpose_get_task_group(
     TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorDimDegrees output_degrees = 
+  ParallelTensorDimDegrees output_degrees =
     transpose_get_output_parallel_dim_degrees(attrs, input_degrees);
 
   return StandardOperatorTaskGroup{
@@ -51,7 +51,7 @@ StandardOperatorTaskGroup transpose_get_task_group(
       [&](ParallelTensorSpaceCoordinate const &input_coord)
         -> AbstractedOperatorAtomicTaskShardBinding
       {
-        ParallelTensorSpaceCoordinate output_coord = 
+        ParallelTensorSpaceCoordinate output_coord =
               permute_parallel_tensor_space_coordinate(attrs.permutation, input_coord);
 
         return AbstractedOperatorAtomicTaskShardBinding{
@@ -72,15 +72,6 @@ StandardOperatorTaskGroup transpose_get_task_group(
   };
 }
 
-OperatorTaskSpace
-    transpose_get_operator_task_space(TransposeAttrs const &attrs,
-                            ParallelTensorDimDegrees const &input_degrees) {
-  StandardOperatorTaskGroup op_task_group =
-    transpose_get_task_group(attrs, input_degrees);
-
-  return task_space_for_standard_operator_task_group(op_task_group);
-}
-
 ShardSignatureInstance
     transpose_get_shard_signature_instance(TransposeAttrs const &attrs,
                                         ParallelTensorDimDegrees const &input_degrees) {
@@ -91,8 +82,17 @@ ShardSignatureInstance
   return shard_signature_instance_from_standard_operator_task_group(op_task_group);
 }
 
+OperatorTaskSpace
+    transpose_get_operator_task_space(TransposeAttrs const &attrs,
+                            ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+    transpose_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
+}
+
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_input_mapping(
-    TransposeAttrs const &attrs, 
+    TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees
 ) {
   StandardOperatorTaskGroup op_task_group =
@@ -102,7 +102,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_inpu
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping transpose_get_operator_to_output_mapping(
-    TransposeAttrs const &attrs, 
+    TransposeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees
 ) {
   StandardOperatorTaskGroup op_task_group =

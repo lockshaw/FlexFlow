@@ -7,6 +7,7 @@
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -30,7 +31,7 @@ ParallelTensorShape element_unary_get_output_parallel_shape(ElementUnaryAttrs co
   ParallelTensorDimDegrees output_degrees =
       element_unary_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 ParallelTensorDimDegrees element_unary_get_output_parallel_dim_degrees(
@@ -68,6 +69,7 @@ StandardOperatorTaskGroup element_unary_get_task_group(
             },
           },
           /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+        };
       }),
   };
 }

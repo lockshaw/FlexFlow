@@ -3,6 +3,8 @@
 
 #include "op-attrs/activation.dtg.h"
 #include <optional>
+#include "op-attrs/ops/conv_2d_attrs.dtg.h"
+#include "kernels/accessor.h"
 
 namespace FlexFlow {
 

@@ -1,5 +1,9 @@
 #include "kernels/softmax_kernels_cpu.h"
 #include "utils/not_implemented.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/tensor_accessor_unary_ops.h"
+#include "kernels/reduce_tensor_accessor.h"
+#include "kernels/tensor_accessor_binary_ops.h"
 
 namespace FlexFlow {
 
@@ -8,10 +12,10 @@ void softmax_cpu_forward_kernel(SoftmaxAttrs const &attrs,
                                 GenericTensorAccessorW const &output) {
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
-  GenericTensorAccessorW exponentiated = 
+  GenericTensorAccessorW exponentiated =
     tensor_accessor_exp(input, cpu_allocator);
 
-  GenericTensorAccessorW denominator =  
+  GenericTensorAccessorW denominator =
     reduce_tensor_accessor_in_dims(
       exponentiated,
       std::set<ff_dim_t>{attrs.dim},
@@ -20,7 +24,7 @@ void softmax_cpu_forward_kernel(SoftmaxAttrs const &attrs,
         return accum + x;
       });
 
-  GenericTensorAccessorW broadcasted_denominator = 
+  GenericTensorAccessorW broadcasted_denominator =
     tensor_accessor_broadcast(
       denominator,
       input.shape.dims,

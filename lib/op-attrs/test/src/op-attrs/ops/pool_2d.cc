@@ -4,6 +4,13 @@
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
+#include "op-attrs/parallel_tensor_dims.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/accessor.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "kernels/pool_2d_kernels_cpu.h"
+#include "op-attrs/parallel_tensor_shape.h"
 
 using namespace ::FlexFlow;
 
@@ -442,7 +449,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto pool2d_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &input_degrees)
       -> bool
     {
-      ParallelTensorShape input_parallel_shape = lift_to_parallel_with_degrees(input_shape, input_degrees);
+      ParallelTensorShape input_parallel_shape = lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {

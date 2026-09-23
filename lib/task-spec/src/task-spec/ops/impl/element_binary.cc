@@ -5,8 +5,6 @@
 
 namespace FlexFlow {
 
-using namespace FlexFlow::Kernels::ElementBinary;
-
 static DeviceSpecificPerDeviceOpState
     init_task_impl(TaskArgumentAccessor const &acc) {
   auto input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
@@ -18,7 +16,7 @@ static DeviceSpecificPerDeviceOpState
   ElementBinaryAttrs attrs = acc.get_op_attrs().require_element_binary();
 
   std::optional<ElementBinaryPerDeviceState> per_device_state =
-      init_kernel(kernel_device_type,
+      element_binary_init_kernel(kernel_device_type,
                   handle,
                   attrs.type,
                   attrs.should_broadcast_lhs,
@@ -41,21 +39,20 @@ static std::optional<milliseconds_t>
   ElementBinaryAttrs attrs = acc.get_op_attrs().require_element_binary();
   device_handle_t handle = acc.get_ff_handle();
 
-  auto input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
-  auto input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
+  GenericTensorAccessorR input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
+  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
-  return profile(forward_kernel,
+  return profile(element_binary_forward_kernel,
                  profiling,
                  kernel_device_type,
                  "[ElementBinary] forward_time = {:.2lf}ms\n",
                  per_device_state,
-                 input_lhs.get_float_ptr(),
-                 input_rhs.get_float_ptr(),
-                 output.get_float_ptr(),
-                 attrs.type,
-                 attrs.should_broadcast_lhs,
-                 handle);
+                 handle,
+                 attrs,
+                 input_lhs,
+                 input_rhs,
+                 output);
 }
 
 static std::optional<milliseconds_t>
@@ -67,30 +64,30 @@ static std::optional<milliseconds_t>
   ElementBinaryAttrs attrs = acc.get_op_attrs().require_element_binary();
   device_handle_t handle = acc.get_ff_handle();
 
-  auto input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
-  auto input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
+  GenericTensorAccessorR input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
+  GenericTensorAccessorR input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
+  GenericTensorAccessorR output = acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
 
-  auto output_grad =
+  GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
-  auto input_lhs_grad =
+  GenericTensorAccessorW input_lhs_grad =
       acc.get_tensor_grad<Permissions::RW>(TensorSlotName::LHS_INPUT);
-  auto input_rhs_grad =
+  GenericTensorAccessorW input_rhs_grad =
       acc.get_tensor_grad<Permissions::RW>(TensorSlotName::RHS_INPUT);
 
-  return profile(backward_kernel,
+  return profile(element_binary_backward_kernel,
                  profiling,
                  kernel_device_type,
                  "[ElementBinary] backward_time = {:.2lf}ms\n",
                  per_device_state,
-                 output_grad.get_float_ptr(),
-                 input_lhs.get_float_ptr(),
-                 input_rhs.get_float_ptr(),
-                 input_lhs_grad.get_float_ptr(),
-                 input_rhs_grad.get_float_ptr(),
-                 attrs.type,
-                 attrs.should_broadcast_lhs,
-                 attrs.should_broadcast_rhs,
-                 handle);
+                 handle,
+                 attrs,
+                 input_lhs,
+                 input_lhs_grad,
+                 input_rhs,
+                 input_rhs_grad,
+                 output,
+                 output_grad);
 }
 
 TaskImplFunction get_element_binary_init_task_impl() {

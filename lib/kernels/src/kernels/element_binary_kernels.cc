@@ -3,10 +3,10 @@
 #include "kernels/element_binary_kernels_gpu.h"
 #include <libassert/assert.hpp>
 
-namespace FlexFlow::Kernels::ElementBinary {
+namespace FlexFlow {
 
 std::optional<ElementBinaryPerDeviceState>
-    init_kernel(DeviceType device_type,
+    element_binary_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
                 OperatorType op_type,
                 bool should_broadcast_lhs,
@@ -15,7 +15,7 @@ std::optional<ElementBinaryPerDeviceState>
                 TensorShape const &rhs_shape,
                 TensorShape const &output_shape) {
   if (device_type == DeviceType::GPU) {
-    return gpu_init_kernel(
+    return element_binary_gpu_init_kernel(
         /*handle=*/handle.require_for_gpu(),
         /*op_type=*/op_type,
         /*should_broadcast_lhs=*/should_broadcast_lhs,
@@ -30,88 +30,87 @@ std::optional<ElementBinaryPerDeviceState>
   }
 }
 
-void forward_kernel(
+void element_binary_forward_kernel(
     device_stream_t const &stream,
     std::optional<ElementBinaryPerDeviceState> const &per_device_state,
-    float const *lhs_ptr,
-    float const *rhs_ptr,
-    float *out_ptr,
-    OperatorType op_type,
-    bool broadcast_inputLHS,
-    device_handle_t const &handle) {
+    device_handle_t const &handle,
+    ElementBinaryAttrs const &attrs,
+    GenericTensorAccessorR const &lhs,
+    GenericTensorAccessorR const &rhs,
+    GenericTensorAccessorW const &output)
+{
   if (stream.is_gpu()) {
-    gpu_forward_kernel(
+    element_binary_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),
         /*per_device_state=*/per_device_state.value(),
-        /*lhs_ptr=*/lhs_ptr,
-        /*rhs_ptr=*/rhs_ptr,
-        /*out_ptr=*/out_ptr,
-        /*op_type=*/op_type,
-        /*broadcast_inputLHS=*/broadcast_inputLHS,
+        /*lhs_ptr=*/lhs.get_float_ptr(),
+        /*rhs_ptr=*/rhs.get_float_ptr(),
+        /*out_ptr=*/output.get_float_ptr(),
+        /*op_type=*/attrs.type,
+        /*broadcast_inputLHS=*/attrs.should_broadcast_lhs,
+        /*broadcast_inputRHS=*/attrs.should_broadcast_rhs,
         /*handle=*/handle.require_for_gpu());
   } else {
     ASSERT(stream.is_cpu());
     ASSERT(per_device_state == std::nullopt);
     ASSERT(handle.is_for_cpu());
-    cpu_forward_kernel(
-        /*lhs_ptr=*/lhs_ptr,
-        /*rhs_ptr=*/rhs_ptr,
-        /*out_ptr=*/out_ptr,
-        /*op_type=*/op_type,
-        /*broadcast_inputLHS=*/broadcast_inputLHS);
+    element_binary_cpu_forward_kernel(
+        /*attrs=*/attrs,
+        /*lhs=*/lhs,
+        /*rhs=*/rhs,
+        /*out=*/output);
   }
 }
 
 void backward_kernel(
     device_stream_t const &stream,
     std::optional<ElementBinaryPerDeviceState> const &per_device_state,
-    float const *out_grad_ptr,
-    float const *lhs_ptr,
-    float const *rhs_ptr,
-    float *lhs_grad_ptr,
-    float *rhs_grad_ptr,
-    OperatorType op_type,
-    bool broadcast_inputLHS,
-    bool broadcast_inputRHS,
-    device_handle_t const &handle) {
+    device_handle_t const &handle,
+    ElementBinaryAttrs const &attrs,
+    GenericTensorAccessorR const &lhs,
+    GenericTensorAccessorW const &lhs_grad,
+    GenericTensorAccessorR const &rhs,
+    GenericTensorAccessorW const &rhs_grad,
+    GenericTensorAccessorR const &output,
+    GenericTensorAccessorR const &output_grad)
+{
   if (stream.is_gpu()) {
-    gpu_backward_kernel(
+    element_binary_gpu_backward_kernel(
         /*stream=*/stream.require_gpu(),
         /*per_device_state=*/per_device_state.value(),
-        /*out_grad_ptr=*/out_grad_ptr,
-        /*lhs_ptr=*/lhs_ptr,
-        /*rhs_ptr=*/rhs_ptr,
-        /*lhs_grad_ptr=*/lhs_grad_ptr,
-        /*rhs_grad_ptr=*/rhs_grad_ptr,
-        /*op_type=*/op_type,
-        /*broadcast_inputLHS=*/broadcast_inputLHS,
-        /*broadcast_inputRHS=*/broadcast_inputRHS,
+        /*out_grad_ptr=*/output_grad.get_float_ptr(),
+        /*lhs_ptr=*/lhs.get_float_ptr(),
+        /*rhs_ptr=*/rhs.get_float_ptr(),
+        /*lhs_grad_ptr=*/lhs_grad.get_float_ptr(),
+        /*rhs_grad_ptr=*/rhs_grad.get_float_ptr(),
+        /*op_type=*/attrs.type,
+        /*broadcast_inputLHS=*/attrs.should_broadcast_lhs,
+        /*broadcast_inputRHS=*/attrs.should_broadcast_rhs,
         /*handle=*/handle.require_for_gpu());
   } else {
     ASSERT(stream.is_cpu());
     ASSERT(per_device_state == std::nullopt);
     ASSERT(handle.is_for_cpu());
-    cpu_backward_kernel(
-        /*out_grad_ptr=*/out_grad_ptr,
-        /*lhs_ptr=*/lhs_ptr,
-        /*rhs_ptr=*/rhs_ptr,
-        /*lhs_grad_ptr=*/lhs_grad_ptr,
-        /*rhs_grad_ptr=*/rhs_grad_ptr,
-        /*op_type=*/op_type,
-        /*broadcast_inputLHS=*/broadcast_inputLHS,
-        /*broadcast_inputRHS=*/broadcast_inputRHS);
+    element_binary_cpu_backward_kernel(
+        /*attrs=*/attrs,
+        /*lhs=*/lhs,
+        /*lhs_grad=*/lhs_grad,
+        /*rhs=*/rhs,
+        /*rhs_grad=*/rhs_grad,
+        /*output=*/output,
+        /*output_grad=*/output_grad);
   }
 }
 
-void cleanup_kernel(
+void element_binary_cleanup_kernel(
     DeviceType device_type,
     std::optional<ElementBinaryPerDeviceState> const &per_device_state) {
   if (device_type == DeviceType::GPU) {
-    gpu_cleanup_kernel(per_device_state.value());
+    element_binary_gpu_cleanup_kernel(per_device_state.value());
   } else {
     ASSERT(device_type == DeviceType::CPU);
     ASSERT(per_device_state == std::nullopt);
   }
 }
 
-} // namespace FlexFlow::Kernels::ElementBinary
+} // namespace FlexFlow

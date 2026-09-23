@@ -4,6 +4,9 @@
 #include "op-attrs/tensor_shape.h"
 #include "utils/not_implemented.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/parallel_tensor_dims.h"
 
 namespace FlexFlow {
 
@@ -29,11 +32,11 @@ ParallelTensorDimDegrees
   ASSERT(
     input_degrees.sum_degree.value == 1,
     fmt::format("Expected sum degree 1, but received sum degree {}",
-                get_sum_degree(input_shape))
+                input_degrees.sum_degree)
   );
 
   ASSERT(
-    shard_dim_at_idx(input_degrees.shard_degrees.at(attrs.dim)) == 1,
+    input_degrees.shard_degrees.at(attrs.dim) == 1,
     fmt::format("Expected parallel degree of Softmax dimension {} to be 1, "
                 "but received input degrees {}",
                 attrs.dim,
@@ -46,16 +49,16 @@ ParallelTensorDimDegrees
 ParallelTensorShape
     softmax_get_output_parallel_shape(SoftmaxAttrs const &attrs,
                      ParallelTensorShape const &input_shape) {
-  TensorShape unpar = softmax_get_output_shape(attrs, get_reduced_shape(input_shape));
+  TensorShape output_shape = softmax_get_output_shape(attrs, get_reduced_shape(input_shape));
 
   ParallelTensorDimDegrees output_degrees =
       softmax_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup softmax_get_task_group(
-    UpsampleAttrs const &attrs,
+    SoftmaxAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees)
 {
   ParallelTensorDimDegrees output_degrees =
@@ -81,13 +84,14 @@ StandardOperatorTaskGroup softmax_get_task_group(
             },
           },
           /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+        };
       }),
   };
 }
 
 ShardSignatureInstance
     softmax_get_shard_signature_instance(
-          UpsampleAttrs const &attrs,
+          SoftmaxAttrs const &attrs,
           ParallelTensorDimDegrees const &input_degrees)
 {
   StandardOperatorTaskGroup op_task_group =
@@ -99,7 +103,7 @@ ShardSignatureInstance
 OperatorTaskSpace softmax_get_operator_task_space(
     SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     softmax_get_task_group(attrs, input_degrees);
 
   return task_space_for_standard_operator_task_group(op_task_group);
@@ -108,7 +112,7 @@ OperatorTaskSpace softmax_get_operator_task_space(
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping softmax_get_operator_to_input_mapping(
     SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     softmax_get_task_group(attrs, input_degrees);
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
@@ -117,7 +121,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping softmax_get_operator_to_input_
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping softmax_get_operator_to_output_mapping(
     SoftmaxAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     softmax_get_task_group(attrs, input_degrees);
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);

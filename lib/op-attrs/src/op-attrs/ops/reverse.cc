@@ -36,7 +36,7 @@ ParallelTensorShape reverse_get_output_parallel_shape(ReverseAttrs const &attrs,
   ParallelTensorDimDegrees degrees = reverse_get_output_parallel_dim_degrees(attrs,
                                         get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(unpar, degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
 OperatorTaskSpace reverse_get_operator_task_space(

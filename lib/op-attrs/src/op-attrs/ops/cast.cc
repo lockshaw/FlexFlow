@@ -29,7 +29,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees output_degrees =
       cast_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, output_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 OperatorTaskSpace cast_get_operator_task_space(

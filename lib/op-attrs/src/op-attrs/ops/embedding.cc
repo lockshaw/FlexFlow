@@ -109,7 +109,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees output_degrees =
       embedding_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, output_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 ParallelTensorShape
@@ -120,7 +120,7 @@ ParallelTensorShape
   ParallelTensorDimDegrees weight_degrees =
       embedding_get_weights_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
-  return lift_to_parallel_with_degrees(unpar, weight_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, weight_degrees);
 }
 
 StandardOperatorTaskGroup embedding_get_task_group(

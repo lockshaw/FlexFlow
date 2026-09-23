@@ -116,7 +116,7 @@ ParallelTensorShape
       batch_matmul_get_output_parallel_dim_degrees(
           attrs, get_parallel_degrees(lhs), get_parallel_degrees(rhs));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup batch_matmul_get_task_group(
@@ -129,7 +129,7 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
       get_ptensor_dim_degrees_num_shard_dims(lhs_input_degrees),
       get_ptensor_dim_degrees_num_shard_dims(rhs_input_degrees));
 
-  ParallelTensorDimDegrees output_degrees = 
+  ParallelTensorDimDegrees output_degrees =
     batch_matmul_get_output_parallel_dim_degrees(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return StandardOperatorTaskGroup{
@@ -156,13 +156,13 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
           shard_dim_idx_for_relative(-1, input_num_shard_dims);
 
         // c
-        OrthotopeBoundedCoord lhs_leading_dims_coord = 
+        OrthotopeBoundedCoord lhs_leading_dims_coord =
             orthotope_bounded_coord_for_ptensor_dims(
               lhs_input_degrees,
               lhs_input_coord,
               leading_dims);
 
-        OrthotopeBoundedCoord rhs_leading_dims_coord = 
+        OrthotopeBoundedCoord rhs_leading_dims_coord =
             orthotope_bounded_coord_for_ptensor_dims(
               rhs_input_degrees,
               rhs_input_coord,
@@ -190,13 +190,13 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
               row_dim);
 
         // e
-        BoundedComponent lhs_reduction_parallelism = 
+        BoundedComponent lhs_reduction_parallelism =
             bounded_component_for_ptensor_dim(
               lhs_input_degrees,
               lhs_input_coord,
               col_dim);
 
-        BoundedComponent rhs_reduction_parallelism = 
+        BoundedComponent rhs_reduction_parallelism =
             bounded_component_for_ptensor_dim(
               rhs_input_degrees,
               rhs_input_coord,
@@ -223,7 +223,7 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
               rhs_input_coord,
               sum_dim);
 
-        BoundedComponent output_sum_component = 
+        BoundedComponent output_sum_component =
           assert_unwrap(
             flatten_orthotope_bounded_coord(
               make_3d_orthotope_bounded_coord(
@@ -231,16 +231,16 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
                 lhs_preexisting_sum_parallelism_coord,
                 rhs_preexisting_sum_parallelism_coord)));
 
-        BoundedComponent output_copy_component = 
+        BoundedComponent output_copy_component =
           trivial_bounded_component();
 
-        OrthotopeBoundedCoord output_shard_components = 
+        OrthotopeBoundedCoord output_shard_components =
                 orthotope_bounded_coord_product(
                   data_parallelism_coord,
                   lift_bounded_component(output_row_parallelism_coord),
                   lift_bounded_component(output_column_parallelism_coord));
 
-        ParallelTensorSpaceCoordinate output_coord = 
+        ParallelTensorSpaceCoordinate output_coord =
               parallel_tensor_space_coordinate_from_bounded_orthotope_components(
                 /*sum_degree=*/output_sum_component,
                 /*discard_copy_degree=*/output_copy_component,
@@ -273,7 +273,7 @@ OperatorTaskSpace batch_matmul_get_operator_task_space(
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     batch_matmul_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return task_space_for_standard_operator_task_group(op_task_group);
@@ -284,7 +284,7 @@ ShardSignatureInstance
                                               ParallelTensorDimDegrees const &lhs_input_degrees,
                                               ParallelTensorDimDegrees const &rhs_input_degrees) {
 
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     batch_matmul_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return shard_signature_instance_from_standard_operator_task_group(op_task_group);
@@ -295,7 +295,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_l
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     batch_matmul_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::LHS_INPUT);
@@ -306,7 +306,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_r
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     batch_matmul_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::RHS_INPUT);
@@ -317,7 +317,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping batch_matmul_get_operator_to_o
     ParallelTensorDimDegrees const &lhs_input_degrees,
     ParallelTensorDimDegrees const &rhs_input_degrees)
 {
-  StandardOperatorTaskGroup op_task_group = 
+  StandardOperatorTaskGroup op_task_group =
     batch_matmul_get_task_group(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);

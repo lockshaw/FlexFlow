@@ -1,10 +1,19 @@
 #include <doctest/doctest.h>
 #include "kernels/conv_2d_kernels_cpu.h"
+#include "kernels/create_accessor_with_contents.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "utils/not_implemented.h"
+#include "kernels/accessors_are_equal.h"
+#include "test/utils/doctest/check_kv.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/format_accessor_contents.h"
 
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("conv2d_cpu_forward_kernel") {
+    Allocator cpu_allocator = create_local_cpu_memory_allocator();
+
     GenericTensorAccessorR input = create_4d_accessor_r_with_contents<float>(
       {
         {

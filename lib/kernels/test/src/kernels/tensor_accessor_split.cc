@@ -1,5 +1,11 @@
 #include <doctest/doctest.h>
 #include "kernels/tensor_accessor_split.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/create_accessor_with_contents.h"
+#include "kernels/accessor.h"
+#include "kernels/accessors_are_equal.h"
+#include "test/utils/doctest/check_kv.h"
+#include "kernels/format_accessor_contents.h"
 
 using namespace ::FlexFlow;
 
@@ -17,7 +23,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     std::vector<GenericTensorAccessorW> result =
       tensor_accessor_split(input,
                             ff_dim_t{1_n},
-                            {3, 1, 2});
+                            {3_p, 1_p, 2_p},
+                            cpu_allocator);
 
     GenericTensorAccessorR correct_0 = create_2d_accessor_r_with_contents<float>(
         {
@@ -42,13 +49,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result.size() == 3);
     CHECK_MESSAGE(
-      accessors_are_equal(result.at(0), correct_0)
+      accessors_are_equal(result.at(0), correct_0),
       check_kv("result.at(0)", format_accessor_w_contents(result.at(0))));
     CHECK_MESSAGE(
-      accessors_are_equal(result.at(1), correct_1)
+      accessors_are_equal(result.at(1), correct_1),
       check_kv("result.at(1)", format_accessor_w_contents(result.at(1))));
     CHECK_MESSAGE(
-      accessors_are_equal(result.at(2), correct_2)
+      accessors_are_equal(result.at(2), correct_2),
       check_kv("result.at(2)", format_accessor_w_contents(result.at(2))));
   }
 }

@@ -1,5 +1,18 @@
 #include "kernels/conv_2d_kernels_cpu.h"
 #include "utils/not_implemented.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
+#include "utils/containers/zip_with_strict.h"
+#include "utils/containers/set_of.h"
+#include "utils/nonnegative_int/nonnegative_range.h"
+#include "utils/containers/sorted.h"
+#include "utils/containers/transform.h"
+#include "utils/containers/get_all_assignments.h"
+#include "op-attrs/ff_ordered/ff_ordered_from_map.h"
+#include "op-attrs/tensor_dims_coord.h"
+#include "utils/containers/zip_values_strict_with.h"
+#include "kernels/datatype_dispatch.h"
+#include "op-attrs/ops/conv_2d.h"
+#include "utils/containers/sum.h"
 
 namespace FlexFlow {
 
@@ -10,7 +23,7 @@ std::vector<TensorDimsCoord> points_in_range(TensorDimsCoord const &min_coord,
   std::map<ff_dim_t, nonnegative_int> min_coord_map = map_from_ff_ordered(min_coord.ff_ordered);
   std::map<ff_dim_t, nonnegative_int> max_coord_map = map_from_ff_ordered(max_coord.ff_ordered);
 
-  std::map<ff_dim_t, std::set<nonnegative_int>> dim_ranges = zip_with_strict(
+  std::map<ff_dim_t, std::set<nonnegative_int>> dim_ranges = zip_values_strict_with(
     min_coord_map,
     max_coord_map,
     [&](nonnegative_int min, nonnegative_int max) -> std::set<nonnegative_int> {
@@ -20,7 +33,7 @@ std::vector<TensorDimsCoord> points_in_range(TensorDimsCoord const &min_coord,
 
   return sorted(transform(
     get_all_assignments(dim_ranges),
-    [&](std::map<ff_dim_t, nonnegative_range> const &p) -> TensorDimsCoord {
+    [&](std::map<ff_dim_t, nonnegative_int> const &p) -> TensorDimsCoord {
       return TensorDimsCoord{
         ff_ordered_from_map(p),
       };
@@ -55,9 +68,9 @@ static std::pair<TensorDimsCoord, TensorDimsCoord> get_input_coord_interval_for_
   TensorDimsCoord max_coord = TensorDimsCoord{
     FFOrdered<nonnegative_int>{
       output_batch_component + 1_n,
-      num_input_channels,
-      output_height_component * stride_h + kernel_h,
-      output_width_component * stride_w + kernel_w,
+      num_input_channels.nonnegative_int_from_positive_int(),
+      (output_height_component * stride_h + kernel_h).nonnegative_int_from_positive_int(),
+      (output_width_component * stride_w + kernel_w).nonnegative_int_from_positive_int(),
     },
   };
 
@@ -72,7 +85,7 @@ static TensorDimsCoord get_bias_coord_for_output_coord(
 {
   ff_dim_t output_channel_dim = ff_dim_t{1_n};
 
-  nonnegative_int output_channel_component = tensor_dims_coord_at_idx(output_channel_dim);
+  nonnegative_int output_channel_component = tensor_dims_coord_at_idx(output_coord, output_channel_dim);
 
   return TensorDimsCoord{
     FFOrdered<nonnegative_int>{
@@ -92,11 +105,12 @@ static std::pair<TensorDimsCoord, TensorDimsCoord> get_kernel_coord_interval_for
 {
   ff_dim_t output_channel_dim = ff_dim_t{1_n};
 
-  nonnegative_int output_channel_component = tensor_dims_coord_at_idx(output_channel_dim);
+  nonnegative_int output_channel_component = tensor_dims_coord_at_idx(output_coord, output_channel_dim);
 
   TensorDimsCoord min_coord = TensorDimsCoord{
     FFOrdered<nonnegative_int>{
       output_channel_component,
+      0_n,
       0_n,
       0_n,
     },
@@ -106,8 +120,8 @@ static std::pair<TensorDimsCoord, TensorDimsCoord> get_kernel_coord_interval_for
     FFOrdered<nonnegative_int>{
       output_channel_component + 1_n,
       num_input_channels.nonnegative_int_from_positive_int(),
-      kernel_h,
-      kernel_w,
+      kernel_h.nonnegative_int_from_positive_int(),
+      kernel_w.nonnegative_int_from_positive_int(),
     },
   };
 
@@ -118,8 +132,7 @@ static std::pair<TensorDimsCoord, TensorDimsCoord> get_kernel_coord_interval_for
 }
 
 template <DataType DT>
-struct CPUPConv2DTensorAccessor {
-  template <typename F>
+struct CPUConv2DTensorAccessor {
   void operator()(GenericTensorAccessorR const &input,
                   GenericTensorAccessorR const &filter,
                   std::optional<GenericTensorAccessorR> const &bias,
@@ -163,10 +176,10 @@ struct CPUPConv2DTensorAccessor {
 
       T result = sum(
         zip_with_strict(
-          points_in_range(input_coord_interval),
-          points_in_range(kernel_coord_interval),
+          points_in_range(input_coord_interval.first, input_coord_interval.second),
+          points_in_range(kernel_coord_interval.first, kernel_coord_interval.second),
           [&](TensorDimsCoord const &input_coord, TensorDimsCoord const &output_coord) -> T {
-            return input.at<DT>(input_coord) * kernel.at<DT>(output_coord);
+            return input.at<DT>(input_coord) * filter.at<DT>(output_coord);
           }));
 
       if (bias.has_value()) {
@@ -185,12 +198,12 @@ void conv2d_cpu_forward_kernel(Conv2DAttrs const &attrs,
                                std::optional<GenericTensorAccessorR> const &bias,
                                GenericTensorAccessorW const &output)
 {
-  TensorShape correct_output_shape = pool2d_get_output_shape(attrs, input.shape);
+  TensorShape correct_output_shape = conv2d_get_output_shape(attrs, input.shape);
   ASSERT(output.shape == correct_output_shape);
 
   ASSERT(attrs.use_bias == bias.has_value());
 
-  DataTypeDispatch1<CPUPPool2DTensorAccessor>{}(
+  DataTypeDispatch1<CPUConv2DTensorAccessor>{}(
       input.shape.data_type, input, filter, bias, output, attrs);
 }
 

@@ -25,8 +25,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
         {
-            {std::expf(3), std::expf(3), std::expf(6)},
-            {std::expf(0), std::expf(-1), std::expf(0.75)},
+            {std::exp(3.0f), std::exp(3.0f), std::exp(6.0f)},
+            {std::exp(0.0f), std::exp(-1.0f), std::exp(0.75f)},
         },
         cpu_allocator);
 

@@ -2,6 +2,11 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
+#include "kernels/accessor.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/element_unary_kernels_cpu.h"
 
 using namespace ::FlexFlow;
 
@@ -35,8 +40,10 @@ TEST_SUITE(FF_TEST_SUITE) {
                           DiscardCopyDegree o_eq,
                           positive_int o_1,
                           positive_int o_2,
-                          positive_int o_3) {
-      return lift_to_parallel_with_degrees(
+                          positive_int o_3) 
+      -> ParallelTensorShape
+    {
+      return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
 
@@ -83,8 +90,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                          int discard_copy_degree,
                          int batch_dim_degree,
                          int inner_dimension_1_degree,
-                         int inner_dimension_2_degree) 
-      -> ParallelTensorDimDegrees 
+                         int inner_dimension_2_degree)
+      -> ParallelTensorDimDegrees
     {
       return ParallelTensorDimDegrees{
           /*sum_degree=*/SumDegree{positive_int{sum_degree}},
@@ -137,7 +144,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                                                                ParallelTensorDimDegrees const &input_degrees)
       -> bool
     {
-      ParallelTensorShape input_shape = lift_to_parallel_with_degrees(input_shard_shape, input_degrees);
+      ParallelTensorShape input_shape = lift_shape_to_parallel_with_degrees(input_shard_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {
@@ -145,8 +152,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           input_shape,
         },
       };
-  
-      auto run_op = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards) 
+
+      auto run_op = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards)
         -> std::map<TensorSlotName, GenericTensorAccessorR>
       {
         return run_element_unary(attrs, input_shards);

@@ -6,15 +6,13 @@ using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("reshape_get_output_shape(ReshapeAttrs, TensorShape)") {
     ReshapeAttrs attrs = ReshapeAttrs{
-        TensorShape{
-            TensorDims{FFOrdered<positive_int>{4_p, 3_p, 10_p}},
-            DataType::FLOAT,
-        },
+      TensorDims{FFOrdered<positive_int>{6_p, 5_p}},
+      TensorDims{FFOrdered<positive_int>{3_p, 10_p}},
     };
 
     SUBCASE("input tensor has different num elements") {
       TensorShape input = TensorShape{
-          TensorDims{FFOrdered<positive_int>{4_p, 2_p, 10_p}},
+          TensorDims{FFOrdered<positive_int>{4_p, 5_p, 5_p}},
           DataType::FLOAT,
       };
 
@@ -23,7 +21,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("input tensor has different datatype") {
       TensorShape input = TensorShape{
-          TensorDims{FFOrdered<positive_int>{4_p, 3_p, 10_p}},
+          TensorDims{FFOrdered<positive_int>{4_p, 6_p, 5_p}},
           DataType::DOUBLE,
       };
 
@@ -50,10 +48,8 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE(
       "reshape_get_output_parallel_dim_degrees(ReshapeAttrs, TensorShape)") {
     ReshapeAttrs attrs = ReshapeAttrs{
-        TensorShape{
-            TensorDims{FFOrdered<positive_int>{4_p, 3_p, 10_p}},
-            DataType::FLOAT,
-        },
+      TensorDims{FFOrdered<positive_int>{6_p, 5_p}},
+      TensorDims{FFOrdered<positive_int>{3_p, 10_p}},
     };
 
     SUBCASE("input sum degree > 1") {
@@ -93,5 +89,10 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       CHECK_THROWS(reshape_get_output_parallel_dim_degrees(attrs, input));
     }
+  }
+
+  TEST_CASE("reshape_get_shard_signature_instance") {
+    // TODO(@lockshaw)(#pr):
+    NOT_IMPLEMENTED();
   }
 }

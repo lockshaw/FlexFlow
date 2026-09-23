@@ -79,12 +79,12 @@ ParallelTensorShape reduce_get_output_parallel_shape(ReduceAttrs const &attrs,
   ParallelTensorDimDegrees output_degrees =
       reduce_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input_shape));
 
-  return lift_to_parallel_with_degrees(output_shape, output_degrees);
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 StandardOperatorTaskGroup reduce_get_task_group(
     ReduceAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees) 
+    ParallelTensorDimDegrees const &input_degrees)
 {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();

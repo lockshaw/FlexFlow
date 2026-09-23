@@ -5,7 +5,7 @@ using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("ff_ordered_restrict_dims") {
-    FFOrdered<int> input = {
+    FFOrdered<int> input = FFOrdered<int>{
       1,
       4,
       3,
@@ -18,7 +18,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     FFOrdered<int> result = ff_ordered_restrict_dims(input, dim_set);
-    FFOrdered<int> correct = {
+    FFOrdered<int> correct = FFOrdered<int>{
       1,
       3,
     };

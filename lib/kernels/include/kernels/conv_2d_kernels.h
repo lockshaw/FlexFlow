@@ -7,11 +7,12 @@
 #include "kernels/device_stream_t.dtg.h"
 #include "kernels/ff_handle.h"
 #include "op-attrs/activation.dtg.h"
+#include "op-attrs/ops/conv_2d_attrs.dtg.h"
 
-namespace FlexFlow::Kernels::Conv2D {
+namespace FlexFlow {
 
 std::optional<Conv2DPerDeviceState>
-    init_kernel(DeviceType device_type,
+    conv2d_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
                 std::optional<Activation> activation,
                 int kernel_h,
@@ -26,29 +27,30 @@ std::optional<Conv2DPerDeviceState>
                 float const *filter_ptr,
                 float *filter_grad_ptr);
 
-void forward_kernel(device_stream_t const &stream,
+void conv2d_forward_kernel(device_stream_t const &stream,
                     std::optional<Conv2DPerDeviceState> const &per_device_state,
-                    float const *input_ptr,
-                    float *output_ptr,
-                    float const *filter_ptr,
-                    float const *bias_ptr,
-                    std::optional<Activation> activation);
+                    Conv2DAttrs const &attrs,
+                    GenericTensorAccessorR const &input,
+                    GenericTensorAccessorW const &output,
+                    GenericTensorAccessorR const &filter,
+                    std::optional<GenericTensorAccessorR> const &bias);
 
-void backward_kernel(
+void conv2d_backward_kernel(
     device_stream_t const &stream,
     std::optional<Conv2DPerDeviceState> const &per_device_state,
-    float const *output_ptr,
-    float *output_grad_ptr,
-    float const *input_ptr,
-    float *input_grad_ptr,
-    float const *filter_ptr,
-    float *filter_grad_ptr,
-    float *bias_grad_ptr,
-    std::optional<Activation> activation);
+    Conv2DAttrs const &attrs,
+    GenericTensorAccessorR const &output,
+    GenericTensorAccessorR const &output_grad,
+    GenericTensorAccessorR const &input,
+    GenericTensorAccessorW const &input_grad,
+    GenericTensorAccessorR const &filter,
+    GenericTensorAccessorW const &filter_grad,
+    std::optional<GenericTensorAccessorR> const &bias,
+    std::optional<GenericTensorAccessorW> const &bias_grad);
 
-void cleanup_kernel(DeviceType device_type,
-                    std::optional<Conv2DPerDeviceState> &per_device_state);
+void conv2d_cleanup_kernel(DeviceType device_type,
+                           std::optional<Conv2DPerDeviceState> &per_device_state);
 
-} // namespace FlexFlow::Kernels::Conv2D
+} // namespace FlexFlow
 
 #endif // _FLEXFLOW_OPS_KERNELS_CONV_2D_KERNELS_H
