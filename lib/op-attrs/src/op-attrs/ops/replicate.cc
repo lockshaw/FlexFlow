@@ -24,6 +24,13 @@ ParallelTensorDimDegrees replicate_get_output_parallel_dim_degrees(
   return output_degrees;
 }
 
+ParallelismOperatorTaskGroup
+    replicate_get_task_group(ReplicateAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 OperatorTaskSpace replicate_get_operator_task_space(
     ReplicateAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
