@@ -1,4 +1,8 @@
 #include "op-attrs/get_parallelism_operator_task_group.h"
+#include "op-attrs/ops/combine.h"
+#include "op-attrs/ops/reduction.h"
+#include "op-attrs/ops/repartition.h"
+#include "op-attrs/ops/replicate.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
@@ -7,7 +11,18 @@ ParallelismOperatorTaskGroup get_parallelism_operator_task_group(
     ParallelOpAttrs const &op_attrs,
     ParallelTensorDimDegrees const &input_dim_degrees) {
   return op_attrs.visit<ParallelismOperatorTaskGroup>(overload{
-      [&](auto const &) -> ParallelismOperatorTaskGroup { PANIC(); },
+      [&](CombineAttrs const &attrs) -> ParallelismOperatorTaskGroup {
+        return combine_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](ReductionAttrs const &attrs) -> ParallelismOperatorTaskGroup {
+        return reduction_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](RepartitionAttrs const &attrs) -> ParallelismOperatorTaskGroup {
+        return repartition_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](ReplicateAttrs const &attrs) -> ParallelismOperatorTaskGroup {
+        return replicate_get_task_group(attrs, input_dim_degrees);
+      },
   });
 }
 

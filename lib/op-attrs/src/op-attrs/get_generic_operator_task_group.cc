@@ -2,7 +2,6 @@
 #include "op-attrs/computation_graph_op_attrs.h"
 #include "op-attrs/get_parallelism_operator_task_group.h"
 #include "op-attrs/get_standard_operator_task_group.h"
-#include "op-attrs/parallel_op_attrs.dtg.h"
 #include "op-attrs/parallel_op_attrs.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "utils/containers/require_only_key.h"
