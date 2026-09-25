@@ -70,6 +70,10 @@ StandardOperatorTaskGroup
         std::function<TaskSpaceCoordinate(
             OperatorAtomicTaskShardBinding const &)> const &);
 
+OperatorAtomicTaskShardBinding
+    standard_op_task_group_get_binding_for_task_space_coord(
+        StandardOperatorTaskGroup const &, TaskSpaceCoordinate const &);
+
 nlohmann::json format_as(::FlexFlow::StandardOperatorTaskGroup const &);
 std::ostream &operator<<(std::ostream &,
                          ::FlexFlow::StandardOperatorTaskGroup const &);

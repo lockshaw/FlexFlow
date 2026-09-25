@@ -241,9 +241,11 @@ namespace nlohmann {
 ::FlexFlow::MappedOperatorTaskGroup
     adl_serializer<::FlexFlow::MappedOperatorTaskGroup>::from_json(
         json const &j) {
-  return ::FlexFlow::MappedOperatorTaskGroup{j.template get<
-      ::FlexFlow::bidict<::FlexFlow::MachineSpaceCoordinate,
-                         ::FlexFlow::OperatorAtomicTaskShardBinding>>()};
+  return ::FlexFlow::MappedOperatorTaskGroup{
+      j.template get<
+          ::FlexFlow::bidict<::FlexFlow::MachineSpaceCoordinate,
+                             ::FlexFlow::OperatorAtomicTaskShardBinding>>(),
+  };
 }
 
 void adl_serializer<::FlexFlow::MappedOperatorTaskGroup>::to_json(

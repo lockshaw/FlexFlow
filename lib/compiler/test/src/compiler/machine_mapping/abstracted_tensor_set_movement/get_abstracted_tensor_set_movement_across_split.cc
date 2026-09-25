@@ -367,6 +367,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       ParallelLayerAddedResult input = pcg_add_input_layer(pcg, input_shape);
       parallel_tensor_guid_t t_input =
           require_only_key(input.outputs, TensorSlotName::OUTPUT);
+
       ParallelLayerAddedResult partition_input = add_parallel_layer(
           pcg, partition_attrs, {{TensorSlotName::INPUT, t_input}}, {});
       parallel_tensor_guid_t t_partition_input =
@@ -376,6 +377,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           pcg, relu_attrs, {{TensorSlotName::INPUT, t_partition_input}}, {});
       parallel_tensor_guid_t t_layer_1 =
           require_only_key(layer_1.outputs, TensorSlotName::OUTPUT);
+
       ParallelLayerAddedResult layer_2 = add_parallel_layer(
           pcg, relu_attrs, {{TensorSlotName::INPUT, t_layer_1}}, {});
 
@@ -406,7 +408,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       num_bytes_t shard_size = get_size_in_bytes(
-          get_reduced_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
+          get_piece_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
 
       AbstractedTensorSetMovement correct = AbstractedTensorSetMovement{
           /*single_tensor_movements=*/{
@@ -488,7 +490,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       num_bytes_t shard_size = get_size_in_bytes(
-          get_reduced_shape(get_parallel_tensor_shape(pcg, t_layer_2)));
+          get_piece_shape(get_parallel_tensor_shape(pcg, t_layer_2)));
 
       AbstractedTensorSetMovement correct = AbstractedTensorSetMovement{
           /*single_tensor_movements=*/{
@@ -561,7 +563,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       num_bytes_t shard_size = get_size_in_bytes(
-          get_reduced_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
+          get_piece_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
 
       AbstractedTensorSetMovement correct = AbstractedTensorSetMovement{
           /*single_tensor_movements=*/{
@@ -660,9 +662,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       num_bytes_t t1_shard_size = get_size_in_bytes(
-          get_reduced_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
+          get_piece_shape(get_parallel_tensor_shape(pcg, t_layer_1)));
       num_bytes_t t2_shard_size = get_size_in_bytes(
-          get_reduced_shape(get_parallel_tensor_shape(pcg, t_layer_2)));
+          get_piece_shape(get_parallel_tensor_shape(pcg, t_layer_2)));
 
       AbstractedTensorSetMovement correct = AbstractedTensorSetMovement{
           /*single_tensor_movements=*/{

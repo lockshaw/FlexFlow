@@ -1,5 +1,7 @@
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/ff_ordered/ff_ordered_from_map.h"
+#include "op-attrs/ff_ordered/ff_ordered_of.h"
+#include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/ff_ordered/ff_ordered_without_dims.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
@@ -8,11 +10,26 @@
 #include "utils/containers/generate_map.h"
 #include "utils/containers/sorted_by.h"
 #include "utils/containers/transform.h"
+#include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
 
 namespace FlexFlow {
+
+ParallelTensorSpaceCoordinate
+    trivial_parallel_tensor_space_coordinate_for_num_tensor_dims(
+        num_tensor_dims_t const &num_tensor_dims) {
+  return ParallelTensorSpaceCoordinate{
+      /*sum_component=*/0_n,
+      /*discard_copy_component=*/0_n,
+      /*shard_components=*/
+      ff_ordered_of(
+          transform(nonnegative_range(
+                        num_tensor_dims.nonnegative_int_from_num_tensor_dims()),
+                    [](nonnegative_int) -> nonnegative_int { return 0_n; })),
+  };
+}
 
 num_ptensor_parallel_dims_t
     ptensor_coord_num_dims(ParallelTensorSpaceCoordinate const &c) {
