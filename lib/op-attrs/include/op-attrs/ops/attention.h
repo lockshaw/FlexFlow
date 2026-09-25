@@ -10,6 +10,7 @@
 #include "op-attrs/ops/attention_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include <tl/expected.hpp>
@@ -112,6 +113,12 @@ std::map<TensorSlotName, ParallelTensorShape>
                                          ParallelTensorShape const &input_q,
                                          ParallelTensorShape const &input_k,
                                          ParallelTensorShape const &input_v);
+
+StandardOperatorTaskGroup
+    attention_get_task_group(MultiHeadAttentionAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_q,
+                             ParallelTensorDimDegrees const &input_k,
+                             ParallelTensorDimDegrees const &input_v);
 
 OperatorTaskSpace
     attention_get_operator_task_space(MultiHeadAttentionAttrs const &attrs,

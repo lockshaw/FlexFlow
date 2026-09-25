@@ -31,11 +31,61 @@ OperatorType get_op_type(DropoutAttrs const &) {
 }
 
 OperatorType get_op_type(ElementBinaryAttrs const &attrs) {
-  return attrs.type;
+  switch (attrs.op) {
+    case ElementBinaryOp::ADD:
+      return OperatorType::EW_ADD;
+    case ElementBinaryOp::SUBTRACT:
+      return OperatorType::EW_SUB;
+    case ElementBinaryOp::MULTIPLY:
+      return OperatorType::EW_MUL;
+    case ElementBinaryOp::DIVIDE:
+      return OperatorType::EW_DIV;
+    case ElementBinaryOp::MAX:
+      return OperatorType::EW_MAX;
+    case ElementBinaryOp::MIN:
+      return OperatorType::EW_MIN;
+    default:
+      PANIC("Unknown ElementBinaryOp {}", attrs.op);
+  }
 }
 
 OperatorType get_op_type(ElementUnaryAttrs const &attrs) {
-  return attrs.op_type;
+  switch (attrs.op_type) {
+    case ElementUnaryOp::RELU:
+      return OperatorType::RELU;
+    case ElementUnaryOp::IDENTITY:
+      return OperatorType::IDENTITY;
+    case ElementUnaryOp::GELU:
+      return OperatorType::GELU;
+    case ElementUnaryOp::SIGMOID:
+      return OperatorType::SIGMOID;
+    case ElementUnaryOp::TANH:
+      return OperatorType::TANH;
+    case ElementUnaryOp::ELU:
+      return OperatorType::ELU;
+    case ElementUnaryOp::SILU:
+      return OperatorType::SILU;
+    case ElementUnaryOp::SIN:
+      return OperatorType::SIN;
+    case ElementUnaryOp::COS:
+      return OperatorType::COS;
+    case ElementUnaryOp::RSQRT:
+      return OperatorType::RSQRT;
+    case ElementUnaryOp::SCALAR_ADD:
+      return OperatorType::SCALAR_ADD;
+    case ElementUnaryOp::SCALAR_SUB:
+      return OperatorType::SCALAR_SUB;
+    case ElementUnaryOp::SCALAR_MULTIPLY:
+      return OperatorType::SCALAR_MULTIPLY;
+    case ElementUnaryOp::SCALAR_TRUE_DIV:
+      return OperatorType::SCALAR_TRUE_DIV;
+    case ElementUnaryOp::POW:
+      return OperatorType::POW;
+    case ElementUnaryOp::EXP:
+      return OperatorType::EXP;
+    default:
+      PANIC("Unknown ElementUnaryOp {}", attrs.op_type);
+  }
 }
 
 OperatorType get_op_type(EmbeddingAttrs const &) {

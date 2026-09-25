@@ -1,4 +1,5 @@
 #include "compiler/series_parallel/pcg/get_pcg_series_parallel_decomposition.h"
+#include "op-attrs/element_binary_op.dtg.h"
 #include "op-attrs/ops/embedding.h"
 #include "op-attrs/ops/linear.h"
 #include "op-attrs/parallel_tensor_shape.h"
@@ -444,7 +445,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*tensor_shape=*/input_shape,
     };
     ElementUnaryAttrs relu_attrs = ElementUnaryAttrs{
-        /*op_type=*/OperatorType::RELU,
+        /*op_type=*/ElementUnaryOp::RELU,
         /*scalar=*/std::nullopt,
     };
 
@@ -518,7 +519,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           require_only_key(input1_added.outputs, TensorSlotName::OUTPUT);
 
       ElementBinaryAttrs ew_add_attrs = ElementBinaryAttrs{
-          /*type=*/OperatorType::EW_ADD,
+          /*op=*/ElementBinaryOp::ADD,
           /*compute_type=*/DataType::FLOAT,
           /*should_broadcast_lhs=*/false,
           /*should_broadcast_rhs=*/false,

@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     positive_int d3 = 24_p;
 
     ElementBinaryAttrs attrs = ElementBinaryAttrs{
-        OperatorType::EW_ADD,
+        ElementBinaryOp::ADD,
         DataType::FLOAT,
         /*should_broadcast_lhs=*/false,
         /*should_broadcast_rhs=*/false,
@@ -59,7 +59,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     positive_int d3 = 24_p;
 
     ElementBinaryAttrs attrs = ElementBinaryAttrs{
-        OperatorType::EW_ADD,
+        ElementBinaryOp::ADD,
         DataType::FLOAT,
         /*should_broadcast_lhs=*/false,
         /*should_broadcast_rhs=*/false,
@@ -197,7 +197,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape rhs_shard_shape = lhs_shard_shape;
 
     ElementBinaryAttrs attrs = ElementBinaryAttrs{
-        /*type=*/OperatorType::EW_ADD,
+        /*op=*/ElementBinaryOp::ADD,
         /*compute_type=*/DataType::FLOAT,
         /*should_broadcast_lhs=*/false,
         /*should_broadcast_rhs=*/false,
@@ -250,7 +250,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       return shard_signature_instance_is_valid(
-          /*attrs=*/ComputationGraphOpAttrs{BatchMatmulAttrs{}},
+          /*attrs=*/ComputationGraphOpAttrs{attrs},
           /*input_shapes=*/input_shapes,
           /*run_op=*/run_element_binary,
           /*seed=*/0);

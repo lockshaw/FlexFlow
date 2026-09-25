@@ -1,12 +1,13 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_SET_OF_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_SET_OF_H
 
+#include "utils/containers/get_element_type.h"
 #include <map>
 #include <set>
 
 namespace FlexFlow {
 
-template <typename C, typename T = typename C::value_type>
+template <typename C, typename T = get_element_type_t<C>>
 std::set<T> set_of(C const &c) {
   std::set<T> result;
   for (T const &t : c) {

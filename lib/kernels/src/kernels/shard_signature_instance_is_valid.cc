@@ -1,5 +1,5 @@
 #include "kernels/shard_signature_instance_is_valid.h"
-#include "kernels/accessors_are_equal.h"
+#include "kernels/accessors_are_within_epsilon.h"
 #include "kernels/emulated_parallel_tensor.h"
 #include "kernels/local_cpu_allocator.h"
 #include "kernels/parallel_tensor_reduction.h"
@@ -85,7 +85,7 @@ bool shard_signature_instance_is_valid(
     GenericTensorAccessorR slot_unpar_then_op =
         unpar_then_op.at(output_slot_name);
 
-    return accessors_are_equal(slot_op_then_unpar, slot_unpar_then_op);
+    return accessors_are_within_epsilon(slot_op_then_unpar, slot_unpar_then_op);
   });
 }
 

@@ -1,6 +1,7 @@
 #ifndef _FLEXFLOW_PCG_INCLUDE_PCG_COMPUTATION_GRAPH_BUILDER_H
 #define _FLEXFLOW_PCG_INCLUDE_PCG_COMPUTATION_GRAPH_BUILDER_H
 
+#include "op-attrs/element_unary_op.dtg.h"
 #include "op-attrs/upsample_mode.dtg.h"
 #include "pcg/computation_graph.dtg.h"
 #include "pcg/tensor_guid_t.dtg.h"
@@ -299,13 +300,13 @@ private:
   TensorDims get_broadcast_target_dims(std::vector<TensorDims> const &);
 
   tensor_guid_t
-      element_binary(OperatorType,
+      element_binary(ElementBinaryOp,
                      tensor_guid_t const &lhs,
                      tensor_guid_t const &rhs,
                      std::optional<std::string> const &name = std::nullopt);
 
   tensor_guid_t
-      element_unary(OperatorType,
+      element_unary(ElementUnaryOp,
                     tensor_guid_t const &input,
                     std::optional<float> scalar,
                     std::optional<std::string> const &name = std::nullopt);

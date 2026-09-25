@@ -19,6 +19,7 @@
 #include "utils/containers/filtrans.h"
 #include "utils/containers/require_same.h"
 #include "utils/containers/require_three_keys.h"
+#include "utils/containers/set_filtrans.h"
 #include "utils/containers/transform.h"
 #include "utils/optional.h"
 #include "utils/orthotope/bounded_component.h"
@@ -132,13 +133,15 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
           attrs, lhs_input_degrees, rhs_input_degrees);
 
   return StandardOperatorTaskGroup{
-      filtrans(
+      set_filtrans(
           binary_cartesian_product(
               get_parallel_tensor_space_coordinates(lhs_input_degrees),
               get_parallel_tensor_space_coordinates(rhs_input_degrees)),
           [&](std::pair<ParallelTensorSpaceCoordinate,
                         ParallelTensorSpaceCoordinate> const &coords)
               -> std::optional<AbstractedOperatorAtomicTaskShardBinding> {
+            std::cerr << fmt::to_string(coords) << std::endl;
+
             ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
             ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
 

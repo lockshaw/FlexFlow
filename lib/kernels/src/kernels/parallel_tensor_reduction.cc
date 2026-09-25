@@ -1,5 +1,6 @@
 #include "kernels/parallel_tensor_reduction.h"
 #include "kernels/accessors_are_equal.h"
+#include "kernels/format_accessor_contents.h"
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
@@ -193,7 +194,10 @@ EmulatedParallelTensor perform_parallel_tensor_discard_copy(
       discard_copy_dim_idx(),
       [&](GenericTensorAccessorR const &lhs,
           GenericTensorAccessorR const &rhs) -> GenericTensorAccessorR {
-        ASSERT(accessors_are_equal(lhs, rhs));
+        ASSERT(accessors_are_equal(lhs, rhs),
+               fmt::format("lhs:\n{}\nrhs:\n{}\n",
+                           format_accessor_r_contents(lhs),
+                           format_accessor_r_contents(rhs)));
         return lhs;
       });
 }

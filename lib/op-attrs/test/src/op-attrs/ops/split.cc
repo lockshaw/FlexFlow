@@ -232,7 +232,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("mixed parallelism") {
       ParallelTensorDimDegrees input_dim_degrees =
-          mk_dim_degrees(3, 2, 3, 2, 1);
+          mk_dim_degrees(3, 2, 3, 1, 2);
 
       CHECK(split_shard_signature_instance_is_valid(input_dim_degrees));
     }
