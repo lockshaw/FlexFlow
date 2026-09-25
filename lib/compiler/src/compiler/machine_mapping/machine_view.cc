@@ -2,6 +2,8 @@
 #include "compiler/machine_mapping/machine_view_dimension.dtg.h"
 #include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/stride_t.dtg.h"
+#include "op-attrs/generic_operator_task_group.h"
+#include "op-attrs/get_generic_operator_task_group.h"
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
@@ -171,6 +173,7 @@ static OperatorAtomicTaskShardBinding
         MachineView const &machine_view,
         MachineComputeResourceSlice const &machine_space,
         MachineSpaceCoordinate const &machine_space_coord) {
+
   OperatorTaskSpace op_task_space =
       get_operator_task_space(op_attrs, inputs_dim_degrees);
 
@@ -178,36 +181,11 @@ static OperatorAtomicTaskShardBinding
       mv_task_space_coord_for_machine_space_coord(
           machine_space, machine_view, op_task_space, machine_space_coord);
 
-  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping> mappings =
-      get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
+  GenericOperatorTaskGroup op_task_group =
+      get_generic_operator_task_group(op_attrs, inputs_dim_degrees);
 
-  std::map<TensorSlotName, ParallelTensorDimDegrees> weights_dim_degrees =
-      infer_weight_degrees(op_attrs, inputs_dim_degrees);
-
-  std::map<TensorSlotName, ParallelTensorDimDegrees> outputs_dim_degrees =
-      infer_output_degrees(op_attrs, inputs_dim_degrees);
-
-  auto compute_ptensor_coords =
-      [&](std::map<TensorSlotName, ParallelTensorDimDegrees> const &dim_degrees)
-      -> std::map<TensorSlotName, ParallelTensorSpaceCoordinate> {
-    return generate_map(
-        keys(dim_degrees),
-        [&](TensorSlotName const &slot_name) -> ParallelTensorSpaceCoordinate {
-          num_ptensor_shard_dims_t num_shard_dims =
-              get_ptensor_dim_degrees_num_shard_dims(dim_degrees.at(slot_name));
-
-          return ptensor_coord_for_task_space_coord(
-              mappings.at(slot_name), task_space_coord, num_shard_dims);
-        });
-  };
-
-  return OperatorAtomicTaskShardBinding{
-      /*tensor_coords=*/merge_disjoint_maps(std::vector{
-          compute_ptensor_coords(inputs_dim_degrees),
-          compute_ptensor_coords(weights_dim_degrees),
-          compute_ptensor_coords(outputs_dim_degrees),
-      }),
-  };
+  return generic_op_task_group_get_binding_for_task_space_coord(
+      op_task_group, task_space_coord);
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(

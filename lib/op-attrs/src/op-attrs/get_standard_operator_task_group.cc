@@ -5,6 +5,7 @@
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/ops/flat.h"
+#include "op-attrs/ops/input.h"
 #include "op-attrs/ops/linear.h"
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/ops/reshape.h"
@@ -12,6 +13,7 @@
 #include "op-attrs/ops/split.h"
 #include "op-attrs/ops/transpose.h"
 #include "op-attrs/ops/upsample.h"
+#include "op-attrs/ops/weight.h"
 #include "op-attrs/tensor_slot_name.h"
 #include "utils/containers/require_only_key.h"
 #include "utils/containers/require_two_keys.h"
@@ -86,6 +88,11 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
 
         return flat_get_task_group(attrs, input_dim_degrees);
       },
+      [&](InputAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ASSERT(input_dim_degree_binding.size() == 0);
+
+        return input_get_task_group(attrs);
+      },
       [&](LinearAttrs const &attrs) -> StandardOperatorTaskGroup {
         ParallelTensorDimDegrees input_dim_degrees =
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
@@ -127,6 +134,11 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
         return upsample_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](WeightAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ASSERT(input_dim_degree_binding.size() == 0);
+
+        return weight_get_task_group(attrs);
       },
       [&](auto const &) -> StandardOperatorTaskGroup { PANIC(); }});
 }

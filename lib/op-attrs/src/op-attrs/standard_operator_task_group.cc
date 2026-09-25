@@ -6,6 +6,8 @@
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "utils/bidict/algorithms/bidict_from_unstructured_relation.h"
+#include "utils/containers/filtrans.h"
+#include "utils/containers/get_only.h"
 #include "utils/optional.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
@@ -236,4 +238,58 @@ StandardOperatorTaskGroup restrict_standard_operator_task_group_to_slots(
   };
 }
 
+OperatorAtomicTaskShardBinding
+    standard_op_task_group_get_binding_for_task_space_coord(
+        StandardOperatorTaskGroup const &task_group,
+        TaskSpaceCoordinate const &task_coord) {
+  {
+    OperatorTaskSpace task_group_task_space =
+        task_space_for_standard_operator_task_group(task_group);
+
+    ASSERT(
+        operator_task_space_contains_coord(task_group_task_space, task_coord));
+  }
+
+  return get_only(
+      filtrans(task_group.get_shard_bindings(),
+               [&](AbstractedOperatorAtomicTaskShardBinding const &b)
+                   -> std::optional<OperatorAtomicTaskShardBinding> {
+                 if (b.task_coord == task_coord) {
+                   return operator_atomic_task_shard_binding_from_abstracted(b);
+                 } else {
+                   return std::nullopt;
+                 }
+               }));
+}
+
 } // namespace FlexFlow
+
+namespace std {
+
+using ::FlexFlow::StandardOperatorTaskGroup;
+
+size_t hash<StandardOperatorTaskGroup>::operator()(
+    StandardOperatorTaskGroup const &t) const {
+  return ::FlexFlow::get_std_hash(t.tie());
+}
+
+} // namespace std
+
+namespace nlohmann {
+
+using ::FlexFlow::StandardOperatorTaskGroup;
+
+StandardOperatorTaskGroup
+    adl_serializer<StandardOperatorTaskGroup>::from_json(json const &j) {
+  return StandardOperatorTaskGroup{
+      j.template get<
+          ::std::set<::FlexFlow::AbstractedOperatorAtomicTaskShardBinding>>(),
+  };
+}
+
+void adl_serializer<StandardOperatorTaskGroup>::to_json(
+    json &j, StandardOperatorTaskGroup const &t) {
+  j = t.get_shard_bindings();
+}
+
+} // namespace nlohmann
