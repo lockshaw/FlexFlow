@@ -17,6 +17,8 @@
 #include "utils/containers/slice.h"
 #include "op-attrs/ops/reshape.h"
 #include "op-attrs/ops/flat.h"
+#include "op-attrs/ops/weight.h"
+#include "op-attrs/ops/input.h"
 
 namespace FlexFlow {
 
@@ -78,6 +80,11 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
 
       return flat_get_task_group(attrs, input_dim_degrees);
     },
+    [&](InputAttrs const &attrs) -> StandardOperatorTaskGroup {
+      ASSERT(input_dim_degree_binding.size() == 0);
+
+      return input_get_task_group(attrs);
+    },
     [&](LinearAttrs const &attrs) -> StandardOperatorTaskGroup {
       ParallelTensorDimDegrees input_dim_degrees =
         require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
@@ -119,6 +126,11 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
         require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
       return upsample_get_task_group(attrs, input_dim_degrees);
+    },
+    [&](WeightAttrs const &attrs) -> StandardOperatorTaskGroup {
+      ASSERT(input_dim_degree_binding.size() == 0);
+
+      return weight_get_task_group(attrs);
     },
     [&](auto const &) -> StandardOperatorTaskGroup {
       PANIC();

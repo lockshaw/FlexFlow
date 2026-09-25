@@ -9,8 +9,13 @@
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "utils/orthotope/bounded_component.dtg.h"
 #include "utils/orthotope/orthotope_bounded_coord.dtg.h"
+#include "op-attrs/tensor_dims.dtg.h"
+#include "op-attrs/num_tensor_dims_t.h"
 
 namespace FlexFlow {
+
+ParallelTensorSpaceCoordinate trivial_parallel_tensor_space_coordinate_for_num_tensor_dims(
+  num_tensor_dims_t const &);
 
 num_ptensor_parallel_dims_t
     ptensor_coord_num_dims(ParallelTensorSpaceCoordinate const &);

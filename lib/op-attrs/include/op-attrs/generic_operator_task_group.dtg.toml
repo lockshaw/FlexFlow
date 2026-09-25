@@ -1,0 +1,23 @@
+namespace = "FlexFlow"
+name = "GenericOperatorTaskGroup"
+type = "variant"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "fmt",
+]
+
+includes = [
+  "op-attrs/standard_operator_task_group.h",
+  "op-attrs/parallelism_operator_task_group.h",
+]
+
+[[values]]
+type = "::FlexFlow::StandardOperatorTaskGroup"
+key = "standard_op"
+
+[[values]]
+type = "::FlexFlow::ParallelismOperatorTaskGroup"
+key = "parallelism_op"
