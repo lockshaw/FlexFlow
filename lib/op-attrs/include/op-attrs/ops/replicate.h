@@ -6,6 +6,7 @@
 #include "op-attrs/ops/replicate_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/parallelism_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -14,6 +15,10 @@ ParallelTensorShape replicate_get_output_parallel_shape(ReplicateAttrs const &at
 
 ParallelTensorDimDegrees replicate_get_output_parallel_dim_degrees(
     ReplicateAttrs const &, ParallelTensorDimDegrees const &input_degrees);
+
+ParallelismOperatorTaskGroup replicate_get_task_group(
+    ReplicateAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace replicate_get_operator_task_space(
     ReplicateAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

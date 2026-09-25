@@ -12,6 +12,9 @@ ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(ParallelOpAttrs 
                                                                 ParallelTensorShape const &);
 PCGOperatorAttrs pcg_op_attrs_from_parallel_op_attrs(ParallelOpAttrs const &);
 
+std::optional<ParallelOpAttrs>
+    parallel_op_attrs_from_pcg_op_attrs(PCGOperatorAttrs const &);
+
 } // namespace FlexFlow
 
 #endif

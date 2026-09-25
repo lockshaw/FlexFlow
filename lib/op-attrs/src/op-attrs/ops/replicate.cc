@@ -24,6 +24,14 @@ ParallelTensorDimDegrees replicate_get_output_parallel_dim_degrees(
   return output_degrees;
 }
 
+ParallelismOperatorTaskGroup replicate_get_task_group(
+    ReplicateAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 OperatorTaskSpace replicate_get_operator_task_space(
     ReplicateAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
@@ -48,7 +56,7 @@ OperatorSpaceToParallelTensorSpaceMapping
 
   DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
       dim_projection = get_projection_for_op_to_ptensor_identity_mapping(
-          operator_task_space_get_dim_idxs(op_task_space), 
+          operator_task_space_get_dim_idxs(op_task_space),
           input_dim_idxs_for_projection);
 
   return operator_ptensor_space_mapping_by_scaling_projection(

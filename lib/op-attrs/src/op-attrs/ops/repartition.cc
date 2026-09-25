@@ -32,6 +32,14 @@ ParallelTensorDimDegrees repartition_get_output_parallel_dim_degrees(
   return output_degrees;
 }
 
+ParallelismOperatorTaskGroup repartition_get_task_group(
+    RepartitionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
+{
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 OperatorTaskSpace repartition_get_operator_task_space(
     RepartitionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
