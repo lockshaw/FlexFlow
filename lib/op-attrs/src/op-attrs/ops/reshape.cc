@@ -10,30 +10,17 @@
 #include "utils/containers/set_union.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
+#include "utils/containers/range.h"
+#include "op-attrs/ff_ordered/ff_ordered_transform.h"
 
 namespace FlexFlow {
 
 TensorShape reshape_get_output_shape(ReshapeAttrs const &attrs,
                                      TensorShape const &input_shape) {
 
-  TensorDims input_dims = input_shape.dims;
-  ff_dim_t first_nonleading_dim = ff_dim_t{
-    get_num_dims(input_dims).nonnegative_int_from_num_tensor_dims(),
-  };
+  TensorDims leading_dims = tensor_dims_remove_trailing_dims(input_shape.dims, attrs.core_input_dims);
 
-  {
-    TensorDims reduced_input_dims = 
-      slice_tensor_dims(input_dims, first_nonleading_dim, std::nullopt);
-
-    ASSERT(reduced_input_dims == attrs.core_input_dims);
-  }
-
-  TensorDims leading_dims = slice_tensor_dims(
-    input_dims, ff_dim_t{0_n}, first_nonleading_dim);
-
-  TensorDims output_dims = TensorDims{
-    ff_ordered_concat(leading_dims.ff_ordered, attrs.core_output_dims.ff_ordered),
-  };
+  TensorDims output_dims = concat_tensor_dims(leading_dims, attrs.core_output_dims);
 
   return TensorShape{
     /*dims=*/output_dims,
@@ -41,6 +28,8 @@ TensorShape reshape_get_output_shape(ReshapeAttrs const &attrs,
   };
 }
 
+/*
+// TODO(@lockshaw)(#pr):
 static
 std::set<parallel_tensor_dim_idx_t> get_dims_allowed_parallel(ReshapeAttrs const &attrs)
 {
@@ -69,26 +58,28 @@ std::set<parallel_tensor_dim_idx_t> get_dims_allowed_parallel(ReshapeAttrs const
 
   return dims_allowed_parallel;
 }
+*/
 
 ParallelTensorDimDegrees reshape_get_output_parallel_dim_degrees(
     ReshapeAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees) {
 
-  std::set<parallel_tensor_dim_idx_t> dims_allowed_parallel =
-    get_dims_allowed_parallel(attrs);
+  FFOrdered<positive_int> input_trailing_dim_degrees = 
+    ff_ordered_transform(attrs.core_input_dims.ff_ordered,
+                         [&](positive_int) -> positive_int{
+                           return 1_p;
+                         });
 
-  std::set<parallel_tensor_dim_idx_t> dims_not_allowed_parallel =
-    set_minus(get_parallel_tensor_dim_indices(input_dim_degrees),
-              dims_allowed_parallel);
+  ParallelTensorDimDegrees leading_dim_degrees = 
+    parallel_tensor_dim_degrees_remove_trailing_dims(input_dim_degrees, input_trailing_dim_degrees);
 
-  ASSERT(
-    all_of(dims_not_allowed_parallel,
-           [&](parallel_tensor_dim_idx_t d) -> bool {
-             return get_degree_for_parallel_tensor_dim_idx(input_dim_degrees, d) == 1;
-           })
-  );
+  FFOrdered<positive_int> output_trailing_dim_degrees = 
+    ff_ordered_transform(attrs.core_output_dims.ff_ordered,
+                         [&](positive_int) -> positive_int{
+                           return 1_p;
+                         });
 
-  return input_dim_degrees;
+  return parallel_tensor_dim_degrees_append_trailing_dims(leading_dim_degrees, output_trailing_dim_degrees);
 }
 
 ParallelTensorShape

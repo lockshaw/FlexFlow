@@ -103,7 +103,7 @@ PCGOperatorAttrs materialize_operator_from_attrs_map(
       }};
     case OperatorType::RELU:
       return PCGOperatorAttrs{ElementUnaryAttrs{
-          acc.get<OperatorType>(OperatorAttributeKey::OP_TYPE),
+          acc.get<ElementUnaryOp>(OperatorAttributeKey::OP_TYPE),
           acc.get<std::optional<float>>(OperatorAttributeKey::SCALAR),
       }};
     case OperatorType::SOFTMAX:
@@ -112,7 +112,7 @@ PCGOperatorAttrs materialize_operator_from_attrs_map(
       }};
     case OperatorType::EW_ADD:
       return PCGOperatorAttrs{ElementBinaryAttrs{
-          acc.get<OperatorType>(OperatorAttributeKey::OP_TYPE),
+          acc.get<ElementBinaryOp>(OperatorAttributeKey::OP_TYPE),
           acc.get<DataType>(OperatorAttributeKey::DATA_TYPE),
           acc.get<bool>(OperatorAttributeKey::SHOULD_BROADCAST_LHS),
           acc.get<bool>(OperatorAttributeKey::SHOULD_BROADCAST_LHS),

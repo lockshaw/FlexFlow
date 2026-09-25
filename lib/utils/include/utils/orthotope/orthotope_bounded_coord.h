@@ -54,22 +54,6 @@ std::pair<OrthotopeBoundedCoord, BoundedComponent> orthotope_bounded_coord_slice
 
 std::optional<BoundedComponent> flatten_orthotope_bounded_coord(OrthotopeBoundedCoord const &);
 
-std::pair<BoundedComponent, BoundedComponent> orthotope_unflatten_bounded_component_2d(
-    BoundedComponent const &input,
-    positive_int output_tail_bound);
-
-OrthotopeBoundedCoord orthotope_unflatten_bounded_component(
-    BoundedComponent const &component,
-    Orthotope const &output_tail_orthotope);
-
-Orthotope orthotope_find_left_weighted_cor(
-    positive_int dimension_size,
-    Orthotope const &ground_domain);
-
-OrthotopeBoundedCoord orthotope_opportunistically_unflatten_bounded_component_for_ground_domain(
-    BoundedComponent const &component,
-    Orthotope const &ground_domain);
-
 OrthotopeCoord project_bounded_coordinate_to_orthotope(OrthotopeBoundedCoord const &input_coord,
                                                        Orthotope const &output);
 

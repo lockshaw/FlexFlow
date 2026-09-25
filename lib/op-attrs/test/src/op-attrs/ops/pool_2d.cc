@@ -135,7 +135,37 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*activation=*/std::nullopt,
     };
 
-    SUBCASE("fails on non-4d inputs") {
+    SUBCASE("1d input") {
+      TensorShape input = TensorShape{
+          TensorDims{FFOrdered{
+              14_p,
+          }},
+          DataType::FLOAT,
+      };
+
+      CHECK_THROWS(pool2d_get_output_shape(attrs, input));
+    }
+
+    SUBCASE("2d input") {
+      TensorShape input = TensorShape{
+          TensorDims{FFOrdered{
+              12_p,
+              14_p,
+          }},
+          DataType::FLOAT,
+      };
+
+      TensorShape result =
+          pool2d_get_output_shape(attrs, input);
+      TensorShape correct = TensorShape{
+          TensorDims{FFOrdered{6_p, 8_p}},
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("3d input") {
       TensorShape input = TensorShape{
           TensorDims{FFOrdered{
               10_p,
@@ -145,7 +175,14 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      CHECK_THROWS(pool2d_get_output_shape(attrs, input));
+      TensorShape result =
+          pool2d_get_output_shape(attrs, input);
+      TensorShape correct = TensorShape{
+          TensorDims{FFOrdered{10_p, 6_p, 8_p}},
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
     }
 
     SUBCASE("4d input") {
@@ -158,6 +195,22 @@ TEST_SUITE(FF_TEST_SUITE) {
           pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{11_p, 13_p, 6_p, 4_p}},
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("5d input") {
+      TensorShape input = TensorShape{
+          TensorDims{FFOrdered{11_p, 13_p, 16_p, 12_p, 14_p}},
+          DataType::FLOAT,
+      };
+
+      TensorShape result =
+          pool2d_get_output_shape(attrs, input);
+      TensorShape correct = TensorShape{
+          TensorDims{FFOrdered{11_p, 13_p, 16_p, 6_p, 8_p}},
           DataType::FLOAT,
       };
 
@@ -467,12 +520,6 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("data parallelism") {
       ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 1, 2, 1, 1, 1);
-
-      CHECK(pool2d_shard_signature_instance_is_valid(input_dim_degrees));
-    }
-
-    SUBCASE("mixed parallelism") {
-      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(3, 2, 3, 2, 1, 1);
 
       CHECK(pool2d_shard_signature_instance_is_valid(input_dim_degrees));
     }

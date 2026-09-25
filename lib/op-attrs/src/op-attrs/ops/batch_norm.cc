@@ -146,12 +146,36 @@ ParallelTensorDimDegrees
 
   ASSERT(attrs.affine, "No gamma weights exist for attrs.affine = false");
 
-  relative_ff_dim_t channel_dim = relative_ff_dim_t{1};
+  std::set<parallel_tensor_dim_idx_t> channel_dim_idxs = {
+    shard_dim_idx(ff_dim_t{1_n}),
+  };
+
+  std::set<parallel_tensor_dim_idx_t> non_channel_dim_idxs =
+    set_minus(
+      get_parallel_tensor_dim_indices(input_degrees),
+      channel_dim_idxs);
+
+
+  DimDomain<parallel_tensor_dim_idx_t>
+    discard_copy_degree_space =
+      dim_domain_for_ptensor_dims(
+        input_degrees,
+        non_channel_dim_idxs);
+
+  DimDomain<parallel_tensor_dim_idx_t>
+    channel_dim_degree_space =
+      dim_domain_for_ptensor_dims(
+        input_degrees,
+        channel_dim_idxs);
 
   return ParallelTensorDimDegrees{
       SumDegree{1_p},
-      DiscardCopyDegree{1_p},
-      FFOrdered<positive_int>{input_degrees.shard_degrees.at(channel_dim)},
+      DiscardCopyDegree{
+        dim_domain_get_volume(discard_copy_degree_space),
+      },
+      FFOrdered<positive_int>{
+        dim_domain_get_volume(channel_dim_degree_space),
+      },
   };
 }
 

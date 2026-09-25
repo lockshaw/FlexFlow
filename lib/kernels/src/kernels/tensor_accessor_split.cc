@@ -115,9 +115,9 @@ struct CPUSplitTensorAccessor {
 
 void
   tensor_accessor_split_to(GenericTensorAccessorR const &input,
-                        ff_dim_t const &axis,
-                        std::vector<positive_int> const &sizes,
-                        std::vector<GenericTensorAccessorW> const &outputs)
+                           ff_dim_t const &axis,
+                           std::vector<positive_int> const &sizes,
+                           std::vector<GenericTensorAccessorW> const &outputs)
 {
   for (auto const &[size, output] : zip_strict(sizes, outputs)) {
     ASSERT(size == output.shape.dims.ff_ordered.at(axis));

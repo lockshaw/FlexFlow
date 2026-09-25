@@ -4,6 +4,7 @@
 #include "kernels/tensor_accessor_unary_ops.h"
 #include "kernels/reduce_tensor_accessor.h"
 #include "kernels/tensor_accessor_binary_ops.h"
+#include "kernels/tensor_accessor_promote_dims.h"
 
 namespace FlexFlow {
 
@@ -24,9 +25,15 @@ void softmax_cpu_forward_kernel(SoftmaxAttrs const &attrs,
         return accum + x;
       });
 
+  TensorDims promoted_dims = input.shape.dims;
+  promoted_dims.ff_ordered.at(attrs.dim) = 1_p;
+
+  GenericTensorAccessorR promoted_denominator =
+    tensor_accessor_promote_dims(denominator, promoted_dims);
+
   GenericTensorAccessorW broadcasted_denominator =
     tensor_accessor_broadcast(
-      denominator,
+      promoted_denominator,
       input.shape.dims,
       cpu_allocator);
 

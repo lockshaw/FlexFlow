@@ -17,7 +17,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     positive_int d3 = 24_p;
 
     ElementUnaryAttrs attrs =
-        ElementUnaryAttrs{OperatorType::RELU, std::nullopt};
+        ElementUnaryAttrs{ElementUnaryOp::RELU, std::nullopt};
 
     TensorShape input = TensorShape{
         TensorDims{
@@ -168,7 +168,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("SILU") {
       ElementUnaryAttrs attrs = ElementUnaryAttrs{
-        /*op_type=*/OperatorType::SILU,
+        /*op_type=*/ElementUnaryOp::SILU,
         /*scalar=*/std::nullopt,
       };
 
@@ -193,7 +193,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("SCALAR_MULTIPLY") {
       ElementUnaryAttrs attrs = ElementUnaryAttrs{
-        /*op_type=*/OperatorType::SCALAR_MULTIPLY,
+        /*op_type=*/ElementUnaryOp::SCALAR_MULTIPLY,
         /*scalar=*/3.5f,
       };
 

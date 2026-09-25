@@ -15,7 +15,7 @@ namespace FlexFlow {
 std::optional<ElementBinaryPerDeviceState>
     element_binary_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
-                OperatorType op_type,
+                ElementBinaryOp op_type,
                 bool should_broadcast_lhs,
                 bool should_broadcast_rhs,
                 TensorShape const &lhs_shape,

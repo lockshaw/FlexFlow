@@ -25,14 +25,28 @@ TEST_SUITE(FF_TEST_SUITE) {
       /*axis=*/ff_dim_t{1_n},
     };
 
+    auto mk_output_shape = [&](positive_int axis_size)
+      -> TensorShape
+    {
+      return TensorShape{
+        TensorDims{
+          FFOrdered<positive_int>{
+            2_p,
+            axis_size,
+          },
+        },
+        DataType::FLOAT,
+      };
+    };
+
     GenericTensorAccessorW output_0 =
-        create_zero_filled_accessor_w(input.shape, cpu_allocator);
+        create_zero_filled_accessor_w(mk_output_shape(3_p), cpu_allocator);
 
     GenericTensorAccessorW output_1 =
-        create_zero_filled_accessor_w(input.shape, cpu_allocator);
+        create_zero_filled_accessor_w(mk_output_shape(1_p), cpu_allocator);
 
     GenericTensorAccessorW output_2 =
-        create_zero_filled_accessor_w(input.shape, cpu_allocator);
+        create_zero_filled_accessor_w(mk_output_shape(2_p), cpu_allocator);
 
     split_cpu_forward_kernel(
       /*attrs=*/attrs,

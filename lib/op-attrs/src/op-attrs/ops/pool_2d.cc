@@ -121,19 +121,17 @@ static positive_int calculate_output_size(positive_int input_size,
 TensorShape
     pool2d_get_output_shape(Pool2DAttrs const &attrs, TensorShape const &input_shape) {
 
-  ASSERT(
-    get_num_dims(input_shape.dims) == 4,
-    fmt::format("get_output_shape for Pool2DAttrs expected input tensor to "
-                "have 4 dims, but received shape {}",
-                input_shape)
-  );
+  relative_ff_dim_t height_dim = relative_ff_dim_t{-2};
+  relative_ff_dim_t width_dim = relative_ff_dim_t{-1};
 
-  positive_int num_samples = dim_at_idx(input_shape.dims, relative_ff_dim_t{0});
-  positive_int num_channels =
-      dim_at_idx(input_shape.dims, relative_ff_dim_t{1});
-  positive_int input_height =
-      dim_at_idx(input_shape.dims, relative_ff_dim_t{2});
-  positive_int input_width = dim_at_idx(input_shape.dims, relative_ff_dim_t{3});
+  TensorDims leading_dims = 
+    slice_tensor_dims(
+            input_shape.dims,
+            relative_ff_dim_t{0},
+            height_dim);
+
+  positive_int input_height = dim_at_idx(input_shape.dims, height_dim);
+  positive_int input_width = dim_at_idx(input_shape.dims, width_dim);
 
   positive_int output_height =
       calculate_output_size(/*input_size=*/input_height,
@@ -146,13 +144,17 @@ TensorShape
                             /*kernel_size=*/attrs.kernel_w,
                             /*stride_size=*/attrs.stride_w);
 
-  return TensorShape{TensorDims{FFOrdered<positive_int>{
-                         num_samples,
-                         num_channels,
-                         output_height,
-                         output_width,
-                     }},
-                     input_shape.data_type};
+  return TensorShape{
+    concat_tensor_dims(
+      leading_dims,
+      TensorDims{
+        FFOrdered<positive_int>{
+          output_height,
+          output_width,
+        },
+      }),
+    input_shape.data_type,
+  };
 }
 
 ParallelTensorShape

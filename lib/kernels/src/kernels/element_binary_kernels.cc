@@ -8,7 +8,7 @@ namespace FlexFlow {
 std::optional<ElementBinaryPerDeviceState>
     element_binary_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
-                OperatorType op_type,
+                ElementBinaryOp op_type,
                 bool should_broadcast_lhs,
                 bool should_broadcast_rhs,
                 TensorShape const &lhs_shape,
@@ -46,7 +46,7 @@ void element_binary_forward_kernel(
         /*lhs_ptr=*/lhs.get_float_ptr(),
         /*rhs_ptr=*/rhs.get_float_ptr(),
         /*out_ptr=*/output.get_float_ptr(),
-        /*op_type=*/attrs.type,
+        /*op_type=*/attrs.op,
         /*broadcast_inputLHS=*/attrs.should_broadcast_lhs,
         /*broadcast_inputRHS=*/attrs.should_broadcast_rhs,
         /*handle=*/handle.require_for_gpu());
@@ -62,7 +62,7 @@ void element_binary_forward_kernel(
   }
 }
 
-void backward_kernel(
+void element_binary_backward_kernel(
     device_stream_t const &stream,
     std::optional<ElementBinaryPerDeviceState> const &per_device_state,
     device_handle_t const &handle,
@@ -83,7 +83,7 @@ void backward_kernel(
         /*rhs_ptr=*/rhs.get_float_ptr(),
         /*lhs_grad_ptr=*/lhs_grad.get_float_ptr(),
         /*rhs_grad_ptr=*/rhs_grad.get_float_ptr(),
-        /*op_type=*/attrs.type,
+        /*op_type=*/attrs.op,
         /*broadcast_inputLHS=*/attrs.should_broadcast_lhs,
         /*broadcast_inputRHS=*/attrs.should_broadcast_rhs,
         /*handle=*/handle.require_for_gpu());

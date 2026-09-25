@@ -7,6 +7,7 @@
 #include "kernels/create_random_filled_accessor.h"
 
 using namespace ::FlexFlow;
+
 TEST_SUITE(FF_CUDA_TEST_SUITE) {
   TEST_CASE("Test Reshape Forward and Backward") {
     ManagedPerDeviceFFHandle managed_handle = initialize_single_gpu_handle(
@@ -20,6 +21,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         TensorDims{FFOrdered{100_p}},
         DataType::FLOAT,
     };
+
     TensorShape output_shape = TensorShape{
         TensorDims{FFOrdered{100_p}},
         DataType::INT32,
@@ -31,7 +33,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW output_accessor =
           allocator.allocate_tensor(output_shape);
 
-      Kernels::Reshape::gpu_forward_kernel(
+      reshape_gpu_forward_kernel(
           managed_stream.raw_stream(), input_accessor, output_accessor);
 
       CHECK(contains_non_zero(output_accessor));
@@ -43,9 +45,9 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW input_grad_accessor =
           allocator.allocate_tensor(input_shape);
 
-      Kernels::Reshape::gpu_backward_kernel(managed_stream.raw_stream(),
-                                            output_grad_accessor,
-                                            input_grad_accessor);
+      reshape_gpu_backward_kernel(managed_stream.raw_stream(),
+                                  output_grad_accessor,
+                                  input_grad_accessor);
 
       CHECK(contains_non_zero(input_grad_accessor));
     }

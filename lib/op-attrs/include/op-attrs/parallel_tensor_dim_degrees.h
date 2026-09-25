@@ -62,6 +62,11 @@ DimDomain<parallel_tensor_dim_idx_t>
     dim_domain_from_parallel_tensor_dim_degrees(
         ParallelTensorDimDegrees const &);
 
+DimDomain<parallel_tensor_dim_idx_t>
+    dim_domain_for_ptensor_dims(
+        ParallelTensorDimDegrees const &,
+        std::set<parallel_tensor_dim_idx_t> const &);
+
 ParallelTensorDimDegrees parallel_tensor_dim_degrees_from_dim_domain(
     DimDomain<parallel_tensor_dim_idx_t> const &);
 
@@ -69,11 +74,19 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
     minimal_dim_domain_from_parallel_tensor_dim_degrees(
         ParallelTensorDimDegrees const &);
 
-ParallelTensorDimDegrees 
+ParallelTensorDimDegrees
+    parallel_tensor_dim_degrees_remove_trailing_dims(ParallelTensorDimDegrees const &,
+                                                     FFOrdered<positive_int> const &trailing_dims);
+
+ParallelTensorDimDegrees
+    parallel_tensor_dim_degrees_append_trailing_dims(ParallelTensorDimDegrees const &,
+                                                     FFOrdered<positive_int> const &trailing_dims);
+
+ParallelTensorDimDegrees
     parallel_tensor_dim_degrees_restrict_dims(ParallelTensorDimDegrees const &,
                                                  std::set<ff_dim_t> const &);
 
-ParallelTensorDimDegrees 
+ParallelTensorDimDegrees
     parallel_tensor_dim_degrees_without_dims(ParallelTensorDimDegrees const &,
                                                 std::set<ff_dim_t> const &);
 

@@ -15,6 +15,7 @@
 #include "kernels/accessors_are_equal.h"
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "utils/containers/is_subseteq_of.h"
+#include "kernels/format_accessor_contents.h"
 
 namespace FlexFlow {
 
@@ -156,7 +157,7 @@ static
     return input;
   }
 
-  std::map<ParallelTensorSpaceCoordinate, GenericTensorAccessorR> result_shards = 
+  std::map<ParallelTensorSpaceCoordinate, GenericTensorAccessorR> result_shards =
     map_values(
       input_coords_to_output_coord.r_to_l(),
       [&](nonempty_set<ParallelTensorSpaceCoordinate> const &for_single_output_coord)
@@ -170,10 +171,10 @@ static
                   ParallelTensorSpaceCoordinate const &rhs)
                 -> bool
               {
-                nonnegative_int lhs_value = 
+                nonnegative_int lhs_value =
                   ptensor_coord_component_for_ptensor_dim_idx(lhs, dim_idx);
 
-                nonnegative_int rhs_value = 
+                nonnegative_int rhs_value =
                   ptensor_coord_component_for_ptensor_dim_idx(rhs, dim_idx);
 
                 return lhs < rhs;
@@ -218,7 +219,12 @@ EmulatedParallelTensor
     [&](GenericTensorAccessorR const &lhs, GenericTensorAccessorR const &rhs)
       -> GenericTensorAccessorR
     {
-      ASSERT(accessors_are_equal(lhs, rhs));
+      ASSERT(
+        accessors_are_equal(lhs, rhs),
+        fmt::format("lhs:\n{}\nrhs:\n{}\n",
+          format_accessor_r_contents(lhs),
+          format_accessor_r_contents(rhs))
+      );
       return lhs;
     });
 }

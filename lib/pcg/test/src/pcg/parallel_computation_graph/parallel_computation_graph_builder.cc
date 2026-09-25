@@ -84,7 +84,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       PCGOperatorAttrs result = get_parallel_layer_attrs(b.pcg, layer).op_attrs;
       PCGOperatorAttrs correct = PCGOperatorAttrs{
           ElementBinaryAttrs{
-              /*type=*/OperatorType::EW_ADD,
+              /*op=*/ElementBinaryOp::ADD,
               /*compute_type=*/DataType::FLOAT,
               /*should_broadcast_lhs=*/false,
               /*should_broadcast_rhs=*/false,
@@ -234,7 +234,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelTensorShape correct_kernel_shape =
         conv2d_get_kernel_parallel_shape(correct_attrs, par_input_shape);
     ParallelTensorShape correct_bias_shape =
-        conv2d_get_bias_parallel_shape(correct_attrs, par_input_shape);
+        assert_unwrap(conv2d_get_bias_parallel_shape(correct_attrs, par_input_shape));
 
     std::map<TensorSlotName, parallel_tensor_guid_t> conv_incoming =
         get_incoming_tensors(b.pcg, conv_guid);

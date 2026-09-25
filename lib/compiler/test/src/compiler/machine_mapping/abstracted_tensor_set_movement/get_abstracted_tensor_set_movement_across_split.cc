@@ -40,7 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelLayerAttrs relu_attrs = ParallelLayerAttrs{
         /*op_attrs=*/PCGOperatorAttrs{
             ElementUnaryAttrs{
-                /*op_type=*/OperatorType::RELU,
+                /*op_type=*/ElementUnaryOp::RELU,
                 /*scalar=*/std::nullopt,
             },
         },
@@ -117,7 +117,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         },
         /*name=*/std::nullopt,
-    };
+      };
 
       ParallelLayerAddedResult layer_2 = add_parallel_layer(
           pcg, repartition_attrs_2, {{TensorSlotName::INPUT, t_layer_1}}, {});
@@ -140,8 +140,8 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       auto mk_single_tensor_communication =
           [&](nonnegative_int src_coord,
-              nonnegative_int dst_coord,
-              nonnegative_int dst_coord_2) -> AbstractedSingleTensorCommunication {
+              nonnegative_int dst_coord1,
+              nonnegative_int dst_coord2) -> AbstractedSingleTensorCommunication {
         return AbstractedSingleTensorCommunication{
             /*edge=*/AbstractedSingleTensorCommunicationEdge{
                 /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
@@ -151,7 +151,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                     /*task_space_coordinate=*/
                     TaskSpaceCoordinate{
                       OrthotopeCoord{
-                        {dst_coord, dst_coord_2},
+                        {dst_coord1, dst_coord2},
                       },
                     },
                 },
@@ -176,8 +176,83 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("communications are right-unique") {
-      // TODO(@lockshaw)(#pr):
-      NOT_IMPLEMENTED();
+      ParallelLayerAttrs combine_attrs = ParallelLayerAttrs{
+        /*op_attrs=*/PCGOperatorAttrs{
+            CombineAttrs{
+                /*combine_dim=*/ff_dim_t{0_n},
+                /*combine_degree=*/2_ge2,
+            },
+        },
+        /*name=*/std::nullopt,
+      };
+
+      ParallelLayerAddedResult layer_2 = add_parallel_layer(
+          pcg, partition_attrs, {{TensorSlotName::INPUT, t_layer_1}}, {});
+      parallel_tensor_guid_t t_layer_2 =
+          require_only_key(layer_2.outputs, TensorSlotName::OUTPUT);
+
+      ParallelLayerAddedResult layer_3 = add_parallel_layer(
+          pcg, combine_attrs, {{TensorSlotName::INPUT, t_layer_2}}, {});
+      parallel_tensor_guid_t t_layer_3 =
+          require_only_key(layer_3.outputs, TensorSlotName::OUTPUT);
+
+      ParallelLayerAddedResult layer_4 = add_parallel_layer(
+          pcg, relu_attrs, {{TensorSlotName::INPUT, t_layer_3}}, {});
+
+      ParallelComputationGraphEdge edge =
+          get_only(get_pcg_edges_from_layer_to_layer(
+              /*pcg=*/pcg,
+              /*src=*/layer_3.parallel_layer,
+              /*dst=*/layer_4.parallel_layer));
+
+      BinaryTreePath src_path = BinaryTreePath{{}};
+      BinaryTreePath dst_path = BinaryTreePath{{}};
+
+      AbstractedSingleTensorMovement result =
+          get_abstracted_single_tensor_movement_along_edge(
+              pcg, edge, src_path, dst_path);
+
+      num_bytes_t shard_size =
+          get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_3));
+
+      auto mk_single_tensor_communication =
+          [&](nonnegative_int src_coord,
+              nonnegative_int dst_coord) 
+          -> AbstractedSingleTensorCommunication 
+      {
+        return AbstractedSingleTensorCommunication{
+            /*edge=*/AbstractedSingleTensorCommunicationEdge{
+                /*src_coord=*/TaskSpaceCoordinate{
+                  OrthotopeCoord{
+                    {src_coord},
+                  },
+                },
+                /*dst=*/
+                AbstractedDevice{
+                    /*operator_tree_path=*/dst_path,
+                    /*task_space_coordinate=*/
+                    TaskSpaceCoordinate{
+                      OrthotopeCoord{
+                        {dst_coord},
+                      },
+                    },
+                },
+            },
+            /*size=*/shard_size,
+        };
+      };
+
+      AbstractedSingleTensorMovement correct =
+          abstracted_single_tensor_movement_from_communications(
+              /*src_op_tree_path=*/src_path,
+              /*communications=*/{
+                  mk_single_tensor_communication(0_n, 0_n),
+                  mk_single_tensor_communication(1_n, 0_n),
+                  mk_single_tensor_communication(2_n, 1_n),
+                  mk_single_tensor_communication(3_n, 1_n),
+              });
+
+      CHECK(result == correct);
     }
   }
 
@@ -223,7 +298,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelLayerAttrs relu_attrs = ParallelLayerAttrs{
         /*op_attrs=*/PCGOperatorAttrs{
             ElementUnaryAttrs{
-                /*op_type=*/OperatorType::RELU,
+                /*op_type=*/ElementUnaryOp::RELU,
                 /*scalar=*/std::nullopt,
             },
         },
@@ -233,7 +308,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     ParallelLayerAttrs ew_add_attrs = ParallelLayerAttrs{
         /*op_attrs=*/PCGOperatorAttrs{
             ElementBinaryAttrs{
-                /*type=*/OperatorType::EW_ADD,
+                /*op=*/ElementBinaryOp::ADD,
                 /*compute_type=*/DataType::FLOAT,
                 /*should_broadcast_lhs=*/false,
                 /*should_broadcast_rhs=*/false,

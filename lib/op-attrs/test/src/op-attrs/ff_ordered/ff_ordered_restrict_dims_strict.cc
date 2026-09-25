@@ -18,13 +18,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         ff_dim_t{4_n},
       };
 
-      FFOrdered<int> result = ff_ordered_restrict_dims_strict(input, dim_set);
-      FFOrdered<int> correct = FFOrdered<int>{
-        1,
-        3,
-      };
-
-      CHECK(result == correct);
+      CHECK_THROWS(ff_ordered_restrict_dims_strict(input, dim_set));
     }
 
     SUBCASE("dim set does not include extra values") {
@@ -41,5 +35,15 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       CHECK(result == correct);
     }
+
+    SUBCASE("dim set is empty") {
+      std::set<ff_dim_t> dim_set = {};
+
+      FFOrdered<int> result = ff_ordered_restrict_dims_strict(input, dim_set);
+      FFOrdered<int> correct = FFOrdered<int>{};
+
+      CHECK(result == correct);
+    }
+
   }
 }

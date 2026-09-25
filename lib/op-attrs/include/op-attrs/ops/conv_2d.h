@@ -21,8 +21,8 @@ std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &);
 
 TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
                                     TensorShape const &input);
-TensorShape conv2d_get_bias_shape(Conv2DAttrs const &attrs,
-                                  TensorShape const &input);
+std::optional<TensorShape> conv2d_get_bias_shape(Conv2DAttrs const &attrs,
+                                                 TensorShape const &input);
 TensorShape conv2d_get_output_shape(Conv2DAttrs const &attrs,
                                     TensorShape const &input);
 
@@ -33,7 +33,7 @@ std::map<TensorSlotName, TensorShape>
 ParallelTensorDimDegrees conv2d_get_kernel_parallel_dim_degrees(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees);
-ParallelTensorDimDegrees conv2d_get_bias_parallel_dim_degrees(
+std::optional<ParallelTensorDimDegrees> conv2d_get_bias_parallel_dim_degrees(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees);
 ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
@@ -47,7 +47,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
 ParallelTensorShape
     conv2d_get_kernel_parallel_shape(Conv2DAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
-ParallelTensorShape
+std::optional<ParallelTensorShape>
     conv2d_get_bias_parallel_shape(Conv2DAttrs const &attrs,
                                    ParallelTensorShape const &input_shape);
 ParallelTensorShape

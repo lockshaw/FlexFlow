@@ -3,10 +3,11 @@
 
 #include <map>
 #include <set>
+#include "utils/containers/get_element_type.h"
 
 namespace FlexFlow {
 
-template <typename C, typename T = typename C::value_type>
+template <typename C, typename T = get_element_type_t<C>>
 std::set<T> set_of(C const &c) {
   std::set<T> result;
   for (T const &t : c) {

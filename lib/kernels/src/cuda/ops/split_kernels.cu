@@ -18,10 +18,7 @@
 
 namespace FlexFlow {
 
-namespace Kernels {
-namespace Split {
-
-void gpu_forward_kernel(cudaStream_t stream,
+void split_gpu_forward_kernel(cudaStream_t stream,
                         float **out_ptrs,
                         float const *in_ptr,
                         int const *out_blk_sizes,
@@ -39,7 +36,7 @@ void gpu_forward_kernel(cudaStream_t stream,
   }
 }
 
-void gpu_backward_kernel(cudaStream_t stream,
+void split_gpu_backward_kernel(cudaStream_t stream,
                          float *in_grad_ptr,
                          float const **out_grad_ptr,
                          int const *out_blk_sizes,
@@ -58,6 +55,4 @@ void gpu_backward_kernel(cudaStream_t stream,
   // checkCUDA(cudaDeviceSynchronize());
 }
 
-} // namespace Split
-} // namespace Kernels
 } // namespace FlexFlow

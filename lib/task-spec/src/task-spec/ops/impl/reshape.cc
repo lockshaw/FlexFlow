@@ -19,18 +19,16 @@
 
 namespace FlexFlow {
 
-using namespace FlexFlow::Kernels::Reshape;
-
 static std::optional<milliseconds_t>
     forward_task_impl(TaskArgumentAccessor const &acc) {
   ProfilingSettings profiling = acc.get_profiling_settings();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   ReshapeAttrs attrs = acc.get_op_attrs().require_reshape();
 
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
-  return profile(forward_kernel,
+  return profile(reshape_forward_kernel,
                  profiling,
                  kernel_device_type,
                  "[Reshape] forward time = {:.2lf}ms\n",
@@ -44,11 +42,10 @@ static std::optional<milliseconds_t>
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   ReshapeAttrs attrs = acc.get_op_attrs().require_reshape();
 
-  auto input_grad = acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
-  auto output_grad =
-      acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorW input_grad = acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
+  GenericTensorAccessorR output_grad = acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
 
-  return profile(backward_kernel,
+  return profile(reshape_backward_kernel,
                  profiling,
                  kernel_device_type,
                  "[Reshape] backward time = {:.2lf}ms\n",

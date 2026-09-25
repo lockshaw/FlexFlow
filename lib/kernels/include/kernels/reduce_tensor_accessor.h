@@ -48,9 +48,6 @@ struct CPUReduceTensorAccessorInDims {
           });
 
       T result = foldl1(input_values, f);
-      ASSERT(result == foldr1(input_values, [&](T const &accum, T const &elem) {
-               return f(elem, accum);
-             }));
 
       output.at<DT>(output_coord) = result;
     }

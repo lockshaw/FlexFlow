@@ -16,12 +16,23 @@
 
 namespace FlexFlow {
 
+// TODO(@lockshaw): should be folded into utils/orthotope
 static
 std::vector<TensorDimsCoord> points_in_range(TensorDimsCoord const &min_coord,
-                                          TensorDimsCoord const &max_coord)
+                                             TensorDimsCoord const &max_coord)
 {
   std::map<ff_dim_t, nonnegative_int> min_coord_map = map_from_ff_ordered(min_coord.ff_ordered);
   std::map<ff_dim_t, nonnegative_int> max_coord_map = map_from_ff_ordered(max_coord.ff_ordered);
+
+  std::map<ff_dim_t, positive_int> deltas = zip_values_strict_with(
+    min_coord_map,
+    max_coord_map,
+    [&](nonnegative_int min, nonnegative_int max) -> positive_int {
+      ASSERT(min < max);
+      return positive_int{
+        max.int_from_nonnegative_int() - min.int_from_nonnegative_int(),
+      };
+    });
 
   std::map<ff_dim_t, std::set<nonnegative_int>> dim_ranges = zip_values_strict_with(
     min_coord_map,
@@ -31,13 +42,21 @@ std::vector<TensorDimsCoord> points_in_range(TensorDimsCoord const &min_coord,
       return set_of(nonnegative_range(min, max));
     });
 
-  return sorted(transform(
+  std::vector<TensorDimsCoord> result = sorted(transform(
     get_all_assignments(dim_ranges),
     [&](std::map<ff_dim_t, nonnegative_int> const &p) -> TensorDimsCoord {
       return TensorDimsCoord{
         ff_ordered_from_map(p),
       };
     }));
+
+  {
+    int expected_num_points = product(values(deltas)).int_from_positive_int();
+    int actual_num_points = result.size();
+    ASSERT(actual_num_points == expected_num_points);
+  }
+
+  return result;
 }
 
 static std::pair<TensorDimsCoord, TensorDimsCoord> get_input_coord_interval_for_output_coord(
@@ -168,7 +187,7 @@ struct CPUConv2DTensorAccessor {
       std::pair<TensorDimsCoord, TensorDimsCoord> kernel_coord_interval = 
         get_kernel_coord_interval_for_output_coord(
           /*output_coord=*/output_coord,
-          /*num_output_channels=*/num_output_channels,
+          /*num_input_channels=*/num_input_channels,
           /*kernel_h=*/attrs.kernel_h,
           /*kernel_w=*/attrs.kernel_w,
           /*stride_h=*/attrs.stride_h,
@@ -178,8 +197,8 @@ struct CPUConv2DTensorAccessor {
         zip_with_strict(
           points_in_range(input_coord_interval.first, input_coord_interval.second),
           points_in_range(kernel_coord_interval.first, kernel_coord_interval.second),
-          [&](TensorDimsCoord const &input_coord, TensorDimsCoord const &output_coord) -> T {
-            return input.at<DT>(input_coord) * filter.at<DT>(output_coord);
+          [&](TensorDimsCoord const &input_coord, TensorDimsCoord const &filter_coord) -> T {
+            return input.at<DT>(input_coord) * filter.at<DT>(filter_coord);
           }));
 
       if (bias.has_value()) {
@@ -198,10 +217,24 @@ void conv2d_cpu_forward_kernel(Conv2DAttrs const &attrs,
                                std::optional<GenericTensorAccessorR> const &bias,
                                GenericTensorAccessorW const &output)
 {
-  TensorShape correct_output_shape = conv2d_get_output_shape(attrs, input.shape);
-  ASSERT(output.shape == correct_output_shape);
+  {
+    TensorShape correct_output_shape = conv2d_get_output_shape(attrs, input.shape);
+    ASSERT(output.shape == correct_output_shape);
+  }
 
-  ASSERT(attrs.use_bias == bias.has_value());
+  {
+    TensorShape correct_filter_shape = conv2d_get_kernel_shape(attrs, input.shape);
+    ASSERT(filter.shape == correct_filter_shape);
+  }
+
+  {
+    std::optional<TensorShape> correct_bias_shape = conv2d_get_bias_shape(attrs, input.shape);
+    std::optional<TensorShape> bias_shape = transform(bias,
+                                                      [](GenericTensorAccessorR const &b) -> TensorShape {
+                                                        return b.shape; 
+                                                      });
+    ASSERT(bias_shape == correct_bias_shape);
+  }
 
   DataTypeDispatch1<CPUConv2DTensorAccessor>{}(
       input.shape.data_type, input, filter, bias, output, attrs);

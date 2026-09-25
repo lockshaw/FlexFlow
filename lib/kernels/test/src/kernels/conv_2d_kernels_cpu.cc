@@ -118,7 +118,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     GenericTensorAccessorW result = create_zero_filled_accessor_w(correct.shape, cpu_allocator);
 
     Conv2DAttrs attrs = Conv2DAttrs{
-      /*out_channels=*/2_p,
+      /*out_channels=*/3_p,
       /*kernel_h=*/2_p,
       /*kernel_w=*/3_p,
       /*stride_h=*/1_p,
@@ -139,10 +139,5 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK_MESSAGE(accessors_are_equal(result, correct),
                   check_kv("result", format_accessor_w_contents(result)));
-  }
-
-  TEST_CASE("conv2d_cpu_backward_kernel") {
-    // TODO(@lockshaw)(#pr):
-    NOT_IMPLEMENTED();
   }
 }

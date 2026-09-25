@@ -1,7 +1,6 @@
 namespace = "FlexFlow"
 name = "TensorDims"
 type = "struct"
-#include "op-attrs/ops/topk.h"
 features = [
   "eq",
   "ord",

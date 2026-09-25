@@ -65,9 +65,13 @@ TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
   };
 }
 
-TensorShape conv2d_get_bias_shape(Conv2DAttrs const &attrs,
-                                  TensorShape const &raw_input_shape) {
+std::optional<TensorShape> conv2d_get_bias_shape(Conv2DAttrs const &attrs,
+                                                 TensorShape const &raw_input_shape) {
   ASSERT(get_num_dims(raw_input_shape.dims) == 4);
+
+  if (!attrs.use_bias) {
+    return std::nullopt;
+  }
 
   positive_int input_n = dim_at_idx(raw_input_shape.dims, ff_dim_t{0_n});
   positive_int input_c = dim_at_idx(raw_input_shape.dims, ff_dim_t{1_n});
@@ -141,7 +145,7 @@ std::map<TensorSlotName, TensorShape>
   if (attrs.use_bias) {
     weight_shapes.insert({
         TensorSlotName::BIAS,
-        conv2d_get_bias_shape(attrs, input_shape),
+        assert_unwrap(conv2d_get_bias_shape(attrs, input_shape)),
     });
   }
 
@@ -202,11 +206,16 @@ ParallelTensorDimDegrees conv2d_get_kernel_parallel_dim_degrees(
   }
 }
 
-ParallelTensorDimDegrees conv2d_get_bias_parallel_dim_degrees(
+std::optional<ParallelTensorDimDegrees> conv2d_get_bias_parallel_dim_degrees(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees) {
+
   ASSERT(get_ptensor_dim_degrees_num_shard_dims(input_dim_degrees) ==
          num_ptensor_shard_dims_t{4_n});
+
+  if (!attrs.use_bias) {
+    return std::nullopt;
+  }
 
   positive_int input_sum_degree = input_dim_degrees.sum_degree.value;
   positive_int input_discard_copy_degree =
@@ -329,7 +338,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
   if (attrs.use_bias) {
     weight_degrees.insert({
         TensorSlotName::BIAS,
-        conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees),
+        assert_unwrap(conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees)),
     });
   }
 
@@ -582,12 +591,16 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
-ParallelTensorShape
+std::optional<ParallelTensorShape>
     conv2d_get_bias_parallel_shape(Conv2DAttrs const &attrs,
                                    ParallelTensorShape const &input) {
-  TensorShape unpar = conv2d_get_bias_shape(attrs, get_reduced_shape(input));
+  if (!attrs.use_bias) {
+    return std::nullopt;
+  }
+
+  TensorShape unpar = assert_unwrap(conv2d_get_bias_shape(attrs, get_reduced_shape(input)));
   ParallelTensorDimDegrees degrees =
-      conv2d_get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input));
+      assert_unwrap(conv2d_get_bias_parallel_dim_degrees(attrs, get_parallel_degrees(input)));
 
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
@@ -616,7 +629,7 @@ std::map<TensorSlotName, ParallelTensorShape>
   if (attrs.use_bias) {
     weight_shapes.insert({
         TensorSlotName::BIAS,
-        conv2d_get_bias_parallel_shape(attrs, input_shape),
+        assert_unwrap(conv2d_get_bias_parallel_shape(attrs, input_shape)),
     });
   }
 

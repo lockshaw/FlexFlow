@@ -51,7 +51,7 @@ std::optional<nonnegative_int>
 std::optional<int_ge_two>
   mapped_op_task_shard_bindings_are_strictly_k_unique_on_slot(
     std::set<MappedOperatorAtomicTaskShardBinding> const &bindings,
-    TensorSlotName slot_name) 
+    TensorSlotName slot_name)
 {
   std::optional<nonnegative_int> k =
     mapped_op_task_shard_bindings_are_k_unique_on_slot(bindings, slot_name);

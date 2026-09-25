@@ -12,13 +12,13 @@ static DeviceSpecificPerDeviceOpState
   device_handle_t handle = acc.get_ff_handle();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
 
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  TensorShape input_shape = acc.get_tensor_shape(TensorSlotName::INPUT);
 
   std::optional<Pool2DPerDeviceState> per_device_state =
       pool2d_init_kernel(kernel_device_type,
                          handle,
-                         attrs);
+                         attrs,
+                         input_shape);
 
   return DeviceSpecificPerDeviceOpState{
       acc.make_device_specific(per_device_state),

@@ -15,7 +15,8 @@ namespace FlexFlow {
 std::optional<Pool2DPerDeviceState>
     pool2d_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
-                Pool2DAttrs const &attrs);
+                Pool2DAttrs const &attrs,
+                TensorShape const &input_shape);
 
 void pool2d_forward_kernel(device_stream_t const &stream,
                     std::optional<Pool2DPerDeviceState> const &per_device_state,

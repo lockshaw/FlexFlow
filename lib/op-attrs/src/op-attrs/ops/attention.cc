@@ -407,129 +407,22 @@ std::map<TensorSlotName, ParallelTensorShape>
   return weight_shapes;
 }
 
+StandardOperatorTaskGroup attention_get_task_group(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v)
+{
+  NOT_IMPLEMENTED();
+}
+
 OperatorTaskSpace attention_get_operator_task_space(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
-      output_degrees);
-}
-
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-  attention_get_any_input_to_output_mapping(
-    MultiHeadAttentionAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_q,
-    ParallelTensorDimDegrees const &input_k,
-    ParallelTensorDimDegrees const &input_v)
-{
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      inp_to_out = make_empty_eq_projection<
-                      parallel_tensor_dim_idx_t,
-                      parallel_tensor_dim_idx_t>();
-
-  parallel_tensor_dim_idx_t batch_dim =
-    shard_dim_idx(ff_dim_t{0_n});
-
-  project_dims(inp_to_out, discard_copy_dim_idx(), sum_dim_idx());
-  project_dims(inp_to_out, batch_dim, batch_dim);
-
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{inp_to_out}, input_q, output_degrees);
-}
-
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-  attention_get_weights_to_output_mapping(
-    MultiHeadAttentionAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_q,
-    ParallelTensorDimDegrees const &input_k,
-    ParallelTensorDimDegrees const &input_v)
-{
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      weights_to_out = make_empty_eq_projection<
-                      parallel_tensor_dim_idx_t,
-                      parallel_tensor_dim_idx_t>();
-
-  parallel_tensor_dim_idx_t output_batch_dim =
-    shard_dim_idx(ff_dim_t{0_n});
-
-  parallel_tensor_dim_idx_t weights_head_dim =
-    shard_dim_idx(ff_dim_t{0_n});
-
-  project_dims(weights_to_out, weights_head_dim, sum_dim_idx());
-  project_dims(weights_to_out, discard_copy_dim_idx(), output_batch_dim);
-
-  ParallelTensorDimDegrees weights_degrees =
-      attention_get_weights_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{weights_to_out}, weights_degrees, output_degrees);
-}
-
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-  attention_get_input_bias_to_output_mapping(
-    MultiHeadAttentionAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_q,
-    ParallelTensorDimDegrees const &input_k,
-    ParallelTensorDimDegrees const &input_v)
-{
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      input_bias_to_out = make_empty_eq_projection<
-                      parallel_tensor_dim_idx_t,
-                      parallel_tensor_dim_idx_t>();
-
-  parallel_tensor_dim_idx_t output_batch_dim =
-    shard_dim_idx(ff_dim_t{0_n});
-
-  project_dims(input_bias_to_out, discard_copy_dim_idx(), sum_dim_idx());
-  project_dims(input_bias_to_out, discard_copy_dim_idx(), output_batch_dim);
-
-  ParallelTensorDimDegrees input_bias_degrees =
-      attention_get_input_bias_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{input_bias_to_out}, input_bias_degrees, output_degrees);
-}
-
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-  attention_get_output_bias_to_output_mapping(
-    MultiHeadAttentionAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_q,
-    ParallelTensorDimDegrees const &input_k,
-    ParallelTensorDimDegrees const &input_v)
-{
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      output_bias_to_out = make_empty_eq_projection<
-                      parallel_tensor_dim_idx_t,
-                      parallel_tensor_dim_idx_t>();
-
-  parallel_tensor_dim_idx_t output_batch_dim =
-    shard_dim_idx(ff_dim_t{0_n});
-
-  project_dims(output_bias_to_out, discard_copy_dim_idx(), sum_dim_idx());
-  project_dims(output_bias_to_out, discard_copy_dim_idx(), output_batch_dim);
-
-  ParallelTensorDimDegrees output_bias_degrees =
-      attention_get_output_bias_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{output_bias_to_out}, output_bias_degrees, output_degrees);
+  NOT_IMPLEMENTED();
 }
 
 static OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -539,16 +432,7 @@ static OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping inp_to_out =
-      attention_get_any_input_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_inp =
-      invert_parallel_tensor_space_biunique_mapping(inp_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      attention_get_operator_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_inp);
+  NOT_IMPLEMENTED();
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -588,16 +472,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping weights_to_out =
-      attention_get_weights_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_weights =
-      invert_parallel_tensor_space_biunique_mapping(weights_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      attention_get_operator_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_weights);
+  NOT_IMPLEMENTED();
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -607,16 +482,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping input_bias_to_out =
-      attention_get_input_bias_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_input_bias =
-      invert_parallel_tensor_space_biunique_mapping(input_bias_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      attention_get_operator_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_input_bias);
+  NOT_IMPLEMENTED();
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -626,16 +492,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping output_bias_to_out =
-      attention_get_output_bias_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_output_bias =
-      invert_parallel_tensor_space_biunique_mapping(output_bias_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      attention_get_operator_to_output_mapping(attrs, input_q, input_k, input_v);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_output_bias);
+  NOT_IMPLEMENTED();
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
@@ -645,12 +502,7 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v)
 {
-  ParallelTensorDimDegrees output_degrees =
-      attention_get_output_parallel_dim_degrees(attrs, input_q, input_k, input_v);
-
-  return get_identity_biunique_mapping(
-      attention_get_operator_task_space(attrs, input_q, input_k, input_v),
-      output_degrees);
+  NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>

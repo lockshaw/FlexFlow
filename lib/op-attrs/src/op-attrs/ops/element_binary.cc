@@ -7,6 +7,7 @@
 #include "utils/containers/binary_cartesian_product.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/standard_operator_task_group.h"
+#include "utils/containers/set_filtrans.h"
 
 namespace FlexFlow {
 
@@ -58,26 +59,26 @@ ParallelTensorDimDegrees element_binary_get_output_parallel_dim_degrees(
     ASSERT(lhs_input_degrees == rhs_input_degrees,
            "Expected input degrees to match");
 
-    switch (attrs.type) {
-      case OperatorType::EW_ADD: {
+    switch (attrs.op) {
+      case ElementBinaryOp::ADD: {
         ASSERT(
             lhs_input_degrees.discard_copy_degree.value == 1,
             "Elementwise Add expected discard copy degree of inputs to be 1");
 
         break;
       }
-      case OperatorType::EW_SUB:
+      case ElementBinaryOp::SUBTRACT:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MUL:
+      case ElementBinaryOp::MULTIPLY:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_DIV:
+      case ElementBinaryOp::DIVIDE:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MAX:
+      case ElementBinaryOp::MAX:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MIN:
+      case ElementBinaryOp::MIN:
         NOT_IMPLEMENTED();
       default:
-        PANIC("Unexpected element-wise binary operator", attrs.type);
+        PANIC("Unexpected element-wise binary operator", attrs.op);
     }
 
     return lhs_input_degrees;
@@ -93,7 +94,7 @@ StandardOperatorTaskGroup element_binary_get_task_group(
     element_binary_get_output_parallel_dim_degrees(attrs, lhs_input_degrees, rhs_input_degrees);
 
   return StandardOperatorTaskGroup{
-    filtrans(
+    set_filtrans(
       binary_cartesian_product(
         get_parallel_tensor_space_coordinates(lhs_input_degrees),
         get_parallel_tensor_space_coordinates(rhs_input_degrees)),

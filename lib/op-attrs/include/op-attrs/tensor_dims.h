@@ -45,6 +45,10 @@ TensorDims
   tensor_dims_remove_leading_dims(TensorDims const &,
                                   TensorDims const &leading_dims);
 
+TensorDims
+  tensor_dims_remove_trailing_dims(TensorDims const &,
+                                   TensorDims const &trailing_dims);
+
 std::set<TensorDimsCoord>
     get_tensor_dims_coord_set(TensorDims const &tensor_dims);
 
@@ -56,6 +60,9 @@ std::optional<TensorDims>
 TensorDims
     tensor_dims_drop_dims(TensorDims const &dims,
                           std::function<bool(ff_dim_t)> const &should_drop_dim);
+
+TensorDims concat_tensor_dims(TensorDims const &,
+                              TensorDims const &);
 
 TensorDims slice_tensor_dims(TensorDims const &,
                              ff_dim_t const &start,

@@ -154,7 +154,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       PCGOperatorAttrs relu_attrs = PCGOperatorAttrs{
           ElementUnaryAttrs{
-              /*op_type=*/OperatorType::RELU,
+              /*op_type=*/ElementUnaryOp::RELU,
               /*scalar=*/std::nullopt,
           },
       };
@@ -272,7 +272,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       PCGOperatorAttrs ew_op_attrs = PCGOperatorAttrs{
           ElementBinaryAttrs{
-              /*type=*/OperatorType::EW_ADD,
+              /*op=*/ElementBinaryOp::ADD,
               /*compute_type=*/DataType::FLOAT,
               /*should_broadcast_lhs=*/false,
               /*should_broadcast_rhs=*/false,

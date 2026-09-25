@@ -24,6 +24,8 @@
 #include "utils/containers/minimum.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/take_while.h"
+#include "op-attrs/ff_ordered/ff_ordered_concat.h"
+#include "op-attrs/relative_ff_dim_t.h"
 
 namespace FlexFlow {
 
@@ -199,6 +201,25 @@ TensorDims
   return slice_tensor_dims(d, first_nonleading_dim, std::nullopt);
 }
 
+TensorDims
+  tensor_dims_remove_trailing_dims(TensorDims const &d,
+                                   TensorDims const &trailing_dims)
+{
+  num_tensor_dims_t d_num_dims = get_num_dims(d);
+
+  nonnegative_int num_trailing_dims = 
+    get_num_dims(trailing_dims).nonnegative_int_from_num_tensor_dims();
+
+  ff_dim_t first_trailing_dim = 
+    ff_dim_t_from_relative_ff_dim_t(
+      relative_ff_dim_t{-1 * num_trailing_dims.int_from_nonnegative_int()},
+      d_num_dims);
+
+  TensorDims d_trailing_dims = slice_tensor_dims(d, first_trailing_dim, std::nullopt);
+  ASSERT(trailing_dims == d_trailing_dims);
+
+  return slice_tensor_dims(d, ff_dim_t{0_n}, first_trailing_dim);
+}
 
 std::set<TensorDimsCoord>
     get_tensor_dims_coord_set(TensorDims const &tensor_dims) {
@@ -245,6 +266,14 @@ TensorDims tensor_dims_drop_dims(
   }
 
   return TensorDims{ff_ordered_of(result)};
+}
+
+TensorDims concat_tensor_dims(TensorDims const &leading,
+                              TensorDims const &trailing)
+{
+  return TensorDims{
+    ff_ordered_concat(leading.ff_ordered, trailing.ff_ordered),
+  };
 }
 
 TensorDims slice_tensor_dims(TensorDims const &dims,

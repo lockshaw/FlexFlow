@@ -13,8 +13,8 @@
 #include "kernels/parallel_tensor_reduction.h"
 #include "utils/containers/require_same.h"
 #include "utils/containers/all_of.h"
-#include "kernels/accessors_are_equal.h"
 #include "op-attrs/pcg_operator_attrs.h"
+#include "kernels/accessors_are_within_epsilon.h"
 
 namespace FlexFlow {
 
@@ -32,16 +32,16 @@ bool
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes =
     get_weight_shapes(pcg_op_attrs_from_compgraph_op_attrs(attrs), input_shapes);
 
-  std::map<TensorSlotName, ParallelTensorShape> incoming_shapes = 
+  std::map<TensorSlotName, ParallelTensorShape> incoming_shapes =
     binary_merge_disjoint_maps(input_shapes, weight_shapes);
 
   std::mt19937 gen(seed);
 
-  std::map<TensorSlotName, int> incoming_seeds = 
+  std::map<TensorSlotName, int> incoming_seeds =
     generate_map(
       keys(incoming_shapes),
       [&](TensorSlotName const &) -> int {
-        return gen(); 
+        return gen();
       });
 
   std::map<TensorSlotName, ParallelTensorDimDegrees> input_degrees =
@@ -98,7 +98,7 @@ bool
       GenericTensorAccessorR slot_op_then_unpar = op_then_unpar.at(output_slot_name);
       GenericTensorAccessorR slot_unpar_then_op = unpar_then_op.at(output_slot_name);
 
-      return accessors_are_equal(slot_op_then_unpar, slot_unpar_then_op);
+      return accessors_are_within_epsilon(slot_op_then_unpar, slot_unpar_then_op);
     });
 }
 

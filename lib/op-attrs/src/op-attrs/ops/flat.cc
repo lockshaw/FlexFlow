@@ -17,6 +17,8 @@
 #include "op-attrs/num_tensor_dims_t.h"
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -91,95 +93,75 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
-OperatorTaskSpace flat_get_operator_task_space(
-    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
+StandardOperatorTaskGroup flat_get_task_group(
+    FlatAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees)
 {
   ParallelTensorDimDegrees output_degrees =
-      flat_get_output_parallel_dim_degrees(attrs, input_degrees);
+    flat_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
-      output_degrees);
+  return StandardOperatorTaskGroup{
+    transform(
+      get_parallel_tensor_space_coordinates(input_degrees),
+      [&](ParallelTensorSpaceCoordinate const &input_coord)
+        -> AbstractedOperatorAtomicTaskShardBinding
+      {
+        ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+        return AbstractedOperatorAtomicTaskShardBinding{
+          /*tensor_corods=*/{
+            {
+              TensorSlotName::INPUT,
+              input_coord,
+            },
+            {
+              TensorSlotName::OUTPUT,
+              output_coord
+            },
+          },
+          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
+        };
+      }),
+  };
 }
 
-static ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
-    flat_get_input_to_output_mapping(FlatAttrs const &attrs,
-                                ParallelTensorDimDegrees const &input_degrees) {
+ShardSignatureInstance
+    flat_get_shard_signature_instance(
+          FlatAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees)
+{
+  StandardOperatorTaskGroup op_task_group =
+    flat_get_task_group(attrs, input_degrees);
 
-  auto ff_dim_to_pt_dim = [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
-    return parallel_tensor_dim_idx_t{d};
-  };
+  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+}
 
-  EqProjection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
-      inp_to_out = make_empty_eq_projection<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>();
+OperatorTaskSpace
+    flat_get_operator_task_space(FlatAttrs const &attrs,
+                            ParallelTensorDimDegrees const &input_degrees) {
 
-  project_dims(inp_to_out, sum_dim_idx(), sum_dim_idx());
-  project_dims(inp_to_out, discard_copy_dim_idx(), discard_copy_dim_idx());
+  StandardOperatorTaskGroup op_task_group =
+    flat_get_task_group(attrs, input_degrees);
 
-  auto compute_pre_start_output_dim = [&](ff_dim_t input_dim) -> ff_dim_t {
-    ASSERT(input_dim < attrs.start_dim);
-    return input_dim;
-  };
-
-  auto compute_in_flat_output_dim = [&](ff_dim_t input_dim) -> ff_dim_t {
-    ASSERT(input_dim >= attrs.start_dim);
-    ASSERT(input_dim <= attrs.end_dim);
-    return attrs.start_dim;
-  };
-
-  auto compute_post_end_output_dim = [&](ff_dim_t input_dim) -> ff_dim_t {
-    ASSERT(input_dim > attrs.end_dim);
-    int offset = attrs.start_dim.value.int_from_nonnegative_int()
-      - attrs.end_dim.value.int_from_nonnegative_int();
-
-    return add_to_ff_dim(input_dim, offset);
-  };
-
-  auto compute_output_dim = [&](ff_dim_t input_dim) -> ff_dim_t {
-    if (input_dim < attrs.start_dim) {
-      return compute_pre_start_output_dim(input_dim);
-    } else if (input_dim >= attrs.start_dim && input_dim <= attrs.end_dim) {
-      return compute_in_flat_output_dim(input_dim);
-    } else {
-      return compute_post_end_output_dim(input_dim);
-    }
-  };
-
-  for (ff_dim_t const &input_dim: tensor_dims_range(get_ptensor_dim_degrees_num_tensor_dims(input_degrees))) {
-    ff_dim_t output_dim = compute_output_dim(input_dim);
-    project_dims(inp_to_out, shard_dim_idx(input_dim), shard_dim_idx(output_dim));
-  }
-
-  ParallelTensorDimDegrees output_degrees =
-      flat_get_output_parallel_dim_degrees(attrs, input_degrees);
-
-  return parallel_tensor_space_biunique_mapping_from_projection(
-      DimProjection{inp_to_out}, input_degrees, output_degrees);
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_input_mapping(
     FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping inp_to_out =
-      flat_get_input_to_output_mapping(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    flat_get_task_group(attrs, input_degrees);
 
-  ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping out_to_inp =
-      invert_parallel_tensor_space_biunique_mapping(inp_to_out);
-
-  OperatorSpaceToParallelTensorSpaceBiuniqueMapping op_to_out =
-      flat_get_operator_to_output_mapping(attrs, input_degrees);
-
-  return operator_ptensor_space_biunique_mapping_from_composition(op_to_out, out_to_inp);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_output_mapping(
     FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
 {
-  ParallelTensorDimDegrees output_degrees =
-      flat_get_output_parallel_dim_degrees(attrs, input_degrees);
+  StandardOperatorTaskGroup op_task_group =
+    flat_get_task_group(attrs, input_degrees);
 
-  return get_identity_biunique_mapping(
-      flat_get_operator_task_space(attrs, input_degrees),
-      output_degrees);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow

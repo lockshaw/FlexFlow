@@ -85,23 +85,94 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("asymmetric filter") {
-      // TODO(@lockshaw)(#pr):
-      NOT_IMPLEMENTED();
+      GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
+          {
+              {3, 6},
+              {8, 5},
+          },
+          cpu_allocator);
+
+      GenericTensorAccessorW result = create_zero_filled_accessor_w(correct.shape, cpu_allocator);
+
+      Pool2DAttrs attrs = Pool2DAttrs{
+        /*kernel_h=*/3_p,
+        /*kernel_w=*/2_p,
+        /*stride_h=*/1_p,
+        /*stride_w=*/1_p,
+        /*padding_h=*/0_n,
+        /*padding_w=*/0_n,
+        /*pool_type=*/PoolOp::MAX,
+        /*activation=*/std::nullopt,
+      };
+
+      pool2d_cpu_forward_kernel(
+        /*attrs=*/attrs,
+        /*input=*/input,
+        /*output=*/result);
+
+      CHECK_MESSAGE(accessors_are_equal(result, correct),
+                    check_kv("result", format_accessor_w_contents(result)));
     }
 
     SUBCASE("stride > 1") {
-      // TODO(@lockshaw)(#pr):
-      NOT_IMPLEMENTED();
+      GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
+          {
+              {3, 6},
+              {8, 2},
+          },
+          cpu_allocator);
+
+      GenericTensorAccessorW result = create_zero_filled_accessor_w(correct.shape, cpu_allocator);
+
+      Pool2DAttrs attrs = Pool2DAttrs{
+        /*kernel_h=*/2_p,
+        /*kernel_w=*/2_p,
+        /*stride_h=*/2_p,
+        /*stride_w=*/1_p,
+        /*padding_h=*/0_n,
+        /*padding_w=*/0_n,
+        /*pool_type=*/PoolOp::MAX,
+        /*activation=*/std::nullopt,
+      };
+
+      pool2d_cpu_forward_kernel(
+        /*attrs=*/attrs,
+        /*input=*/input,
+        /*output=*/result);
+
+      CHECK_MESSAGE(accessors_are_equal(result, correct),
+                    check_kv("result", format_accessor_w_contents(result)));
     }
 
     SUBCASE("padding > 1") {
-      // TODO(@lockshaw)(#pr):
-      NOT_IMPLEMENTED();
-    }
-  }
+      GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
+          {
+              {3, 3, 6, 6},
+              {2, 2, 5, 5},
+              {8, 8, 2, 0},
+          },
+          cpu_allocator);
 
-  TEST_CASE("pool2d_cpu_backward_kernel") {
-    // TODO(@lockshaw)(#pr):
-    NOT_IMPLEMENTED();
+      GenericTensorAccessorW result = create_zero_filled_accessor_w(correct.shape, cpu_allocator);
+
+      Pool2DAttrs attrs = Pool2DAttrs{
+        /*kernel_h=*/2_p,
+        /*kernel_w=*/2_p,
+        /*stride_h=*/1_p,
+        /*stride_w=*/1_p,
+        /*padding_h=*/0_n,
+        /*padding_w=*/1_n,
+        /*pool_type=*/PoolOp::MAX,
+        /*activation=*/std::nullopt,
+      };
+
+      pool2d_cpu_forward_kernel(
+        /*attrs=*/attrs,
+        /*input=*/input,
+        /*output=*/result);
+
+      CHECK_MESSAGE(accessors_are_equal(result, correct),
+                    check_kv("result", format_accessor_w_contents(result)));
+    }
   }
 }

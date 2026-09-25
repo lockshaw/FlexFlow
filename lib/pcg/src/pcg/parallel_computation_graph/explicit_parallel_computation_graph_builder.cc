@@ -87,7 +87,7 @@ parallel_tensor_guid_t ExplicitParallelComputationGraphBuilder::add(
   }();
 
   ElementBinaryAttrs attrs = ElementBinaryAttrs{
-      OperatorType::EW_ADD,
+      ElementBinaryOp::ADD,
       datatype,
       false,
       false,

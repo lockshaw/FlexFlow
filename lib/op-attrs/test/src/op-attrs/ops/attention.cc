@@ -6,10 +6,10 @@
 
 using namespace ::FlexFlow;
 
-static ParallelTensorDimDegrees 
-  mk_1d_dim_degrees(int sum_degree, 
+static ParallelTensorDimDegrees
+  mk_1d_dim_degrees(int sum_degree,
                     int discard_copy_degree,
-                    int inner_degree) 
+                    int inner_degree)
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -21,10 +21,10 @@ static ParallelTensorDimDegrees
 }
 
 static ParallelTensorDimDegrees
-       mk_2d_dim_degrees(int sum_degree, 
+       mk_2d_dim_degrees(int sum_degree,
                          int discard_copy_degree,
                          int embedding_dim_degree,
-                         int head_dim_degree) 
+                         int head_dim_degree)
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -37,11 +37,11 @@ static ParallelTensorDimDegrees
 }
 
 static ParallelTensorDimDegrees
-       mk_3d_dim_degrees(int sum_degree, 
+       mk_3d_dim_degrees(int sum_degree,
                          int discard_copy_degree,
                          int batch_degree,
                          int sequence_degree,
-                         int inner_degree) 
+                         int inner_degree)
 {
   return ParallelTensorDimDegrees{
     SumDegree{positive_int{sum_degree}},
@@ -164,7 +164,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape result =
         attention_get_weights_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct = 
+    TensorShape correct =
       TensorShape{
         TensorDims{
             FFOrdered{
@@ -207,7 +207,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape result =
         attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct = 
+    TensorShape correct =
       TensorShape{
         TensorDims{
             FFOrdered{
@@ -247,9 +247,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape input_v = input_q;
 
     TensorShape result =
-        attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
+        attention_get_output_bias_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct = 
+    TensorShape correct =
       TensorShape{
         TensorDims{
             FFOrdered{
@@ -498,26 +498,5 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       CHECK(result == correct);
     }
-  }
-
-  TEST_CASE("attention_get_operator_to_parallel_tensor_mappings") {
-    MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
-        /*embed_dim=*/32_p,
-        /*num_heads=*/10_p,
-        /*kdim=*/32_p,
-        /*vdim=*/32_p,
-        /*dropout=*/0.0,
-        /*bias=*/true,
-        /*add_bias_kv=*/false,
-        /*add_zero_attn=*/false,
-    };
-
-    ParallelTensorDimDegrees q = mk_3d_dim_degrees(1, 2, 4, 1, 1);
-    ParallelTensorDimDegrees k = q;
-    ParallelTensorDimDegrees v = q;
-
-    attention_get_operator_to_parallel_tensor_mappings(attrs, q, k, v);
-    
-    // for now just check that it doesn't crash
   }
 }

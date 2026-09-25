@@ -48,7 +48,7 @@ AbstractedSingleTensorMovement get_abstracted_single_tensor_movement_along_edge(
   std::map<AbstractedSingleTensorCommunicationEdge, num_bytes_t> single_comms =
     generate_map2(
       coord_mapping.as_unstructured_relation(),
-      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &src_dst) 
+      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &src_dst)
         -> AbstractedSingleTensorCommunicationEdge
       {
         auto [src_task_coord, dst_task_coord] = src_dst;
@@ -58,8 +58,8 @@ AbstractedSingleTensorMovement get_abstracted_single_tensor_movement_along_edge(
             /*dst=*/AbstractedDevice{dst_path, dst_task_coord},
         };
       },
-      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &) 
-        -> num_bytes_t 
+      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &)
+        -> num_bytes_t
       {
         return tensor_piece_size;
       });

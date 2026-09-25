@@ -58,9 +58,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("tensor_dims_is_broadcastable_to(TensorDims, TensorDims)") {
+  TEST_CASE("tensor_dims_is_broadcastable_to") {
 
-    TensorDims goal = TensorDims{FFOrdered{1_p, 1_p, 4_p, 3_p}};
+    TensorDims goal = TensorDims{FFOrdered{4_p, 6_p, 4_p, 3_p}};
 
     SUBCASE("dims match") {
       bool result = tensor_dims_is_broadcastable_to(goal, goal);
@@ -71,6 +71,15 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("curr only needs num_dims promotion") {
       TensorDims curr = TensorDims{FFOrdered{4_p, 3_p}};
+
+      bool result = tensor_dims_is_broadcastable_to(curr, goal);
+      bool correct = true;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("can broadcast inner dims") {
+      TensorDims curr = TensorDims{FFOrdered{4_p, 1_p}};
 
       bool result = tensor_dims_is_broadcastable_to(curr, goal);
       bool correct = true;
@@ -244,6 +253,51 @@ TEST_SUITE(FF_TEST_SUITE) {
       TensorDims correct = TensorDims{FFOrdered<positive_int>{}};
 
       CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("tensor_dims_remove_trailing_dims") {
+    TensorDims input = TensorDims{
+      FFOrdered<positive_int>{
+        5_p,
+        3_p,
+        4_p,
+        4_p,
+      },
+    };
+
+    SUBCASE("trailing dims are present") {
+      TensorDims trailing_dims = TensorDims{
+        FFOrdered<positive_int>{
+          3_p,
+          4_p,
+          4_p,
+        },
+      };
+
+      TensorDims result = tensor_dims_remove_trailing_dims(
+        input, trailing_dims);
+
+      TensorDims correct = TensorDims{
+        FFOrdered<positive_int>{
+          5_p,
+        },
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("trailing dims are not present") {
+      TensorDims trailing_dims = TensorDims{
+        FFOrdered<positive_int>{
+          3_p,
+          5_p,
+          4_p,
+        },
+      };
+
+      CHECK_THROWS(tensor_dims_remove_trailing_dims(
+        input, trailing_dims));
     }
   }
 }

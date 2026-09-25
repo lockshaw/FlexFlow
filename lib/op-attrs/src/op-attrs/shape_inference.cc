@@ -947,7 +947,8 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
           },
           [&](ConcatAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorShape> {
-            require_only_key(input_shapes, TensorSlotName::INPUT);
+            require_only_slots_sequence(
+                input_shapes, get_variadic_inputs_slot_name_sequence());
 
             return {};
           },
@@ -1195,7 +1196,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
             },
           };
         },
-        [&](CastAttrs const &attrs) 
+        [&](CastAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
           ParallelTensorDimDegrees input =
               require_only_key(input_degrees, TensorSlotName::INPUT);
@@ -1207,7 +1208,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
               },
           };
         },
-        [&](DropoutAttrs const &attrs) 
+        [&](DropoutAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
           ParallelTensorDimDegrees input =
               require_only_key(input_degrees, TensorSlotName::INPUT);
@@ -1243,7 +1244,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
               },
           };
         },
-        [&](EmbeddingAttrs const &attrs) 
+        [&](EmbeddingAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
           ParallelTensorDimDegrees input =
               require_only_key(input_degrees, TensorSlotName::INPUT);
@@ -1255,7 +1256,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
               },
           };
         },
-        [&](FlatAttrs const &attrs) 
+        [&](FlatAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
           ParallelTensorDimDegrees input =
               require_only_key(input_degrees, TensorSlotName::INPUT);
@@ -1267,7 +1268,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
               },
           };
         },
-        [&](GatherAttrs const &attrs) 
+        [&](GatherAttrs const &attrs)
             -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
           auto [input, index] = require_two_keys(
               input_degrees, TensorSlotName::INPUT, TensorSlotName::INDEX);
@@ -1484,7 +1485,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees> infer_output_degrees(
               },
           };
         },
-        [&](WeightAttrs const &attrs) 
+        [&](WeightAttrs const &attrs)
           -> std::map<TensorSlotName, ParallelTensorDimDegrees>
         {
           ASSERT(input_degrees.size() == 0);

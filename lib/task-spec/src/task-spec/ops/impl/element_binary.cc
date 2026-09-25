@@ -18,7 +18,7 @@ static DeviceSpecificPerDeviceOpState
   std::optional<ElementBinaryPerDeviceState> per_device_state =
       element_binary_init_kernel(kernel_device_type,
                   handle,
-                  attrs.type,
+                  attrs.op,
                   attrs.should_broadcast_lhs,
                   attrs.should_broadcast_rhs,
                   input_lhs.shape,

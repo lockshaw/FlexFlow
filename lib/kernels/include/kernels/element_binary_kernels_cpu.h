@@ -10,7 +10,7 @@ void element_binary_cpu_forward_kernel(
   ElementBinaryAttrs const &attrs,
   GenericTensorAccessorR const &lhs,
   GenericTensorAccessorR const &rhs,
-  GenericTensorAccessorR const &out);
+  GenericTensorAccessorW const &out);
 
 void element_binary_cpu_backward_kernel(
   ElementBinaryAttrs const &attrs,

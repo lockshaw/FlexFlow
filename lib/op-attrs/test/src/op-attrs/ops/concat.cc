@@ -414,15 +414,15 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
         {
-          TensorSlotName::INPUT_01,
+          TensorSlotName::INPUT_00,
           input1_parallel_shape,
         },
         {
-          TensorSlotName::INPUT_02,
+          TensorSlotName::INPUT_01,
           input2_parallel_shape,
         },
         {
-          TensorSlotName::INPUT_03,
+          TensorSlotName::INPUT_02,
           input3_parallel_shape,
         },
       };

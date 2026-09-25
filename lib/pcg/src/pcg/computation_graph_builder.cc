@@ -252,7 +252,7 @@ tensor_guid_t ComputationGraphBuilder::cast(
 }
 
 tensor_guid_t ComputationGraphBuilder::element_unary(
-    OperatorType op_type,
+    ElementUnaryOp op_type,
     tensor_guid_t const &x,
     std::optional<float> scalar,
     std::optional<std::string> const &maybe_name) {
@@ -279,15 +279,21 @@ tensor_guid_t ComputationGraphBuilder::element_unary(
 }
 
 tensor_guid_t ComputationGraphBuilder::element_binary(
-    OperatorType op_type,
+    ElementBinaryOp op_type,
     tensor_guid_t const &lhs,
     tensor_guid_t const &rhs,
     std::optional<std::string> const &maybe_name) {
-  std::string name = maybe_name.value_or(get_default_name(op_type));
 
   TensorDims compute_dims = this->get_broadcast_target_dims({lhs, rhs});
   DataType compute_type =
       std::max(this->get_shape(lhs).data_type, this->get_shape(rhs).data_type);
+
+  ElementBinaryAttrs attrs =
+      ElementBinaryAttrs{op_type, compute_type, false, false};
+
+  std::string name = maybe_name.value_or(get_default_name(ComputationGraphOpAttrs{attrs}));
+
+  LayerAttrs layer = LayerAttrs{ComputationGraphOpAttrs{attrs}, name};
 
   tensor_guid_t lhs_input = this->as_type(
       this->broadcast(
@@ -300,11 +306,6 @@ tensor_guid_t ComputationGraphBuilder::element_binary(
           rhs, compute_dims, fmt::format("{}_inputr_broadcast", name)),
       compute_type,
       name + "_inputr_cast");
-
-  ElementBinaryAttrs attrs =
-      ElementBinaryAttrs{op_type, compute_type, false, false};
-
-  LayerAttrs layer = LayerAttrs{ComputationGraphOpAttrs{attrs}, name};
 
   return require_only_key(this->add_layer(layer,
                                           {
@@ -324,62 +325,62 @@ tensor_guid_t ComputationGraphBuilder::element_binary(
 tensor_guid_t
     ComputationGraphBuilder::exp(tensor_guid_t const &input,
                                  std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::EXP, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::EXP, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::add(tensor_guid_t const &lhs,
                                  tensor_guid_t const &rhs,
                                  std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_ADD, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::ADD, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::subtract(tensor_guid_t const &lhs,
                                       tensor_guid_t const &rhs,
                                       std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_SUB, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::SUBTRACT, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::multiply(tensor_guid_t const &lhs,
                                       tensor_guid_t const &rhs,
                                       std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_MUL, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::MULTIPLY, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::divide(tensor_guid_t const &lhs,
                                     tensor_guid_t const &rhs,
                                     std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_DIV, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::DIVIDE, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::max(tensor_guid_t const &lhs,
                                  tensor_guid_t const &rhs,
                                  std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_MAX, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::MAX, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::min(tensor_guid_t const &lhs,
                                  tensor_guid_t const &rhs,
                                  std::optional<std::string> const &name) {
-  return this->element_binary(OperatorType::EW_MIN, lhs, rhs, name);
+  return this->element_binary(ElementBinaryOp::MIN, lhs, rhs, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::rsqrt(tensor_guid_t const &input,
                                    std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::RSQRT, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::RSQRT, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::pow(tensor_guid_t const &input,
                                  float exponent,
                                  std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::POW, input, exponent, name);
+  return this->element_unary(ElementUnaryOp::POW, input, exponent, name);
 }
 
 tensor_guid_t ComputationGraphBuilder::scalar_multiply(
@@ -387,21 +388,21 @@ tensor_guid_t ComputationGraphBuilder::scalar_multiply(
     float scalar,
     std::optional<std::string> const &name) {
   return this->element_unary(
-      OperatorType::SCALAR_MULTIPLY, input, scalar, name);
+      ElementUnaryOp::SCALAR_MULTIPLY, input, scalar, name);
 }
 
 tensor_guid_t ComputationGraphBuilder::scalar_add(
     tensor_guid_t const &input,
     float scalar,
     std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::SCALAR_ADD, input, scalar, name);
+  return this->element_unary(ElementUnaryOp::SCALAR_ADD, input, scalar, name);
 }
 
 tensor_guid_t ComputationGraphBuilder::scalar_sub(
     tensor_guid_t const &lhs,
     float rhs,
     std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::SCALAR_SUB, lhs, rhs, name);
+  return this->element_unary(ElementUnaryOp::SCALAR_SUB, lhs, rhs, name);
 }
 
 tensor_guid_t ComputationGraphBuilder::scalar_truediv(
@@ -409,61 +410,61 @@ tensor_guid_t ComputationGraphBuilder::scalar_truediv(
     float denominator,
     std::optional<std::string> const &name) {
   return this->element_unary(
-      OperatorType::SCALAR_TRUE_DIV, numerator, denominator, name);
+      ElementUnaryOp::SCALAR_TRUE_DIV, numerator, denominator, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::sin(tensor_guid_t const &input,
                                  std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::SIN, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::SIN, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::cos(tensor_guid_t const &input,
                                  std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::COS, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::COS, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::relu(tensor_guid_t const &input,
                                   std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::RELU, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::RELU, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::identity(tensor_guid_t const &input,
                                       std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::IDENTITY, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::IDENTITY, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::gelu(tensor_guid_t const &input,
                                   std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::GELU, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::GELU, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::sigmoid(tensor_guid_t const &input,
                                      std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::SIGMOID, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::SIGMOID, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::tanh(tensor_guid_t const &input,
                                   std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::TANH, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::TANH, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::elu(tensor_guid_t const &input,
                                  std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::ELU, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::ELU, input, std::nullopt, name);
 }
 
 tensor_guid_t
     ComputationGraphBuilder::silu(tensor_guid_t const &input,
                                   std::optional<std::string> const &name) {
-  return this->element_unary(OperatorType::SILU, input, std::nullopt, name);
+  return this->element_unary(ElementUnaryOp::SILU, input, std::nullopt, name);
 }
 
 tensor_guid_t ComputationGraphBuilder::conv2d(
@@ -1011,9 +1012,9 @@ tensor_guid_t ComputationGraphBuilder::reshape(
   TensorDims input_dims = this->get_shape(input).dims;
   TensorDims output_dims = TensorDims{ff_ordered_of(shape)};
 
-  TensorDims shared_leading_dims = 
+  TensorDims shared_leading_dims =
     get_shared_leading_dims(std::set<TensorDims>{
-      input_dims, 
+      input_dims,
       output_dims,
     });
 
@@ -1124,8 +1125,8 @@ tensor_guid_t ComputationGraphBuilder::transpose(
       /*permutation=*/
       TensorDimPermutation{
           bidict_from_keys_and_values(
-              ff_dim_range(num_elements(perm)),
-              transform(perm, [](nonnegative_int n) { return ff_dim_t{n}; })),
+              transform(perm, [](nonnegative_int n) { return ff_dim_t{n}; }),
+              ff_dim_range(num_elements(perm))),
       },
   };
 

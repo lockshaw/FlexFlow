@@ -103,7 +103,10 @@ struct CPUTensorAccessorBroadcast {
 void tensor_accessor_broadcast_to(GenericTensorAccessorR const &input,
                                   TensorDims const &output_dims,
                                   GenericTensorAccessorW const &output) {
-  ASSERT(tensor_dims_is_broadcastable_to(input.shape.dims, output_dims));
+  ASSERT(
+    tensor_dims_is_broadcastable_to(input.shape.dims, output_dims),
+    fmt::format("Cannot broadcast {} to {}", input.shape.dims, output_dims)
+  );
 
   TensorShape output_shape = TensorShape{output_dims, input.shape.data_type};
   ASSERT(get_tensor_shape_for_accessor_w(output) == output_shape);

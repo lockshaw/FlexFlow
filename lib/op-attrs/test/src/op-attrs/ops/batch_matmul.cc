@@ -11,6 +11,7 @@
 #include "test/utils/doctest/check_kv.h"
 #include "kernels/accessors_are_equal.h"
 #include "kernels/shard_signature_instance_is_valid.h"
+#include "utils/containers/set_filtrans.h"
 
 using namespace ::FlexFlow;
 
@@ -330,37 +331,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     CHECK(result == correct);
-  }
-
-  TEST_CASE("batch_matmul_get_operator_to_lhs_input_mapping") {
-    BatchMatmulAttrs attrs = BatchMatmulAttrs{};
-
-    auto mk_degrees = [](int sum_degree,
-                         int discard_copy_degree,
-                         int batch_dim_degree,
-                         int row_degree,
-                         int col_degree)
-      -> ParallelTensorDimDegrees
-    {
-      return ParallelTensorDimDegrees{
-          /*sum_degree=*/SumDegree{positive_int{sum_degree}},
-          /*discard_copy_degree=*/DiscardCopyDegree{positive_int{discard_copy_degree}},
-          /*shard_degrees=*/
-          FFOrdered<positive_int>{
-              positive_int{batch_dim_degree},
-              positive_int{row_degree},
-              positive_int{col_degree},
-          },
-      };
-    };
-
-    OperatorSpaceToParallelTensorSpaceBiuniqueMapping result =
-        batch_matmul_get_operator_to_lhs_input_mapping(
-            /*attrs=*/attrs,
-            /*lhs=*/mk_degrees(13, 11 * 3, 2, 7, 5),
-            /*rhs=*/mk_degrees(11, 13 * 7, 2, 5, 3));
-
-    // for now just check that it doesn't crash
   }
 
   TEST_CASE("batch_matmul_get_shard_signature_instance") {
