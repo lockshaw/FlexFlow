@@ -311,6 +311,9 @@ std::map<TensorSlotName, InitializerAttrs> linear_get_initializers(
 StandardOperatorTaskGroup
     linear_get_task_group(LinearAttrs const &attrs,
                           ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      linear_get_output_parallel_dim_degrees(attrs, input_degrees);
+
   StandardOperatorTaskGroup task_group = StandardOperatorTaskGroup{
       transform(
           get_parallel_tensor_space_coordinates(input_degrees),
@@ -363,6 +366,12 @@ StandardOperatorTaskGroup
                     lift_bounded_component(output_discard_copy_component),
                     output_shard_components);
 
+            ParallelTensorSpaceCoordinate output_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_degree=*/output_sum_component,
+                    /*discard_copy_degree=*/output_discard_copy_component,
+                    /*shard_coords=*/output_shard_components);
+
             return AbstractedOperatorAtomicTaskShardBinding{
                 /*tensor_corods=*/{
                     {
@@ -397,16 +406,12 @@ StandardOperatorTaskGroup
                     },
                     {
                         TensorSlotName::OUTPUT,
-                        parallel_tensor_space_coordinate_from_bounded_orthotope_components(
-                            /*sum_degree=*/output_sum_component,
-                            /*discard_copy_degree=*/
-                            output_discard_copy_component,
-                            /*shard_coords=*/output_shard_components),
+                        output_coord,
                     },
                 },
                 /*task_coord=*/
-                task_space_coordinate_from_orthotope_coord(
-                    raw_output_coord.coord),
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
             };
           }),
   };

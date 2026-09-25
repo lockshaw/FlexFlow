@@ -95,6 +95,23 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
+    SUBCASE("discard copy parallelism") {
+      DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{2_p};
+
+      SoftmaxAttrs attrs = SoftmaxAttrs{ff_dim_t{1_n}};
+
+      ParallelTensorShape par_input =
+          make_input(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p);
+
+      ParallelTensorShape result =
+          softmax_get_output_parallel_shape(attrs, par_input);
+
+      ParallelTensorShape correct =
+          make_output(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p);
+
+      CHECK(result == correct);
+    }
+
     SUBCASE("partition parallism in softmax dim (invalid)") {
       positive_int degree1 = 2_p;
 
@@ -113,17 +130,6 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelTensorShape par_input =
           make_input(sum_degree, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p);
-
-      CHECK_THROWS(softmax_get_output_parallel_shape(attrs, par_input));
-    }
-
-    SUBCASE("discard copy parallelism (invalid)") {
-      DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{2_p};
-
-      SoftmaxAttrs attrs = SoftmaxAttrs{ff_dim_t{1_n}};
-
-      ParallelTensorShape par_input =
-          make_input(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p);
 
       CHECK_THROWS(softmax_get_output_parallel_shape(attrs, par_input));
     }

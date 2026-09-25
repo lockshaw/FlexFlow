@@ -7,6 +7,7 @@
 #include "op-attrs/task_space_coordinate.h"
 #include "utils/containers/binary_cartesian_product.h"
 #include "utils/containers/require_same.h"
+#include "utils/containers/set_filtrans.h"
 
 namespace FlexFlow {
 
@@ -62,26 +63,26 @@ ParallelTensorDimDegrees element_binary_get_output_parallel_dim_degrees(
     ASSERT(lhs_input_degrees == rhs_input_degrees,
            "Expected input degrees to match");
 
-    switch (attrs.type) {
-      case OperatorType::EW_ADD: {
+    switch (attrs.op) {
+      case ElementBinaryOp::ADD: {
         ASSERT(
             lhs_input_degrees.discard_copy_degree.value == 1,
             "Elementwise Add expected discard copy degree of inputs to be 1");
 
         break;
       }
-      case OperatorType::EW_SUB:
+      case ElementBinaryOp::SUBTRACT:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MUL:
+      case ElementBinaryOp::MULTIPLY:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_DIV:
+      case ElementBinaryOp::DIVIDE:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MAX:
+      case ElementBinaryOp::MAX:
         NOT_IMPLEMENTED();
-      case OperatorType::EW_MIN:
+      case ElementBinaryOp::MIN:
         NOT_IMPLEMENTED();
       default:
-        PANIC("Unexpected element-wise binary operator", attrs.type);
+        PANIC("Unexpected element-wise binary operator", attrs.op);
     }
 
     return lhs_input_degrees;
@@ -97,42 +98,43 @@ StandardOperatorTaskGroup element_binary_get_task_group(
           attrs, lhs_input_degrees, rhs_input_degrees);
 
   return StandardOperatorTaskGroup{
-      filtrans(binary_cartesian_product(
-                   get_parallel_tensor_space_coordinates(lhs_input_degrees),
-                   get_parallel_tensor_space_coordinates(rhs_input_degrees)),
-               [&](std::pair<ParallelTensorSpaceCoordinate,
-                             ParallelTensorSpaceCoordinate> const &coords)
-                   -> std::optional<AbstractedOperatorAtomicTaskShardBinding> {
-                 ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
-                 ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
+      set_filtrans(
+          binary_cartesian_product(
+              get_parallel_tensor_space_coordinates(lhs_input_degrees),
+              get_parallel_tensor_space_coordinates(rhs_input_degrees)),
+          [&](std::pair<ParallelTensorSpaceCoordinate,
+                        ParallelTensorSpaceCoordinate> const &coords)
+              -> std::optional<AbstractedOperatorAtomicTaskShardBinding> {
+            ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
+            ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
 
-                 if (lhs_input_coord != rhs_input_coord) {
-                   return std::nullopt;
-                 }
+            if (lhs_input_coord != rhs_input_coord) {
+              return std::nullopt;
+            }
 
-                 ParallelTensorSpaceCoordinate output_coord =
-                     require_same(lhs_input_coord, rhs_input_coord);
+            ParallelTensorSpaceCoordinate output_coord =
+                require_same(lhs_input_coord, rhs_input_coord);
 
-                 return AbstractedOperatorAtomicTaskShardBinding{
-                     /*tensor_corods=*/{
-                         {
-                             TensorSlotName::LHS_INPUT,
-                             lhs_input_coord,
-                         },
-                         {
-                             TensorSlotName::RHS_INPUT,
-                             rhs_input_coord,
-                         },
-                         {
-                             TensorSlotName::OUTPUT,
-                             output_coord,
-                         },
-                     },
-                     /*task_coord=*/
-                     task_coord_matching_parallel_tensor_space_coordinate(
-                         output_coord, output_degrees),
-                 };
-               }),
+            return AbstractedOperatorAtomicTaskShardBinding{
+                /*tensor_corods=*/{
+                    {
+                        TensorSlotName::LHS_INPUT,
+                        lhs_input_coord,
+                    },
+                    {
+                        TensorSlotName::RHS_INPUT,
+                        rhs_input_coord,
+                    },
+                    {
+                        TensorSlotName::OUTPUT,
+                        output_coord,
+                    },
+                },
+                /*task_coord=*/
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
+            };
+          }),
   };
 }
 
