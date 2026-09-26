@@ -1,23 +1,20 @@
 #include "op-attrs/ops/layer_norm.h"
-#include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
-#include "op-attrs/ff_ordered/ff_ordered_of.h"
 #include "op-attrs/ff_ordered/ff_ordered_restrict_dims_strict.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/all_of.h"
-#include "utils/containers/any_of.h"
 #include "utils/containers/contains.h"
-#include "utils/containers/extend.h"
-#include "utils/containers/filter.h"
+#include "utils/containers/set_minus.h"
 #include "utils/containers/set_union.h"
-#include "utils/containers/vector_of.h"
-#include "utils/expected.h"
 #include "utils/fmt/set.h"
-#include "utils/not_implemented.h"
-#include "utils/orthotope/dim_domain.h"
+#include "utils/optional.h"
+#include "utils/orthotope/orthotope_bounded_coord.h"
 
 namespace FlexFlow {
 
@@ -31,6 +28,20 @@ std::map<TensorSlotName, IncomingTensorRole>
     result[TensorSlotName::GAMMA] = IncomingTensorRole::WEIGHT;
     result[TensorSlotName::BETA] = IncomingTensorRole::WEIGHT;
   }
+
+  return result;
+}
+
+std::set<TensorSlotName> layer_norm_get_slots(LayerNormAttrs const &attrs) {
+  std::set<TensorSlotName> result = {
+      TensorSlotName::INPUT,
+      TensorSlotName::OUTPUT,
+  };
+
+  if (attrs.elementwise_affine) {
+    result.insert(TensorSlotName::GAMMA);
+    result.insert(TensorSlotName::BETA);
+  };
 
   return result;
 }
@@ -50,7 +61,6 @@ static void check_input_shape(LayerNormAttrs const &attrs,
 
 TensorShape layer_norm_get_output_shape(LayerNormAttrs const &attrs,
                                         TensorShape const &input_shape) {
-
   check_input_shape(attrs, input_shape);
 
   return input_shape;
@@ -313,43 +323,183 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 }
 
+StandardOperatorTaskGroup
+    layer_norm_get_task_group(LayerNormAttrs const &attrs,
+                              ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      layer_norm_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  StandardOperatorTaskGroup task_group = StandardOperatorTaskGroup{
+      transform(
+          get_parallel_tensor_space_coordinates(input_degrees),
+          [&](ParallelTensorSpaceCoordinate const &input_coord)
+              -> AbstractedOperatorAtomicTaskShardBinding {
+            std::set<parallel_tensor_dim_idx_t> axes_dims = transform(
+                attrs.axes, [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
+                  return shard_dim_idx(d);
+                });
+
+            std::set<parallel_tensor_dim_idx_t>
+                preexisting_input_sum_parallelism_dims = {sum_dim_idx()};
+
+            std::set<parallel_tensor_dim_idx_t> weight_sum_parallelism_dims = {
+                discard_copy_dim_idx()};
+
+            std::set<parallel_tensor_dim_idx_t> remaining_dims =
+                set_minus(get_parallel_tensor_dim_indices(input_degrees),
+                          set_union(std::vector{
+                              axes_dims,
+                              weight_sum_parallelism_dims,
+                              preexisting_input_sum_parallelism_dims,
+                          }));
+
+            OrthotopeBoundedCoord preexisting_input_sum_parallelism_coord =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees,
+                    input_coord,
+                    preexisting_input_sum_parallelism_dims);
+
+            OrthotopeBoundedCoord weight_sum_parallelism_coord =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, weight_sum_parallelism_dims);
+
+            OrthotopeBoundedCoord axes_coord =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, axes_dims);
+
+            OrthotopeBoundedCoord remaining_dims_coord =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, remaining_dims);
+
+            ParallelTensorSpaceCoordinate gamma_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/assert_unwrap(
+                        flatten_orthotope_bounded_coord(
+                            weight_sum_parallelism_coord)),
+                    /*discard_copy_component=*/
+                    assert_unwrap(flatten_orthotope_bounded_coord(
+                        orthotope_bounded_coord_product(
+                            remaining_dims_coord,
+                            preexisting_input_sum_parallelism_coord))),
+                    /*shard_components=*/axes_coord);
+
+            ParallelTensorSpaceCoordinate beta_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/assert_unwrap(
+                        flatten_orthotope_bounded_coord(
+                            orthotope_bounded_coord_product(
+                                weight_sum_parallelism_coord,
+                                preexisting_input_sum_parallelism_coord))),
+                    /*discard_copy_component=*/
+                    assert_unwrap(
+                        flatten_orthotope_bounded_coord(remaining_dims_coord)),
+                    /*shard_components=*/axes_coord);
+
+            ParallelTensorSpaceCoordinate output_coord =
+                ParallelTensorSpaceCoordinate{
+                    /*sum_component=*/assert_unwrap(
+                        flatten_orthotope_bounded_coord(
+                            orthotope_bounded_coord_product(
+                                weight_sum_parallelism_coord,
+                                preexisting_input_sum_parallelism_coord)))
+                        .component,
+                    /*discard_copy_component=*/0_n,
+                    /*shard_components=*/input_coord.shard_components,
+                };
+
+            return AbstractedOperatorAtomicTaskShardBinding{
+                /*tensor_coords=*/{
+                    {
+                        TensorSlotName::INPUT,
+                        input_coord,
+                    },
+                    {
+                        TensorSlotName::GAMMA,
+                        gamma_coord,
+                    },
+                    {
+                        TensorSlotName::BETA,
+                        beta_coord,
+                    },
+                    {
+                        TensorSlotName::OUTPUT,
+                        output_coord,
+                    },
+                },
+                /*task_coord=*/
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
+            };
+          }),
+  };
+
+  return restrict_standard_operator_task_group_to_slots(
+      task_group, layer_norm_get_slots(attrs));
+}
+
+ShardSignatureInstance layer_norm_get_shard_signature_instance(
+    LayerNormAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
+}
+
 OperatorTaskSpace layer_norm_get_operator_task_space(
     LayerNormAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees) {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     layer_norm_get_operator_to_input_mapping(
         LayerNormAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     layer_norm_get_operator_to_gamma_weights_mapping(
         LayerNormAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::GAMMA);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     layer_norm_get_operator_to_beta_weights_mapping(
         LayerNormAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  ASSERT(attrs.elementwise_affine);
+
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::BETA);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     layer_norm_get_operator_to_output_mapping(
         LayerNormAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  // TODO(@lockshaw)(#pr):
-  NOT_IMPLEMENTED();
+  StandardOperatorTaskGroup op_task_group =
+      layer_norm_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 std::map<TensorSlotName, InitializerAttrs>
