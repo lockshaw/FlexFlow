@@ -43,6 +43,14 @@ GenericTensorAccessorW
 void tensor_accessor_add_constant_inplace(
     GenericTensorAccessorW const &input, float constant);
 
+GenericTensorAccessorW
+    tensor_accessor_subtract_constant(GenericTensorAccessorR const &input,
+                                      float constant,
+                                      Allocator &output_allocator);
+
+void tensor_accessor_subtract_constant_inplace(
+    GenericTensorAccessorW const &input, float constant);
+
 GenericTensorAccessorW tensor_accessor_relu(GenericTensorAccessorR const &input,
                                             Allocator &output_allocator);
 
