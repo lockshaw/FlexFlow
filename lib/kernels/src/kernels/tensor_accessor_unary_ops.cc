@@ -108,6 +108,24 @@ void tensor_accessor_add_constant_inplace(GenericTensorAccessorW const &t,
       t, [&](auto const &elem) { return elem + constant; });
 }
 
+GenericTensorAccessorW
+    tensor_accessor_subtract_constant(GenericTensorAccessorR const &t,
+                                      float constant,
+                                      Allocator &output_allocator) {
+  ASSERT(t.shape.data_type == DataType::FLOAT);
+
+  return map_tensor_accessor(
+      t, [&](auto const &elem) { return elem - constant; }, output_allocator);
+}
+
+void tensor_accessor_subtract_constant_inplace(GenericTensorAccessorW const &t,
+                                               float constant) {
+  ASSERT(t.shape.data_type == DataType::FLOAT);
+
+  map_tensor_accessor_inplace(
+      t, [&](auto const &elem) { return elem - constant; });
+}
+
 template <typename T>
 static T single_element_relu(T elem) {
   if (elem >= 0) {
