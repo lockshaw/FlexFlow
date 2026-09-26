@@ -20,6 +20,7 @@
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/ops/input.h"
 #include "op-attrs/ops/cast.h"
+#include "op-attrs/ops/dropout.h"
 #include "op-attrs/ops/attention.h"
 #include "utils/containers/require_three_keys.h"
 
@@ -77,6 +78,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
         require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
       return conv2d_get_task_group(attrs, input_dim_degrees);
+    },
+    [&](DropoutAttrs const &attrs) -> StandardOperatorTaskGroup {
+      ParallelTensorDimDegrees input_dim_degrees =
+        require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+      return dropout_get_task_group(attrs, input_dim_degrees);
     },
     [&](ElementBinaryAttrs const &attrs) -> StandardOperatorTaskGroup {
       auto [lhs_input_dim_degrees, rhs_input_dim_degrees] =
