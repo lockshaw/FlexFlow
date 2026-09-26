@@ -41,12 +41,12 @@ includes = [
 ]
 
 [[values]]
-type = "::FlexFlow::BatchNormAttrs"
-key = "batch_norm"
-
-[[values]]
 type = "::FlexFlow::BatchMatmulAttrs"
 key = "batch_matmul"
+
+[[values]]
+type = "::FlexFlow::BatchNormAttrs"
+key = "batch_norm"
 
 [[values]]
 type = "::FlexFlow::BroadcastAttrs"
@@ -125,12 +125,12 @@ type = "::FlexFlow::ReshapeAttrs"
 key = "reshape"
 
 [[values]]
-type = "::FlexFlow::SplitAttrs"
-key = "split"
-
-[[values]]
 type = "::FlexFlow::SoftmaxAttrs"
 key = "softmax"
+
+[[values]]
+type = "::FlexFlow::SplitAttrs"
+key = "split"
 
 [[values]]
 type = "::FlexFlow::TopKAttrs"
