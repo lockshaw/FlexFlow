@@ -4,6 +4,7 @@
 #include "op-attrs/ff_ordered/ff_ordered_filtrans.h"
 #include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
+#include "op-attrs/ff_ordered/ff_ordered_transform_with_idx.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip_with.h"
 #include "op-attrs/relative_ff_dim_t.h"
@@ -277,6 +278,14 @@ TensorDims slice_tensor_dims(TensorDims const &dims,
                              std::optional<ff_dim_t> const &stop) {
   return TensorDims{
       ff_ordered_slice(dims.ff_ordered, start, stop),
+  };
+}
+
+TensorDims tensor_dims_transform_with_idx(
+    TensorDims const &dims,
+    std::function<positive_int(ff_dim_t, positive_int)> const &f) {
+  return TensorDims{
+      ff_ordered_transform_with_idx(dims.ff_ordered, f),
   };
 }
 
