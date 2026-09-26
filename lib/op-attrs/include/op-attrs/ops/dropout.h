@@ -6,6 +6,8 @@
 #include "op-attrs/ops/dropout_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 
 namespace FlexFlow {
@@ -19,6 +21,13 @@ ParallelTensorDimDegrees
 ParallelTensorShape
     dropout_get_output_parallel_shape(DropoutAttrs const &,
                                       ParallelTensorShape const &);
+
+StandardOperatorTaskGroup
+    dropout_get_task_group(DropoutAttrs const &attrs,
+                           ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance dropout_get_shard_signature_instance(
+    DropoutAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace dropout_get_operator_task_space(
     DropoutAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
