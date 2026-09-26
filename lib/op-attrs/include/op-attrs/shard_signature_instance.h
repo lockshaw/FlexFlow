@@ -39,10 +39,17 @@ private:
   friend struct ::std::hash<ShardSignatureInstance>;
 };
 
+std::set<TensorSlotName> 
+  shard_signature_get_slot_names(ShardSignatureInstance const &);
+
 ParallelTensorDimDegrees
   parallel_tensor_space_for_shard_signature_instance_and_slot(
     ShardSignatureInstance const &,
     TensorSlotName slot_name);
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+  shard_signature_get_all_parallel_tensor_spaces(
+    ShardSignatureInstance const &);
 
 ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
   shard_signature_instance_get_ptensor_to_ptensor_mapping(
