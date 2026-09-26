@@ -19,6 +19,7 @@
 #include "op-attrs/ops/flat.h"
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/ops/input.h"
+#include "op-attrs/ops/cast.h"
 #include "op-attrs/ops/attention.h"
 #include "utils/containers/require_three_keys.h"
 
@@ -58,6 +59,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
         require_two_keys(input_dim_degree_binding, TensorSlotName::LHS_INPUT, TensorSlotName::RHS_INPUT);
 
       return batch_matmul_get_task_group(attrs, lhs_input_dim_degrees, rhs_input_dim_degrees);
+    },
+    [&](CastAttrs const &attrs) -> StandardOperatorTaskGroup {
+      ParallelTensorDimDegrees input_dim_degrees =
+        require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+      return cast_get_task_group(attrs, input_dim_degrees);
     },
     [&](ConcatAttrs const &attrs) -> StandardOperatorTaskGroup {
       std::vector<ParallelTensorDimDegrees> inputs_dim_degrees = require_only_slots_sequence(

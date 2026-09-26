@@ -8,6 +8,8 @@
 #include "utils/relation/compose_hemiunique_binary_relations.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/shard_signature_instance.h"
 
 namespace FlexFlow {
 
@@ -18,6 +20,15 @@ ParallelTensorDimDegrees cast_get_output_parallel_dim_degrees(
 
 ParallelTensorShape
     cast_get_output_parallel_shape(CastAttrs const &, ParallelTensorShape const &);
+
+StandardOperatorTaskGroup cast_get_task_group(
+    CastAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance
+    cast_get_shard_signature_instance(
+          CastAttrs const &attrs,
+          ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace cast_get_operator_task_space(
     CastAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
