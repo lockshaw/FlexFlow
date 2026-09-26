@@ -3,8 +3,6 @@
 
 namespace FlexFlow {
 
-using Container = std::vector<bool>;
-
-template bool all_are_true(Container const &);
+template bool all_are_true(std::vector<bool> const &);
 
 } // namespace FlexFlow
