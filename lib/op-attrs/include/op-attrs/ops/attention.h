@@ -20,6 +20,8 @@ namespace FlexFlow {
 std::map<TensorSlotName, IncomingTensorRole>
     get_attention_incoming_tensor_roles(MultiHeadAttentionAttrs const &);
 
+std::set<TensorSlotName> attention_get_slots(MultiHeadAttentionAttrs const &);
+
 TensorShape
     attention_get_weights_shape(MultiHeadAttentionAttrs const &,
                       TensorShape const &input_q,
