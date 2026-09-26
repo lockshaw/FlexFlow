@@ -4,6 +4,7 @@
 #include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "utils/optional.h"
+#include "utils/containers/generate_map.h"
 
 namespace FlexFlow {
 
@@ -50,12 +51,22 @@ std::tuple<
   return std::tie(this->bindings);
 }
 
+std::set<TensorSlotName>
+  shard_signature_get_slot_names(ShardSignatureInstance const &shard_signature_instance)
+{
+  return require_all_same1(
+    transform(shard_signature_instance.get_shard_bindings(),
+              [&](OperatorAtomicTaskShardBinding const &b) -> std::set<TensorSlotName> {
+                return keys(b.tensor_coords);
+              }));
+}
+
 ParallelTensorDimDegrees
   parallel_tensor_space_for_shard_signature_instance_and_slot(
     ShardSignatureInstance const &shard_signature_instance,
     TensorSlotName slot_name)
 {
-  std::set<ParallelTensorSpaceCoordinate> task_space_coords = 
+  std::set<ParallelTensorSpaceCoordinate> task_space_coords =
     transform(shard_signature_instance.get_shard_bindings(),
               [&](OperatorAtomicTaskShardBinding const &b)
                 -> ParallelTensorSpaceCoordinate
@@ -64,6 +75,17 @@ ParallelTensorDimDegrees
               });
 
   return assert_unwrap(strict_parallel_tensor_dim_degrees_for_coord_set(task_space_coords));
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+  shard_signature_get_all_parallel_tensor_spaces(
+    ShardSignatureInstance const &shard_signature_instance)
+{
+  return generate_map(
+    shard_signature_get_slot_names(shard_signature_instance),
+    [&](TensorSlotName slot_name) -> ParallelTensorDimDegrees {
+      return parallel_tensor_space_for_shard_signature_instance_and_slot(shard_signature_instance, slot_name);
+    });
 }
 
 ParallelTensorSpaceToParallelTensorSpaceBiuniqueMapping
