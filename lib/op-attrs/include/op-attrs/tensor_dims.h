@@ -72,6 +72,10 @@ TensorDims slice_tensor_dims(TensorDims const &,
                              relative_ff_dim_t const &start,
                              std::optional<relative_ff_dim_t> const &stop);
 
+TensorDims tensor_dims_transform_with_idx(
+  TensorDims const &,
+  std::function<positive_int(ff_dim_t, positive_int)> const &);
+
 } // namespace FlexFlow
 
 #endif
