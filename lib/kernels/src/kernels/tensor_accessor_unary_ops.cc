@@ -43,6 +43,36 @@ void tensor_accessor_exp_inplace(
 }
 
 GenericTensorAccessorW
+    tensor_accessor_sqrt(GenericTensorAccessorR const &input,
+                        Allocator &output_allocator)
+{
+  ASSERT(input.shape.data_type == DataType::FLOAT);
+
+  return map_tensor_accessor(
+      input,
+      [&](auto const &elem) { return std::sqrt(elem); },
+      output_allocator);
+}
+
+void tensor_accessor_sqrt_to(GenericTensorAccessorR const &input,
+                            GenericTensorAccessorW const &output)
+{
+  ASSERT(input.shape.data_type == DataType::FLOAT);
+
+  map_tensor_accessor_to(
+      input, [](auto elem) { return std::sqrt(elem); }, output);
+}
+
+void tensor_accessor_sqrt_inplace(
+    GenericTensorAccessorW const &input)
+{
+  ASSERT(input.shape.data_type == DataType::FLOAT);
+
+  map_tensor_accessor_inplace(
+      input, [&](auto &elem) { return std::sqrt(elem); });
+}
+
+GenericTensorAccessorW
     tensor_accessor_scale_by_constant(GenericTensorAccessorR const &t,
                                       float constant,
                                       Allocator &output_allocator) {
@@ -58,6 +88,24 @@ void tensor_accessor_scale_by_constant_inplace(GenericTensorAccessorW const &t,
 
   map_tensor_accessor_inplace(
       t, [&](auto const &elem) { return elem * constant; });
+}
+
+GenericTensorAccessorW
+    tensor_accessor_add_constant(GenericTensorAccessorR const &t,
+                                      float constant,
+                                      Allocator &output_allocator) {
+  ASSERT(t.shape.data_type == DataType::FLOAT);
+
+  return map_tensor_accessor(
+      t, [&](auto const &elem) { return elem + constant; }, output_allocator);
+}
+
+void tensor_accessor_add_constant_inplace(GenericTensorAccessorW const &t,
+                                               float constant) {
+  ASSERT(t.shape.data_type == DataType::FLOAT);
+
+  map_tensor_accessor_inplace(
+      t, [&](auto const &elem) { return elem + constant; });
 }
 
 template <typename T>

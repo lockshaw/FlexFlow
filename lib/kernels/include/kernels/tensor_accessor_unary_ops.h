@@ -18,11 +18,29 @@ void tensor_accessor_exp_inplace(
     GenericTensorAccessorW const &input);
 
 GenericTensorAccessorW
+    tensor_accessor_sqrt(GenericTensorAccessorR const &input,
+                        Allocator &output_allocator);
+
+void tensor_accessor_sqrt_to(GenericTensorAccessorR const &input,
+                            GenericTensorAccessorW const &output);
+
+void tensor_accessor_sqrt_inplace(
+    GenericTensorAccessorW const &input);
+
+GenericTensorAccessorW
     tensor_accessor_scale_by_constant(GenericTensorAccessorR const &input,
                                       float constant,
                                       Allocator &output_allocator);
 
 void tensor_accessor_scale_by_constant_inplace(
+    GenericTensorAccessorW const &input, float constant);
+
+GenericTensorAccessorW
+    tensor_accessor_add_constant(GenericTensorAccessorR const &input,
+                                      float constant,
+                                      Allocator &output_allocator);
+
+void tensor_accessor_add_constant_inplace(
     GenericTensorAccessorW const &input, float constant);
 
 GenericTensorAccessorW tensor_accessor_relu(GenericTensorAccessorR const &input,

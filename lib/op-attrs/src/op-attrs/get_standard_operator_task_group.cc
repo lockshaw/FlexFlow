@@ -19,6 +19,7 @@
 #include "op-attrs/ops/flat.h"
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/ops/input.h"
+#include "op-attrs/ops/layer_norm.h"
 #include "op-attrs/ops/embedding.h"
 #include "op-attrs/ops/cast.h"
 #include "op-attrs/ops/dropout.h"
@@ -114,6 +115,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
       ASSERT(input_dim_degree_binding.size() == 0);
 
       return input_get_task_group(attrs);
+    },
+    [&](LayerNormAttrs const &attrs) -> StandardOperatorTaskGroup {
+      ParallelTensorDimDegrees input_dim_degrees =
+        require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+      return layer_norm_get_task_group(attrs, input_dim_degrees);
     },
     [&](LinearAttrs const &attrs) -> StandardOperatorTaskGroup {
       ParallelTensorDimDegrees input_dim_degrees =

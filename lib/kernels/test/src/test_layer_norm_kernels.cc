@@ -33,7 +33,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     Allocator allocator = create_local_cuda_memory_allocator();
 
-    LayerNormPerDeviceState state = Kernels::LayerNorm::gpu_init_kernel(
+    LayerNormPerDeviceState state = layer_norm_gpu_init_kernel(
         managed_handle.raw_handle(),
         allocator,
         elementwise_affine,
@@ -52,7 +52,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW beta_accessor = create_constant_filled_accessor_w(
           feature_shape, allocator, make_float_data_type_value(0));
 
-      Kernels::LayerNorm::gpu_forward_kernel(managed_stream.raw_stream(),
+      layer_norm_gpu_forward_kernel(managed_stream.raw_stream(),
                                              state,
                                              input_accessor,
                                              output_accessor,
@@ -70,7 +70,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW beta_grad_accessor =
           allocator.allocate_tensor(feature_shape);
 
-      Kernels::LayerNorm::gpu_backward_kernel(
+      layer_norm_gpu_backward_kernel(
           managed_stream.raw_stream(),
           state,
           output_grad_accessor,
