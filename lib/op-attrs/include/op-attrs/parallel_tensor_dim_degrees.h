@@ -56,6 +56,11 @@ ParallelTensorDimDegrees
 std::set<ParallelTensorSpaceCoordinate>
     get_parallel_tensor_space_coordinates(ParallelTensorDimDegrees const &);
 
+bool
+  parallel_tensor_space_contains_coord(
+    ParallelTensorDimDegrees const &,
+    ParallelTensorSpaceCoordinate const &);
+
 ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &);
 
 DimDomain<parallel_tensor_dim_idx_t>

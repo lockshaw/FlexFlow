@@ -184,6 +184,16 @@ std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(
       });
 }
 
+bool
+  parallel_tensor_space_contains_coord(
+    ParallelTensorDimDegrees const &dim_degrees,
+    ParallelTensorSpaceCoordinate const &coord)
+{
+  return dim_domain_contains_coord(
+    dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
+    dim_coord_from_parallel_tensor_space_coord(coord));
+}
+
 ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &dims) {
   std::vector<positive_int> shard_degrees = repeat_element(
       /*num_times=*/get_num_dims(dims).nonnegative_int_from_num_tensor_dims(),
