@@ -1,11 +1,12 @@
 #include "kernels/layer_norm_kernels.h"
 #include "kernels/layer_norm_kernels_cpu.h"
 #include "kernels/layer_norm_kernels_gpu.h"
+#include "utils/optional.h"
 
-namespace FlexFlow::Kernels::LayerNorm {
+namespace FlexFlow {
 
 std::optional<LayerNormPerDeviceState>
-    init_kernel(DeviceType device_type,
+    layer_norm_init_kernel(DeviceType device_type,
                 device_handle_t const &handle,
                 Allocator &allocator,
                 bool elementwise_affine,
@@ -13,7 +14,7 @@ std::optional<LayerNormPerDeviceState>
                 int64_t effective_num_elements,
                 float eps) {
   if (device_type == DeviceType::GPU) {
-    return gpu_init_kernel(
+    return layer_norm_gpu_init_kernel(
         /*handle=*/handle.require_for_gpu(),
         /*allocator=*/allocator,
         /*elementwise_affine=*/elementwise_affine,
@@ -27,25 +28,28 @@ std::optional<LayerNormPerDeviceState>
   }
 }
 
-void forward_kernel(
+void layer_norm_forward_kernel(
     device_stream_t const &stream,
     std::optional<LayerNormPerDeviceState> const &per_device_state,
+    LayerNormAttrs const &attrs,
     GenericTensorAccessorR const &input,
     GenericTensorAccessorW const &output,
-    GenericTensorAccessorW const &gamma,
-    GenericTensorAccessorW const &beta) {
+    std::optional<GenericTensorAccessorR> const &gamma,
+    std::optional<GenericTensorAccessorR> const &beta) 
+{
   if (stream.is_gpu()) {
-    gpu_forward_kernel(
+    layer_norm_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),
         /*per_device_state=*/per_device_state.value(),
         /*input=*/input,
         /*output=*/output,
-        /*gamma=*/gamma,
-        /*beta=*/beta);
+        /*gamma=*/assert_unwrap(gamma),
+        /*beta=*/assert_unwrap(beta));
   } else {
     ASSERT(stream.is_cpu());
     ASSERT(per_device_state == std::nullopt);
-    cpu_forward_kernel(
+    layer_norm_cpu_forward_kernel(
+        /*attrs=*/attrs,
         /*input=*/input,
         /*output=*/output,
         /*gamma=*/gamma,
@@ -53,9 +57,10 @@ void forward_kernel(
   }
 }
 
-void backward_kernel(
+void layer_norm_backward_kernel(
     device_stream_t const &stream,
     std::optional<LayerNormPerDeviceState> const &per_device_state,
+    LayerNormAttrs const &attrs,
     GenericTensorAccessorR const &output_grad,
     GenericTensorAccessorR const &input,
     GenericTensorAccessorW const &input_grad,
@@ -63,7 +68,7 @@ void backward_kernel(
     GenericTensorAccessorW const &gamma_grad,
     GenericTensorAccessorW const &beta_grad) {
   if (stream.is_gpu()) {
-    gpu_backward_kernel(
+    layer_norm_gpu_backward_kernel(
         /*stream=*/stream.require_gpu(),
         /*per_device_state=*/per_device_state.value(),
         /*output_grad=*/output_grad,
@@ -75,7 +80,8 @@ void backward_kernel(
   } else {
     ASSERT(stream.is_cpu());
     ASSERT(per_device_state == std::nullopt);
-    cpu_backward_kernel(
+    layer_norm_cpu_backward_kernel(
+        /*attrs=*/attrs,
         /*output_grad=*/output_grad,
         /*input=*/input,
         /*input_grad=*/input_grad,
@@ -85,15 +91,15 @@ void backward_kernel(
   }
 }
 
-void cleanup_kernel(
+void layer_norm_cleanup_kernel(
     DeviceType device_type,
     std::optional<LayerNormPerDeviceState> const &per_device_state) {
   if (device_type == DeviceType::GPU) {
-    gpu_cleanup_kernel(per_device_state.value());
+    layer_norm_gpu_cleanup_kernel(per_device_state.value());
   } else {
     ASSERT(device_type == DeviceType::CPU);
     ASSERT(per_device_state == std::nullopt);
   }
 }
 
-} // namespace FlexFlow::Kernels::LayerNorm
+} // namespace FlexFlow

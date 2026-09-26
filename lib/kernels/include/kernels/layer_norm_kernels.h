@@ -6,29 +6,32 @@
 #include "kernels/device_stream_t.dtg.h"
 #include "kernels/ff_handle.h"
 #include "kernels/layer_norm_per_device_state.dtg.h"
+#include "op-attrs/ops/layer_norm_attrs.dtg.h"
 
-namespace FlexFlow::Kernels::LayerNorm {
+namespace FlexFlow {
 
 std::optional<LayerNormPerDeviceState>
-    init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                Allocator &allocator,
-                bool elementwise_affine,
-                int64_t effective_batch_size,
-                int64_t effective_num_elements,
-                float eps);
+    layer_norm_init_kernel(DeviceType device_type,
+                           device_handle_t const &handle,
+                           Allocator &allocator,
+                           bool elementwise_affine,
+                           int64_t effective_batch_size,
+                           int64_t effective_num_elements,
+                           float eps);
 
-void forward_kernel(
+void layer_norm_forward_kernel(
     device_stream_t const &stream,
     std::optional<LayerNormPerDeviceState> const &per_device_state,
+    LayerNormAttrs const &attrs,
     GenericTensorAccessorR const &input,
     GenericTensorAccessorW const &output,
-    GenericTensorAccessorW const &gamma,
-    GenericTensorAccessorW const &beta);
+    std::optional<GenericTensorAccessorR> const &gamma,
+    std::optional<GenericTensorAccessorR> const &beta);
 
-void backward_kernel(
+void layer_norm_backward_kernel(
     device_stream_t const &stream,
     std::optional<LayerNormPerDeviceState> const &per_device_state,
+    LayerNormAttrs const &attrs,
     GenericTensorAccessorR const &output_grad,
     GenericTensorAccessorR const &input,
     GenericTensorAccessorW const &input_grad,
@@ -36,10 +39,10 @@ void backward_kernel(
     GenericTensorAccessorW const &gamma_grad,
     GenericTensorAccessorW const &beta_grad);
 
-void cleanup_kernel(
+void layer_norm_cleanup_kernel(
     DeviceType device_type,
     std::optional<LayerNormPerDeviceState> const &per_device_state);
 
-} // namespace FlexFlow::Kernels::LayerNorm
+} // namespace FlexFlow
 
 #endif // _FLEXFLOW_OPS_KERNELS_LAYER_NORM_KERNELS_H
