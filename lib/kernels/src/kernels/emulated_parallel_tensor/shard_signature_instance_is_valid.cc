@@ -7,6 +7,7 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "op-attrs/shape_inference.h"
+#include "op-attrs/shard_signature_instance.h"
 #include "utils/containers/all_of.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/generate_map.h"
@@ -34,20 +35,47 @@ bool shard_signature_instance_is_valid(
   std::map<TensorSlotName, ParallelTensorShape> incoming_shapes =
       binary_merge_disjoint_maps(input_shapes, weight_shapes);
 
+  std::map<TensorSlotName, ParallelTensorShape> outgoing_shapes =
+      get_output_shapes(pcg_op_attrs_from_compgraph_op_attrs(attrs),
+                        input_shapes);
+
   std::mt19937 gen(seed);
 
   std::map<TensorSlotName, int> incoming_seeds =
       generate_map(keys(incoming_shapes),
                    [&](TensorSlotName const &) -> int { return gen(); });
 
-  std::map<TensorSlotName, ParallelTensorDimDegrees> input_degrees = map_values(
-      input_shapes,
-      [&](ParallelTensorShape const &shape) -> ParallelTensorDimDegrees {
-        return get_parallel_degrees(shape);
-      });
+  auto get_degrees =
+      [](std::map<TensorSlotName, ParallelTensorShape> const &shapes)
+      -> std::map<TensorSlotName, ParallelTensorDimDegrees> {
+    return map_values(
+        shapes,
+        [&](ParallelTensorShape const &shape) -> ParallelTensorDimDegrees {
+          return get_parallel_degrees(shape);
+        });
+  };
+
+  std::map<TensorSlotName, ParallelTensorDimDegrees> input_degrees =
+      get_degrees(input_shapes);
 
   ShardSignatureInstance shard_signature_instance =
       get_shard_signature_instance(attrs, input_degrees);
+
+  {
+    std::map<TensorSlotName, ParallelTensorDimDegrees> shard_signature_degrees =
+        shard_signature_get_all_parallel_tensor_spaces(
+            shard_signature_instance);
+
+    std::map<TensorSlotName, ParallelTensorDimDegrees> shape_inference_degrees =
+        get_degrees(
+            binary_merge_disjoint_maps(incoming_shapes, outgoing_shapes));
+
+    ASSERT(
+        shard_signature_degrees == shape_inference_degrees,
+        fmt::format("shard_signature_degrees={}\nshape_inference_degrees={}\n",
+                    shard_signature_degrees,
+                    shape_inference_degrees));
+  }
 
   std::map<TensorSlotName, EmulatedParallelTensor> incoming =
       zip_values_strict_with(incoming_shapes,
