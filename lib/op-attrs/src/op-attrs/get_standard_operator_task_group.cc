@@ -7,6 +7,7 @@
 #include "op-attrs/ops/dropout.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
+#include "op-attrs/ops/embedding.h"
 #include "op-attrs/ops/flat.h"
 #include "op-attrs/ops/input.h"
 #include "op-attrs/ops/linear.h"
@@ -106,6 +107,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
         return element_unary_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](EmbeddingAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ParallelTensorDimDegrees input_dim_degrees =
+            require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+        return embedding_get_task_group(attrs, input_dim_degrees);
       },
       [&](FlatAttrs const &attrs) -> StandardOperatorTaskGroup {
         ParallelTensorDimDegrees input_dim_degrees =
