@@ -31,6 +31,7 @@
 #include "op-attrs/ff_ordered/ff_ordered_remove_suffix.h"
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "utils/orthotope/dim_domain.h"
+#include "utils/orthotope/dim_coord.h"
 
 namespace FlexFlow {
 
@@ -182,6 +183,16 @@ std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(
       [](std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &m) {
         return parallel_tensor_space_coord_from_map(m);
       });
+}
+
+bool
+  parallel_tensor_space_contains_coord(
+    ParallelTensorDimDegrees const &dim_degrees,
+    ParallelTensorSpaceCoordinate const &coord)
+{
+  return dim_domain_contains_coord(
+    dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
+    dim_coord_from_parallel_tensor_space_coord(coord));
 }
 
 ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &dims) {
