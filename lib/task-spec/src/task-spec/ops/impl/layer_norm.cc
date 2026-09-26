@@ -26,25 +26,32 @@
 
 namespace FlexFlow {
 
-using namespace FlexFlow::Kernels::LayerNorm;
-
 static std::optional<milliseconds_t>
     forward_task_impl(TaskArgumentAccessor const &acc) {
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
-  auto gamma = acc.get_tensor<Permissions::RW>(TensorSlotName::GAMMA);
-  auto beta = acc.get_tensor<Permissions::RW>(TensorSlotName::BETA);
-
+  LayerNormAttrs attrs = acc.get_op_attrs().require_layer_norm();
   ProfilingSettings profiling = acc.get_profiling_settings();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   LayerNormPerDeviceState state =
       acc.get_per_device_op_state().require_layer_norm().value();
 
-  return profile(forward_kernel,
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+
+  std::optional<GenericTensorAccessorR> gamma = std::nullopt;
+  std::optional<GenericTensorAccessorR> beta = std::nullopt;
+  if (attrs.elementwise_affine) {
+    gamma = acc.get_tensor<Permissions::RO>(TensorSlotName::GAMMA);
+    beta = acc.get_tensor<Permissions::RO>(TensorSlotName::BETA);
+  }
+
+  return profile(layer_norm_forward_kernel,
                  profiling,
                  kernel_device_type,
                  "[LayerNorm] forward time = {:.2lf}ms\n",
                  state,
+                 attrs,
                  input,
                  output,
                  gamma,
@@ -62,16 +69,18 @@ static std::optional<milliseconds_t>
   auto output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
 
+  LayerNormAttrs attrs = acc.get_op_attrs().require_layer_norm();
   ProfilingSettings profiling = acc.get_profiling_settings();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   LayerNormPerDeviceState state =
       acc.get_per_device_op_state().require_layer_norm().value();
 
-  return profile(backward_kernel,
+  return profile(layer_norm_backward_kernel,
                  profiling,
                  kernel_device_type,
                  "[LayerNorm] backward time = {:.2lf}ms\n",
                  state,
+                 attrs,
                  output_grad,
                  input,
                  input_grad,
@@ -99,13 +108,13 @@ static DeviceSpecificPerDeviceOpState
       positive_int{get_num_elements(input.shape.dims) / M};
 
   std::optional<LayerNormPerDeviceState> per_device_state =
-      init_kernel(kernel_device_type,
-                  handle,
-                  allocator,
-                  attrs.elementwise_affine,
-                  effective_batch_size.int_from_positive_int(),
-                  effective_num_elements.int_from_positive_int(),
-                  attrs.eps);
+      layer_norm_init_kernel(kernel_device_type,
+                             handle,
+                             allocator,
+                             attrs.elementwise_affine,
+                             effective_batch_size.int_from_positive_int(),
+                             effective_num_elements.int_from_positive_int(),
+                             attrs.eps);
 
   return DeviceSpecificPerDeviceOpState{
       acc.make_device_specific(per_device_state),
