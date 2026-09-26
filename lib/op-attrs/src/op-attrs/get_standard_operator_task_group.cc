@@ -4,6 +4,7 @@
 #include "op-attrs/ops/cast.h"
 #include "op-attrs/ops/concat.h"
 #include "op-attrs/ops/conv_2d.h"
+#include "op-attrs/ops/dropout.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/ops/flat.h"
@@ -84,6 +85,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
         return conv2d_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](DropoutAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ParallelTensorDimDegrees input_dim_degrees =
+            require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+        return dropout_get_task_group(attrs, input_dim_degrees);
       },
       [&](ElementBinaryAttrs const &attrs) -> StandardOperatorTaskGroup {
         auto [lhs_input_dim_degrees, rhs_input_dim_degrees] =
