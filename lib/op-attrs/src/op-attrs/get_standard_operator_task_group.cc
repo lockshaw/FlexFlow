@@ -19,6 +19,8 @@
 #include "op-attrs/ops/flat.h"
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/ops/input.h"
+#include "op-attrs/ops/attention.h"
+#include "utils/containers/require_three_keys.h"
 
 namespace FlexFlow {
 
@@ -44,6 +46,13 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
     std::map<TensorSlotName, ParallelTensorDimDegrees> const &input_dim_degree_binding)
 {
   return op_attrs.visit<StandardOperatorTaskGroup>(overload {
+    [&](MultiHeadAttentionAttrs const &attrs) -> StandardOperatorTaskGroup {
+      auto [input_q, input_k, input_v] =
+        require_three_keys(input_dim_degree_binding,
+                           TensorSlotName::QUERY, TensorSlotName::KEY, TensorSlotName::VALUE);
+
+      return attention_get_task_group(attrs, input_q, input_k, input_v);
+    },
     [&](BatchMatmulAttrs const &attrs) -> StandardOperatorTaskGroup {
       auto [lhs_input_dim_degrees, rhs_input_dim_degrees] =
         require_two_keys(input_dim_degree_binding, TensorSlotName::LHS_INPUT, TensorSlotName::RHS_INPUT);
