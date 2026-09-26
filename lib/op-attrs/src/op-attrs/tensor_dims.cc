@@ -27,6 +27,7 @@
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/ff_ordered/ff_ordered_transform_with_idx.h"
+#include "op-attrs/ff_ordered/ff_ordered_filtrans_with_idx.h"
 
 namespace FlexFlow {
 
@@ -299,6 +300,15 @@ TensorDims tensor_dims_transform_with_idx(
 {
   return TensorDims{
     ff_ordered_transform_with_idx(dims.ff_ordered, f),
+  };
+}
+
+TensorDims tensor_dims_filtrans_with_idx(
+  TensorDims const &dims,
+  std::function<std::optional<positive_int>(ff_dim_t, positive_int)> const &f)
+{
+  return TensorDims{
+    ff_ordered_filtrans_with_idx(dims.ff_ordered, f),
   };
 }
 
