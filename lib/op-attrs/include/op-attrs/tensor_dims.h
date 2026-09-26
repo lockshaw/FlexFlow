@@ -76,6 +76,11 @@ TensorDims tensor_dims_transform_with_idx(
   TensorDims const &,
   std::function<positive_int(ff_dim_t, positive_int)> const &);
 
+TensorDims tensor_dims_filtrans_with_idx(
+  TensorDims const &,
+  std::function<std::optional<positive_int>(ff_dim_t, positive_int)> const &);
+
+
 } // namespace FlexFlow
 
 #endif
