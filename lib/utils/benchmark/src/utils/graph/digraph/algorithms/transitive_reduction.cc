@@ -7,7 +7,12 @@ using namespace ::FlexFlow;
 static void benchmark_transitive_reduction(benchmark::State &state) {
   int edge_percentage = state.range(0);
   int num_nodes = state.range(1);
-  DiGraphView g = random_dag(nonnegative_int{num_nodes},
+
+  std::mt19937 gen;
+  gen.seed(0);
+
+  DiGraphView g = random_dag(gen,
+                             nonnegative_int{num_nodes},
                              static_cast<float>(edge_percentage) / 100.0);
 
   for (auto _ : state) {
