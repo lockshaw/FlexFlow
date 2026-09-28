@@ -1,4 +1,4 @@
-#include "./random_dag.h"
+#include "internal/random_dag.h"
 #include "utils/containers/vector_of.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
