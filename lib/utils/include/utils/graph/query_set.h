@@ -182,8 +182,13 @@ bool includes(query_set<T> const &q, T const &v) {
 
 template <typename T, typename C>
 std::set<T> apply_query(query_set<T> const &q, C const &c) {
+  return apply_query(q, set_of(c));
+}
+
+template <typename T>
+std::set<T> apply_query(query_set<T> const &q, std::set<T> const &c) {
   if (is_matchall(q)) {
-    return set_of(c);
+    return c;
   }
 
   if (is_matchnone(q)) {
