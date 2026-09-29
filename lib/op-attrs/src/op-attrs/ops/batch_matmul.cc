@@ -64,26 +64,32 @@ ParallelTensorDimDegrees batch_matmul_get_output_parallel_dim_degrees(
     BatchMatmulAttrs const &attrs,
     ParallelTensorDimDegrees const &lhs,
     ParallelTensorDimDegrees const &rhs) {
-  ASSERT(get_ptensor_dim_degrees_num_shard_dims(lhs) ==
-         num_ptensor_shard_dims_t{3_n});
-  ASSERT(get_ptensor_dim_degrees_num_shard_dims(rhs) ==
-         num_ptensor_shard_dims_t{3_n});
 
-  positive_int batch_degree = require_same(
-      get_degree_for_parallel_tensor_dim_idx(lhs, shard_dim_idx(ff_dim_t{0_n})),
-      get_degree_for_parallel_tensor_dim_idx(rhs,
-                                             shard_dim_idx(ff_dim_t{0_n})));
+  num_ptensor_shard_dims_t num_tensor_dims = require_same(
+    get_ptensor_dim_degrees_num_shard_dims(lhs),
+    get_ptensor_dim_degrees_num_shard_dims(rhs));
+
+  parallel_tensor_dim_idx_t row_dim = shard_dim_idx_for_relative(-2, num_tensor_dims);
+  parallel_tensor_dim_idx_t col_dim = shard_dim_idx_for_relative(-1, num_tensor_dims);
+
+  FFOrdered<positive_int> leading_degrees = 
+    require_same(
+      ff_ordered_slice(lhs.shard_degrees, 
+                       relative_ff_dim_t{0},
+                       relative_ff_dim_t{-2}),
+      ff_ordered_slice(rhs.shard_degrees, 
+                       relative_ff_dim_t{0},
+                       relative_ff_dim_t{-2}));
 
   positive_int reduction_parallelism_degree = require_same(
-      get_degree_for_parallel_tensor_dim_idx(lhs, shard_dim_idx(ff_dim_t{2_n})),
-      get_degree_for_parallel_tensor_dim_idx(rhs,
-                                             shard_dim_idx(ff_dim_t{1_n})));
+      get_degree_for_parallel_tensor_dim_idx(lhs, col_dim),
+      get_degree_for_parallel_tensor_dim_idx(rhs, row_dim));
 
   positive_int lhs_row_degree =
-      get_degree_for_parallel_tensor_dim_idx(lhs, shard_dim_idx(ff_dim_t{1_n}));
+      get_degree_for_parallel_tensor_dim_idx(lhs, row_dim);
 
   positive_int rhs_column_degree =
-      get_degree_for_parallel_tensor_dim_idx(rhs, shard_dim_idx(ff_dim_t{2_n}));
+      get_degree_for_parallel_tensor_dim_idx(rhs, col_dim);
 
   ASSERT(lhs_row_degree * lhs.sum_degree.value ==
          rhs.discard_copy_degree.value);
@@ -98,11 +104,12 @@ ParallelTensorDimDegrees batch_matmul_get_output_parallel_dim_degrees(
       },
       /*discard_copy_degree=*/DiscardCopyDegree{1_p},
       /*shard_degrees=*/
-      FFOrdered<positive_int>{
-          batch_degree,
-          lhs_row_degree,
-          rhs_column_degree,
-      },
+      ff_ordered_concat(
+        leading_degrees,
+        FFOrdered<positive_int>{
+            lhs_row_degree,
+            rhs_column_degree,
+        }),
   };
 }
 
@@ -141,8 +148,6 @@ StandardOperatorTaskGroup batch_matmul_get_task_group(
       [&](std::pair<ParallelTensorSpaceCoordinate, ParallelTensorSpaceCoordinate> const &coords)
         -> std::optional<AbstractedOperatorAtomicTaskShardBinding>
       {
-        std::cerr << fmt::to_string(coords) << std::endl;
-
         ParallelTensorSpaceCoordinate lhs_input_coord = coords.first;
         ParallelTensorSpaceCoordinate rhs_input_coord = coords.second;
 

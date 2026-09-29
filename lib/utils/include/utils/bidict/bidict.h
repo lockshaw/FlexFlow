@@ -96,8 +96,8 @@ struct bidict {
     this->check_invariants();
   }
 
-  void equate(std::pair<L, R> const &lr) {
-    this->equate(lr.first, lr.second);
+  void equate_strict(std::pair<L, R> const &lr) {
+    this->equate_strict(lr.first, lr.second);
   }
 
   bool operator==(bidict<L, R> const &other) const {
