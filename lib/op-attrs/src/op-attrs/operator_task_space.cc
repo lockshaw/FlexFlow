@@ -56,7 +56,9 @@ std::set<TaskSpaceCoordinate>
 
 bool operator_task_space_contains_coord(OperatorTaskSpace const &task_space,
                                         TaskSpaceCoordinate const &coord) {
-  return contains(get_task_space_coordinates(task_space), coord);
+  return orthotope_contains_coord(
+    orthotope_from_minimal_orthotope(task_space.degrees), 
+    coord.orthotope_coord);
 }
 
 TaskSpaceCoordinate
