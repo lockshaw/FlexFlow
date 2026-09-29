@@ -1,5 +1,6 @@
 #include "utils/containers/maximum.h"
 #include "test/utils/doctest/fmt/vector.h"
+#include "test/utils/doctest/fmt/set.h"
 #include <doctest/doctest.h>
 #include <vector>
 
@@ -8,18 +9,34 @@ using namespace ::FlexFlow;
 TEST_SUITE(FF_TEST_SUITE) {
 
   TEST_CASE("maximum") {
+    SUBCASE("vector") {
+      SUBCASE("non-empty container") {
+        std::vector<int> input = {1, 5, 3, 4, 2};
+        int correct = 5;
+        int result = maximum(input);
+        CHECK(correct == result);
+      }
 
-    SUBCASE("non-empty container") {
-      std::vector<int> input = {1, 5, 3, 4, 2};
-      int correct = 5;
-      int result = maximum(input);
-      CHECK(correct == result);
+      SUBCASE("empty container") {
+        std::vector<int> input = {};
+
+        CHECK_THROWS(maximum(input));
+      }
     }
 
-    SUBCASE("empty container") {
-      std::vector<int> input = {};
+    SUBCASE("set") {
+      SUBCASE("non-empty container") {
+        std::set<int> input = {1, 5, 3, 4, 2};
+        int correct = 5;
+        int result = maximum(input);
+        CHECK(correct == result);
+      }
 
-      CHECK_THROWS(maximum(input));
+      SUBCASE("empty container") {
+        std::set<int> input = {};
+
+        CHECK_THROWS(maximum(input));
+      }
     }
   }
 }

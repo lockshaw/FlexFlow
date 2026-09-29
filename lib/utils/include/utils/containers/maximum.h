@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
+#include <set>
 
 namespace FlexFlow {
 
@@ -15,6 +16,18 @@ typename C::value_type maximum(C const &c) {
   }
 
   return *std::max_element(c.begin(), c.end());
+}
+
+template <typename T>
+T maximum(std::set<T> const &ts) {
+  if (ts.empty()) {
+    PANIC(
+        fmt::format("maximum expected non-empty container but received {}", ts));
+  }
+
+  auto it = ts.cend();
+  it--;
+  return *it;
 }
 
 } // namespace FlexFlow
