@@ -9,6 +9,10 @@ OperatorAtomicTaskShardBinding
   generic_op_task_group_get_binding_for_task_space_coord(GenericOperatorTaskGroup const &,
                                                          TaskSpaceCoordinate const &);
 
+OperatorTaskSpace
+  task_space_for_generic_operator_task_group(
+    GenericOperatorTaskGroup const &);
+
 } // namespace FlexFlow
 
 #endif

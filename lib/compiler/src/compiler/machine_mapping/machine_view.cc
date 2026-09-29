@@ -145,31 +145,6 @@ MachineView
       coord, {}, {});
 }
 
-static OperatorAtomicTaskShardBinding
-    operator_atomic_task_shard_binding_from_machine_view(
-        PCGOperatorAttrs const &op_attrs,
-        std::map<TensorSlotName, ParallelTensorDimDegrees> const
-            &inputs_dim_degrees,
-        MachineView const &machine_view,
-        MachineComputeResourceSlice const &machine_space,
-        MachineSpaceCoordinate const &machine_space_coord) {
-
-  OperatorTaskSpace op_task_space =
-      get_operator_task_space(op_attrs, inputs_dim_degrees);
-
-  TaskSpaceCoordinate task_space_coord =
-      mv_task_space_coord_for_machine_space_coord(
-          machine_space, machine_view, op_task_space, machine_space_coord);
-
-  GenericOperatorTaskGroup op_task_group =
-      get_generic_operator_task_group(op_attrs, inputs_dim_degrees);
-
-  return generic_op_task_group_get_binding_for_task_space_coord(
-    op_task_group,
-    task_space_coord
-  );
-}
-
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
     PCGOperatorAttrs const &op_attrs,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const
@@ -177,8 +152,11 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
     MachineComputeResourceSlice const &machine_space,
     MachineView const &machine_view) {
 
+  GenericOperatorTaskGroup op_task_group =
+      get_generic_operator_task_group(op_attrs, inputs_dim_degrees);
+
   OperatorTaskSpace op_task_space =
-      get_operator_task_space(op_attrs, inputs_dim_degrees);
+      task_space_for_generic_operator_task_group(op_task_group);
 
   return MappedOperatorTaskGroup{
       generate_bidict(
@@ -187,12 +165,14 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
           [&](MachineSpaceCoordinate const &machine_space_coord)
             -> OperatorAtomicTaskShardBinding
           {
-            return operator_atomic_task_shard_binding_from_machine_view(
-                op_attrs,
-                inputs_dim_degrees,
-                machine_view,
-                machine_space,
-                machine_space_coord);
+            TaskSpaceCoordinate task_space_coord =
+                mv_task_space_coord_for_machine_space_coord(
+                    machine_space, machine_view, op_task_space, machine_space_coord);
+
+            return generic_op_task_group_get_binding_for_task_space_coord(
+              op_task_group,
+              task_space_coord
+            );
           }),
   };
 }
