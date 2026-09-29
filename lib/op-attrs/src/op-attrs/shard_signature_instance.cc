@@ -3,9 +3,9 @@
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/standard_operator_task_group.h"
 #include "utils/bidict/algorithms/bidict_from_unstructured_relation.h"
+#include "utils/containers/generate_map.h"
 #include "utils/hash/set.h"
 #include "utils/hash/tuple.h"
-#include "utils/containers/generate_map.h"
 #include "utils/optional.h"
 
 namespace FlexFlow {
