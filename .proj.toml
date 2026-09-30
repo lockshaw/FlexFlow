@@ -123,6 +123,10 @@ cuda = false
 type = "bin"
 cuda = false
 
+[targets.mocha-her]
+type = "bin"
+cuda = false
+
 [[benchmarks.utils]]
 name = "transitive_reduction"
 budget = 2_500_000_000

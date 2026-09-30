@@ -11,6 +11,8 @@
 #include "utils/containers/slice.h"
 #include "pcg/computation_graph.h"
 #include "substitutions/apply_substitution/apply_substitution.h"
+#include "compiler/cost_estimator/runtime_only_cost_estimator_from_cost_estimator.h"
+#include "compiler/cost_estimator/fake_cost_estimator.h"
 
 namespace FlexFlow {
 
@@ -28,14 +30,47 @@ void benchmark_unity_algorithm(bool dry_run) {
 
   ParallelComputationGraph pcg = pcg_from_computation_graph(cg);
 
-  Substitution substitution = create_fuse_batch_norm_activation(Activation::SILU);
+  MachineComputeSpecification full_machine_spec = MachineComputeSpecification{
+      /*num_nodes=*/1_p,
+      /*num_cpus_per_node=*/1_p,
+      /*num_gpus_per_node=*/1_p,
+  };
+
+  // Substitution substitution = create_fuse_batch_norm_activation(Activation::SILU);
+
+  std::vector<Substitution> substitution_set = get_expanded_substitution_set(full_machine_spec);
   /*
   std::vector<Substitution> substitution_set = {
     create_fuse_batch_norm_activation(Activation::SILU),
   };
   */
 
-  SubParallelComputationGraph subpcg = sub_pcg_from_full_pcg(pcg);
+  RuntimeOnlyCostEstimator cost_estimator =
+      runtime_only_cost_estimator_from_cost_estimator(
+          make_fake_cost_estimator(
+              [](OpCostEstimateKey const &k) -> OpCostMetrics {
+                return OpCostMetrics{
+                    /*forward_runtime=*/1.0_ms,
+                    /*backward_runtime=*/2.0_ms,
+                    /*memory=*/1_bytes,
+                };
+              },
+              [](TensorSetMovement const &) -> milliseconds_t {
+                return 1.0_ms;
+              }));
+
+  UnitySearchConfig search_config = UnitySearchConfig{
+      /*alpha=*/1.0,
+      /*budget=*/1000,
+      /*max_num_ops=*/1000,
+  };
+
+  auto [final_cost, optimized_graph] 
+    = her_graph_optimize(pcg, cost_estimator, full_machine_spec, search_config, substitution_set);
+
+  std::cout << "final cost: " << final_cost << std::endl;
+
+  // SubParallelComputationGraph subpcg = sub_pcg_from_full_pcg(pcg);
 
   /*
   std::vector<UnlabelledKwargDataflowGraphPatternMatch> unlabelled_matches =
@@ -44,17 +79,17 @@ void benchmark_unity_algorithm(bool dry_run) {
                                       pcg_pattern_criteria(substitution.pcg_pattern, subpcg));
   */
 
-  std::vector<PCGPatternMatch> pattern_matches = find_pattern_matches(substitution.pcg_pattern, subpcg);
+  // std::vector<PCGPatternMatch> pattern_matches = find_pattern_matches(substitution.pcg_pattern, subpcg);
   // LOOP(1, dry_run) {
 
   // }
-  int x = 0;
-  for (PCGPatternMatch const &match : pattern_matches) {
-    std::cout << x << "/" << pattern_matches.size() << std::endl;
-    x++;
-    subpcg =
-        apply_substitution(subpcg, substitution, match);
-  }
+  // int x = 0;
+  // for (PCGPatternMatch const &match : pattern_matches) {
+  //   std::cout << x << "/" << pattern_matches.size() << std::endl;
+  //   x++;
+  //   subpcg =
+  //       apply_substitution(subpcg, substitution, match);
+  // }
 
   /*
   LOOP(1, dry_run) {
