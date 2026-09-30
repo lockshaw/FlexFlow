@@ -15,7 +15,7 @@ BatchNormPerDeviceState gpu_init_kernel(PerDeviceFFHandle const &handle,
                                         int output_c,
                                         int output_h,
                                         int output_w,
-                                        bool relu);
+                                        std::optional<Activation> const &activation);
 
 void gpu_forward_kernel(ffStream_t stream,
                         BatchNormPerDeviceState const &per_device_statem,

@@ -35,6 +35,15 @@ PCGOperatorAttrs materialize_operator_from_attrs_map(
   Accessor acc = Accessor{attrs};
 
   switch (op_type) {
+    case OperatorType::BATCHNORM:
+      return PCGOperatorAttrs{
+        BatchNormAttrs{
+          /*activation=*/acc.get<std::optional<Activation>>(OperatorAttributeKey::ACTIVATION),
+          /*affine=*/acc.get<bool>(OperatorAttributeKey::AFFINE),
+          /*eps=*/acc.get<float>(OperatorAttributeKey::EPSILON),
+          /*momentum=*/acc.get<std::optional<float>>(OperatorAttributeKey::MOMENTUM),
+        },
+      };
     case OperatorType::MULTIHEAD_ATTENTION:
       return PCGOperatorAttrs{MultiHeadAttentionAttrs{
           /*embed_dim=*/acc.get_positive_int(OperatorAttributeKey::EMBED_DIM),
@@ -144,7 +153,6 @@ PCGOperatorAttrs materialize_operator_from_attrs_map(
     case OperatorType::TANH:
     case OperatorType::ELU:
     case OperatorType::FLAT:
-    case OperatorType::BATCHNORM:
     case OperatorType::CONCAT:
     case OperatorType::SPLIT:
     case OperatorType::EMBEDDING:

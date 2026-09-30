@@ -21,11 +21,16 @@ SearchResult optimize(ComputationGraph const &computation_graph,
       [&](UnitySearchConfig const &config) {
         ParallelComputationGraph pcg =
             pcg_from_computation_graph(computation_graph);
+
+        std::vector<Substitution> substitution_set =
+            get_expanded_substitution_set(machine_specification.compute_specification);
+
         return graph_optimize(
             pcg,
             runtime_only_cost_estimator_from_cost_estimator(cost_estimator),
             machine_specification.compute_specification,
-            config);
+            config,
+            substitution_set);
       },
       [&](MCMCOverMappedPCGConfig const &config) {
         MachineSpaceCoordinate default_device = MachineSpaceCoordinate{
@@ -40,7 +45,7 @@ SearchResult optimize(ComputationGraph const &computation_graph,
         MachineMapping initial_mapping = lifted.machine_mapping;
 
         std::vector<Substitution> substitution_set =
-            get_substitution_set(machine_specification.compute_specification);
+            get_expanded_substitution_set(machine_specification.compute_specification);
 
         return mcmc_over_mapped_pcg(
             initial_pcg,

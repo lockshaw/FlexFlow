@@ -11,6 +11,10 @@
 
 namespace FlexFlow {
 
+MatchAdditionalCriterion
+    pcg_pattern_criteria(PCGPattern const &pattern,
+                         SubParallelComputationGraph const &pcg);
+
 std::set<PatternNode> get_nodes(PCGPattern const &);
 
 std::optional<PCGPatternMatch>

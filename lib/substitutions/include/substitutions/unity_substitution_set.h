@@ -13,7 +13,10 @@ std::optional<Substitution>
                             MachineComputeSpecification const &resources);
 
 std::vector<Substitution>
-    get_substitution_set(MachineComputeSpecification const &resources);
+    get_unity_substitution_set(MachineComputeSpecification const &resources);
+
+std::vector<Substitution>
+    get_expanded_substitution_set(MachineComputeSpecification const &resources);
 
 Substitution create_replicate_linear_combine(positive_int num_dims,
                                              positive_int degree,
@@ -35,6 +38,8 @@ Substitution create_partition_softmax_combine(ff_dim_t softmax_dim,
                                               ff_dim_t partition_dim,
                                               positive_int degree);
 Substitution create_fuse_linear_activation(Activation activation);
+
+Substitution create_fuse_batch_norm_activation(Activation activation);
 
 } // namespace FlexFlow
 

@@ -10,6 +10,9 @@
 #include "pcg/pcg_from_computation_graph.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
+#include "substitutions/unity_substitution_set.h"
+#include "models/yolov10/yolov10_scale.dtg.h"
+#include "models/yolov10/yolov10.h"
 
 using namespace FlexFlow;
 
@@ -67,6 +70,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*num_gpus_per_node=*/1_p,
     };
 
+    std::vector<Substitution> substitution_set = get_unity_substitution_set(full_machine_spec);
+
     SUBCASE("do not apply substitution") {
       UnitySearchConfig search_config = UnitySearchConfig{
           /*alpha=*/1.0,
@@ -74,7 +79,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*max_num_ops=*/100,
       };
       SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config, substitution_set);
       CHECK(pcgs_are_isomorphic(pcg, result.pcg));
     }
 
@@ -85,7 +90,53 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*max_num_ops=*/100,
       };
       SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config, substitution_set);
     }
+  }
+
+  TEST_CASE("DARPA HER") {
+    ComputationGraph cg =
+      get_yolov10_computation_graph(
+        get_yolov10_config(
+          /*scale=*/YOLOv10Scale::EXTRA_LARGE,
+          /*batch_size=*/8_p,
+          /*end2end=*/false));
+
+    ParallelComputationGraph pcg = pcg_from_computation_graph(cg);
+
+    RuntimeOnlyCostEstimator cost_estimator =
+        runtime_only_cost_estimator_from_cost_estimator(
+            make_fake_cost_estimator(
+                [](OpCostEstimateKey const &k) -> OpCostMetrics {
+                  return OpCostMetrics{
+                      /*forward_runtime=*/1.0_ms,
+                      /*backward_runtime=*/2.0_ms,
+                      /*memory=*/1_bytes,
+                  };
+                },
+                [](TensorSetMovement const &) -> milliseconds_t {
+                  return 1.0_ms;
+                }));
+
+    MachineComputeSpecification full_machine_spec = MachineComputeSpecification{
+        /*num_nodes=*/1_p,
+        /*num_cpus_per_node=*/1_p,
+        /*num_gpus_per_node=*/1_p,
+    };
+
+    UnitySearchConfig search_config = UnitySearchConfig{
+        /*alpha=*/1.0,
+        /*budget=*/1,
+        /*max_num_ops=*/1000,
+    };
+
+    std::vector<Substitution> substitution_set = {
+      create_fuse_batch_norm_activation(Activation::SILU),
+    };
+
+    SearchResult result =
+        graph_optimize(pcg, cost_estimator, full_machine_spec, search_config, substitution_set);
+
+    CHECK_FALSE(pcgs_are_isomorphic(pcg, result.pcg));
   }
 }

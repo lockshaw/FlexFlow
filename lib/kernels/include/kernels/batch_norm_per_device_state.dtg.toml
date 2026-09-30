@@ -6,6 +6,8 @@ features = []
 includes = [
   "kernels/device.h",
   "kernels/ff_handle.h",
+  "<optional>",
+  "op-attrs/activation.dtg.h",
 ]
 
 [[fields]]
@@ -65,5 +67,5 @@ name = "output_w"
 type = "int"
 
 [[fields]]
-name = "relu"
-type = "bool"
+name = "activation"
+type = "std::optional<::FlexFlow::Activation>"

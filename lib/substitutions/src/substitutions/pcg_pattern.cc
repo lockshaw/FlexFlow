@@ -33,7 +33,7 @@ std::optional<PCGPatternMatch>
   return select_random(gen, pattern_matches);
 }
 
-static MatchAdditionalCriterion
+MatchAdditionalCriterion
     pcg_pattern_criteria(PCGPattern const &pattern,
                          SubParallelComputationGraph const &pcg) {
   return MatchAdditionalCriterion{

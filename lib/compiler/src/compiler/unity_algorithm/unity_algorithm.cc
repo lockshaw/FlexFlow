@@ -24,6 +24,9 @@
 #include "utils/deduplicated_priority_queue.h"
 #include "utils/graph/node/algorithms.h"
 #include "utils/optional.h"
+#include "compiler/machine_mapping/machine_view.h"
+#include "utils/containers/foldl.h"
+#include "utils/deduplicated_queue.h"
 
 namespace FlexFlow {
 
@@ -51,97 +54,119 @@ std::vector<ParallelComputationGraph>
 SearchResult graph_optimize(ParallelComputationGraph &pcg,
                             RuntimeOnlyCostEstimator const &cost_estimator,
                             MachineComputeSpecification const &resources,
-                            UnitySearchConfig const &search_config) {
+                            UnitySearchConfig const &search_config,
+                            std::vector<Substitution> const &substitutions) {
 
-  std::vector<Substitution> substitutions = get_substitution_set(resources);
+  // MachineMappingCache cached_subgraph_costs = empty_machine_mapping_cache();
+  // deduplicated_queue<UnlabelledKwargDataflowGraphPatternMatch> candidates;
 
-  MachineMappingCache cached_subgraph_costs = empty_machine_mapping_cache();
-  DeduplicatedPriorityQueue<GraphOptimizeState> candidates;
+  // MachineSpaceCoordinate device = MachineSpaceCoordinate{
+  //   /*node_idx=*/0_n,
+  //   /*device_idx=*/0_n,
+  // };
 
-  MachineMappingContext context = MachineMappingContext{
-      /*cost_estimator=*/cost_estimator,
-      /*allowed_machine_views=*/
-      [&](UnmappedRuntimeOnlyOpCostEstimateKey const &key,
-          MachineComputeResourceSlice const &resources)
-          -> std::set<MachineView> {
-        OperatorTaskSpace op_task_space =
-            get_operator_task_space_for_runtime_only_op_cost_estimate_key(key);
+  // MachineView machine_view = make_single_device_machine_view(device);
 
-        return get_allowed_machine_views(resources, op_task_space);
-      },
-  };
+  // MachineMappingContext context = MachineMappingContext{
+  //     /*cost_estimator=*/cost_estimator,
+  //     /*allowed_machine_views=*/
+  //     [&](UnmappedRuntimeOnlyOpCostEstimateKey const &key,
+  //         MachineComputeResourceSlice const &resources)
+  //         -> std::set<MachineView> {
+  //       OperatorTaskSpace op_task_space =
+  //           get_operator_task_space_for_runtime_only_op_cost_estimate_key(key);
 
-  auto optimize_pcg = [&](ParallelComputationGraph const &pcg)
-      -> std::pair<GraphOptimizeState, std::optional<MachineMapping>> {
-    PCGBinarySPDecomposition sp_decomp =
-        expect(get_pcg_balanced_binary_sp_decomposition(pcg),
-               "Failed to get SP decomposition of PCG");
+  //       return get_allowed_machine_views(resources, op_task_space);
+  //     },
+  // };
 
-    MachineMappingProblemTree problem_tree =
-        get_machine_mapping_problem_tree(pcg, sp_decomp);
-    MachineMappingConstraints constraints =
-        get_unconstrained_solution_for_layers(get_all_leaf_paths(problem_tree));
+  // auto optimize_pcg = [&](ParallelComputationGraph const &pcg)
+  //     -> std::pair<GraphOptimizeState, std::optional<MachineMapping>> {
 
-    MachineMappingResult mm_result =
-        get_optimal_machine_mapping(cached_subgraph_costs,
-                                    context,
-                                    problem_tree,
-                                    compute_slice_from_specification(resources),
-                                    constraints);
+  //   milliseconds_t runtime = foldl(
+  //       pcg_get_parallel_layers(pcg),
+  //       milliseconds_t{0.0f},
+  //       [&](milliseconds_t accum, parallel_layer_guid_t l) -> milliseconds_t {
+  //         UnmappedRuntimeOnlyOpCostEstimateKey unmapped_cost_key = 
+  //           get_unmapped_runtime_only_op_cost_estimate_key_for_layer(pcg, l);
+  //         RuntimeOnlyOpCostEstimateKey cost_key = 
+  //           map_unmapped_runtime_only_op_cost_estimate_key(unmapped_cost_key, machine_view);
+  //         RuntimeOnlyOpCostMetrics cost_metrics = 
+  //           context.cost_estimator.estimate_cost(cost_key);
+  //         
+  //         return accum + cost_metrics.forward_runtime + cost_metrics.backward_runtime;
+  //       });
 
-    return {
-        GraphOptimizeState{
-            /*pcg=*/pcg,
-            /*runtime=*/get_runtime_cost(mm_result),
-        },
-        get_machine_mapping_from_machine_mapping_result(sp_decomp, mm_result),
-    };
-  };
+  //   return {
+  //     GraphOptimizeState{
+  //       /*parallel_computation_graph=*/pcg,
+  //       /*runtime=*/runtime,
+  //     },
+  //     MachineMapping{
+  //       generate_map(pcg_get_parallel_layers(pcg),
+  //                    [&](parallel_layer_guid_t) -> MachineView {
+  //                      return machine_view;
+  //                    }),
+  //     },
+  //   };
+  // };
 
-  GraphOptimizeState best_state = optimize_pcg(pcg).first;
-  candidates.push(best_state);
+  // SubParallelComputationGraph subpcg = sub_pcg_from_full_pcg(pcg);
 
-  for (int iteration = 0;
-       !candidates.empty() && iteration < search_config.budget;
-       ++iteration) {
-    GraphOptimizeState current_state = candidates.top();
-    candidates.pop();
+  // // GraphOptimizeState best_state = optimize_pcg(pcg).first;
+  // /*
+  // for (Substitution const &substitution : substitutions) {
+  //   for (UnlabelledKwargDataflowGraphPatternMatch const &match 
+  //        : find_pattern_matches()) {
+  //     
+  //   }
+  // }
+  // candidates.push(best_state);
+  // */
 
-    if (current_state < best_state) {
-      best_state = current_state;
-    } else if (current_state.runtime >
-               best_state.runtime * search_config.alpha) {
-      continue;
-    }
+  // for (int iteration = 0;
+  //      !candidates.empty() && iteration < search_config.budget;
+  //      ++iteration) {
+  //   GraphOptimizeState current_state = candidates.front();
+  //   candidates.pop();
 
-    for (ParallelComputationGraph const &new_pcg :
-         all_pcgs_obtained_by_applying_a_substitution(current_state.pcg,
-                                                      substitutions)) {
+  //   if (current_state < best_state) {
+  //     best_state = current_state;
+  //   } else if (current_state.runtime >
+  //              best_state.runtime * search_config.alpha) {
+  //     continue;
+  //   }
 
-      std::optional<GraphOptimizeState> new_pcg_optimize_result =
-          optimize_pcg(new_pcg).first;
+  //   for (ParallelComputationGraph const &new_pcg :
+  //        all_pcgs_obtained_by_applying_a_substitution(current_state.pcg,
+  //                                                     substitutions)) {
 
-      if (new_pcg_optimize_result == std::nullopt) {
-        continue;
-      }
+  //     PANIC();
 
-      GraphOptimizeState new_state = new_pcg_optimize_result.value();
-      if (new_state.runtime <= best_state.runtime * search_config.alpha &&
-          get_nodes(new_pcg.raw_graph).size() <= search_config.max_num_ops) {
-        candidates.push(new_state);
-      }
-    }
-  }
+  //     std::optional<GraphOptimizeState> new_pcg_optimize_result =
+  //         optimize_pcg(new_pcg).first;
 
-  std::optional<MachineMapping> best_mapping =
-      optimize_pcg(best_state.pcg).second;
+  //     if (new_pcg_optimize_result == std::nullopt) {
+  //       continue;
+  //     }
 
-  ASSERT(best_mapping != std::nullopt, "Failed to find any solutions");
+  //     GraphOptimizeState new_state = new_pcg_optimize_result.value();
+  //     if (new_state.runtime <= best_state.runtime * search_config.alpha &&
+  //         get_nodes(new_pcg.raw_graph).size() <= search_config.max_num_ops) {
+  //       candidates.push(new_state);
+  //     }
+  //   }
+  // }
 
-  return SearchResult{
-      /*pcg=*/best_state.pcg,
-      /*machine_mapping=*/best_mapping.value(),
-  };
+  // std::optional<MachineMapping> best_mapping =
+  //     optimize_pcg(best_state.pcg).second;
+
+  // ASSERT(best_mapping != std::nullopt, "Failed to find any solutions");
+
+  // return SearchResult{
+  //     /*pcg=*/best_state.pcg,
+  //     /*machine_mapping=*/best_mapping.value(),
+  // };
 }
 
 } // namespace FlexFlow

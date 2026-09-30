@@ -19,6 +19,8 @@ std::optional<OperatorAttributeValue> get_attribute(BatchNormAttrs const &p,
   switch (key) {
     case OperatorAttributeKey::OP_TYPE:
       return OperatorAttributeValue{get_op_type(p)};
+    case OperatorAttributeKey::ACTIVATION:
+      return OperatorAttributeValue{p.activation};
     case OperatorAttributeKey::EPSILON:
       return OperatorAttributeValue{p.eps};
     case OperatorAttributeKey::AFFINE:

@@ -54,6 +54,8 @@ std::vector<OperatorAttributeKey> all_operator_attribute_keys() {
       OperatorAttributeKey::SHOULD_BROADCAST_RHS,
       OperatorAttributeKey::DIM,
       OperatorAttributeKey::ELEMENTWISE_AFFINE,
+      OperatorAttributeKey::AFFINE,
+      OperatorAttributeKey::MOMENTUM,
       OperatorAttributeKey::REGULARIZER,
       OperatorAttributeKey::SHAPE,
       OperatorAttributeKey::SPLITS,

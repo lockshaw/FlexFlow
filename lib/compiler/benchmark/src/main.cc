@@ -1,4 +1,5 @@
 #include "benchmark/compiler/series_parallel/computation_graph/get_computation_graph_series_parallel_decomposition.h"
+#include "benchmark/compiler/unity_algorithm/unity_algorithm.h"
 #include "utils/benchmark_utils.h"
 #include <string>
 #include <vector>
@@ -18,6 +19,10 @@ int main(int argc, char **argv) {
       {
           "get_computation_graph_series_parallel_decomposition_on_inception_v3",
           benchmark_get_computation_graph_series_parallel_decomposition_on_inception_v3,
+      },
+      {
+          "unity_algorithm",
+          benchmark_unity_algorithm,
       },
   };
 

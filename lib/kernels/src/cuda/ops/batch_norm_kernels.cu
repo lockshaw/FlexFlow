@@ -18,6 +18,7 @@
 #include "kernels/batch_norm_kernels.h"
 #include "kernels/ff_handle.h"
 #include "utils/integer_conversions.h"
+#include "utils/optional.h"
 
 namespace FlexFlow {
 namespace Kernels {
@@ -64,10 +65,17 @@ void gpu_backward_kernel(cudaStream_t stream,
   checkCUDNN(cudnnSetStream(m.handle.dnn, stream));
 
   float alpha = 1.0f;
-  if (m.relu) {
-    reluBackward<<<GET_BLOCKS(numElements), CUDA_NUM_THREADS, 0, stream>>>(
-        output_grad_ptr, output_ptr, numElements);
+  if (m.activation.has_value()) {
+    switch (m.activation.value()) {
+      case Activation::RELU:
+        reluBackward<<<GET_BLOCKS(numElements), CUDA_NUM_THREADS, 0, stream>>>(
+            output_grad_ptr, output_ptr, numElements);
+        break;
+      default:
+        PANIC("unsupported activation function for BatchNorm", m.activation.value());
+    }
   }
+
   checkCUDNN(cudnnBatchNormalizationBackward(m.handle.dnn,
                                              m.mode,
                                              &alpha,
@@ -96,7 +104,7 @@ BatchNormPerDeviceState gpu_init_kernel(PerDeviceFFHandle const &handle,
                                         int output_c,
                                         int output_h,
                                         int output_w,
-                                        bool relu) {
+                                        std::optional<Activation> const &activation) {
   ffTensorDescriptor_t inputTensor;
   ffTensorDescriptor_t outputTensor;
   ffTensorDescriptor_t biasTensor;
@@ -139,10 +147,16 @@ BatchNormPerDeviceState gpu_init_kernel(PerDeviceFFHandle const &handle,
   assign_kernel<<<GET_BLOCKS(output_c), CUDA_NUM_THREADS, 0, stream>>>(
       runningVar, size_t_from_int(output_c), 0.0f);
 
-  if (relu) {
-    checkCUDNN(cudnnCreateActivationDescriptor(&actiDesc));
-    checkCUDNN(cudnnSetActivationDescriptor(
-        actiDesc, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
+  if (activation.has_value()) {
+    switch (activation.value()) {
+      case Activation::RELU:
+        checkCUDNN(cudnnCreateActivationDescriptor(&actiDesc));
+        checkCUDNN(cudnnSetActivationDescriptor(
+            actiDesc, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
+        break;
+      default:
+        PANIC("unsupported activation function for BatchNorm", activation.value());
+    }
   }
 
   BatchNormPerDeviceState per_device_state = BatchNormPerDeviceState{
@@ -160,7 +174,7 @@ BatchNormPerDeviceState gpu_init_kernel(PerDeviceFFHandle const &handle,
       output_c,
       output_h,
       output_w,
-      relu,
+      activation,
   };
 
   checkCUDA(cudaStreamDestroy(stream));
@@ -173,8 +187,16 @@ void gpu_cleanup_kernel(Allocator &allocator,
   checkCUDNN(cudnnDestroyTensorDescriptor(per_device_state.inputTensor));
   checkCUDNN(cudnnDestroyTensorDescriptor(per_device_state.biasTensor));
   checkCUDNN(cudnnDestroyTensorDescriptor(per_device_state.outputTensor));
-  if (per_device_state.relu) {
-    checkCUDNN(cudnnDestroyActivationDescriptor(per_device_state.actiDesc));
+
+  if (per_device_state.activation.has_value()) {
+    Activation activation = assert_unwrap(per_device_state.activation);
+    switch (activation) {
+      case Activation::RELU:
+        checkCUDNN(cudnnDestroyActivationDescriptor(per_device_state.actiDesc));
+        break;
+      default:
+        PANIC("unsupported activation function for BatchNorm", activation);
+    }
   }
 }
 

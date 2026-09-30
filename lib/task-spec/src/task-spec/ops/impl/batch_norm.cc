@@ -47,7 +47,7 @@ static DeviceSpecificPerDeviceOpState
       /*output_c=*/output_c.int_from_positive_int(),
       /*output_h=*/output_h.int_from_positive_int(),
       /*output_w=*/output_w.int_from_positive_int(),
-      /*relu=*/attrs.relu);
+      /*activation=*/attrs.activation);
 
   return DeviceSpecificPerDeviceOpState{
       acc.make_device_specific(per_device_state),
