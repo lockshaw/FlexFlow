@@ -5,6 +5,7 @@
 #include "utils/graph/biindex.h"
 #include "utils/graph/kwarg_dataflow_graph/kwarg_dataflow_output_query.h"
 #include "utils/graph/node/node_source.h"
+#include "utils/graph/open_kwarg_dataflow_graph/algorithms/open_kwarg_dataflow_graph_data.dtg.h"
 #include "utils/graph/open_kwarg_dataflow_graph/i_open_kwarg_dataflow_graph.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_edge.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_edge_query.h"
@@ -15,7 +16,21 @@ namespace FlexFlow {
 template <typename GraphInputName, typename SlotName>
 struct UnorderedSetOpenKwargDataflowGraph final
     : public IOpenKwargDataflowGraph<GraphInputName, SlotName> {
+
   UnorderedSetOpenKwargDataflowGraph() = default;
+
+  UnorderedSetOpenKwargDataflowGraph(
+      OpenKwargDataflowGraphData<GraphInputName, SlotName> const &data)
+      : nodes(data.nodes), graph_inputs(data.inputs) {
+    for (OpenKwargDataflowEdge<GraphInputName, SlotName> const &e :
+         data.edges) {
+      this->add_edge(e);
+    }
+
+    for (KwargDataflowOutput<SlotName> const &o : data.outputs) {
+      this->add_output(o);
+    }
+  }
 
   KwargNodeAddedResult<SlotName> add_node(
       std::map<SlotName, OpenKwargDataflowValue<GraphInputName, SlotName>> const
