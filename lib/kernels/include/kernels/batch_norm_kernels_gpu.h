@@ -8,14 +8,15 @@
 
 namespace FlexFlow::Kernels::BatchNorm {
 
-BatchNormPerDeviceState gpu_init_kernel(PerDeviceFFHandle const &handle,
-                                        Allocator &allocator,
-                                        float *runningMean,
-                                        int output_n,
-                                        int output_c,
-                                        int output_h,
-                                        int output_w,
-                                        bool relu);
+BatchNormPerDeviceState
+    gpu_init_kernel(PerDeviceFFHandle const &handle,
+                    Allocator &allocator,
+                    float *runningMean,
+                    int output_n,
+                    int output_c,
+                    int output_h,
+                    int output_w,
+                    std::optional<Activation> const &activation);
 
 void gpu_forward_kernel(ffStream_t stream,
                         BatchNormPerDeviceState const &per_device_statem,

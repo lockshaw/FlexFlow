@@ -13,6 +13,7 @@ features = [
 
 includes = [
   "<optional>",
+  "op-attrs/activation.dtg.h",
 ]
 
 src_includes = [
@@ -22,8 +23,8 @@ src_includes = [
 ]
 
 [[fields]]
-name = "relu"
-type = "bool"
+name = "activation"
+type = "std::optional<::FlexFlow::Activation>"
 
 [[fields]]
 name = "affine"

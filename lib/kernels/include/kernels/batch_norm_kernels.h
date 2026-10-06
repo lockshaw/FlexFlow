@@ -18,7 +18,7 @@ std::optional<BatchNormPerDeviceState>
                 int output_c,
                 int output_h,
                 int output_w,
-                bool relu);
+                std::optional<Activation> const &activation);
 
 void forward_kernel(device_stream_t const &stream,
                     BatchNormPerDeviceState const &per_device_state,
@@ -38,10 +38,9 @@ void backward_kernel(device_stream_t const &stream,
                      float *bias_grad_ptr,
                      size_t numElements);
 
-void cleanup_kernel(
-    DeviceType device_type,
-    Allocator &allocator,
-    std::optional<BatchNormPerDeviceState> const &per_device_state);
+void cleanup_kernel(DeviceType device_type,
+                    Allocator &allocator,
+                    std::optional<Activation> const &activation);
 
 } // namespace FlexFlow::Kernels::BatchNorm
 #endif

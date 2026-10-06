@@ -354,7 +354,7 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::batch_norm(
   }
 
   BatchNormAttrs attrs = BatchNormAttrs{
-      /*relu=*/activation.has_value(),
+      /*relu=*/activation,
       /*affine=*/affine,
       /*eps=*/eps,
       /*momentum=*/momentum,

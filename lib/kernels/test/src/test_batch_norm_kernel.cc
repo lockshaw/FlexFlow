@@ -27,7 +27,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         /*output_c=*/output_c.int_from_positive_int(),
         /*output_h=*/output_h.int_from_positive_int(),
         /*output_w=*/output_w.int_from_positive_int(),
-        /*relu=*/true);
+        /*activation=*/Activation::RELU);
 
     TensorShape input_shape = TensorShape{
         TensorDims{FFOrdered{output_n, output_c, output_h, output_w}},
