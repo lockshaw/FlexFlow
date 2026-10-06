@@ -20,6 +20,8 @@ std::vector<PatternNode>
 
 std::set<PatternInput> get_pattern_inputs(UnlabelledGraphPattern const &);
 
+nonnegative_int get_num_pattern_edges(UnlabelledGraphPattern const &);
+
 std::set<StandardPatternEdge>
     get_pattern_edges_across_topological_split(UnlabelledGraphPattern const &,
                                                PatternSplit const &);

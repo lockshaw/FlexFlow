@@ -12,6 +12,7 @@
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_all_open_kwarg_dataflow_values.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_incoming_open_kwarg_dataflow_values_for_node.h"
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_open_kwarg_dataflow_graph_subgraph.h"
+#include "utils/nonnegative_int/num_elements.h"
 
 namespace FlexFlow {
 
@@ -37,6 +38,10 @@ std::set<PatternInput> get_pattern_inputs(UnlabelledGraphPattern const &p) {
   return transform(
       get_all_kwarg_dataflow_graph_inputs(p.raw_graph),
       [](KwargDataflowGraphInput<int> const &i) { return PatternInput{i}; });
+}
+
+nonnegative_int get_num_pattern_edges(UnlabelledGraphPattern const &p) {
+  return num_elements(get_all_open_kwarg_dataflow_edges(p.raw_graph));
 }
 
 std::set<StandardPatternEdge>
