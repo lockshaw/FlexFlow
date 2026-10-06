@@ -72,7 +72,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     std::vector<Substitution> substitution_set =
-        get_substitution_set(full_machine_spec.compute_specification);
+        get_unity_substitution_set(full_machine_spec.compute_specification);
 
     auto search_with_config =
         [&](MCMCOverMappedPCGConfig const &search_config) -> float {

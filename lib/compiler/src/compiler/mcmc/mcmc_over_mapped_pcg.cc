@@ -35,8 +35,7 @@ SearchResult
     ASSERT(search_config.substitution_frequency >= 0 &&
            search_config.substitution_frequency <= 1);
     if (randf(gen) < search_config.substitution_frequency) {
-      Substitution random_substitution =
-          assert_unwrap(get_random_substitution(gen, compute_spec));
+      Substitution random_substitution = select_random(gen, substitutions);
       std::optional<PCGPatternMatch> maybe_pattern_match =
           get_random_pattern_match(gen,
                                    random_substitution.pcg_pattern,

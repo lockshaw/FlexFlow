@@ -1,4 +1,5 @@
 #include "substitutions/unity_substitution_set.h"
+#include "op-attrs/activation.h"
 #include "pcg/machine_compute_specification.h"
 #include "substitutions/operator_pattern/operator_attribute_constraint.h"
 #include "substitutions/output_graph/output_operator_attrs_assignment.h"
@@ -12,18 +13,8 @@
 
 namespace FlexFlow {
 
-std::optional<Substitution>
-    get_random_substitution(std::mt19937 &gen,
-                            MachineComputeSpecification const &resources) {
-  std::vector<Substitution> substitutions = get_substitution_set(resources);
-  if (substitutions.empty()) {
-    return std::nullopt;
-  }
-  return select_random(gen, substitutions);
-}
-
 std::vector<Substitution>
-    get_substitution_set(MachineComputeSpecification const &resources) {
+    get_unity_substitution_set(MachineComputeSpecification const &resources) {
   std::vector<Substitution> substitutions;
 
   positive_int max_tensor_dim = positive_int{MAX_TENSOR_DIM};
@@ -66,10 +57,30 @@ std::vector<Substitution>
       }
     }
   }
+
   substitutions.push_back(create_fuse_linear_activation(Activation::RELU));
   substitutions.push_back(create_fuse_linear_activation(Activation::SIGMOID));
   substitutions.push_back(create_fuse_linear_activation(Activation::TANH));
   substitutions.push_back(create_fuse_linear_activation(Activation::GELU));
+
+  return substitutions;
+}
+
+std::vector<Substitution> get_expanded_substitution_set(
+    MachineComputeSpecification const &resources) {
+
+  std::vector<Substitution> substitutions =
+      get_unity_substitution_set(resources);
+
+  substitutions.push_back(create_fuse_linear_activation(Activation::SILU));
+
+  substitutions.push_back(create_fuse_batch_norm_activation(Activation::RELU));
+  substitutions.push_back(
+      create_fuse_batch_norm_activation(Activation::SIGMOID));
+  substitutions.push_back(create_fuse_batch_norm_activation(Activation::TANH));
+  substitutions.push_back(create_fuse_batch_norm_activation(Activation::GELU));
+  substitutions.push_back(create_fuse_batch_norm_activation(Activation::SILU));
+
   return substitutions;
 }
 
@@ -789,14 +800,14 @@ Substitution create_fuse_linear_activation(Activation activation) {
       /*output_pattern=*/tensor_attribute_pattern_match_all(),
       mm_name);
 
-  OperatorAttributePattern relu_pattern = OperatorAttributePattern{{
-      op_type_equals_constraint(OperatorType::RELU),
+  OperatorAttributePattern activation_pattern = OperatorAttributePattern{{
+      op_type_equals_constraint(op_type_for_activation(activation)),
   }};
 
-  std::string relu_name = "relu";
-  PatternValue p_relu_output = insert_single_output_pattern(
+  std::string activation_name = "activation";
+  PatternValue p_activation_output = insert_single_output_pattern(
       b,
-      relu_pattern,
+      activation_pattern,
       /*inputs=*/
       {
           {
@@ -805,7 +816,7 @@ Substitution create_fuse_linear_activation(Activation activation) {
           },
       },
       /*output_pattern=*/tensor_attribute_pattern_match_all(),
-      relu_name);
+      activation_name);
 
   OutputOperatorAttrsAssignment fused_node_expr = OutputOperatorAttrsAssignment{
       b.pattern_node_named(mm_name),
@@ -829,7 +840,95 @@ Substitution create_fuse_linear_activation(Activation activation) {
                                   },
                               });
 
-  b.equate_outputs(p_relu_output, o_fused_node_output);
+  b.equate_outputs(p_activation_output, o_fused_node_output);
+
+  return b.get_substitution();
+}
+
+Substitution create_fuse_batch_norm_activation(Activation activation) {
+  SubstitutionBuilder b;
+
+  auto [p_input, o_input] =
+      b.add_input(tensor_attribute_pattern_match_all(), "input");
+  auto [p_gamma, o_gamma] =
+      b.add_input(tensor_attribute_pattern_match_all(), "gamma");
+  auto [p_beta, o_beta] =
+      b.add_input(tensor_attribute_pattern_match_all(), "beta");
+
+  OperatorAttributePattern bn_pattern = OperatorAttributePattern{{
+      op_type_equals_constraint(OperatorType::BATCHNORM),
+      op_attr_key_equals(
+          OperatorAttributeKey::ACTIVATION,
+          OperatorAttributeValue{std::optional<Activation>{std::nullopt}}),
+  }};
+
+  std::string bn_name = "bn";
+  PatternValue p_bn_output = insert_single_output_pattern(
+      b,
+      bn_pattern,
+      /*inputs=*/
+      {
+          {
+              TensorSlotName::INPUT,
+              p_input,
+          },
+          {
+              TensorSlotName::GAMMA,
+              p_gamma,
+          },
+          {
+              TensorSlotName::BETA,
+              p_beta,
+          },
+      },
+      /*output_pattern=*/tensor_attribute_pattern_match_all(),
+      bn_name);
+
+  OperatorAttributePattern activation_pattern = OperatorAttributePattern{{
+      op_type_equals_constraint(op_type_for_activation(activation)),
+  }};
+
+  std::string activation_name = "activation";
+  PatternValue p_activation_output = insert_single_output_pattern(
+      b,
+      activation_pattern,
+      /*inputs=*/
+      {
+          {
+              TensorSlotName::INPUT,
+              p_bn_output,
+          },
+      },
+      /*output_pattern=*/tensor_attribute_pattern_match_all(),
+      activation_name);
+
+  OutputOperatorAttrsAssignment fused_node_expr = OutputOperatorAttrsAssignment{
+      b.pattern_node_named(bn_name),
+      {
+          set_attr_to_constant(OperatorAttributeKey::ACTIVATION,
+                               OperatorAttributeValue{activation}),
+      }};
+
+  OutputGraphExprValue o_fused_node_output =
+      insert_single_output_op(b,
+                              fused_node_expr,
+                              /*inputs=*/
+                              {
+                                  {
+                                      TensorSlotName::INPUT,
+                                      o_input,
+                                  },
+                                  {
+                                      TensorSlotName::GAMMA,
+                                      o_gamma,
+                                  },
+                                  {
+                                      TensorSlotName::BETA,
+                                      o_beta,
+                                  },
+                              });
+
+  b.equate_outputs(p_activation_output, o_fused_node_output);
 
   return b.get_substitution();
 }

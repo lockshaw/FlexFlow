@@ -10,10 +10,16 @@
 
 namespace FlexFlow {
 
+std::vector<ParallelComputationGraph>
+    all_pcgs_obtained_by_applying_a_substitution(
+        ParallelComputationGraph const &pcg,
+        std::vector<Substitution> const &substitutions);
+
 SearchResult graph_optimize(ParallelComputationGraph &pcg,
                             RuntimeOnlyCostEstimator const &cost_estimator,
                             MachineComputeSpecification const &resources,
-                            UnitySearchConfig const &search_config);
+                            UnitySearchConfig const &search_config,
+                            std::vector<Substitution> const &substitutions);
 
 } // namespace FlexFlow
 

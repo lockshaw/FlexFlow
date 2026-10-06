@@ -51,9 +51,8 @@ std::vector<ParallelComputationGraph>
 SearchResult graph_optimize(ParallelComputationGraph &pcg,
                             RuntimeOnlyCostEstimator const &cost_estimator,
                             MachineComputeSpecification const &resources,
-                            UnitySearchConfig const &search_config) {
-
-  std::vector<Substitution> substitutions = get_substitution_set(resources);
+                            UnitySearchConfig const &search_config,
+                            std::vector<Substitution> const &substitutions) {
 
   MachineMappingCache cached_subgraph_costs = empty_machine_mapping_cache();
   DeduplicatedPriorityQueue<GraphOptimizeState> candidates;

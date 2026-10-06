@@ -8,6 +8,7 @@
 #include "pcg/computation_graph_builder.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "pcg/pcg_from_computation_graph.h"
+#include "substitutions/unity_substitution_set.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
 
@@ -67,14 +68,20 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*num_gpus_per_node=*/1_p,
     };
 
+    std::vector<Substitution> substitution_set =
+        get_unity_substitution_set(full_machine_spec);
+
     SUBCASE("do not apply substitution") {
       UnitySearchConfig search_config = UnitySearchConfig{
           /*alpha=*/1.0,
           /*budget=*/0,
           /*max_num_ops=*/100,
       };
-      SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+      SearchResult result = graph_optimize(pcg,
+                                           cost_estimator,
+                                           full_machine_spec,
+                                           search_config,
+                                           substitution_set);
       CHECK(pcgs_are_isomorphic(pcg, result.pcg));
     }
 
@@ -84,8 +91,11 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*budget=*/1,
           /*max_num_ops=*/100,
       };
-      SearchResult result =
-          graph_optimize(pcg, cost_estimator, full_machine_spec, search_config);
+      SearchResult result = graph_optimize(pcg,
+                                           cost_estimator,
+                                           full_machine_spec,
+                                           search_config,
+                                           substitution_set);
     }
   }
 }
