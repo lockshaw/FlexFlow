@@ -5,6 +5,7 @@
 #include "benchmark/utils/containers/try_merge_nondisjoint_maps.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
+#include "benchmark/utils/graph/open_kwarg_dataflow_graph/algorithms/get_all_open_kwarg_dataflow_edges.h"
 #include "benchmark/utils/graph/open_kwarg_dataflow_graph/algorithms/get_open_kwarg_dataflow_subgraph_incoming_edges.h"
 #include "benchmark/utils/graph/query_set.h"
 #include "utils/benchmark_utils/benchmark_main.h"
@@ -67,6 +68,14 @@ int main(int argc, char **argv) {
       {
           "get_open_kwarg_dataflow_subgraph_incoming_edges_labelled",
           benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges_labelled,
+      },
+      {
+          "get_all_open_kwarg_dataflow_edges_unlabelled",
+          benchmark_get_all_open_kwarg_dataflow_edges_unlabelled,
+      },
+      {
+          "get_all_open_kwarg_dataflow_edges_labelled",
+          benchmark_get_all_open_kwarg_dataflow_edges_labelled,
       },
   };
 

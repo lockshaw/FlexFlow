@@ -1,0 +1,11 @@
+#ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_BENCHMARK_UTILS_BENCHMARK_GRAPH_OPEN_KWARG_DATAFLOW_GRAPH_ALGORITHMS_GET_ALL_OPEN_KWARG_DATAFLOW_EDGES_H
+#define _FLEXFLOW_LIB_UTILS_INCLUDE_BENCHMARK_UTILS_BENCHMARK_GRAPH_OPEN_KWARG_DATAFLOW_GRAPH_ALGORITHMS_GET_ALL_OPEN_KWARG_DATAFLOW_EDGES_H
+
+namespace FlexFlow {
+
+void benchmark_get_all_open_kwarg_dataflow_edges_unlabelled(bool dry_run);
+void benchmark_get_all_open_kwarg_dataflow_edges_labelled(bool dry_run);
+
+} // namespace FlexFlow
+
+#endif
