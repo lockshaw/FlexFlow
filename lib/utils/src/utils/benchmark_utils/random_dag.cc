@@ -1,4 +1,4 @@
-#include "internal/random_dag.h"
+#include "utils/benchmark_utils/random_dag.h"
 #include "utils/containers/vector_of.h"
 #include "utils/graph/algorithms.h"
 #include "utils/graph/instances/adjacency_digraph.h"
@@ -7,25 +7,20 @@
 
 namespace FlexFlow {
 
-DiGraphView random_dag(std::mt19937 &gen,
-                       nonnegative_int num_nodes,
-                       float edges_fraction) {
-  assert(edges_fraction <= 1.0);
-  assert(edges_fraction >= 0.0);
+void random_dag(std::mt19937 &gen,
+                DiGraph &g,
+                nonnegative_int num_nodes,
+                nonnegative_int num_edges) {
+  nonnegative_int max_num_edges = [&] {
+    int nn = num_nodes.int_from_nonnegative_int();
 
-  int max_num_edges = [&] {
-    int nn = num_nodes.unwrap_nonnegative();
-
-    return (nn * (nn - 1)) / 2;
+    return nonnegative_int{
+        (nn * (nn - 1)) / 2,
+    };
   }();
 
-  nonnegative_int num_edges = nonnegative_int{
-      static_cast<int>(max_num_edges * edges_fraction),
-  };
+  ASSERT(num_edges < max_num_edges);
 
-  assert(num_edges <= max_num_edges);
-
-  DiGraph g = DiGraph::create<AdjacencyDiGraph>();
   std::vector<Node> n = add_nodes(g, num_nodes.unwrap_nonnegative());
 
   std::set<DirectedEdge> edges;
@@ -44,8 +39,6 @@ DiGraphView random_dag(std::mt19937 &gen,
   }
 
   add_edges(g, vector_of(edges));
-
-  return g;
 }
 
 } // namespace FlexFlow

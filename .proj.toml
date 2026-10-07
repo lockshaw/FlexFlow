@@ -24,7 +24,7 @@ layout_ignore_paths = [
   "lib/realm-execution/src/realm-execution/redops/cuda",
 ]
 test_case_timeout_seconds = 300
-benchmark_timeout_seconds = 360
+benchmark_timeout_seconds = 60
 ci_benchmark_within_percent_requirement = 15
 
 [targets.utils]
@@ -126,11 +126,11 @@ cuda = false
 
 [[benchmarks.utils]]
 name = "transitive_reduction"
-budget = 2_500_000_000
+budget = 410_000_000
 
 [[benchmarks.utils]]
 name = "transitive_closure"
-budget = 2_000_000_000
+budget = 520_000_000
 
 [[benchmarks.utils]]
 name = "contains_for_set"

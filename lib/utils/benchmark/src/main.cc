@@ -24,8 +24,6 @@ int main(int argc, char **argv) {
           [&](bool dry_run) -> void {
             benchmark_transitive_closure(
                 /*gen=*/gen,
-                /*edge_percentage=*/0.5,
-                /*num_nodes=*/100,
                 /*dry_run=*/dry_run);
           },
       },
@@ -34,8 +32,6 @@ int main(int argc, char **argv) {
           [&](bool dry_run) -> void {
             benchmark_transitive_reduction(
                 /*gen=*/gen,
-                /*edge_percentage=*/0.5,
-                /*num_nodes=*/100,
                 /*dry_run=*/dry_run);
           },
       },

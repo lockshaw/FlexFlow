@@ -5,10 +5,7 @@
 
 namespace FlexFlow {
 
-void benchmark_transitive_closure(std::mt19937 &gen,
-                                  int edge_percentage,
-                                  int num_nodes,
-                                  bool dry_run);
+void benchmark_transitive_closure(std::mt19937 &gen, bool dry_run);
 
 }
 
