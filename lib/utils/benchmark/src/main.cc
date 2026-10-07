@@ -1,6 +1,7 @@
 #include "benchmark/utils/containers/contains.h"
 #include "benchmark/utils/containers/transform.h"
 #include "benchmark/utils/containers/try_at.h"
+#include "benchmark/utils/containers/try_merge_nondisjoint_maps.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
 #include "utils/benchmark_utils/benchmark_main.h"
@@ -27,6 +28,10 @@ int main(int argc, char **argv) {
       {
           "try_at_for_unordered_map",
           benchmark_try_at_for_unordered_map,
+      },
+      {
+          "try_merge_nondisjoint_maps",
+          benchmark_try_merge_nondisjoint_maps,
       },
       {
           "transitive_closure",

@@ -148,6 +148,10 @@ budget = 900_000
 name = "try_at_for_unordered_map"
 budget = 230_000
 
+[[benchmarks.utils]]
+name = "try_merge_nondisjoint_maps"
+budget = 19_000_000
+
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
 budget = 130_000_000

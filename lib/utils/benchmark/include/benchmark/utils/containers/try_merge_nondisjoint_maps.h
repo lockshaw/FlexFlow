@@ -1,0 +1,10 @@
+#ifndef _FLEXFLOW_LIB_UTILS_BENCHMARK_INCLUDE_BENCHMARK_UTILS_CONTAINERS_TRY_MERGE_NONDISJOINT_MAPS_H
+#define _FLEXFLOW_LIB_UTILS_BENCHMARK_INCLUDE_BENCHMARK_UTILS_CONTAINERS_TRY_MERGE_NONDISJOINT_MAPS_H
+
+namespace FlexFlow {
+
+void benchmark_try_merge_nondisjoint_maps(bool dry_run);
+
+} // namespace FlexFlow
+
+#endif
