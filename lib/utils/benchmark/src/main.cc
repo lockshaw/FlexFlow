@@ -1,4 +1,5 @@
 #include "benchmark/utils/containers/contains.h"
+#include "benchmark/utils/containers/transform.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
 #include "utils/benchmark_utils/benchmark_main.h"
@@ -13,6 +14,10 @@ int main(int argc, char **argv) {
       {
           "contains_for_set",
           benchmark_contains_for_set,
+      },
+      {
+          "transform_set",
+          benchmark_transform_set,
       },
       {
           "transitive_closure",

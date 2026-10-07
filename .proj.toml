@@ -136,6 +136,10 @@ budget = 520_000_000
 name = "contains_for_set"
 budget = 3_500_000
 
+[[benchmarks.utils]]
+name = "transform_set"
+budget = 13_000_000
+
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
 budget = 130_000_000

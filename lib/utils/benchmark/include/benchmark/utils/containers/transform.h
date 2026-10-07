@@ -1,0 +1,10 @@
+#ifndef _FLEXFLOW_LIB_UTILS_BENCHMARK_INCLUDE_BENCHMARK_UTILS_CONTAINERS_TRANSFORM_H
+#define _FLEXFLOW_LIB_UTILS_BENCHMARK_INCLUDE_BENCHMARK_UTILS_CONTAINERS_TRANSFORM_H
+
+namespace FlexFlow {
+
+void benchmark_transform_set(bool dry_run);
+
+} // namespace FlexFlow
+
+#endif
