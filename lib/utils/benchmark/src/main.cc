@@ -1,7 +1,7 @@
 #include "benchmark/utils/containers/contains.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/benchmark_main.h"
 #include <random>
 #include <string>
 #include <vector>

@@ -1,6 +1,6 @@
 #include "utils/graph/digraph/algorithms/transitive_reduction.h"
 #include "internal/random_dag.h"
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/loop.h"
 
 namespace FlexFlow {
 

@@ -1,5 +1,5 @@
 #include "benchmark/compiler/series_parallel/computation_graph/get_computation_graph_series_parallel_decomposition.h"
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/benchmark_main.h"
 #include <string>
 #include <vector>
 

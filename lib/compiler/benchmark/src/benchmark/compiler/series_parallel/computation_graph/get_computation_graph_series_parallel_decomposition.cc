@@ -2,7 +2,7 @@
 #include "models/inception_v3/inception_v3.h"
 #include "models/split_test/split_test.h"
 #include "models/transformer/transformer.h"
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/loop.h"
 
 namespace FlexFlow {
 

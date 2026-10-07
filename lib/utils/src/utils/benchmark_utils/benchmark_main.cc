@@ -1,4 +1,4 @@
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/benchmark_main.h"
 #include "utils/cli/cli_get_help_message.h"
 #include "utils/cli/cli_parse.h"
 #include "utils/cli/cli_parse_result.h"
@@ -7,18 +7,6 @@
 #include "utils/containers/sorted.h"
 #include "utils/optional.h"
 #include <libassert/assert.hpp>
-
-namespace {
-
-void check_header_builds(bool dry_run) {
-  int x = 0;
-  LOOP(10, dry_run) {
-    x++;
-    x++;
-  }
-}
-
-} // namespace
 
 namespace FlexFlow {
 

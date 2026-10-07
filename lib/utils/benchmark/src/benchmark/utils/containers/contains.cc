@@ -1,5 +1,5 @@
 #include "utils/containers/contains.h"
-#include "utils/benchmark_utils.h"
+#include "utils/benchmark_utils/loop.h"
 #include <random>
 
 namespace FlexFlow {
