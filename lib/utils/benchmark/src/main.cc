@@ -9,31 +9,18 @@
 using namespace ::FlexFlow;
 
 int main(int argc, char **argv) {
-  std::mt19937 gen;
-  gen.seed(0);
-
   std::map<std::string, std::function<void(bool)>> benchmarks = {
       {
           "contains_for_set",
-          [&](bool dry_run) -> void {
-            benchmark_contains_for_set(gen, dry_run);
-          },
+          benchmark_contains_for_set,
       },
       {
           "transitive_closure",
-          [&](bool dry_run) -> void {
-            benchmark_transitive_closure(
-                /*gen=*/gen,
-                /*dry_run=*/dry_run);
-          },
+          benchmark_transitive_closure,
       },
       {
           "transitive_reduction",
-          [&](bool dry_run) -> void {
-            benchmark_transitive_reduction(
-                /*gen=*/gen,
-                /*dry_run=*/dry_run);
-          },
+          benchmark_transitive_reduction,
       },
   };
 

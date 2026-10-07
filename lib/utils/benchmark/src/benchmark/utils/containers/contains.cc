@@ -4,7 +4,10 @@
 
 namespace FlexFlow {
 
-void benchmark_contains_for_set(std::mt19937 &gen, bool dry_run) {
+void benchmark_contains_for_set(bool dry_run) {
+  std::mt19937 gen;
+  gen.seed(0);
+
   std::set<int> s;
   std::uniform_int_distribution<> dist(1, 50000);
   for (int i = 0; i < 1000; i++) {

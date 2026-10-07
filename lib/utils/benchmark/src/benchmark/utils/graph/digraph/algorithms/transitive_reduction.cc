@@ -5,7 +5,10 @@
 
 namespace FlexFlow {
 
-void benchmark_transitive_reduction(std::mt19937 &gen, bool dry_run) {
+void benchmark_transitive_reduction(bool dry_run) {
+  std::mt19937 gen;
+  gen.seed(0);
+
   nonnegative_int num_nodes = 50_n;
   nonnegative_int num_edges = 200_n;
 
