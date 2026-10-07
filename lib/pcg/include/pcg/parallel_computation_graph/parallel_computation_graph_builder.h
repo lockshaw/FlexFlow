@@ -112,6 +112,10 @@ public:
           std::optional<std::string> const &name = std::nullopt);
 
   parallel_tensor_guid_t
+      silu(parallel_tensor_guid_t const &x,
+           std::optional<std::string> const &name = std::nullopt);
+
+  parallel_tensor_guid_t
       parallel_partition(parallel_tensor_guid_t const &input,
                          ff_dim_t dim,
                          positive_int degree,

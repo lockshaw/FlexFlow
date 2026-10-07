@@ -476,6 +476,18 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::elu(
   return this->element_unary(attrs, input, maybe_name);
 }
 
+parallel_tensor_guid_t ParallelComputationGraphBuilder::silu(
+    parallel_tensor_guid_t const &input,
+    std::optional<std::string> const &maybe_name) {
+
+  ElementUnaryAttrs attrs = ElementUnaryAttrs{
+      OperatorType::SILU,
+      std::nullopt,
+  };
+
+  return this->element_unary(attrs, input, maybe_name);
+}
+
 parallel_tensor_guid_t ParallelComputationGraphBuilder::parallel_partition(
     parallel_tensor_guid_t const &input,
     ff_dim_t dim,

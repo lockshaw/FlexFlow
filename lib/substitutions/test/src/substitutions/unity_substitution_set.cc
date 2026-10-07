@@ -1361,4 +1361,87 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(sub_pcgs_are_isomorphic(result, correct));
   }
+
+  TEST_CASE("create_fuse_batch_norm_activation" * doctest::should_fail(true)) {
+    Substitution sub = create_fuse_batch_norm_activation(Activation::SILU);
+
+    std::string bn_match = "bn_match";
+    std::string silu_match = "silu_match";
+
+    TensorShape input_shape = TensorShape{
+        TensorDims{
+            FFOrdered{
+                4_p,
+                10_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SubParallelComputationGraph pcg = [&] {
+      ParallelComputationGraphBuilder b;
+      parallel_tensor_guid_t t = b.create_input_tensor(input_shape);
+      t = b.batch_norm(t,
+                       /*affine=*/true,
+                       /*activation=*/std::nullopt,
+                       /*eps=*/0.5,
+                       /*momentum=*/std::nullopt,
+                       /*name=*/bn_match);
+      t = b.silu(t, /*name=*/silu_match);
+
+      return sub_pcg_from_full_pcg(b.pcg);
+    }();
+
+    PCGPatternMatch match = [&] {
+      parallel_layer_guid_t bn_match_layer =
+          get_parallel_layer_by_name(pcg, bn_match);
+      parallel_layer_guid_t silu_match_layer =
+          get_parallel_layer_by_name(pcg, silu_match);
+      open_parallel_tensor_guid_t bn_match_layer_input_activations =
+          get_layer_inputs(pcg, bn_match_layer).at(TensorSlotName::INPUT);
+      open_parallel_tensor_guid_t bn_match_layer_input_gamma_weights =
+          get_layer_inputs(pcg, bn_match_layer).at(TensorSlotName::GAMMA);
+      open_parallel_tensor_guid_t bn_match_layer_input_beta_weights =
+          get_layer_inputs(pcg, bn_match_layer).at(TensorSlotName::BETA);
+
+      return PCGPatternMatch{
+          bidict<PatternNode, parallel_layer_guid_t>{
+              {PatternNode{Node{0}}, bn_match_layer},
+              {PatternNode{Node{1}}, silu_match_layer},
+          },
+          std::map<PatternInput, open_parallel_tensor_guid_t>{
+              {
+                  // TODO(@lockshaw)(#pr): change input ids to strings so that the id doesn't have to be guessed like below
+                  PatternInput{KwargDataflowGraphInput{0}},
+                  bn_match_layer_input_activations,
+              },
+              {
+                  PatternInput{KwargDataflowGraphInput{2}},
+                  bn_match_layer_input_gamma_weights,
+              },
+              {
+                  PatternInput{KwargDataflowGraphInput{4}},
+                  bn_match_layer_input_beta_weights,
+              },
+          },
+      };
+    }();
+
+    SubParallelComputationGraph result = apply_substitution(pcg, sub, match);
+
+    SubParallelComputationGraph correct = [&] {
+      ParallelComputationGraphBuilder b;
+      parallel_tensor_guid_t t = b.create_input_tensor(input_shape);
+      t = b.batch_norm(t,
+                       /*affine=*/true,
+                       /*activation=*/Activation::SILU,
+                       /*eps=*/0.5,
+                       /*momentum=*/std::nullopt,
+                       /*name=*/std::nullopt);
+
+      return sub_pcg_from_full_pcg(b.pcg);
+    }();
+
+    CHECK(sub_pcgs_are_isomorphic(result, correct));
+  }
 }
