@@ -156,6 +156,18 @@ budget = 19_000_000
 name = "try_merge_nondisjoint_bidicts"
 budget = 43_000_000
 
+[[benchmarks.utils]]
+name = "query_set_allowed_values"
+budget = 820_000_000
+
+[[benchmarks.utils]]
+name = "query_set_apply_query_to_set"
+budget = 8_200_000_000
+
+[[benchmarks.utils]]
+name = "query_set_apply_query_to_vector"
+budget = 8_200_000_000
+
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
 budget = 130_000_000

@@ -5,6 +5,7 @@
 #include "benchmark/utils/containers/try_merge_nondisjoint_maps.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
+#include "benchmark/utils/graph/query_set.h"
 #include "utils/benchmark_utils/benchmark_main.h"
 #include <random>
 #include <string>
@@ -37,6 +38,18 @@ int main(int argc, char **argv) {
       {
           "try_merge_nondisjoint_bidicts",
           benchmark_try_merge_nondisjoint_bidicts,
+      },
+      {
+          "query_set_allowed_values",
+          benchmark_query_set_allowed_values,
+      },
+      {
+          "query_set_apply_query_to_set",
+          benchmark_query_set_apply_query_to_set,
+      },
+      {
+          "query_set_apply_query_to_vector",
+          benchmark_query_set_apply_query_to_vector,
       },
       {
           "transitive_closure",
