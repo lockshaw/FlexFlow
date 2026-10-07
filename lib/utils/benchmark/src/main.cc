@@ -5,6 +5,7 @@
 #include "benchmark/utils/containers/try_merge_nondisjoint_maps.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
+#include "benchmark/utils/graph/open_kwarg_dataflow_graph/algorithms/get_open_kwarg_dataflow_subgraph_incoming_edges.h"
 #include "benchmark/utils/graph/query_set.h"
 #include "utils/benchmark_utils/benchmark_main.h"
 #include <random>
@@ -58,6 +59,10 @@ int main(int argc, char **argv) {
       {
           "transitive_reduction",
           benchmark_transitive_reduction,
+      },
+      {
+          "get_open_kwarg_dataflow_subgraph_incoming_edges",
+          benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges,
       },
   };
 

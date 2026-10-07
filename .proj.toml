@@ -168,6 +168,10 @@ budget = 8_200_000_000
 name = "query_set_apply_query_to_vector"
 budget = 8_200_000_000
 
+[[benchmarks.utils]]
+name = "get_open_kwarg_dataflow_subgraph_incoming_edges"
+budget = 225_000_000
+
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
 budget = 130_000_000

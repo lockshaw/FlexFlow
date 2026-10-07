@@ -10,6 +10,8 @@ template float randf(G &);
 
 template T select_random(G &, std::vector<T> const &);
 
+template T select_random(G &, std::set<T> const &);
+
 template T
     select_random(G &, std::vector<T> const &, std::vector<float> const &);
 

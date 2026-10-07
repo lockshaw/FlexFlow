@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <libassert/assert.hpp>
 #include <random>
+#include <set>
 #include <stdexcept>
 #include <vector>
 
@@ -22,6 +23,19 @@ T select_random(Generator &g, std::vector<T> const &values) {
 
   std::uniform_int_distribution<> dist(0, values.size() - 1);
   return values[dist(g)];
+}
+
+template <typename Generator, typename T>
+T select_random(Generator &g, std::set<T> const &values) {
+  ASSERT(!values.empty());
+
+  std::uniform_int_distribution<> dist(0, values.size() - 1);
+  int idx = dist(g);
+  auto it = values.cbegin();
+  for (int i = 0; i < idx; i++) {
+    it++;
+  }
+  return *it;
 }
 
 template <typename Generator, typename T>
