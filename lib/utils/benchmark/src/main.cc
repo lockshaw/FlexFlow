@@ -1,3 +1,4 @@
+#include "benchmark/utils/bidict/try_merge_nondisjoint_bidicts.h"
 #include "benchmark/utils/containers/contains.h"
 #include "benchmark/utils/containers/transform.h"
 #include "benchmark/utils/containers/try_at.h"
@@ -32,6 +33,10 @@ int main(int argc, char **argv) {
       {
           "try_merge_nondisjoint_maps",
           benchmark_try_merge_nondisjoint_maps,
+      },
+      {
+          "try_merge_nondisjoint_bidicts",
+          benchmark_try_merge_nondisjoint_bidicts,
       },
       {
           "transitive_closure",
