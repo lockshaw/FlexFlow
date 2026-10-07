@@ -61,8 +61,12 @@ int main(int argc, char **argv) {
           benchmark_transitive_reduction,
       },
       {
-          "get_open_kwarg_dataflow_subgraph_incoming_edges",
-          benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges,
+          "get_open_kwarg_dataflow_subgraph_incoming_edges_unlabelled",
+          benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges_unlabelled,
+      },
+      {
+          "get_open_kwarg_dataflow_subgraph_incoming_edges_labelled",
+          benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges_labelled,
       },
   };
 

@@ -3,7 +3,10 @@
 
 namespace FlexFlow {
 
-void benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges(bool dry_run);
+void benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges_unlabelled(
+    bool dry_run);
+void benchmark_get_open_kwarg_dataflow_subgraph_incoming_edges_labelled(
+    bool dry_run);
 
 } // namespace FlexFlow
 
