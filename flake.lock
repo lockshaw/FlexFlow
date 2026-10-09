@@ -67,11 +67,11 @@
         "python38-nixpkgs": "python38-nixpkgs"
       },
       "locked": {
-        "lastModified": 1790650483,
-        "narHash": "sha256-dcr9CodwUFWHSOnJSQTh+VgKoz/IvKeIZFL2+6Kmx04=",
+        "lastModified": 1791595578,
+        "narHash": "sha256-5NnUW3exxcLAZoTA1zhwOVQFNWW4IpoMTU0GfvqKVEc=",
         "ref": "refs/heads/master",
-        "rev": "1aae185f1dcf38f5e3100792465925a94f7ec3b8",
-        "revCount": 173,
+        "rev": "7f65924cc7118eae11ae45d4071988b544b7fffb",
+        "revCount": 176,
         "type": "git",
         "url": "https://git.sr.ht/~lockshaw/proj"
       },

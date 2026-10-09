@@ -25,6 +25,7 @@ layout_ignore_paths = [
 ]
 test_case_timeout_seconds = 300
 benchmark_timeout_seconds = 360
+ci_benchmark_within_percent_requirement = 15
 
 [targets.utils]
 type = "lib"
@@ -133,11 +134,11 @@ budget = 2_000_000_000
 
 [[benchmarks.utils]]
 name = "contains_for_set"
-budget = 40_000_000
+budget = 3_500_000
 
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
-budget = 260_000_000
+budget = 130_000_000
 
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_transformer"
