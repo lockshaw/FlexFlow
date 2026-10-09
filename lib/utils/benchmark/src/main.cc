@@ -1,5 +1,6 @@
 #include "benchmark/utils/containers/contains.h"
 #include "benchmark/utils/containers/transform.h"
+#include "benchmark/utils/containers/try_at.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_closure.h"
 #include "benchmark/utils/graph/digraph/algorithms/transitive_reduction.h"
 #include "utils/benchmark_utils/benchmark_main.h"
@@ -18,6 +19,14 @@ int main(int argc, char **argv) {
       {
           "transform_set",
           benchmark_transform_set,
+      },
+      {
+          "try_at_for_map",
+          benchmark_try_at_for_map,
+      },
+      {
+          "try_at_for_unordered_map",
+          benchmark_try_at_for_unordered_map,
       },
       {
           "transitive_closure",

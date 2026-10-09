@@ -140,6 +140,14 @@ budget = 3_500_000
 name = "transform_set"
 budget = 13_000_000
 
+[[benchmarks.utils]]
+name = "try_at_for_map"
+budget = 900_000
+
+[[benchmarks.utils]]
+name = "try_at_for_unordered_map"
+budget = 230_000
+
 [[benchmarks.compiler]]
 name = "get_computation_graph_series_parallel_decomposition_on_split_test"
 budget = 130_000_000
