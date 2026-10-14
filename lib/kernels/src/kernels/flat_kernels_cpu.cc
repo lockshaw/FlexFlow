@@ -5,7 +5,7 @@ namespace FlexFlow {
 
 void flat_cpu_forward_kernel(GenericTensorAccessorR const &input,
                              GenericTensorAccessorW const &output) {
-  NOT_IMPLEMENTED();
+  copy_accessor_data_to_l_from_r(output, input);
 }
 
 void flat_cpu_backward_kernel(GenericTensorAccessorR const &output_grad,
