@@ -135,7 +135,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                   check_kv("result", format_accessor_w_contents(result)));
   }
 
-  TEST_CASE("tensor_accessor_transpose") {
+  TEST_CASE("tensor_accessor_transpose_2d") {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     GenericTensorAccessorR input = create_2d_accessor_r_with_contents<float>(
@@ -146,7 +146,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         cpu_allocator);
 
     GenericTensorAccessorW result =
-        tensor_accessor_transpose(input, cpu_allocator);
+        tensor_accessor_transpose_2d(input, cpu_allocator);
 
     GenericTensorAccessorR correct = create_2d_accessor_r_with_contents<float>(
         {
