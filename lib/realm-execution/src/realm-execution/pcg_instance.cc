@@ -129,7 +129,7 @@ PCGInstance create_pcg_instance(
             continue;
           }
           for (auto const &[slot, value] : invocation.outputs) {
-            if (slot.slot_name == TensorSlotName::LOGIT &&
+            if (slot.pcg_slot_name == TensorSlotName::LOGIT &&
                 value.tensor_guid == lgv.tensor_guid &&
                 value.role == lgv.role) {
               return value;
