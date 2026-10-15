@@ -3,6 +3,7 @@
 
 #include "utils/orthotope/orthotope.dtg.h"
 #include "utils/orthotope/orthotope_coord.dtg.h"
+#include <optional>
 
 namespace FlexFlow {
 
@@ -32,6 +33,9 @@ Orthotope smallest_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
 
 std::optional<Orthotope>
     strict_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
+
+std::optional<positive_int> orthotope_head(Orthotope const &);
+std::optional<Orthotope> orthotope_tail(Orthotope const &);
 
 } // namespace FlexFlow
 

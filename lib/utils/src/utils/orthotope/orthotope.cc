@@ -169,7 +169,15 @@ std::optional<Orthotope>
     return smallest;
   } else {
     return std::nullopt;
-  }
-}
 
-} // namespace FlexFlow
+    std::optional<Orthotope> orthotope_tail(Orthotope const &o) {
+      if (orthotope_get_num_dims(o) == 0) {
+        return std::nullopt;
+      } else {
+        return Orthotope{
+            /*dims=*/tail(o.dims),
+        };
+      }
+    }
+
+  } // namespace FlexFlow
