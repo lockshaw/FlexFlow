@@ -3,12 +3,12 @@
 
 #include "compiler/machine_mapping/machine_view.dtg.h"
 #include "op-attrs/computation_graph_op_attrs.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/operator_space_to_machine_space_mapping.dtg.h"
 #include "utils/bidict/bidict.h"
 #include <cstddef>
