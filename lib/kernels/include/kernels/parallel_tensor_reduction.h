@@ -5,8 +5,8 @@
 #include "kernels/allocation.h"
 #include "kernels/emulated_parallel_tensor.dtg.h"
 #include "op-attrs/ff_dim_t.dtg.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.dtg.h"
 
 namespace FlexFlow {
 
