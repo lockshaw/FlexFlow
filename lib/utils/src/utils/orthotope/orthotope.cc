@@ -5,6 +5,9 @@
 #include "utils/containers/contains.h"
 #include "utils/containers/filter_idxs.h"
 #include "utils/containers/maximum.h"
+#include "utils/containers/multiset_intersection.h"
+#include "utils/containers/multiset_minus.h"
+#include "utils/containers/prime_factorization.h"
 #include "utils/containers/product.h"
 #include "utils/containers/require_all_same1.h"
 #include "utils/containers/require_same.h"
@@ -178,6 +181,79 @@ std::optional<Orthotope>
             /*dims=*/tail(o.dims),
         };
       }
+    }
+
+    bool is_orthotope_divisor_of(Orthotope const &dividend,
+                                 Orthotope const &divisor) {
+      nonnegative_int dividend_num_dims = orthotope_get_num_dims(dividend);
+      nonnegative_int divisor_num_dims = orthotope_get_num_dims(divisor);
+
+      if (dividend_num_dims != divisor_num_dims) {
+        return false;
+      }
+
+      nonnegative_int num_dims =
+          require_same(dividend_num_dims, divisor_num_dims);
+
+      return all_of(nonnegative_range(num_dims),
+                    [&](nonnegative_int dim_idx) -> bool {
+                      int d = dim_idx.int_from_nonnegative_int();
+                      return dividend.dims.at(d) % divisor.dims.at(d) == 0;
+                    });
+    }
+
+    Orthotope orthotope_find_lexicographically_first_divisor_of_volume(
+        Orthotope const &dividend, positive_int divisor_volume) {
+      ASSERT(divisor_volume <= orthotope_get_volume(dividend));
+
+      std::vector<std::multiset<int_ge_two>> dividend_dim_factorizations =
+          transform(dividend.dims,
+                    [](positive_int d) -> std::multiset<int_ge_two> {
+                      return prime_factorization(d);
+                    });
+
+      std::multiset<int_ge_two> divisor_volume_factorization =
+          prime_factorization(divisor_volume);
+
+      std::multiset<int_ge_two> remaining_divisor_volume_factors =
+          divisor_volume_factorization;
+      std::vector<std::multiset<int_ge_two>> divisor_dim_factorizations;
+
+      for (std::multiset<int_ge_two> const &dividend_dim_factorization :
+           dividend_dim_factorizations) {
+        std::multiset<int_ge_two> divisor_dim_factorization =
+            multiset_intersection(remaining_divisor_volume_factors,
+                                  dividend_dim_factorization);
+
+        remaining_divisor_volume_factors = multiset_minus(
+            remaining_divisor_volume_factors, divisor_dim_factorization);
+
+        divisor_dim_factorizations.push_back(divisor_dim_factorization);
+      }
+      ASSERT(remaining_divisor_volume_factors.size() == 0);
+
+      auto as_positive_ints = [&](std::multiset<int_ge_two> const &xs)
+          -> std::multiset<positive_int> {
+        return transform(xs, [](int_ge_two x) -> positive_int {
+          return x.positive_int_from_int_ge_two();
+        });
+      };
+
+      std::vector<positive_int> divisor_dims = transform(
+          divisor_dim_factorizations,
+          [&](std::multiset<int_ge_two> const &divisor_dim_factorization)
+              -> positive_int {
+            return product(as_positive_ints(divisor_dim_factorization));
+          });
+
+      Orthotope divisor = Orthotope{
+          /*dims=*/divisor_dims,
+      };
+
+      ASSERT(is_orthotope_divisor_of(dividend, divisor));
+      ASSERT(orthotope_get_volume(divisor) == divisor_volume);
+
+      return divisor;
     }
 
   } // namespace FlexFlow
