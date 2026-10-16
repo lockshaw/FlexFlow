@@ -21,8 +21,8 @@ OperatorSpaceToParallelTensorSpaceMapping
     empty_operator_space_to_ptensor_space_map() {
 
   return OperatorSpaceToParallelTensorSpaceMapping{
-      empty_dim_domain_mapping<operator_task_space_dim_idx_t,
-                               parallel_tensor_dim_idx_t>(),
+      empty_dim_domain_hemiunique_mapping<operator_task_space_dim_idx_t,
+                                          parallel_tensor_dim_idx_t>(),
   };
 }
 
@@ -38,6 +38,33 @@ ParallelTensorDimDegrees get_parallel_tensor_space_for_mapping(
 
   return parallel_tensor_dim_degrees_from_dim_domain(
       mapping.raw_mapping.r_domain);
+}
+
+DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
+    get_projection_for_op_to_ptensor_identity_mapping(
+        std::set<operator_task_space_dim_idx_t> const &task_space_dims,
+        std::set<parallel_tensor_dim_idx_t> const &parallel_tensor_space_dims) {
+  ASSERT(task_space_dims.size() == parallel_tensor_space_dims.size());
+
+  std::vector<operator_task_space_dim_idx_t> op_domain_dims =
+      sorted_by(task_space_dims, get_operator_task_space_dim_ordering().lt);
+
+  std::vector<parallel_tensor_dim_idx_t> pt_domain_dims = sorted_by(
+      parallel_tensor_space_dims, get_parallel_tensor_dim_ordering().lt);
+
+  bidict<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> projection =
+      bidict_from_keys_and_values(op_domain_dims, pt_domain_dims);
+
+  // for (std::pair<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> const
+  //          &p : projection) {
+  //   positive_int op_task_space_dim_size =
+  //       op_task_space_dim_size_for_idx(operator_task_space, p.first);
+  //   positive_int parallel_tensor_space_dim_size =
+  //       get_degree_for_parallel_tensor_dim_idx(parallel_tensor_dim_degrees,
+  //                                              p.second);
+  // }
+
+  return DimProjection{EqProjection{projection}};
 }
 
 OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
@@ -87,7 +114,7 @@ OperatorSpaceToParallelTensorSpaceMapping
         ParallelTensorDimDegrees const &parallel_tensor_dim_degrees) {
 
   return OperatorSpaceToParallelTensorSpaceMapping{
-      dim_domain_mapping_from_projection(
+      dim_domain_hemiunique_mapping_from_projection(
           /*projection=*/projection,
           /*l_domain=*/
           lift_minimal_dim_domain(
@@ -108,7 +135,7 @@ OperatorSpaceToParallelTensorSpaceMapping
             &pt1_to_pt2_mapping) {
 
   return OperatorSpaceToParallelTensorSpaceMapping{
-      compose_dim_domain_mappings_through_minimal(
+      compose_dim_domain_hemiunique_mappings_through_minimal(
           op_to_pt1_mapping.raw_mapping, pt1_to_pt2_mapping.raw_mapping),
   };
 }
@@ -122,7 +149,7 @@ ParallelTensorSpaceCoordinate ptensor_coord_for_task_space_coord(
       dim_idxs_for_num_shard_dims(num_dims);
 
   DimCoord<parallel_tensor_dim_idx_t> mapped_dim_coord =
-      mapping.raw_mapping.at_l(
+      mapping.raw_mapping.require_weakly_right_unique().at_l(
           dim_coord_from_task_space_coordinate(task_space_coordinate));
 
   DimCoord<parallel_tensor_dim_idx_t> lifted_dim_coord =
@@ -135,8 +162,9 @@ TaskSpaceCoordinate task_space_coord_for_ptensor_coord(
     OperatorSpaceToParallelTensorSpaceMapping const &mapping,
     ParallelTensorSpaceCoordinate const &ptensor_space_coord) {
 
-  DimCoord<operator_task_space_dim_idx_t> dim_coord = mapping.raw_mapping.at_r(
-      dim_coord_from_parallel_tensor_space_coord(ptensor_space_coord));
+  DimCoord<operator_task_space_dim_idx_t> dim_coord =
+      mapping.raw_mapping.require_biunique().at_r(
+          dim_coord_from_parallel_tensor_space_coord(ptensor_space_coord));
 
   return task_space_coordinate_from_dim_coord(dim_coord);
 }

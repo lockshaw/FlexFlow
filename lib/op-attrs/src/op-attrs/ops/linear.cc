@@ -432,17 +432,20 @@ OperatorSpaceToParallelTensorSpaceMapping
 OperatorSpaceToParallelTensorSpaceMapping linear_get_operator_to_input_mapping(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
 
-  DimDomainMapping<parallel_tensor_dim_idx_t, parallel_tensor_dim_idx_t>
+  DimDomainHemiuniqueMapping<parallel_tensor_dim_idx_t,
+                             parallel_tensor_dim_idx_t>
       inp_to_out =
           linear_get_input_to_output_mapping(attrs, input_degrees).raw_mapping;
 
-  DimDomainMapping<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
+  DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                             parallel_tensor_dim_idx_t>
       op_to_out = linear_get_operator_to_output_mapping(attrs, input_degrees)
                       .raw_mapping;
 
-  DimDomainMapping<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
-      op_to_inp = compose_dim_domain_mappings_through_minimal(
-          op_to_out, invert_dim_domain_mapping(inp_to_out));
+  DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                             parallel_tensor_dim_idx_t>
+      op_to_inp = compose_dim_domain_hemiunique_mappings_through_minimal(
+          op_to_out, invert_dim_domain_hemiunique_mapping(inp_to_out));
 
   return OperatorSpaceToParallelTensorSpaceMapping{
       op_to_inp,

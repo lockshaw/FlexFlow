@@ -1,6 +1,7 @@
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 
 namespace FlexFlow {
 
@@ -12,7 +13,7 @@ ParallelTensorSpaceToParallelTensorSpaceMapping
         ParallelTensorDimDegrees const &r_degrees) {
 
   return ParallelTensorSpaceToParallelTensorSpaceMapping{
-      dim_domain_mapping_from_projection(
+      dim_domain_hemiunique_mapping_from_projection(
           /*projection=*/projection,
           /*l_domain=*/dim_domain_from_parallel_tensor_dim_degrees(l_degrees),
           /*r_domain=*/dim_domain_from_parallel_tensor_dim_degrees(r_degrees),
@@ -25,7 +26,7 @@ ParallelTensorSpaceToParallelTensorSpaceMapping
     invert_parallel_tensor_space_mapping(
         ParallelTensorSpaceToParallelTensorSpaceMapping const &m) {
   return ParallelTensorSpaceToParallelTensorSpaceMapping{
-      invert_dim_domain_mapping(m.raw_mapping),
+      invert_dim_domain_hemiunique_mapping(m.raw_mapping),
   };
 }
 
