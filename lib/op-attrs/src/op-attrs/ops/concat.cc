@@ -53,35 +53,46 @@ TensorShape concat_get_output_shape(ConcatAttrs const &attrs,
   };
 }
 
-ParallelTensorShape concat_get_output_parallel_shape(
-    ConcatAttrs const &attrs, std::vector<ParallelTensorShape> const &inputs) {
-  TensorShape unpar =
-      concat_get_output_shape(attrs, transform(inputs, get_reduced_shape));
-
+ParallelTensorDimDegrees concat_get_output_parallel_dim_degrees(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorDimDegrees> const &inputs) {
   SumDegree sum_degree = SumDegree{
-      require_all_same1(transform(inputs, get_sum_degree)),
+      require_all_same1(transform(inputs,
+                                  [&](ParallelTensorDimDegrees const &d)
+                                      -> SumDegree { return d.sum_degree; })),
   };
 
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      require_all_same1(transform(inputs, get_discard_copy_degree)),
+      require_all_same1(transform(
+          inputs,
+          [&](ParallelTensorDimDegrees const &d) -> DiscardCopyDegree {
+            return d.discard_copy_degree;
+          })),
   };
 
   ASSERT(all_of(inputs,
-                [&](ParallelTensorShape const &s) {
-                  return shard_dim_at_idx(
-                             s, relative_ff_dim_t_from_ff_dim_t(attrs.axis))
-                             .degree == 1;
+                [&](ParallelTensorDimDegrees const &d) -> bool {
+                  return d.shard_degrees.at(attrs.axis) == 1;
                 }),
          "get_output_shape for Concat expected input tensors to have parallel "
          "degree 1 in the concat axis dimension",
          inputs);
 
-  ParallelTensorDimDegrees degrees =
-      require_all_same1(transform(inputs, [](ParallelTensorShape const &s) {
-        return get_parallel_degrees(s);
-      }));
+  return require_all_same1(inputs);
+}
 
-  return lift_shape_to_parallel_with_degrees(unpar, degrees);
+ParallelTensorShape concat_get_output_parallel_shape(
+    ConcatAttrs const &attrs,
+    std::vector<ParallelTensorShape> const &input_shapes) {
+
+  TensorShape output_shape = concat_get_output_shape(
+      attrs, transform(input_shapes, get_reduced_shape));
+
+  ParallelTensorDimDegrees output_degrees =
+      concat_get_output_parallel_dim_degrees(
+          attrs, transform(input_shapes, get_parallel_degrees));
+
+  return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
 
 } // namespace FlexFlow
