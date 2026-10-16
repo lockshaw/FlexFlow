@@ -35,12 +35,26 @@ ParallelTensorShape
 
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
-NOT_IMPLEMENTED();
+
+OperatorTaskSpace reverse_get_operator_task_space(
+    ReverseAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
-ParallelTensorShape
-    reverse_get_output_parallel_shape(ReverseAttrs const &attrs,
-                                      ParallelTensorShape const &input_shape) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reverse_get_operator_to_input_mapping(
+        ReverseAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reverse_get_operator_to_output_mapping(
+        ReverseAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
