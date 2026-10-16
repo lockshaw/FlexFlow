@@ -49,6 +49,46 @@ TensorShape embedding_get_weights_shape(EmbeddingAttrs const &attrs,
   };
 }
 
+ParallelTensorDimDegrees embedding_get_output_parallel_dim_degrees(
+    EmbeddingAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_dim_degrees) {
+  SumDegree sum_degree = SumDegree{
+      input_dim_degrees.shard_degrees.at(relative_ff_dim_t{-1}),
+  };
+
+  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{1_p};
+  FFOrdered<positive_int> shard_degrees = input_dim_degrees.shard_degrees;
+  shard_degrees.at(relative_ff_dim_t{-1}) =
+      input_dim_degrees.discard_copy_degree.value;
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
+ParallelTensorDimDegrees embedding_get_weights_parallel_dim_degrees(
+    EmbeddingAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_dim_degrees) {
+  SumDegree sum_degree = SumDegree{1_p};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{product(input_dim_degrees.shard_degrees)};
+
+  positive_int entry_dim_degree = 1_p;
+  positive_int out_channel_degree = input_dim_degrees.discard_copy_degree.value;
+  FFOrdered<positive_int> shard_degrees = FFOrdered{
+      entry_dim_degree,
+      out_channel_degree,
+  };
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
 ParallelTensorShape
     embedding_get_output_parallel_shape(EmbeddingAttrs const &attrs,
                                         ParallelTensorShape const &input) {
@@ -56,16 +96,11 @@ ParallelTensorShape
   TensorShape unpar =
       embedding_get_output_shape(attrs, get_reduced_shape(input));
 
-  SumDegree sum_degree =
-      SumDegree{shard_dim_at_idx(input, relative_ff_dim_t{-1}).degree};
-  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{1_p};
-  FFOrdered<positive_int> shard_degrees =
-      ff_ordered_transform(input.dims.shard_dims,
-                           [](ShardParallelDim const &d) { return d.degree; });
-  shard_degrees.at(relative_ff_dim_t{-1}) = get_discard_copy_degree(input);
+  ParallelTensorDimDegrees output_degrees =
+      embedding_get_output_parallel_dim_degrees(attrs,
+                                                get_parallel_degrees(input));
 
-  return lift_shape_to_parallel_with_degrees(
-      unpar, sum_degree, discard_copy_degree, shard_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
 ParallelTensorShape
@@ -74,20 +109,11 @@ ParallelTensorShape
   TensorShape unpar =
       embedding_get_weights_shape(attrs, get_reduced_shape(input));
 
-  SumDegree sum_degree = SumDegree{1_p};
-  DiscardCopyDegree discard_copy_degree =
-      DiscardCopyDegree{product(ff_ordered_transform(
-          ff_ordered_shard_dims(input.dims),
-          [](ShardParallelDim const &d) -> positive_int { return d.degree; }))};
-  positive_int entry_dim_degree = 1_p;
-  positive_int out_channel_degree = get_discard_copy_degree(input);
-  FFOrdered<positive_int> shard_degrees = FFOrdered{
-      entry_dim_degree,
-      out_channel_degree,
-  };
+  ParallelTensorDimDegrees weight_degrees =
+      embedding_get_weights_parallel_dim_degrees(attrs,
+                                                 get_parallel_degrees(input));
 
-  return lift_shape_to_parallel_with_degrees(
-      unpar, sum_degree, discard_copy_degree, shard_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar, weight_degrees);
 }
 
 std::map<TensorSlotName, InitializerAttrs> embedding_get_initializers(

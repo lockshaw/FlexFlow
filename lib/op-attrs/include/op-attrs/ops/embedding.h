@@ -3,6 +3,7 @@
 
 #include "op-attrs/initializer_attrs.dtg.h"
 #include "op-attrs/ops/embedding_attrs.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_shape.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
@@ -14,6 +15,12 @@ TensorShape embedding_get_output_shape(EmbeddingAttrs const &,
                                        TensorShape const &);
 TensorShape embedding_get_weights_shape(EmbeddingAttrs const &,
                                         TensorShape const &);
+
+ParallelTensorDimDegrees
+    embedding_get_output_parallel_dim_degrees(EmbeddingAttrs const &,
+                                              ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees embedding_get_weights_parallel_dim_degrees(
+    EmbeddingAttrs const &, ParallelTensorDimDegrees const &);
 
 ParallelTensorShape
     embedding_get_output_parallel_shape(EmbeddingAttrs const &,
