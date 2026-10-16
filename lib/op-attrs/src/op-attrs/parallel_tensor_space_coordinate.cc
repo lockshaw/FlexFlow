@@ -1,10 +1,13 @@
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/ff_ordered/ff_ordered_from_map.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "utils/containers/contains_key.h"
 #include "utils/containers/filtermap_keys.h"
 #include "utils/containers/generate_map.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/orthotope/dim_coord.h"
+#include "utils/orthotope/dim_domain.dtg.h"
 
 namespace FlexFlow {
 
@@ -41,6 +44,41 @@ nonnegative_int ptensor_coord_component_for_ptensor_dim_idx(
     return coord.discard_copy_component;
   } else {
     return coord.shard_components.at(dim_idx.require_shard_dim());
+  }
+}
+
+ParallelTensorDimDegrees smallest_parallel_tensor_dim_degrees_for_coord_set(
+    std::set<ParallelTensorSpaceCoordinate> const &coord_set) {
+  std::set<DimCoord<parallel_tensor_dim_idx_t>> dim_coord_set =
+      transform(coord_set,
+                [&](ParallelTensorSpaceCoordinate const &c)
+                    -> DimCoord<parallel_tensor_dim_idx_t> {
+                  return dim_coord_from_parallel_tensor_space_coord(c);
+                });
+
+  DimDomain<parallel_tensor_dim_idx_t> dim_domain =
+      smallest_dim_domain_for_coord_set(dim_coord_set);
+
+  return parallel_tensor_dim_degrees_from_dim_domain(dim_domain);
+}
+
+std::optional<ParallelTensorDimDegrees>
+    strict_parallel_tensor_dim_degrees_for_coord_set(
+        std::set<ParallelTensorSpaceCoordinate> const &coord_set) {
+  std::set<DimCoord<parallel_tensor_dim_idx_t>> dim_coord_set =
+      transform(coord_set,
+                [&](ParallelTensorSpaceCoordinate const &c)
+                    -> DimCoord<parallel_tensor_dim_idx_t> {
+                  return dim_coord_from_parallel_tensor_space_coord(c);
+                });
+
+  std::optional<DimDomain<parallel_tensor_dim_idx_t>> dim_domain =
+      strict_dim_domain_for_coord_set(dim_coord_set);
+
+  if (dim_domain.has_value()) {
+    return parallel_tensor_dim_degrees_from_dim_domain(dim_domain.value());
+  } else {
+    return std::nullopt;
   }
 }
 
