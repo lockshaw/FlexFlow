@@ -9,25 +9,18 @@ TensorShape gather_get_output_shape(GatherAttrs const &,
   NOT_IMPLEMENTED();
 }
 
+ParallelTensorDimDegrees gather_get_output_parallel_dim_degrees(
+    GatherAttrs const &,
+    ParallelTensorDimDegrees const &input,
+    ParallelTensorDimDegrees const &index) {
+  NOT_IMPLEMENTED();
+}
+
 ParallelTensorShape
     gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
                                      ParallelTensorShape const &index) {
   NOT_IMPLEMENTED();
 }
-
-/* bool GatherAttrs::is_valid(ParallelTensorShape const &lhs,
- * ParallelTensorShape const &rhs) const { */
-/*   if (lhs.num_dims() != rhs.num_dims()) { */
-/*     return false; */
-/*   } */
-/*   for (int i = 0; i < lhs.num_dims(); i++) { */
-/*     if (i != this->legion_dim && */
-/*         lhs.at(i).size < rhs.at(i).size) { */
-/*       return false; */
-/*     } */
-/*   } */
-/*   return true; */
-/* } */
 
 } // namespace FlexFlow

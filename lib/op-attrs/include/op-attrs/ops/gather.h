@@ -9,6 +9,12 @@ namespace FlexFlow {
 TensorShape gather_get_output_shape(GatherAttrs const &,
                                     TensorShape const &input,
                                     TensorShape const &index);
+
+ParallelTensorDimDegrees gather_get_output_parallel_dim_degrees(
+    GatherAttrs const &,
+    ParallelTensorDimDegrees const &input,
+    ParallelTensorDimDegrees const &index);
+
 ParallelTensorShape
     gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
