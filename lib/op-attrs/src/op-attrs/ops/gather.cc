@@ -25,6 +25,41 @@ ParallelTensorShape
   NOT_IMPLEMENTED();
 }
 
+OperatorTaskSpace gather_get_operator_task_space(
+    GatherAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees,
+    ParallelTensorDimDegrees const &index_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_input_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_index_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_output_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 /* bool GatherAttrs::is_valid(ParallelTensorShape const &lhs,
  * ParallelTensorShape const &rhs) const { */
 /*   if (lhs.num_dims() != rhs.num_dims()) { */
