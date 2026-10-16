@@ -1,6 +1,7 @@
 #include "op-attrs/get_standard_operator_task_group.h"
 #include "op-attrs/ops/batch_matmul.h"
 #include "op-attrs/ops/batch_norm.h"
+#include "op-attrs/ops/cast.h"
 #include "op-attrs/ops/concat.h"
 #include "op-attrs/ops/dropout.h"
 #include "op-attrs/ops/element_binary.h"
@@ -61,6 +62,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
 
         return batch_matmul_get_task_group(
             attrs, lhs_input_dim_degrees, rhs_input_dim_degrees);
+      },
+      [&](CastAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ParallelTensorDimDegrees input_dim_degrees =
+            require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+        return cast_get_task_group(attrs, input_dim_degrees);
       },
       [&](ConcatAttrs const &attrs) -> StandardOperatorTaskGroup {
         std::vector<ParallelTensorDimDegrees> inputs_dim_degrees =
