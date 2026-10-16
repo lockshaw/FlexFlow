@@ -1,5 +1,6 @@
 #include "op-attrs/ops/combine.h"
 #include "op-attrs/ff_dim_t.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include <libassert/assert.hpp>
 
@@ -28,4 +29,19 @@ ParallelTensorShape
   return output;
 }
 
+ParallelTensorDimDegrees combine_get_output_parallel_dim_degrees(
+    CombineAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  positive_int input_degree = input_degrees.shard_degrees.at(attrs.combine_dim);
+  ASSERT(input_degree % attrs.combine_degree == 0);
+
+  positive_int output_degree = positive_int{
+      input_degree / attrs.combine_degree,
+  };
+
+  ParallelTensorDimDegrees output_degrees = input_degrees;
+  output_degrees.shard_degrees.at(
+      relative_ff_dim_t_from_ff_dim_t(attrs.combine_dim)) = output_degree;
+
+  return output_degrees;
+}
 } // namespace FlexFlow
