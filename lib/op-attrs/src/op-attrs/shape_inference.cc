@@ -757,7 +757,7 @@ std::map<TensorSlotName, ParallelTensorShape> get_output_shapes(
         return {
             {
                 TensorSlotName::OUTPUT,
-                weight_get_output_parallel_tensor_shape(attrs),
+                weight_get_output_parallel_shape(attrs),
             },
         };
       },

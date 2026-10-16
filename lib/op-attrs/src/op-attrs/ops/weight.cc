@@ -1,6 +1,7 @@
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_shape.h"
 
 namespace FlexFlow {
@@ -9,8 +10,12 @@ TensorShape weight_get_output_shape(WeightAttrs const &attrs) {
   return attrs.tensor_shape;
 }
 
-ParallelTensorShape
-    weight_get_output_parallel_tensor_shape(WeightAttrs const &attrs) {
+ParallelTensorDimDegrees
+    weight_get_output_parallel_dim_degrees(WeightAttrs const &attrs) {
+  return trivial_degrees_for_tensor_dims(attrs.tensor_shape.dims);
+}
+
+ParallelTensorShape weight_get_output_parallel_shape(WeightAttrs const &attrs) {
   return lift_shape_to_parallel(attrs.tensor_shape);
 }
 
