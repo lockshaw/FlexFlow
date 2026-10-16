@@ -1,0 +1,17 @@
+namespace = "FlexFlow"
+name = "FlatMachineSpaceOffset"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  # "rapidcheck",
+  "fmt",
+]
+
+includes = []
+
+[[fields]]
+name = "offset"
+type = "int"
