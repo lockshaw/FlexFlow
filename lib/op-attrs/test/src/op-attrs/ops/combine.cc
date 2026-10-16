@@ -56,4 +56,34 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_THROWS(combine_get_output_parallel_shape(attrs, input));
     }
   }
+
+  TEST_CASE("combine_get_output_parallel_dim_degrees") {
+    CombineAttrs attrs = CombineAttrs{
+        /*combine_dim=*/ff_dim_t{0_n},
+        /*combine_degree=*/3_ge2,
+    };
+
+    ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            6_p,
+            3_p,
+        },
+    };
+
+    ParallelTensorDimDegrees result =
+        combine_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+    ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            2_p,
+            3_p,
+        },
+    };
+
+    CHECK(result == correct);
+  }
 }
