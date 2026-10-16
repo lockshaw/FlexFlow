@@ -1,4 +1,11 @@
 #include "op-attrs/ops/reduce.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/tensor_dims.h"
+#include "op-attrs/tensor_shape.h"
+#include "utils/containers/filtrans.h"
+#include "utils/containers/is_subseteq_of.h"
 #include "utils/not_implemented.h"
 
 namespace FlexFlow {
@@ -60,7 +67,52 @@ ParallelTensorShape
 
   return lift_shape_to_parallel_with_degrees(output_shape, output_degrees);
 }
-NOT_IMPLEMENTED();
+
+StandardOperatorTaskGroup
+    reduce_get_task_group(ReduceAttrs const &attrs,
+                          ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorTaskSpace reduce_get_operator_task_space(
+    ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reduce_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
+}
+
+ShardSignatureInstance reduce_get_shard_signature_instance(
+    ReduceAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+
+  StandardOperatorTaskGroup op_task_group =
+      reduce_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reduce_get_operator_to_input_mapping(
+        ReduceAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reduce_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reduce_get_operator_to_output_mapping(
+        ReduceAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reduce_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow
