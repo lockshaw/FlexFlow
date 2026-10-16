@@ -1,4 +1,5 @@
 #include "op-attrs/ops/reduction.h"
+#include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "utils/containers/transform_ref.h"
 
@@ -39,6 +40,29 @@ ParallelTensorDimDegrees reduction_get_output_parallel_dim_degrees(
   output_degrees.sum_degree = SumDegree{output_degree};
 
   return output_degrees;
+}
+
+OperatorTaskSpace reduction_get_operator_task_space(
+    ReductionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
+      input_degrees);
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    reduction_get_operator_to_input_mapping(
+        ReductionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    reduction_get_operator_to_output_mapping(
+        ReductionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
 }
 
 } // namespace FlexFlow
