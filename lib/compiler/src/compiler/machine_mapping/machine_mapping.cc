@@ -25,8 +25,7 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
 
   auto mapping_for_layer =
       [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
-    ComputationGraphOpAttrs op_attrs = assert_unwrap(
-        compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)));
+    PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
     std::map<TensorSlotName, ParallelTensorDimDegrees> inputs_dim_degrees =
         get_incoming_input_degrees(pcg, l);
