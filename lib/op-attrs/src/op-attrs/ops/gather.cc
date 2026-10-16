@@ -23,4 +23,12 @@ ParallelTensorShape
   NOT_IMPLEMENTED();
 }
 
+StandardOperatorTaskGroup
+    gather_get_task_group(GatherAttrs const &,
+                          ParallelTensorDimDegrees const &input,
+                          ParallelTensorDimDegrees const &index) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 } // namespace FlexFlow

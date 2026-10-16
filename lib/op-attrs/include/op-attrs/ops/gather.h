@@ -3,6 +3,7 @@
 
 #include "op-attrs/ops/gather_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/standard_operator_task_group.h"
 
 namespace FlexFlow {
 
@@ -19,6 +20,11 @@ ParallelTensorShape
     gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
                                      ParallelTensorShape const &index);
+
+StandardOperatorTaskGroup
+    gather_get_task_group(GatherAttrs const &,
+                          ParallelTensorDimDegrees const &input,
+                          ParallelTensorDimDegrees const &index);
 
 } // namespace FlexFlow
 
