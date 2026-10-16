@@ -39,4 +39,34 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     CHECK(result == correct);
   }
+
+  TEST_CASE("repartition_get_output_parallel_dim_degrees") {
+    RepartitionAttrs attrs = RepartitionAttrs{
+        /*repartition_dim=*/ff_dim_t{1_n},
+        /*repartition_degree=*/2_ge2,
+    };
+
+    ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            2_p,
+            3_p,
+        },
+    };
+
+    ParallelTensorDimDegrees result =
+        repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+    ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{1_p},
+        FFOrdered<positive_int>{
+            2_p,
+            6_p,
+        },
+    };
+
+    CHECK(result == correct);
+  }
 }
