@@ -18,10 +18,10 @@ namespace FlexFlow {
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_incoming_mappings(
-        ComputationGraphOpAttrs const &comp_graph_op_attrs,
+        PCGOperatorAttrs const &op_attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
-  return comp_graph_op_attrs.visit<
+  return op_attrs.visit<
       std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
       overload{
           [&](ElementBinaryAttrs const &attrs)
@@ -118,7 +118,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_incoming_mappings_for_role(
-        ComputationGraphOpAttrs const &attrs,
+        PCGOperatorAttrs const &attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees,
         IncomingTensorRole incoming_tensor_role) {
@@ -147,7 +147,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_input_mappings(
-        ComputationGraphOpAttrs const &attrs,
+        PCGOperatorAttrs const &attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
   return get_operator_to_incoming_mappings_for_role(
@@ -156,7 +156,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_weight_mappings(
-        ComputationGraphOpAttrs const &attrs,
+        PCGOperatorAttrs const &attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
 
@@ -166,11 +166,11 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_output_mappings(
-        ComputationGraphOpAttrs const &comp_graph_op_attrs,
+        PCGOperatorAttrs const &op_attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
 
-  return comp_graph_op_attrs.visit<
+  return op_attrs.visit<
       std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>>(
       overload{
           [&](ElementBinaryAttrs const &attrs)
@@ -263,7 +263,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_ptensor_mappings_for_role(
-        ComputationGraphOpAttrs const &attrs,
+        PCGOperatorAttrs const &attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees,
         TensorRole role) {
@@ -281,7 +281,7 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_ptensor_mappings(
-        ComputationGraphOpAttrs const &attrs,
+        PCGOperatorAttrs const &attrs,
         std::map<TensorSlotName, ParallelTensorDimDegrees> const
             &inputs_degrees) {
   return merge_disjoint_maps(std::vector{

@@ -14,7 +14,7 @@
 namespace FlexFlow {
 
 OperatorTaskSpace get_operator_task_space(
-    ComputationGraphOpAttrs const &attrs,
+    PCGOperatorAttrs const &attrs,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const &inputs_degrees) {
   return attrs.visit<OperatorTaskSpace>(overload{
       [&](ElementUnaryAttrs const &attrs) {
