@@ -19,7 +19,8 @@ MachineView
 StartInvariantMachineView
     start_invariant_from_machine_view(MachineView const &mv);
 
-nonnegative_int num_dims(StartInvariantMachineView const &mv);
+nonnegative_int
+    get_expected_task_space_num_dims(StartInvariantMachineView const &mv);
 
 std::vector<stride_t>
     start_invariant_mv_get_strides(StartInvariantMachineView const &mv);
