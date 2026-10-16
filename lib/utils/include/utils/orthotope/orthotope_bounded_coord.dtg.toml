@@ -1,0 +1,23 @@
+namespace = "FlexFlow"
+name = "OrthotopeBoundedCoord"
+type = "struct"
+features = [
+  "eq",
+  "ord",
+  "hash",
+  "json",
+  "fmt",
+]
+
+includes = [
+  "utils/orthotope/orthotope_coord.dtg.h",
+  "utils/orthotope/orthotope.dtg.h",
+]
+
+[[fields]]
+name = "coord"
+type = "::FlexFlow::OrthotopeCoord"
+
+[[fields]]
+name = "bounds"
+type = "::FlexFlow::Orthotope"
