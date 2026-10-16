@@ -1,7 +1,12 @@
 #include "op-attrs/ops/combine.h"
 #include "op-attrs/ff_dim_t.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "utils/containers/set_union.h"
+#include "utils/containers/transform.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -44,4 +49,39 @@ ParallelTensorDimDegrees combine_get_output_parallel_dim_degrees(
 
   return output_degrees;
 }
+
+ParallelismOperatorTaskGroup
+    combine_get_task_group(CombineAttrs const &attrs,
+                           ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      combine_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return ParallelismOperatorTaskGroup{
+      transform(get_parallel_tensor_space_coordinates(input_degrees),
+                [&](ParallelTensorSpaceCoordinate const &input_coord)
+                    -> AbstractedOperatorAtomicTaskShardBinding {
+                  ParallelTensorSpaceCoordinate output_coord = input_coord;
+                  ptensor_coord_component_for_ptensor_dim_idx(
+                      output_coord, shard_dim_idx(attrs.combine_dim)) /=
+                      attrs.combine_degree;
+
+                  return AbstractedOperatorAtomicTaskShardBinding{
+                      /*tensor_coords=*/{
+                          {
+                              TensorSlotName::INPUT,
+                              input_coord,
+                          },
+                          {
+                              TensorSlotName::OUTPUT,
+                              output_coord,
+                          },
+                      },
+                      /*task_coord=*/
+                      task_coord_matching_parallel_tensor_space_coordinate(
+                          input_coord, input_degrees),
+                  };
+                }),
+  };
+}
+
 } // namespace FlexFlow

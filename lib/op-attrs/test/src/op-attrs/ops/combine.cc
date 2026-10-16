@@ -1,5 +1,9 @@
 #include "op-attrs/ops/combine.h"
+#include "op-attrs/operator_task_space.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "test/utils/doctest/fmt/expected.h"
+#include "utils/orthotope/minimal_dim_domain.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -36,9 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelTensorShape correct = [&] {
         ParallelTensorShape output = input;
-        positive_int old_shard_degree = output.dims.shard_dims.at(dim).degree;
-        output.dims.shard_dims.at(dim).degree =
-            positive_int{old_shard_degree / degree};
+        output.dims.shard_dims.at(dim).degree = 1_p;
         return output;
       }();
 
