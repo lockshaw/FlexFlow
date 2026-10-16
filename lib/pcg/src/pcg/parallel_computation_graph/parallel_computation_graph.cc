@@ -123,6 +123,30 @@ ParallelLayerAddedResult add_parallel_layer(
   };
 }
 
+ParallelLayerAddedResult
+    pcg_add_parallel_op_layer(ParallelComputationGraph &pcg,
+                              ParallelOpAttrs const &op_attrs,
+                              parallel_tensor_guid_t input) {
+  CreateGrad create_grad = get_parallel_tensor_attrs(pcg, input).create_grad;
+
+  return add_parallel_layer(
+      /*pcg=*/pcg,
+      /*layer_attrs=*/
+      ParallelLayerAttrs{
+          /*op_attrs=*/pcg_op_attrs_from_parallel_op_attrs(op_attrs),
+          /*name=*/std::nullopt,
+      },
+      /*inputs=*/
+      {
+          {TensorSlotName::INPUT, input},
+      },
+      /*weights=*/{},
+      /*outputs=*/
+      std::unordered_map<TensorSlotName, CreateGrad>{
+          {TensorSlotName::OUTPUT, create_grad},
+      });
+}
+
 ParallelLayerAddedResult pcg_add_input_layer(ParallelComputationGraph &pcg,
                                              TensorShape const &tensor_shape,
                                              CreateGrad create_grad) {
@@ -148,8 +172,6 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &layer) {
   PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, layer);
 
-  ASSERT(!is_parallel_op(op_attrs));
-
   std::map<TensorSlotName, parallel_tensor_guid_t> inputs =
       get_incoming_inputs(pcg, layer);
 
@@ -158,8 +180,7 @@ OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
         return get_parallel_degrees(get_parallel_tensor_shape(pcg, input_guid));
       });
 
-  return get_operator_task_space(
-      compgraph_op_attrs_from_pcg_op_attrs(op_attrs).value(), input_degrees);
+  return get_operator_task_space(op_attrs, input_degrees);
 }
 
 std::set<ParallelLayerInvocationInfo>
@@ -286,8 +307,7 @@ std::map<TensorSlotName, parallel_tensor_guid_t>
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_incoming_mappings(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_incoming_mappings(
       /*attrs=*/op_attrs,
@@ -297,8 +317,8 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     pcg_get_operator_to_output_mappings(ParallelComputationGraph const &pcg,
                                         parallel_layer_guid_t const &l) {
-  ComputationGraphOpAttrs op_attrs =
-      compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)).value();
+
+  PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
   return get_operator_to_output_mappings(
       /*attrs=*/op_attrs,
