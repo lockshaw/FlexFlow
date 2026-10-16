@@ -100,7 +100,7 @@ OperatorAtomicTaskShardBinding
         MachineSpaceCoordinate const &);
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
-    ComputationGraphOpAttrs const &,
+    PCGOperatorAttrs const &,
     std::map<TensorSlotName, ParallelTensorDimDegrees> const &,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &);
