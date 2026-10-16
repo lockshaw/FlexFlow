@@ -1,4 +1,5 @@
 #include "op-attrs/ops/reduction.h"
+#include "op-attrs/operator_task_space.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
 
@@ -74,6 +75,34 @@ TEST_SUITE(FF_TEST_SUITE) {
             3_p,
         },
     };
+
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("reduction_get_operator_task_space") {
+    ReductionAttrs attrs = ReductionAttrs{
+        /*reduction_degree=*/3_ge2,
+    };
+
+    ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
+        SumDegree{6_p},
+        DiscardCopyDegree{2_p},
+        FFOrdered<positive_int>{
+            1_p,
+            3_p,
+        },
+    };
+
+    OperatorTaskSpace result =
+        reduction_get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
+        MinimalDimDomain<operator_task_space_dim_idx_t>{
+            std::map<operator_task_space_dim_idx_t, int_ge_two>{
+                {operator_task_space_dim_idx_t{0_n}, 6_ge2},
+                {operator_task_space_dim_idx_t{1_n}, 2_ge2},
+                {operator_task_space_dim_idx_t{2_n}, 3_ge2},
+            },
+        });
 
     CHECK(result == correct);
   }
