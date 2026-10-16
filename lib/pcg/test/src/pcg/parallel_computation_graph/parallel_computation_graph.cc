@@ -573,12 +573,16 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       OperatorTaskSpaceToOperatorTaskSpaceMapping correct =
           OperatorTaskSpaceToOperatorTaskSpaceMapping{
-              DimDomainMapping<operator_task_space_dim_idx_t,
-                               operator_task_space_dim_idx_t>{
-                  bidict<DimCoord<operator_task_space_dim_idx_t>,
-                         DimCoord<operator_task_space_dim_idx_t>>{
-                      {make_coord(0_n), make_coord(0_n)},
-                      {make_coord(1_n), make_coord(1_n)},
+              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                                         operator_task_space_dim_idx_t>{
+                  HemiuniqueBinaryRelation<
+                      DimCoord<operator_task_space_dim_idx_t>,
+                      DimCoord<operator_task_space_dim_idx_t>>{
+                      bidict<DimCoord<operator_task_space_dim_idx_t>,
+                             DimCoord<operator_task_space_dim_idx_t>>{
+                          {make_coord(0_n), make_coord(0_n)},
+                          {make_coord(1_n), make_coord(1_n)},
+                      },
                   },
                   layer_1_task_space,
                   layer_2_task_space,
@@ -672,17 +676,23 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       OperatorTaskSpaceToOperatorTaskSpaceMapping correct =
           OperatorTaskSpaceToOperatorTaskSpaceMapping{
-              DimDomainMapping<operator_task_space_dim_idx_t,
-                               operator_task_space_dim_idx_t>{
-                  bidict<DimCoord<operator_task_space_dim_idx_t>,
-                         DimCoord<operator_task_space_dim_idx_t>>{
-                      {make_coord(0_n), make_coord(1_n)},
-                      {make_coord(1_n), make_coord(0_n)},
+              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                                         operator_task_space_dim_idx_t>{
+                  HemiuniqueBinaryRelation<
+                      DimCoord<operator_task_space_dim_idx_t>,
+                      DimCoord<operator_task_space_dim_idx_t>>{
+                      bidict<DimCoord<operator_task_space_dim_idx_t>,
+                             DimCoord<operator_task_space_dim_idx_t>>{
+                          {make_coord(0_n), make_coord(1_n)},
+                          {make_coord(1_n), make_coord(0_n)},
+                      },
                   },
                   layer_1_task_space,
                   layer_2_task_space,
               },
           };
+
+      CHECK(result == correct);
     }
   }
 }
