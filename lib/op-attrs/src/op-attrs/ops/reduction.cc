@@ -18,4 +18,23 @@ ParallelTensorShape reduction_get_output_parallel_shape(
   return output_shape;
 }
 
+ParallelTensorDimDegrees reduction_get_output_parallel_dim_degrees(
+    ReductionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+
+  positive_int input_degree = input_degrees.sum_degree.value;
+  ASSERT(input_degree % attrs.reduction_degree == 0,
+         input_degree,
+         attrs.reduction_degree);
+
+  positive_int output_degree = positive_int{
+      input_degree / attrs.reduction_degree,
+  };
+
+  ParallelTensorDimDegrees output_degrees = input_degrees;
+  output_degrees.sum_degree = SumDegree{output_degree};
+
+  return output_degrees;
+}
+
 } // namespace FlexFlow

@@ -48,4 +48,33 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_THROWS(reduction_get_output_parallel_shape(attrs, input));
     }
   }
+
+  TEST_CASE("reduction_get_output_parallel_dim_degrees") {
+    ReductionAttrs attrs = ReductionAttrs{
+        /*reduction_degree=*/3_ge2,
+    };
+
+    ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
+        SumDegree{6_p},
+        DiscardCopyDegree{2_p},
+        FFOrdered<positive_int>{
+            1_p,
+            3_p,
+        },
+    };
+
+    ParallelTensorDimDegrees result =
+        reduction_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+    ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{2_p},
+        FFOrdered<positive_int>{
+            1_p,
+            3_p,
+        },
+    };
+
+    CHECK(result == correct);
+  }
 }
