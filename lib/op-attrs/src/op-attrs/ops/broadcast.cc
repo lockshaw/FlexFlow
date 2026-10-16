@@ -2,7 +2,6 @@
 #include "op-attrs/num_tensor_dims_t.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/not_implemented.h"
-#include "utils/record_formatter.h"
 
 namespace FlexFlow {
 
@@ -25,9 +24,23 @@ TensorShape broadcast_get_output_shape(BroadcastAttrs const &attrs,
   return TensorShape{attrs.target_dims, input_shape.data_type};
 }
 
+ParallelTensorDimDegrees broadcast_get_output_parallel_dim_degrees(
+    BroadcastAttrs const &, ParallelTensorDimDegrees const &) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 ParallelTensorShape
     broadcast_get_output_parallel_shape(BroadcastAttrs const &,
                                         ParallelTensorShape const &) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+StandardOperatorTaskGroup
+    broadcast_get_task_group(BroadcastAttrs const &,
+                             ParallelTensorDimDegrees const &) {
+  // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
