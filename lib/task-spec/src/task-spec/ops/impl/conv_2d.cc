@@ -45,8 +45,10 @@ static std::optional<milliseconds_t>
       acc.get_per_device_op_state().require_conv2d().value();
   Conv2DAttrs attrs = acc.get_op_attrs().require_conv2d();
 
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto filter = acc.get_tensor<Permissions::RO>(TensorSlotName::FILTER);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorR filter =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::FILTER);
 
   std::optional<GenericTensorAccessorR> bias = std::nullopt;
   if (attrs.use_bias) {
@@ -75,17 +77,20 @@ static std::optional<milliseconds_t>
       acc.get_per_device_op_state().require_conv2d().value();
   Conv2DAttrs attrs = acc.get_op_attrs().require_conv2d();
 
-  auto output = acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto filter = acc.get_tensor<Permissions::RO>(TensorSlotName::FILTER);
+  GenericTensorAccessorR output =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorR filter =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::FILTER);
 
-  auto output_grad =
+  GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
-  auto input_grad = acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
-  auto filter_grad =
-      acc.get_tensor_grad<Permissions::RW>(TensorSlotName::FILTER);
+  GenericTensorAccessorR input_grad =
+      acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
+  GenericTensorAccessorW filter_grad =
 
-  std::optional<GenericTensorAccessorR> bias = std::nullopt;
+      std::optional<GenericTensorAccessorR> bias = std::nullopt;
   std::optional<GenericTensorAccessorW> bias_grad = std::nullopt;
 
   if (attrs.use_bias) {
