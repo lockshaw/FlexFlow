@@ -1,9 +1,12 @@
 #ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPS_SPLIT_H
 #define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPS_SPLIT_H
 
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/split_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include <vector>
@@ -21,6 +24,24 @@ std::vector<ParallelTensorShape>
                                      ParallelTensorShape const &input_shape);
 
 std::vector<TensorSlotName> split_get_output_slot_names(SplitAttrs const &);
+
+StandardOperatorTaskGroup
+    split_get_task_group(SplitAttrs const &attrs,
+                         ParallelTensorDimDegrees const &input_degrees);
+
+ShardSignatureInstance split_get_shard_signature_instance(
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorTaskSpace split_get_operator_task_space(
+    SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    split_get_operator_to_input_mapping(
+        SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+
+std::vector<OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    split_get_operator_to_output_mappings(
+        SplitAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow
 
