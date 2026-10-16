@@ -1,4 +1,5 @@
 #include "op-attrs/ops/reduction.h"
+#include "op-attrs/operator_task_space.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
 
