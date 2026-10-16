@@ -1,5 +1,6 @@
 #include "op-attrs/ops/reduction.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "utils/containers/transform_ref.h"
 
 namespace FlexFlow {
 
@@ -13,9 +14,31 @@ ParallelTensorShape reduction_get_output_parallel_shape(
 
   ParallelTensorShape output_shape = input_shape;
 
-  output_shape.dims.replica_dims.sum_degree.value = positive_int{
-      output_shape.dims.replica_dims.sum_degree.value / attrs.reduction_degree};
+  transform_ref(output_shape.dims.replica_dims.sum_degree.value,
+                [&](positive_int x) -> positive_int {
+                  return positive_int{x / attrs.reduction_degree};
+                });
+
   return output_shape;
+}
+
+ParallelTensorDimDegrees reduction_get_output_parallel_dim_degrees(
+    ReductionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+
+  positive_int input_degree = input_degrees.sum_degree.value;
+  ASSERT(input_degree % attrs.reduction_degree == 0,
+         input_degree,
+         attrs.reduction_degree);
+
+  positive_int output_degree = positive_int{
+      input_degree / attrs.reduction_degree,
+  };
+
+  ParallelTensorDimDegrees output_degrees = input_degrees;
+  output_degrees.sum_degree = SumDegree{output_degree};
+
+  return output_degrees;
 }
 
 } // namespace FlexFlow
