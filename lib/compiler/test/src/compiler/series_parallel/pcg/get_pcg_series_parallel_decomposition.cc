@@ -2,6 +2,7 @@
 #include "op-attrs/element_binary_op.dtg.h"
 #include "op-attrs/ops/embedding.h"
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/parallel_tensor_shape.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "utils/containers/get_only.h"

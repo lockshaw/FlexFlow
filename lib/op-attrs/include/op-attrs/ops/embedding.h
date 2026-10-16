@@ -4,10 +4,11 @@
 #include "op-attrs/initializer_attrs.dtg.h"
 #include "op-attrs/ops/embedding_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
-#include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/tensor_shape.h"
+#include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
-#include "utils/record_formatter.h"
 
 namespace FlexFlow {
 
@@ -28,6 +29,10 @@ ParallelTensorShape
 ParallelTensorShape
     embedding_get_weights_parallel_shape(EmbeddingAttrs const &,
                                          ParallelTensorShape const &);
+
+StandardOperatorTaskGroup
+    embedding_get_task_group(EmbeddingAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch
