@@ -1,4 +1,5 @@
 #include "op-attrs/ops/replicate.h"
+#include "op-attrs/operator_task_space.h"
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
@@ -33,5 +34,34 @@ TEST_SUITE(FF_TEST_SUITE) {
         DiscardCopyDegree{8_p};
 
     CHECK(result == correct_output);
+  }
+
+  TEST_CASE("replicate_get_output_parallel_dim_degrees") {
+    ReplicateAttrs attrs = ReplicateAttrs{
+        /*replicate_degree=*/3_ge2,
+    };
+
+    ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{2_p},
+        FFOrdered<positive_int>{
+            1_p,
+            3_p,
+        },
+    };
+
+    ParallelTensorDimDegrees result =
+        replicate_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+    ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{6_p},
+        FFOrdered<positive_int>{
+            1_p,
+            3_p,
+        },
+    };
+
+    CHECK(result == correct);
   }
 }
