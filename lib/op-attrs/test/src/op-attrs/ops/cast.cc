@@ -24,47 +24,54 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("cast_get_output_parallel_shape") {
+  TEST_CASE("cast_get_output_parallel_dim_degrees") {
     CastAttrs attrs = CastAttrs{DataType::DOUBLE};
 
-    TensorShape input = TensorShape{
-        TensorDims{FFOrdered{12_p, 16_p}},
+    ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{3_p},
+        FFOrdered<positive_int>{
+            4_p,
+            8_p,
+        },
+    };
+
+    ParallelTensorDimDegrees result =
+        cast_get_output_parallel_dim_degrees(attrs, input);
+
+    ParallelTensorDimDegrees correct = input;
+
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("cast_get_output_parallel_shape") {
+    // since any edge cases are already tested in
+    // cast_get_output_shape and cast_get_output_parallel_dim_degrees,
+    // here we just do a basic check that they compose
+
+    CastAttrs attrs = CastAttrs{DataType::DOUBLE};
+
+    ParallelTensorShape input = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{48_p, 4_p},
+                ShardParallelDim{56_p, 2_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{5_p},
+                DiscardCopyDegree{3_p},
+            },
+        },
         DataType::FLOAT,
     };
 
-    TensorShape output = TensorShape{
-        TensorDims{FFOrdered{12_p, 16_p}},
-        DataType::DOUBLE,
-    };
+    ParallelTensorShape result = cast_get_output_parallel_shape(attrs, input);
 
-    auto make_input = [&](SumDegree o_sum,
-                          DiscardCopyDegree o_eq,
-                          positive_int o_batch,
-                          positive_int o_features) -> ParallelTensorShape {
-      return lift_shape_to_parallel_with_degrees(
-          input, o_sum, o_eq, FFOrdered{o_batch, o_features});
-    };
-
-    auto make_output = [&](SumDegree o_sum,
-                           DiscardCopyDegree o_eq,
-                           positive_int o_batch,
-                           positive_int o_outchannels) -> ParallelTensorShape {
-      return lift_shape_to_parallel_with_degrees(
-          output, o_sum, o_eq, FFOrdered{o_batch, o_outchannels});
-    };
-
-    SumDegree sum_degree = SumDegree{2_p};
-    DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{3_p};
-    positive_int batch_degree = 4_p;
-    positive_int feature_degree = 8_p;
-    ParallelTensorShape par_input = make_input(
-        sum_degree, discard_copy_degree, batch_degree, feature_degree);
-
-    ParallelTensorShape result =
-        cast_get_output_parallel_shape(attrs, par_input);
-
-    ParallelTensorShape correct = make_output(
-        sum_degree, discard_copy_degree, batch_degree, feature_degree);
+    ParallelTensorShape correct = [&] {
+      ParallelTensorShape result = input;
+      result.data_type = DataType::DOUBLE;
+      return result;
+    }();
 
     CHECK(result == correct);
   }
