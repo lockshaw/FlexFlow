@@ -3,6 +3,7 @@
 
 #include "op-attrs/num_ptensor_parallel_dims_t.h"
 #include "op-attrs/num_ptensor_shard_dims_t.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "utils/orthotope/dim_coord.dtg.h"
@@ -19,6 +20,17 @@ std::set<parallel_tensor_dim_idx_t>
 
 nonnegative_int ptensor_coord_component_for_ptensor_dim_idx(
     ParallelTensorSpaceCoordinate const &, parallel_tensor_dim_idx_t);
+
+nonnegative_int &
+    ptensor_coord_component_for_ptensor_dim_idx(ParallelTensorSpaceCoordinate &,
+                                                parallel_tensor_dim_idx_t);
+
+ParallelTensorDimDegrees smallest_parallel_tensor_dim_degrees_for_coord_set(
+    std::set<ParallelTensorSpaceCoordinate> const &);
+
+std::optional<ParallelTensorDimDegrees>
+    strict_parallel_tensor_dim_degrees_for_coord_set(
+        std::set<ParallelTensorSpaceCoordinate> const &);
 
 ParallelTensorSpaceCoordinate parallel_tensor_space_coord_from_map(
     std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &);
