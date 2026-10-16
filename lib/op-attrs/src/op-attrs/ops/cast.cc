@@ -1,6 +1,7 @@
 #include "op-attrs/ops/cast.h"
 #include "op-attrs/datatype.h"
-#include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
+#include "op-attrs/operator_task_space.h"
 
 namespace FlexFlow {
 
@@ -28,6 +29,32 @@ ParallelTensorShape
       cast_get_output_parallel_dim_degrees(attrs, get_parallel_degrees(input));
 
   return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
+}
+
+OperatorTaskSpace cast_get_operator_task_space(
+    CastAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      cast_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return get_operator_task_space_matching_parallel_tensor_dim_degrees(
+      output_degrees);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    cast_get_operator_to_input_mapping(
+        CastAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  return get_identity_biunique_mapping(
+      cast_get_operator_task_space(attrs, input_degrees), input_degrees);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    cast_get_operator_to_output_mapping(
+        CastAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      cast_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return get_identity_biunique_mapping(
+      cast_get_operator_task_space(attrs, input_degrees), output_degrees);
 }
 
 } // namespace FlexFlow
