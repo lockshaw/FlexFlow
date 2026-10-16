@@ -1,4 +1,7 @@
 #include "op-attrs/ops/repartition.h"
+#include "op-attrs/operator_task_space.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
 
