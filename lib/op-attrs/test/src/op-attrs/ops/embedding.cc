@@ -7,127 +7,116 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("Sum embedding shape inference") {
-    positive_int out_channels = 128_p;
-    positive_int num_entries = 1024_p;
+  TEST_CASE("embedding_get_output_shape") {
     EmbeddingAttrs attrs = EmbeddingAttrs{
-        /*num_entries=*/num_entries,
-        /*out_channels=*/out_channels,
+        /*num_entries=*/128_p,
+        /*out_channels=*/1024_p,
         /*aggr=*/AggregateOp::SUM,
         /*data_type=*/DataType::FLOAT,
     };
 
-    positive_int batch_size = 48_p;
-    positive_int features_dim = 56_p;
-
     TensorShape input = TensorShape{
-        TensorDims{FFOrdered{
-            batch_size,
-            features_dim,
-        }},
+        TensorDims{
+            FFOrdered{
+                48_p,
+                56_p,
+            },
+        },
         DataType::INT32,
     };
 
-    TensorShape output = TensorShape{
+    TensorShape result = embedding_get_output_shape(attrs, input);
+
+    TensorShape correct = TensorShape{
         TensorDims{
             FFOrdered{
-                batch_size,
-                out_channels,
+                48_p,
+                1024_p,
             },
         },
         DataType::FLOAT,
     };
 
-    TensorShape weights = TensorShape{
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("embedding_get_weights_shape") {
+    EmbeddingAttrs attrs = EmbeddingAttrs{
+        /*num_entries=*/128_p,
+        /*out_channels=*/1024_p,
+        /*aggr=*/AggregateOp::SUM,
+        /*data_type=*/DataType::FLOAT,
+    };
+
+    TensorShape input = TensorShape{
         TensorDims{
             FFOrdered{
-                num_entries,
-                out_channels,
+                48_p,
+                56_p,
+            },
+        },
+        DataType::INT32,
+    };
+
+    TensorShape result = embedding_get_weights_shape(attrs, input);
+
+    TensorShape correct = TensorShape{
+        TensorDims{
+            FFOrdered{
+                128_p,
+                1024_p,
             },
         },
         DataType::FLOAT,
     };
 
-    // embedding_get_output_shape
-    {
-      TensorShape output_result = embedding_get_output_shape(attrs, input);
-      TensorShape output_correct = output;
-      CHECK(output_result == output_correct);
-    }
+    CHECK(result == correct);
+  }
 
-    // get_weights_shape
-    {
-      TensorShape weight_result = embedding_get_weights_shape(attrs, input);
-      TensorShape weight_correct = weights;
-      CHECK(weight_result == weight_correct);
-    }
-
-    auto make_input = [&](SumDegree o_sum,
-                          DiscardCopyDegree o_eq,
-                          positive_int o_batch,
-                          positive_int o_features) {
-      return lift_shape_to_parallel_with_degrees(
-          input, o_sum, o_eq, FFOrdered{o_batch, o_features});
-    };
-
-    auto make_output = [&](SumDegree o_sum,
-                           DiscardCopyDegree o_eq,
-                           positive_int o_batch,
-                           positive_int o_outchannels) {
-      return lift_shape_to_parallel_with_degrees(
-          output, o_sum, o_eq, FFOrdered{o_batch, o_outchannels});
-    };
-
-    auto make_weights = [&](SumDegree o_sum,
-                            DiscardCopyDegree o_eq,
-                            positive_int o_entries,
-                            positive_int o_outchannels) {
-      return lift_shape_to_parallel_with_degrees(
-          weights, o_sum, o_eq, FFOrdered{o_entries, o_outchannels});
+  TEST_CASE("embedding_get_output_parallel_dim_degrees") {
+    EmbeddingAttrs attrs = EmbeddingAttrs{
+        /*num_entries=*/128_p,
+        /*out_channels=*/1024_p,
+        /*aggr=*/AggregateOp::SUM,
+        /*data_type=*/DataType::FLOAT,
     };
 
     SUBCASE("data parallelism") {
-      positive_int degree = 4_p;
-      ParallelTensorShape par_input =
-          make_input(SumDegree{1_p}, DiscardCopyDegree{1_p}, degree, 1_p);
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{4_p, 1_p},
+      };
 
-      {
-        ParallelTensorShape result =
-            embedding_get_output_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_output(SumDegree{1_p}, DiscardCopyDegree{1_p}, degree, 1_p);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees result =
+          embedding_get_output_parallel_dim_degrees(attrs, input);
 
-      {
-        ParallelTensorShape result =
-            embedding_get_weights_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_weights(SumDegree{1_p}, DiscardCopyDegree{degree}, 1_p, 1_p);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{4_p, 1_p},
+      };
+
+      CHECK(result == correct);
     }
 
     SUBCASE("input features parallelism") {
-      positive_int degree = 4_p;
-      ParallelTensorShape input =
-          make_input(SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, degree);
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{1_p, 4_p},
+      };
 
-      {
-        ParallelTensorShape result =
-            embedding_get_output_parallel_shape(attrs, input);
-        ParallelTensorShape correct =
-            make_output(SumDegree{degree}, DiscardCopyDegree{1_p}, 1_p, 1_p);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees result =
+          embedding_get_output_parallel_dim_degrees(attrs, input);
 
-      {
-        ParallelTensorShape result =
-            embedding_get_weights_parallel_shape(attrs, input);
-        ParallelTensorShape correct =
-            make_weights(SumDegree{1_p}, DiscardCopyDegree{degree}, 1_p, 1_p);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{4_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{1_p, 1_p},
+      };
+
+      CHECK(result == correct);
     }
 
     SUBCASE("output channel shard parallelism") {
@@ -137,25 +126,180 @@ TEST_SUITE(FF_TEST_SUITE) {
       // dimension. For now we choose to represent parallelism in the channel
       // dimension, but partitioning in the entry dimension is also potentially
       // useful as it produces sum parallelism in the output
-      positive_int degree = 4_p;
-      ParallelTensorShape input =
-          make_input(SumDegree{1_p}, DiscardCopyDegree{degree}, 1_p, 1_p);
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{4_p},
+          FFOrdered{1_p, 1_p},
+      };
 
-      {
-        ParallelTensorShape result =
-            embedding_get_output_parallel_shape(attrs, input);
-        ParallelTensorShape correct =
-            make_output(SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, degree);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees result =
+          embedding_get_output_parallel_dim_degrees(attrs, input);
 
-      {
-        ParallelTensorShape result =
-            embedding_get_weights_parallel_shape(attrs, input);
-        ParallelTensorShape correct =
-            make_weights(SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, degree);
-        CHECK(result == correct);
-      }
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{1_p, 4_p},
+      };
+
+      CHECK(result == correct);
     }
+  }
+
+  TEST_CASE("embedding_get_weights_parallel_dim_degrees") {
+    EmbeddingAttrs attrs = EmbeddingAttrs{
+        /*num_entries=*/128_p,
+        /*out_channels=*/1024_p,
+        /*aggr=*/AggregateOp::SUM,
+        /*data_type=*/DataType::FLOAT,
+    };
+
+    SUBCASE("data parallelism") {
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{4_p, 1_p},
+      };
+
+      ParallelTensorDimDegrees result =
+          embedding_get_weights_parallel_dim_degrees(attrs, input);
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{4_p},
+          FFOrdered{1_p, 1_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("input features parallelism") {
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{1_p, 4_p},
+      };
+
+      ParallelTensorDimDegrees result =
+          embedding_get_weights_parallel_dim_degrees(attrs, input);
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{4_p},
+          FFOrdered{1_p, 1_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("output channel shard parallelism") {
+      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{4_p},
+          FFOrdered{1_p, 1_p},
+      };
+
+      ParallelTensorDimDegrees result =
+          embedding_get_weights_parallel_dim_degrees(attrs, input);
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{1_p},
+          DiscardCopyDegree{1_p},
+          FFOrdered{1_p, 4_p},
+      };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("embedding_get_output_parallel_shape") {
+    // since most of the edge cases are already tested in
+    // embedding_get_output_shape and embedding_get_output_parallel_dim_degrees,
+    // here we just do a basic check that they compose
+
+    EmbeddingAttrs attrs = EmbeddingAttrs{
+        /*num_entries=*/128_p,
+        /*out_channels=*/600_p,
+        /*aggr=*/AggregateOp::SUM,
+        /*data_type=*/DataType::FLOAT,
+    };
+
+    ParallelTensorShape input_shape = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{48_p, 4_p},
+                ShardParallelDim{56_p, 2_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{3_p},
+            },
+        },
+        DataType::INT32,
+    };
+
+    ParallelTensorShape result =
+        embedding_get_output_parallel_shape(attrs, input_shape);
+
+    ParallelTensorShape correct = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{48_p, 4_p},
+                ShardParallelDim{600_p, 3_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{2_p},
+                DiscardCopyDegree{1_p},
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    CHECK(result == correct);
+  }
+
+  TEST_CASE("embedding_get_weights_parallel_shape") {
+    // since most of the edge cases are already tested in
+    // embedding_get_weights_shape and embedding_get_weights_parallel_dim_degrees,
+    // here we just do a basic check that they compose
+
+    EmbeddingAttrs attrs = EmbeddingAttrs{
+        /*num_entries=*/128_p,
+        /*out_channels=*/600_p,
+        /*aggr=*/AggregateOp::SUM,
+        /*data_type=*/DataType::FLOAT,
+    };
+
+    ParallelTensorShape input_shape = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{48_p, 4_p},
+                ShardParallelDim{56_p, 2_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{3_p},
+            },
+        },
+        DataType::INT32,
+    };
+
+    ParallelTensorShape result =
+        embedding_get_weights_parallel_shape(attrs, input_shape);
+
+    ParallelTensorShape correct = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{128_p, 1_p},
+                ShardParallelDim{600_p, 3_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{8_p},
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    CHECK(result == correct);
   }
 }
