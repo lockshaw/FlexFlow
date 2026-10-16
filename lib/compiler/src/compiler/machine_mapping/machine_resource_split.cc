@@ -104,7 +104,7 @@ MachineView offset_machine_view_by(MachineView const &machine_view,
                                    MachineResourceSplit const &split) {
   return MachineView{
       /*start=*/offset_machine_space_coordinate_by(machine_view.start, split),
-      /*dimensions=*/machine_view.dimensions,
+      /*start_invariant=*/machine_view.start_invariant,
   };
 }
 
