@@ -1,12 +1,16 @@
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/ff_ordered/ff_ordered_from_map.h"
 #include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
+#include "op-attrs/ff_ordered/ff_ordered_restrict_dims_strict.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
 #include "op-attrs/num_tensor_dims_t.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
+#include "utils/containers/filter.h"
+#include "utils/containers/filter_keys.h"
 #include "utils/containers/filtermap_keys.h"
 #include "utils/containers/filtrans.h"
 #include "utils/containers/generate_map.h"
@@ -111,6 +115,20 @@ std::map<parallel_tensor_dim_idx_t, positive_int>
       /*rhs=*/map_keys(shard_dim_degrees, [](ff_dim_t const &dim) {
         return parallel_tensor_dim_idx_t{dim};
       }));
+}
+
+ParallelTensorDimDegrees parallel_dim_degrees_filter_shard_dims(
+    ParallelTensorDimDegrees const &d, std::function<bool(ff_dim_t)> const &f) {
+
+  std::set<ff_dim_t> result_dims =
+      filter(ff_ordered_get_idxs(d.shard_degrees), f);
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/d.sum_degree,
+      /*discard_copy_degree=*/d.discard_copy_degree,
+      /*shard_degrees=*/
+      ff_ordered_restrict_dims_strict(d.shard_degrees, result_dims),
+  };
 }
 
 std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(

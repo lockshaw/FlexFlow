@@ -157,4 +157,63 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
+
+  TEST_CASE("parallel_dim_degrees_filter_shard_dims") {
+    ParallelTensorDimDegrees input =
+        ParallelTensorDimDegrees{SumDegree{5_p},
+                                 DiscardCopyDegree{3_p},
+                                 FFOrdered<positive_int>{
+                                     2_p,
+                                     1_p,
+                                     1_p,
+                                     4_p,
+                                 }};
+
+    SUBCASE("drop all shard dims") {
+      ParallelTensorDimDegrees result = parallel_dim_degrees_filter_shard_dims(
+          input, [](ff_dim_t d) -> bool { return false; });
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{5_p},
+          DiscardCopyDegree{3_p},
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("keep all shard dims") {
+      ParallelTensorDimDegrees result = parallel_dim_degrees_filter_shard_dims(
+          input, [](ff_dim_t d) -> bool { return true; });
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{5_p},
+          DiscardCopyDegree{3_p},
+          FFOrdered<positive_int>{
+              2_p,
+              1_p,
+              1_p,
+              4_p,
+          },
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("drop even dims") {
+      ParallelTensorDimDegrees result = parallel_dim_degrees_filter_shard_dims(
+          input, [](ff_dim_t d) -> bool { return d.value % 2_n == 1; });
+
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          SumDegree{5_p},
+          DiscardCopyDegree{3_p},
+          FFOrdered<positive_int>{
+              1_p,
+              4_p,
+          },
+      };
+
+      CHECK(result == correct);
+    }
+  }
 }
