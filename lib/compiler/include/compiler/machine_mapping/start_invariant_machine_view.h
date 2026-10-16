@@ -5,8 +5,10 @@
 #include "compiler/machine_mapping/start_invariant_machine_view.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
+#include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
 #include "pcg/machine_space_offset.h"
+#include "pcg/unresolved_machine_space_offset.dtg.h"
 #include <optional>
 
 namespace FlexFlow {
@@ -21,20 +23,17 @@ nonnegative_int num_dims(StartInvariantMachineView const &mv);
 
 std::vector<stride_t> get_strides(StartInvariantMachineView const &mv);
 
-std::vector<MachineSpecificationDimension>
-    get_dimensions(StartInvariantMachineView const &mv);
-
 StartInvariantMachineView
     start_invariant_machine_view_from_strides_and_machine_spec_dimensions(
         std::vector<stride_t> const &strides,
         std::vector<MachineSpecificationDimension> const &dims);
 
-MachineSpaceOffset
+UnresolvedMachineSpaceOffset
     get_machine_space_offset(OperatorTaskSpace const &task,
                              StartInvariantMachineView const &mv,
                              TaskSpaceCoordinate const &coordinates);
 
-std::set<MachineSpaceOffset>
+std::set<UnresolvedMachineSpaceOffset>
     get_machine_space_offsets(OperatorTaskSpace const &task,
                               StartInvariantMachineView const &mv);
 

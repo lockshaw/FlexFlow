@@ -9,6 +9,10 @@ namespace FlexFlow {
 MachineSpaceOffset get_machine_space_offset_from_coordinate(
     MachineSpaceCoordinate const &start, MachineSpaceCoordinate const &coord);
 
+MachineSpaceCoordinate
+    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &start,
+                                       MachineSpaceOffset const &offset);
+
 } // namespace FlexFlow
 
 #endif

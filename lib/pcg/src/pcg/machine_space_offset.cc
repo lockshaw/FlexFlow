@@ -21,4 +21,18 @@ MachineSpaceOffset get_machine_space_offset_from_coordinate(
   };
 }
 
+MachineSpaceCoordinate
+    offset_machine_space_coordinate_by(MachineSpaceCoordinate const &start,
+                                       MachineSpaceOffset const &offset) {
+  return MachineSpaceCoordinate{
+      /*node_idx=*/nonnegative_int{
+          start.node_idx.unwrap_nonnegative() + offset.node_offset,
+      },
+      /*device_idx=*/
+      nonnegative_int{
+          start.device_idx.unwrap_nonnegative() + offset.device_offset,
+      },
+  };
+}
+
 } // namespace FlexFlow

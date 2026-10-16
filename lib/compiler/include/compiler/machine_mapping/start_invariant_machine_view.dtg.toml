@@ -1,24 +1,24 @@
 namespace = "FlexFlow"
 name = "StartInvariantMachineView"
-type = "struct"
+type = "variant"
 features = [
   "eq",
   "ord",
   "hash",
   "json",
-  # "rapidcheck",
+  "rapidcheck",
   "fmt",
 ]
 
 includes = [
-  "compiler/machine_mapping/machine_view_dimension.dtg.h",
+  "compiler/machine_mapping/machine_view_1d_projection.dtg.h",
+  "compiler/machine_mapping/machine_view_2d_projection.dtg.h",
 ]
 
-src_includes = [
-  "utils/fmt/vector.h",
-  "utils/hash/vector.h",
-]
+[[values]]
+type = "::FlexFlow::MachineView1dProjection"
+key = "1d"
 
-[[fields]]
-name = "dimensions"
-type = "std::vector<::FlexFlow::MachineViewDimension>"
+[[values]]
+type = "::FlexFlow::MachineView2dProjection"
+key = "2d"

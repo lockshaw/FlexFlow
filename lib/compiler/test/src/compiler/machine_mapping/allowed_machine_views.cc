@@ -41,7 +41,11 @@ TEST_SUITE(FF_TEST_SUITE) {
                   start_node_idx,
                   start_device_idx,
               },
-              strides,
+              StartInvariantMachineView{
+                  MachineView2dProjection{
+                      strides,
+                  },
+              },
           };
         };
 
