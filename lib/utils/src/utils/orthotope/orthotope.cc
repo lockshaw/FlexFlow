@@ -4,6 +4,7 @@
 #include "utils/containers/cartesian_product.h"
 #include "utils/containers/contains.h"
 #include "utils/containers/filter_idxs.h"
+#include "utils/containers/maximum.h"
 #include "utils/containers/product.h"
 #include "utils/containers/scanr.h"
 #include "utils/containers/set_of.h"
@@ -18,6 +19,12 @@
 #include "utils/nonnegative_int/range.h"
 
 namespace FlexFlow {
+
+Orthotope trivial_orthotope() {
+  return Orthotope{
+      /*dims=*/std::vector<positive_int>{},
+  };
+}
 
 nonnegative_int orthotope_get_num_dims(Orthotope const &orthotope) {
   return num_elements(orthotope.dims);
@@ -125,6 +132,40 @@ OrthotopeCoord unflatten_orthotope_coord(nonnegative_int flattened,
   ASSERT(orthotope_contains_coord(orthotope, result));
 
   return result;
+}
+
+Orthotope smallest_orthotope_for_coord_set(
+    std::set<OrthotopeCoord> const &coord_set) {
+  if (coord_set.size() == 0) {
+    return trivial_orthotope();
+  }
+
+  nonnegative_int num_dims = require_all_same1(
+      transform(coord_set, [](OrthotopeCoord const &c) -> nonnegative_int {
+        return orthotope_coord_num_dims(c);
+      }));
+
+  auto component_for_idx = [&](nonnegative_int idx) -> positive_int {
+    return maximum(
+        transform(coord_set, [&](OrthotopeCoord const &c) -> positive_int {
+          return c.raw.at(idx.int_from_nonnegative_int()) + 1_p;
+        }));
+  };
+
+  return Orthotope{
+      transform(nonnegative_range(0_n, num_dims), component_for_idx),
+  };
+}
+
+std::optional<Orthotope>
+    strict_orthotope_for_coord_set(std::set<OrthotopeCoord> const &coord_set) {
+  Orthotope smallest = smallest_orthotope_for_coord_set(coord_set);
+
+  if (get_all_coords_in_orthotope(smallest) == coord_set) {
+    return smallest;
+  } else {
+    return std::nullopt;
+  }
 }
 
 } // namespace FlexFlow
