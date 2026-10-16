@@ -6,8 +6,9 @@
 
 namespace FlexFlow {
 
-MappedParallelComputationGraph
-    get_mapped_pcg_from_search_result(SearchResult const &);
+MappedParallelComputationGraph get_mapped_pcg_from_search_result(
+    SearchResult const &,
+    MachineComputeSpecification const &machine_compute_specification);
 
 SearchResult trivial_search_result_for_cg(ComputationGraph const &,
                                           MachineSpaceCoordinate const &);
