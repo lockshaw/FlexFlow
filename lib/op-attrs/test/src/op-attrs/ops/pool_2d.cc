@@ -46,7 +46,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           "confirm that output shape is as expected for the expected attrs") {
         TensorShape input_shape = TensorShape{input_dims, DataType::FLOAT};
 
-        TensorShape result = get_output_shape(correct_attrs, input_shape);
+        TensorShape result =
+            pool2d_get_output_shape(correct_attrs, input_shape);
         TensorShape correct = TensorShape{
             TensorDims{FFOrdered{
                 input_n,
@@ -104,7 +105,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           "confirm that output shape is as expected for the expected attrs") {
         TensorShape input_shape = TensorShape{input_dims, DataType::FLOAT};
 
-        TensorShape result = get_output_shape(correct_attrs, input_shape);
+        TensorShape result =
+            pool2d_get_output_shape(correct_attrs, input_shape);
         TensorShape correct = input_shape;
 
         CHECK(result == correct);
@@ -112,7 +114,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_shape(Pool2DAttrs, TensorShape)") {
+  TEST_CASE("pool2d_get_output_shape") {
     Pool2DAttrs attrs = Pool2DAttrs{
         /*kernel_h=*/3_p,
         /*kernel_w=*/2_p,
@@ -134,7 +136,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      CHECK_THROWS(get_output_shape(attrs, input));
+      CHECK_THROWS(pool2d_get_output_shape(attrs, input));
     }
 
     SUBCASE("4d input") {
@@ -143,7 +145,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      TensorShape result = get_output_shape(attrs, input);
+      TensorShape result = pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{11_p, 13_p, 6_p, 4_p}},
           DataType::FLOAT,
@@ -153,8 +155,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("get_output_parallel_dim_degrees(Pool2DAttrs, "
-            "ParallelTensorDimDegrees)") {
+  TEST_CASE("pool2d_get_output_parallel_dim_degrees") {
     auto make_attrs = [](PoolOp pool_type,
                          std::optional<Activation> const &activation) {
       return Pool2DAttrs{
@@ -184,7 +185,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       ParallelTensorDimDegrees result =
-          get_output_parallel_dim_degrees(attrs, input);
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
       ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
@@ -205,7 +206,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       ParallelTensorDimDegrees result =
-          get_output_parallel_dim_degrees(attrs, input);
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
       ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
@@ -226,7 +227,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       ParallelTensorDimDegrees result =
-          get_output_parallel_dim_degrees(attrs, input);
+          pool2d_get_output_parallel_dim_degrees(attrs, input);
       ParallelTensorDimDegrees correct = input;
 
       CHECK(result == correct);
@@ -249,7 +250,7 @@ TEST_SUITE(FF_TEST_SUITE) {
               },
           };
 
-          CHECK_THROWS(get_output_parallel_dim_degrees(attrs, input));
+          CHECK_THROWS(pool2d_get_output_parallel_dim_degrees(attrs, input));
         }
 
         SUBCASE("PoolOp::AVG does allow sum parallelism") {
@@ -268,7 +269,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
 
           ParallelTensorDimDegrees result =
-              get_output_parallel_dim_degrees(attrs, input);
+              pool2d_get_output_parallel_dim_degrees(attrs, input);
           ParallelTensorDimDegrees correct = input;
 
           CHECK(result == correct);
@@ -290,12 +291,12 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         };
 
-        CHECK_THROWS(get_output_parallel_dim_degrees(attrs, input));
+        CHECK_THROWS(pool2d_get_output_parallel_dim_degrees(attrs, input));
       }
     }
   }
 
-  TEST_CASE("get_output_shape(Pool2DAttrs, ParallelTensorShape)") {
+  TEST_CASE("pool2d_get_output_parallel_shape") {
     // this function is mostly covered by the tests above, so we
     // just do a single test to make sure it works/exists
 
@@ -362,7 +363,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      CHECK_THROWS(get_output_shape(attrs, input));
+      CHECK_THROWS(pool2d_get_output_parallel_shape(attrs, input));
     }
   }
 }

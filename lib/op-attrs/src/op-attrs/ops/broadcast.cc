@@ -6,8 +6,8 @@
 
 namespace FlexFlow {
 
-TensorShape get_output_shape(BroadcastAttrs const &attrs,
-                             TensorShape const &input_shape) {
+TensorShape broadcast_get_output_shape(BroadcastAttrs const &attrs,
+                                       TensorShape const &input_shape) {
   ASSERT(get_num_dims(attrs.target_dims) >= get_num_dims(input_shape.dims),
          fmt::format(
              "get_output_shape for Broadcast expected num_dims(input_dims) <= "
@@ -27,8 +27,9 @@ TensorShape get_output_shape(BroadcastAttrs const &attrs,
 
 }
 
-ParallelTensorShape get_output_shape(BroadcastAttrs const &,
-                                     ParallelTensorShape const &) {
+ParallelTensorShape
+    broadcast_get_output_parallel_shape(BroadcastAttrs const &,
+                                        ParallelTensorShape const &) {
   NOT_IMPLEMENTED();
 }
 

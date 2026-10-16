@@ -46,10 +46,10 @@ std::map<TensorSlotName, IncomingTensorRole>
   return roles;
 }
 
-TensorShape get_output_shape(MultiHeadAttentionAttrs const &attrs,
-                             TensorShape const &input_q,
-                             TensorShape const &input_k,
-                             TensorShape const &input_v) {
+TensorShape attention_get_output_shape(MultiHeadAttentionAttrs const &attrs,
+                                       TensorShape const &input_q,
+                                       TensorShape const &input_k,
+                                       TensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionInputs parsed =
@@ -65,10 +65,10 @@ TensorShape get_output_shape(MultiHeadAttentionAttrs const &attrs,
   };
 }
 
-TensorShape get_weights_shape(MultiHeadAttentionAttrs const &attrs,
-                              TensorShape const &input_q,
-                              TensorShape const &input_k,
-                              TensorShape const &input_v) {
+TensorShape attention_get_weights_shape(MultiHeadAttentionAttrs const &attrs,
+                                        TensorShape const &input_q,
+                                        TensorShape const &input_k,
+                                        TensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionInputs parsed =
@@ -97,10 +97,10 @@ TensorShape get_weights_shape(MultiHeadAttentionAttrs const &attrs,
   };
 }
 
-TensorShape get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
-                                 TensorShape const &input_q,
-                                 TensorShape const &input_k,
-                                 TensorShape const &input_v) {
+TensorShape attention_get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
+                                           TensorShape const &input_q,
+                                           TensorShape const &input_k,
+                                           TensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionInputs parsed =
@@ -114,10 +114,11 @@ TensorShape get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
   };
 }
 
-TensorShape get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
-                                  TensorShape const &input_q,
-                                  TensorShape const &input_k,
-                                  TensorShape const &input_v) {
+TensorShape
+    attention_get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
+                                    TensorShape const &input_q,
+                                    TensorShape const &input_k,
+                                    TensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionInputs parsed =
@@ -132,37 +133,38 @@ TensorShape get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
 }
 
 std::map<TensorSlotName, TensorShape>
-    get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
-                      TensorShape const &input_q,
-                      TensorShape const &input_k,
-                      TensorShape const &input_v) {
+    attention_get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
+                                TensorShape const &input_q,
+                                TensorShape const &input_k,
+                                TensorShape const &input_v) {
 
   std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          get_weights_shape(attrs, input_q, input_k, input_v),
+          attention_get_weights_shape(attrs, input_q, input_k, input_v),
       },
   };
 
   if (attrs.bias) {
     weight_shapes.insert({
         TensorSlotName::INPUT_BIAS,
-        get_input_bias_shape(attrs, input_q, input_k, input_v),
+        attention_get_input_bias_shape(attrs, input_q, input_k, input_v),
     });
 
     weight_shapes.insert({
         TensorSlotName::OUTPUT_BIAS,
-        get_output_bias_shape(attrs, input_q, input_k, input_v),
+        attention_get_output_bias_shape(attrs, input_q, input_k, input_v),
     });
   }
 
   return weight_shapes;
 }
 
-ParallelTensorShape get_weights_shape(MultiHeadAttentionAttrs const &attrs,
-                                      ParallelTensorShape const &input_q,
-                                      ParallelTensorShape const &input_k,
-                                      ParallelTensorShape const &input_v) {
+ParallelTensorShape
+    attention_get_weights_parallel_shape(MultiHeadAttentionAttrs const &attrs,
+                                         ParallelTensorShape const &input_q,
+                                         ParallelTensorShape const &input_k,
+                                         ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionParallelInputs parsed =
@@ -178,10 +180,11 @@ ParallelTensorShape get_weights_shape(MultiHeadAttentionAttrs const &attrs,
       FFOrdered<positive_int>{joined_dim_degree, head_dim_degree});
 }
 
-ParallelTensorShape get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
-                                         ParallelTensorShape const &input_q,
-                                         ParallelTensorShape const &input_k,
-                                         ParallelTensorShape const &input_v) {
+ParallelTensorShape attention_get_input_bias_parallel_shape(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorShape const &input_q,
+    ParallelTensorShape const &input_k,
+    ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionParallelInputs parsed =
@@ -195,10 +198,11 @@ ParallelTensorShape get_input_bias_shape(MultiHeadAttentionAttrs const &attrs,
       unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
 }
 
-ParallelTensorShape get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
-                                          ParallelTensorShape const &input_q,
-                                          ParallelTensorShape const &input_k,
-                                          ParallelTensorShape const &input_v) {
+ParallelTensorShape attention_get_output_bias_parallel_shape(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorShape const &input_q,
+    ParallelTensorShape const &input_k,
+    ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionParallelInputs parsed =
@@ -212,10 +216,11 @@ ParallelTensorShape get_output_bias_shape(MultiHeadAttentionAttrs const &attrs,
       unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
 }
 
-ParallelTensorShape get_output_shape(MultiHeadAttentionAttrs const &attrs,
-                                     ParallelTensorShape const &input_q,
-                                     ParallelTensorShape const &input_k,
-                                     ParallelTensorShape const &input_v) {
+ParallelTensorShape
+    attention_get_output_parallel_shape(MultiHeadAttentionAttrs const &attrs,
+                                        ParallelTensorShape const &input_q,
+                                        ParallelTensorShape const &input_k,
+                                        ParallelTensorShape const &input_v) {
   check_attrs(attrs);
 
   MultiHeadAttentionParallelInputs parsed =
@@ -234,43 +239,46 @@ ParallelTensorShape get_output_shape(MultiHeadAttentionAttrs const &attrs,
       FFOrdered{batch_degree, seq_len_degree, out_dim_degree});
 }
 
-positive_int get_oSize(ParallelTensorShape const &) {
+positive_int attention_get_oSize(ParallelTensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
-positive_int get_oSize(TensorShape const &) {
+positive_int attention_get_oSize(TensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
 std::map<TensorSlotName, ParallelTensorShape>
-    get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
-                      ParallelTensorShape const &input_q,
-                      ParallelTensorShape const &input_k,
-                      ParallelTensorShape const &input_v) {
+    attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &attrs,
+                                         ParallelTensorShape const &input_q,
+                                         ParallelTensorShape const &input_k,
+                                         ParallelTensorShape const &input_v) {
 
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
           TensorSlotName::WEIGHT,
-          get_weights_shape(attrs, input_q, input_k, input_v),
+          attention_get_weights_parallel_shape(
+              attrs, input_q, input_k, input_v),
       },
   };
 
   if (attrs.bias) {
     weight_shapes.insert({
         TensorSlotName::INPUT_BIAS,
-        get_input_bias_shape(attrs, input_q, input_k, input_v),
+        attention_get_input_bias_parallel_shape(
+            attrs, input_q, input_k, input_v),
     });
 
     weight_shapes.insert({
         TensorSlotName::OUTPUT_BIAS,
-        get_output_bias_shape(attrs, input_q, input_k, input_v),
+        attention_get_output_bias_parallel_shape(
+            attrs, input_q, input_k, input_v),
     });
   }
 
   return weight_shapes;
 }
 
-std::map<TensorSlotName, InitializerAttrs> get_initializers(
+std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(
     MultiHeadAttentionAttrs const &attrs,
     TensorShape const &input_q,
     TensorShape const &input_k,

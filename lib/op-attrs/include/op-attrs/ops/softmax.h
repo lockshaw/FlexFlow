@@ -7,10 +7,12 @@
 
 namespace FlexFlow {
 
-TensorShape get_output_shape(SoftmaxAttrs const &attrs,
-                             TensorShape const &input_shape);
-ParallelTensorShape get_output_shape(SoftmaxAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape);
+TensorShape softmax_get_output_shape(SoftmaxAttrs const &attrs,
+                                     TensorShape const &input_shape);
+
+ParallelTensorShape
+    softmax_get_output_parallel_shape(SoftmaxAttrs const &attrs,
+                                      ParallelTensorShape const &input_shape);
 
 } // namespace FlexFlow
 
