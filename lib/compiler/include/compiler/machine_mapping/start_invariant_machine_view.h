@@ -21,7 +21,8 @@ StartInvariantMachineView
 
 nonnegative_int num_dims(StartInvariantMachineView const &mv);
 
-std::vector<stride_t> get_strides(StartInvariantMachineView const &mv);
+std::vector<stride_t>
+    start_invariant_mv_get_strides(StartInvariantMachineView const &mv);
 
 StartInvariantMachineView
     start_invariant_machine_view_from_strides_and_machine_spec_dimensions(

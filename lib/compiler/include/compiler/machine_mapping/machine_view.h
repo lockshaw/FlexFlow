@@ -20,7 +20,7 @@ namespace FlexFlow {
 
 nonnegative_int mv_get_expected_task_space_num_dims(MachineView const &mv);
 
-std::vector<stride_t> get_strides(MachineView const &mv);
+std::vector<stride_t> mv_get_strides(MachineView const &mv);
 
 std::vector<MachineSpecificationDimension>
     get_dimensions(MachineView const &mv);
