@@ -9,10 +9,19 @@ TensorShape gather_get_output_shape(GatherAttrs const &,
   NOT_IMPLEMENTED();
 }
 
+ParallelTensorDimDegrees gather_get_output_parallel_dim_degrees(
+    GatherAttrs const &,
+    ParallelTensorDimDegrees const &input,
+    ParallelTensorDimDegrees const &index) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 ParallelTensorShape
     gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
                                      ParallelTensorShape const &index) {
+  // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
