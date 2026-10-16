@@ -1,5 +1,9 @@
 #include "op-attrs/ops/pool_2d.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/integer_conversions.h"
@@ -115,12 +119,14 @@ static positive_int calculate_output_size(positive_int input_size,
 TensorShape pool2d_get_output_shape(Pool2DAttrs const &attrs,
                                     TensorShape const &input_shape) {
 
-  positive_int num_samples = dim_at_idx(input_shape.dims, relative_ff_dim_t{0});
-  positive_int num_channels =
-      dim_at_idx(input_shape.dims, relative_ff_dim_t{1});
-  positive_int input_height =
-      dim_at_idx(input_shape.dims, relative_ff_dim_t{2});
-  positive_int input_width = dim_at_idx(input_shape.dims, relative_ff_dim_t{3});
+  relative_ff_dim_t height_dim = relative_ff_dim_t{-2};
+  relative_ff_dim_t width_dim = relative_ff_dim_t{-1};
+
+  TensorDims leading_dims =
+      slice_tensor_dims(input_shape.dims, relative_ff_dim_t{0}, height_dim);
+
+  positive_int input_height = dim_at_idx(input_shape.dims, height_dim);
+  positive_int input_width = dim_at_idx(input_shape.dims, width_dim);
 
   positive_int output_height =
       calculate_output_size(/*input_size=*/input_height,
@@ -133,13 +139,16 @@ TensorShape pool2d_get_output_shape(Pool2DAttrs const &attrs,
                             /*kernel_size=*/attrs.kernel_w,
                             /*stride_size=*/attrs.stride_w);
 
-  return TensorShape{TensorDims{FFOrdered<positive_int>{
-                         num_samples,
-                         num_channels,
-                         output_height,
-                         output_width,
-                     }},
-                     input_shape.data_type};
+  return TensorShape{
+      concat_tensor_dims(leading_dims,
+                         TensorDims{
+                             FFOrdered<positive_int>{
+                                 output_height,
+                                 output_width,
+                             },
+                         }),
+      input_shape.data_type,
+  };
 }
 
 ParallelTensorShape
@@ -172,6 +181,91 @@ ParallelTensorDimDegrees pool2d_get_output_parallel_dim_degrees(
   }
 
   return input_degrees;
+}
+
+StandardOperatorTaskGroup
+    pool2d_get_task_group(Pool2DAttrs const &attrs,
+                          ParallelTensorDimDegrees const &input_degrees) {
+  parallel_tensor_dim_idx_t batch_dim = shard_dim_idx(ff_dim_t{0_n});
+
+  for (parallel_tensor_dim_idx_t const &dim_idx :
+       get_parallel_tensor_dim_indices(input_degrees)) {
+    if (dim_idx != discard_copy_dim_idx() && dim_idx != batch_dim) {
+      positive_int degree =
+          get_degree_for_parallel_tensor_dim_idx(input_degrees, dim_idx);
+      ASSERT(
+          degree == 1_p,
+          "Currently pool2d_get_task_group only handles a limited set of types "
+          "of parallelism. "
+          "If you need support for additional types, please create an issue.");
+    }
+  }
+
+  ParallelTensorDimDegrees output_degrees =
+      pool2d_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+      transform(get_parallel_tensor_space_coordinates(input_degrees),
+                [&](ParallelTensorSpaceCoordinate const &input_coord)
+                    -> AbstractedOperatorAtomicTaskShardBinding {
+                  ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+                  return AbstractedOperatorAtomicTaskShardBinding{
+                      /*tensor_coords=*/{
+                          {
+                              TensorSlotName::INPUT,
+                              input_coord,
+                          },
+                          {
+                              TensorSlotName::OUTPUT,
+                              output_coord,
+                          },
+                      },
+                      /*task_coord=*/
+                      task_coord_matching_parallel_tensor_space_coordinate(
+                          output_coord, output_degrees),
+                  };
+                }),
+  };
+}
+
+ShardSignatureInstance pool2d_get_shard_signature_instance(
+    Pool2DAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      pool2d_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
+}
+
+OperatorTaskSpace pool2d_get_operator_task_space(
+    Pool2DAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      pool2d_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    pool2d_get_operator_to_input_mapping(
+        Pool2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      pool2d_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    pool2d_get_operator_to_output_mapping(
+        Pool2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      pool2d_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow
