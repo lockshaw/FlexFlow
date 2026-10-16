@@ -45,7 +45,8 @@ static std::optional<milliseconds_t>
 
   ASSERT(inputs.size() <= MAX_NUM_INPUTS);
 
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   return profile(concat_forward_kernel,
                  profiling,
@@ -72,7 +73,7 @@ static std::optional<milliseconds_t>
 
   ASSERT(input_grads.size() <= MAX_NUM_INPUTS);
 
-  auto output_grad =
+  GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
 
   return profile(concat_backward_kernel,

@@ -30,8 +30,10 @@ static std::optional<milliseconds_t>
   Pool2DPerDeviceState state =
       acc.get_per_device_op_state().require_pool_2d().value();
 
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   return profile(pool2d_forward_kernel,
                  profiling,
@@ -51,10 +53,14 @@ static std::optional<milliseconds_t>
   Pool2DPerDeviceState state =
       acc.get_per_device_op_state().require_pool_2d().value();
 
-  auto output = acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
-  auto output_grad = acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
-  auto input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  auto input_grad = acc.get_tensor<Permissions::RW>(TensorSlotName::INPUT);
+  GenericTensorAccessorR output =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR output_grad =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW input_grad =
+      acc.get_tensor<Permissions::RW>(TensorSlotName::INPUT);
 
   return profile(pool2d_backward_kernel,
                  profiling,
