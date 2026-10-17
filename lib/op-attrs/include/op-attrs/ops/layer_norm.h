@@ -4,6 +4,7 @@
 #include "op-attrs/incoming_tensor_role.dtg.h"
 #include "op-attrs/initializer_attrs.dtg.h"
 #include "op-attrs/ops/layer_norm_attrs.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
@@ -23,6 +24,18 @@ TensorShape layer_norm_get_beta_weights_shape(LayerNormAttrs const &,
 std::map<TensorSlotName, TensorShape>
     layer_norm_get_weight_shapes(LayerNormAttrs const &attrs,
                                  TensorShape const &input_shape);
+
+ParallelTensorDimDegrees layer_norm_get_output_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees layer_norm_get_gamma_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+ParallelTensorDimDegrees layer_norm_get_beta_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &);
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    layer_norm_get_weight_parallel_dim_degrees(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_shape);
 
 ParallelTensorShape
     layer_norm_get_output_parallel_shape(LayerNormAttrs const &,

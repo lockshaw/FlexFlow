@@ -102,6 +102,32 @@ std::map<TensorSlotName, TensorShape>
   };
 }
 
+ParallelTensorDimDegrees layer_norm_get_output_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees layer_norm_get_gamma_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+ParallelTensorDimDegrees layer_norm_get_beta_weights_parallel_dim_degrees(
+    LayerNormAttrs const &, ParallelTensorDimDegrees const &) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    layer_norm_get_weight_parallel_dim_degrees(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_shape) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 static void check_input_parallel_shape(LayerNormAttrs const &attrs,
                                        ParallelTensorShape const &input_shape) {
 
