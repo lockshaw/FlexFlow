@@ -50,6 +50,13 @@ TensorShape linear_get_output_shape(LinearAttrs const &attrs,
                                           ParallelTensorDimDegrees const
                                               &input);
 
+                                  std::map<TensorSlotName,
+                                           ParallelTensorDimDegrees>
+                                      linear_get_weight_parallel_dim_degrees(
+                                          LinearAttrs const &attrs,
+                                          ParallelTensorDimDegrees const
+                                              &input);
+
                                   ParallelTensorShape
                                       linear_get_projection_parallel_shape(
                                           LinearAttrs const &attrs,

@@ -114,6 +114,27 @@ std::map<TensorSlotName, TensorShape>
   return weight_shapes;
 }
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    linear_get_weight_parallel_dim_degrees(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
+      {
+          TensorSlotName::WEIGHT,
+          linear_get_projection_parallel_dim_degrees(attrs, input_degrees),
+      },
+  };
+
+  if (attrs.use_bias) {
+    weight_degrees.insert({
+        TensorSlotName::BIAS,
+        linear_get_bias_parallel_dim_degrees(attrs, input_degrees),
+    });
+  }
+
+  return weight_degrees;
+}
+
 //! [parallel shape inference composition example]
 ParallelTensorShape
     linear_get_projection_shape(LinearAttrs const &attrs,
