@@ -1,12 +1,20 @@
 #include "op-attrs/ops/attention.h"
 #include "op-attrs/ops/attention/multihead_attention_inputs.h"
 #include "op-attrs/ops/attention/multihead_attention_parallel_inputs.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/extend.h"
+#include "utils/containers/transform.h"
 #include "utils/expected.h"
 #include "utils/integer_conversions.h"
+#include "utils/orthotope/bounded_component.h"
+#include "utils/orthotope/orthotope_bounded_coord.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -35,6 +43,24 @@ std::map<TensorSlotName, IncomingTensorRole>
   }
 
   return roles;
+}
+
+std::set<TensorSlotName>
+    attention_get_slots(MultiHeadAttentionAttrs const &attrs) {
+  std::set<TensorSlotName> result = {
+      TensorSlotName::QUERY,
+      TensorSlotName::KEY,
+      TensorSlotName::VALUE,
+      TensorSlotName::WEIGHT,
+      TensorSlotName::OUTPUT,
+  };
+
+  if (attrs.bias) {
+    result.insert(TensorSlotName::INPUT_BIAS);
+    result.insert(TensorSlotName::OUTPUT_BIAS);
+  }
+
+  return result;
 }
 
 TensorShape attention_get_output_shape(MultiHeadAttentionAttrs const &attrs,
@@ -390,6 +416,100 @@ std::map<TensorSlotName, ParallelTensorShape>
   }
 
   return weight_shapes;
+}
+
+StandardOperatorTaskGroup
+    attention_get_task_group(MultiHeadAttentionAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_q,
+                             ParallelTensorDimDegrees const &input_k,
+                             ParallelTensorDimDegrees const &input_v) {
+  ParallelTensorDimDegrees output_degrees =
+      attention_get_output_parallel_dim_degrees(
+          attrs, input_q, input_k, input_v);
+
+  StandardOperatorTaskGroup task_group = StandardOperatorTaskGroup{
+      transform(
+          get_parallel_tensor_space_coordinates(output_degrees),
+          [&](ParallelTensorSpaceCoordinate const &output_coord)
+              -> AbstractedOperatorAtomicTaskShardBinding {
+            parallel_tensor_dim_idx_t output_batch_dim =
+                shard_dim_idx(ff_dim_t{0_n});
+
+            BoundedComponent data_parallelism_component =
+                bounded_component_for_ptensor_dim(
+                    output_degrees, output_coord, output_batch_dim);
+
+            ParallelTensorSpaceCoordinate query_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/trivial_bounded_component(),
+                    /*discard_copy_component=*/trivial_bounded_component(),
+                    /*shard_components=*/
+                    make_3d_orthotope_bounded_coord(
+                        data_parallelism_component,
+                        trivial_bounded_component(),
+                        trivial_bounded_component()));
+
+            ParallelTensorSpaceCoordinate key_coord = query_coord;
+            ParallelTensorSpaceCoordinate value_coord = query_coord;
+
+            ParallelTensorSpaceCoordinate weight_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/trivial_bounded_component(),
+                    /*discard_copy_component=*/data_parallelism_component,
+                    /*shard_components=*/
+                    make_2d_orthotope_bounded_coord(
+                        trivial_bounded_component(),
+                        trivial_bounded_component()));
+
+            ParallelTensorSpaceCoordinate input_bias_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/trivial_bounded_component(),
+                    /*discard_copy_component=*/data_parallelism_component,
+                    /*shard_components=*/
+                    lift_bounded_component(trivial_bounded_component()));
+            ;
+            ParallelTensorSpaceCoordinate output_bias_coord = input_bias_coord;
+
+            return AbstractedOperatorAtomicTaskShardBinding{
+                /*tensor_corods=*/{
+                    {
+                        TensorSlotName::QUERY,
+                        query_coord,
+                    },
+                    {
+                        TensorSlotName::KEY,
+                        key_coord,
+                    },
+                    {
+                        TensorSlotName::VALUE,
+                        value_coord,
+                    },
+                    {
+                        TensorSlotName::WEIGHT,
+                        weight_coord,
+                    },
+                    {
+                        TensorSlotName::INPUT_BIAS,
+                        input_bias_coord,
+                    },
+                    {
+                        TensorSlotName::OUTPUT_BIAS,
+                        output_bias_coord,
+                    },
+                    {
+                        TensorSlotName::OUTPUT,
+                        output_coord,
+                    },
+                },
+                /*task_coord=*/
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
+            };
+          }),
+  };
+
+  return restrict_standard_operator_task_group_to_slots(
+      task_group, attention_get_slots(attrs));
 }
 
 std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(

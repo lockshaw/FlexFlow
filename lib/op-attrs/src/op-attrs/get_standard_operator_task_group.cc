@@ -1,4 +1,5 @@
 #include "op-attrs/get_standard_operator_task_group.h"
+#include "op-attrs/ops/attention.h"
 #include "op-attrs/ops/batch_matmul.h"
 #include "op-attrs/ops/batch_norm.h"
 #include "op-attrs/ops/cast.h"
@@ -21,6 +22,7 @@
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/tensor_slot_name.h"
 #include "utils/containers/require_only_key.h"
+#include "utils/containers/require_three_keys.h"
 #include "utils/containers/require_two_keys.h"
 #include "utils/containers/slice.h"
 #include "utils/overload.h"
@@ -127,6 +129,15 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
 
         return linear_get_task_group(attrs, input_dim_degrees);
+      },
+      [&](MultiHeadAttentionAttrs const &attrs) -> StandardOperatorTaskGroup {
+        auto [input_q, input_k, input_v] =
+            require_three_keys(input_dim_degree_binding,
+                               TensorSlotName::QUERY,
+                               TensorSlotName::KEY,
+                               TensorSlotName::VALUE);
+
+        return attention_get_task_group(attrs, input_q, input_k, input_v);
       },
       [&](NoopAttrs const &attrs) -> StandardOperatorTaskGroup {
         ParallelTensorDimDegrees input_dim_degrees =
