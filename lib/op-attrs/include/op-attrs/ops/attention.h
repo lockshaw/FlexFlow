@@ -63,6 +63,13 @@ ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
     ParallelTensorDimDegrees const &input_k,
     ParallelTensorDimDegrees const &input_v);
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees(
+        MultiHeadAttentionAttrs const &,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v);
+
 ParallelTensorDims
     attention_get_weights_parallel_dims(MultiHeadAttentionAttrs const &,
                                         ParallelTensorShape const &input_q,
@@ -162,6 +169,13 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     attention_get_operator_to_output_mapping(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v);
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    attention_get_operator_to_parallel_tensor_mappings(
         MultiHeadAttentionAttrs const &attrs,
         ParallelTensorDimDegrees const &input_q,
         ParallelTensorDimDegrees const &input_k,
