@@ -1,7 +1,9 @@
 #include "op-attrs/ops/reshape.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/product.h"
 #include "utils/containers/zip_with_strict.h"
@@ -84,6 +86,76 @@ ParallelTensorShape
       attrs, get_parallel_degrees(input_shape));
 
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
+}
+
+StandardOperatorTaskGroup
+    reshape_get_task_group(ReshapeAttrs const &attrs,
+                           ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      reshape_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+      transform(get_parallel_tensor_space_coordinates(input_degrees),
+                [&](ParallelTensorSpaceCoordinate const &input_coord)
+                    -> AbstractedOperatorAtomicTaskShardBinding {
+                  ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+                  return AbstractedOperatorAtomicTaskShardBinding{
+                      /*tensor_coords=*/{
+                          {
+                              TensorSlotName::INPUT,
+                              input_coord,
+                          },
+                          {
+                              TensorSlotName::OUTPUT,
+                              output_coord,
+                          },
+                      },
+                      /*task_coord=*/
+                      task_coord_matching_parallel_tensor_space_coordinate(
+                          output_coord, output_degrees),
+                  };
+                }),
+  };
+}
+
+ShardSignatureInstance reshape_get_shard_signature_instance(
+    ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reshape_get_task_group(attrs, input_degrees);
+
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
+}
+
+OperatorTaskSpace reshape_get_operator_task_space(
+    ReshapeAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reshape_get_task_group(attrs, input_degrees);
+
+  return task_space_for_standard_operator_task_group(op_task_group);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reshape_get_operator_to_input_mapping(
+        ReshapeAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reshape_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    reshape_get_operator_to_output_mapping(
+        ReshapeAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  StandardOperatorTaskGroup op_task_group =
+      reshape_get_task_group(attrs, input_degrees);
+
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow
