@@ -264,4 +264,72 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK_THROWS(dim_domain_for_ptensor_dim_idxs(dim_degrees, dim_idxs));
     }
   }
+
+  TEST_CASE("get_degree_for_relative_ff_dim_t") {
+    ParallelTensorDimDegrees degrees = ParallelTensorDimDegrees{
+        SumDegree{3_p},
+        DiscardCopyDegree{7_p},
+        FFOrdered<positive_int>{
+            5_p,
+            1_p,
+            2_p,
+            6_p,
+        },
+    };
+
+    SUBCASE("dim = 0") {
+      positive_int result =
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{0});
+
+      positive_int correct = 5_p;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("dim = 1") {
+      positive_int result =
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{1});
+
+      positive_int correct = 1_p;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("dim = -1") {
+      positive_int result =
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{-1});
+
+      positive_int correct = 6_p;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("last positive dim (dim = 3)") {
+      positive_int result =
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{3});
+
+      positive_int correct = 6_p;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("first out of bounds positive dim (dim = 4)") {
+      CHECK_THROWS(
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{4}));
+    }
+
+    SUBCASE("last negative dim (dim = -4)") {
+      positive_int result =
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{-4});
+
+      positive_int correct = 5_p;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("first out of bounds negative dim (dim = -5)") {
+      CHECK_THROWS(
+          get_degree_for_relative_ff_dim_t(degrees, relative_ff_dim_t{-5}));
+    }
+  }
 }

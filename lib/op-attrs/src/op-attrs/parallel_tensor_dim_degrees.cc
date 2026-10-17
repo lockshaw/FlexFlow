@@ -7,6 +7,7 @@
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/filter.h"
@@ -96,6 +97,15 @@ positive_int get_degree_for_parallel_tensor_dim_idx(
   } else {
     return dim_degrees.shard_degrees.at(idx.require_shard_dim());
   }
+}
+
+positive_int
+    get_degree_for_relative_ff_dim_t(ParallelTensorDimDegrees const &degrees,
+                                     relative_ff_dim_t const &dim) {
+  num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
+
+  return get_degree_for_parallel_tensor_dim_idx(
+      degrees, shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(dim, num_dims)));
 }
 
 std::map<parallel_tensor_dim_idx_t, positive_int>

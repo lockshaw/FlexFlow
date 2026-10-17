@@ -6,6 +6,7 @@
 #include "op-attrs/ops/attention/multihead_attention_inputs.dtg.h"
 #include "op-attrs/ops/attention/multihead_attention_parallel_inputs.dtg.h"
 #include "op-attrs/ops/attention_attrs.dtg.h"
+#include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
@@ -31,28 +32,38 @@ TensorShape attention_get_output_shape(MultiHeadAttentionAttrs const &,
                                        TensorShape const &input_q,
                                        TensorShape const &input_k,
                                        TensorShape const &input_v);
-
 std::map<TensorSlotName, TensorShape>
-    attention_get_weight_shapes(MultiHeadAttentionAttrs const &,
-                                TensorShape const &input_q,
-                                TensorShape const &input_k,
-                                TensorShape const &input_v);
+    attention_get_weight_shape_map(MultiHeadAttentionAttrs const &,
+                                   TensorShape const &input_q,
+                                   TensorShape const &input_k,
+                                   TensorShape const &input_v);
 
-ParallelTensorDims
-    attention_get_weights_parallel_dims(MultiHeadAttentionAttrs const &,
-                                        ParallelTensorShape const &input_q,
-                                        ParallelTensorShape const &input_k,
-                                        ParallelTensorShape const &input_v);
-ParallelTensorDims
-    attention_get_input_bias_parallel_dims(MultiHeadAttentionAttrs const &,
-                                           ParallelTensorShape const &input_q,
-                                           ParallelTensorShape const &input_k,
-                                           ParallelTensorShape const &input_v);
-ParallelTensorDims
-    attention_get_output_bias_parallel_dims(MultiHeadAttentionAttrs const &,
-                                            ParallelTensorShape const &input_q,
-                                            ParallelTensorShape const &input_k,
-                                            ParallelTensorShape const &input_v);
+ParallelTensorDimDegrees attention_get_weights_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_input_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_output_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees_map(
+        MultiHeadAttentionAttrs const &,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v);
 
 ParallelTensorShape
     attention_get_weights_parallel_shape(MultiHeadAttentionAttrs const &,
@@ -75,10 +86,11 @@ ParallelTensorShape
                                         ParallelTensorShape const &input_k,
                                         ParallelTensorShape const &input_v);
 std::map<TensorSlotName, ParallelTensorShape>
-    attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &,
-                                         ParallelTensorShape const &input_q,
-                                         ParallelTensorShape const &input_k,
-                                         ParallelTensorShape const &input_v);
+    attention_get_weight_parallel_shape_map(MultiHeadAttentionAttrs const &,
+                                            ParallelTensorShape const &input_q,
+                                            ParallelTensorShape const &input_k,
+                                            ParallelTensorShape const &input_v);
+
 std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(
     MultiHeadAttentionAttrs const &,
     TensorShape const &input_q,

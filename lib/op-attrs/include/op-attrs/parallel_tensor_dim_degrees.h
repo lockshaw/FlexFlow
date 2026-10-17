@@ -30,6 +30,9 @@ positive_int
     get_degree_for_parallel_tensor_dim_idx(ParallelTensorDimDegrees const &,
                                            parallel_tensor_dim_idx_t const &);
 
+positive_int get_degree_for_relative_ff_dim_t(ParallelTensorDimDegrees const &,
+                                              relative_ff_dim_t const &);
+
 std::map<parallel_tensor_dim_idx_t, positive_int>
     get_parallel_tensor_degree_map(ParallelTensorDimDegrees const &);
 

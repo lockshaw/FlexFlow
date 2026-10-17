@@ -11,14 +11,6 @@
 
 namespace FlexFlow {
 
-/* bool MultiHeadAttentionAttrs::is_valid(std::vector<ParallelTensorShape> const
- * &inputs) const { */
-/*   return (inputs.size() == 3 && std::all_of(inputs.begin(), inputs.end(),
- * [](ParallelTensorShape const &s) { return s.is_valid(); })); */
-/*   bool is_valid = true; */
-/*   return is_valid; */
-/* } */
-
 static void check_attrs(MultiHeadAttentionAttrs const &attrs) {
   ASSERT(!attrs.add_bias_kv,
          "add_bias_kv is not yet supported. If you need this "
@@ -132,10 +124,10 @@ TensorShape
 }
 
 std::map<TensorSlotName, TensorShape>
-    attention_get_weight_shapes(MultiHeadAttentionAttrs const &attrs,
-                                TensorShape const &input_q,
-                                TensorShape const &input_k,
-                                TensorShape const &input_v) {
+    attention_get_weight_shape_map(MultiHeadAttentionAttrs const &attrs,
+                                   TensorShape const &input_q,
+                                   TensorShape const &input_k,
+                                   TensorShape const &input_v) {
 
   std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
@@ -159,12 +151,136 @@ std::map<TensorSlotName, TensorShape>
   return weight_shapes;
 }
 
+ParallelTensorDimDegrees attention_get_weights_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_input_parallel_shape(input_q, input_k, input_v);
+
+  positive_int joined_dim_degree = 1_p;
+  positive_int head_dim_degree = parsed.discard_copy_degree.value;
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/SumDegree{1_p},
+      /*discard_copy_degree=*/DiscardCopyDegree{parsed.batch_degree},
+      /*shard_degrees=*/
+      FFOrdered<positive_int>{joined_dim_degree, head_dim_degree},
+  };
+}
+
+ParallelTensorDimDegrees attention_get_input_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_input_parallel_shape(input_q, input_k, input_v);
+
+  SumDegree sum_degree = SumDegree{1_p};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{parsed.batch_degree * parsed.discard_copy_degree.value};
+  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
+ParallelTensorDimDegrees attention_get_output_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_input_parallel_shape(input_q, input_k, input_v);
+
+  SumDegree sum_degree = SumDegree{1_p};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{parsed.batch_degree * parsed.discard_copy_degree.value};
+  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
+ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_input_parallel_shape(input_q, input_k, input_v);
+
+  positive_int sum_degree = parsed.discard_copy_degree.value;
+  positive_int discard_copy_degree = 1_p;
+  positive_int batch_degree = parsed.batch_degree;
+  positive_int seq_len_degree = 1_p;
+  positive_int out_dim_degree = 1_p;
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/SumDegree{sum_degree},
+      /*discard_copy_degree=*/DiscardCopyDegree{discard_copy_degree},
+      /*shard_degrees=*/
+      FFOrdered<positive_int>{
+          batch_degree,
+          seq_len_degree,
+          out_dim_degree,
+      },
+  };
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees_map(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v) {
+
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_dim_degrees_map = {
+      {
+          TensorSlotName::WEIGHT,
+          attention_get_weights_parallel_dim_degrees(
+              attrs, input_q, input_k, input_v),
+      },
+  };
+
+  if (attrs.bias) {
+    weight_dim_degrees_map.insert({
+        TensorSlotName::INPUT_BIAS,
+        attention_get_input_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+
+    weight_dim_degrees_map.insert({
+        TensorSlotName::OUTPUT_BIAS,
+        attention_get_output_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+  }
+
+  return weight_dim_degrees_map;
+}
+
 ParallelTensorShape
     attention_get_weights_parallel_shape(MultiHeadAttentionAttrs const &attrs,
                                          ParallelTensorShape const &input_q,
                                          ParallelTensorShape const &input_k,
                                          ParallelTensorShape const &input_v) {
-  check_attrs(attrs);
 
   TensorShape unpar_shape =
       attention_get_weights_shape(attrs,
@@ -172,17 +288,13 @@ ParallelTensorShape
                                   get_reduced_shape(input_k),
                                   get_reduced_shape(input_v));
 
-  MultiHeadAttentionParallelInputs parsed =
-      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+  ParallelTensorDimDegrees degrees =
+      attention_get_weights_parallel_dim_degrees(attrs,
+                                                 get_parallel_degrees(input_q),
+                                                 get_parallel_degrees(input_k),
+                                                 get_parallel_degrees(input_v));
 
-  positive_int joined_dim_degree = 1_p;
-  positive_int head_dim_degree = parsed.discard_copy_degree.value;
-
-  return lift_shape_to_parallel_with_degrees(
-      unpar_shape,
-      SumDegree{1_p},
-      DiscardCopyDegree{parsed.batch_dim.degree},
-      FFOrdered<positive_int>{joined_dim_degree, head_dim_degree});
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape attention_get_input_bias_parallel_shape(
@@ -190,23 +302,20 @@ ParallelTensorShape attention_get_input_bias_parallel_shape(
     ParallelTensorShape const &input_q,
     ParallelTensorShape const &input_k,
     ParallelTensorShape const &input_v) {
-  check_attrs(attrs);
-
   TensorShape unpar_shape =
       attention_get_input_bias_shape(attrs,
                                      get_reduced_shape(input_q),
                                      get_reduced_shape(input_k),
                                      get_reduced_shape(input_v));
 
-  MultiHeadAttentionParallelInputs parsed =
-      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+  ParallelTensorDimDegrees degrees =
+      attention_get_input_bias_parallel_dim_degrees(
+          attrs,
+          get_parallel_degrees(input_q),
+          get_parallel_degrees(input_k),
+          get_parallel_degrees(input_v));
 
-  SumDegree sum_degree = SumDegree{1_p};
-  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      parsed.batch_dim.degree * parsed.discard_copy_degree.value};
-  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
-  return lift_shape_to_parallel_with_degrees(
-      unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape attention_get_output_bias_parallel_shape(
@@ -214,23 +323,20 @@ ParallelTensorShape attention_get_output_bias_parallel_shape(
     ParallelTensorShape const &input_q,
     ParallelTensorShape const &input_k,
     ParallelTensorShape const &input_v) {
-  check_attrs(attrs);
-
   TensorShape unpar_shape =
       attention_get_output_bias_shape(attrs,
                                       get_reduced_shape(input_q),
                                       get_reduced_shape(input_k),
                                       get_reduced_shape(input_v));
 
-  MultiHeadAttentionParallelInputs parsed =
-      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+  ParallelTensorDimDegrees degrees =
+      attention_get_output_bias_parallel_dim_degrees(
+          attrs,
+          get_parallel_degrees(input_q),
+          get_parallel_degrees(input_k),
+          get_parallel_degrees(input_v));
 
-  SumDegree sum_degree = SumDegree{1_p};
-  DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
-      parsed.batch_dim.degree * parsed.discard_copy_degree.value};
-  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
-  return lift_shape_to_parallel_with_degrees(
-      unpar_shape, sum_degree, discard_copy_degree, shard_degrees);
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 ParallelTensorShape
@@ -238,7 +344,6 @@ ParallelTensorShape
                                         ParallelTensorShape const &input_q,
                                         ParallelTensorShape const &input_k,
                                         ParallelTensorShape const &input_v) {
-  check_attrs(attrs);
 
   TensorShape unpar_shape =
       attention_get_output_shape(attrs,
@@ -246,27 +351,21 @@ ParallelTensorShape
                                  get_reduced_shape(input_k),
                                  get_reduced_shape(input_v));
 
-  MultiHeadAttentionParallelInputs parsed =
-      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+  ParallelTensorDimDegrees degrees =
+      attention_get_output_parallel_dim_degrees(attrs,
+                                                get_parallel_degrees(input_q),
+                                                get_parallel_degrees(input_k),
+                                                get_parallel_degrees(input_v));
 
-  positive_int sum_degree = parsed.discard_copy_degree.value;
-  positive_int discard_copy_degree = 1_p;
-  positive_int batch_degree = parsed.batch_dim.degree;
-  positive_int seq_len_degree = 1_p;
-  positive_int out_dim_degree = 1_p;
-
-  return lift_shape_to_parallel_with_degrees(
-      unpar_shape,
-      SumDegree{sum_degree},
-      DiscardCopyDegree{discard_copy_degree},
-      FFOrdered{batch_degree, seq_len_degree, out_dim_degree});
+  return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
 std::map<TensorSlotName, ParallelTensorShape>
-    attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &attrs,
-                                         ParallelTensorShape const &input_q,
-                                         ParallelTensorShape const &input_k,
-                                         ParallelTensorShape const &input_v) {
+    attention_get_weight_parallel_shape_map(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorShape const &input_q,
+        ParallelTensorShape const &input_k,
+        ParallelTensorShape const &input_v) {
 
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
