@@ -13,25 +13,26 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("get_conv2d_incoming_tensor_roles") {
+  TEST_CASE("conv2d_get_incoming_tensor_roles_map") {
     auto make_attrs = [](bool use_bias) {
-      return Conv2DAttrs{/*out_channels=*/4_p,
-                         /*kernel_h=*/3_p,
-                         /*kernel_w=*/2_p,
-                         /*stride_h=*/2_p,
-                         /*stride_w=*/2_p,
-                         /*padding_h=*/1_n,
-                         /*padding_w=*/1_n,
-                         /*groups=*/1_p,
-                         /*activation=*/std::nullopt,
-                         /*use_bias=*/use_bias};
+      return Conv2DAttrs{
+        /*out_channels=*/4_p,
+        /*kernel_h=*/3_p,
+        /*kernel_w=*/2_p,
+        /*stride_h=*/2_p,
+        /*stride_w=*/2_p,
+        /*padding_h=*/1_n,
+        /*padding_w=*/1_n,
+        /*groups=*/1_p,
+        /*activation=*/std::nullopt,
+        /*use_bias=*/use_bias};
     };
 
     SUBCASE("with bias") {
       Conv2DAttrs attrs = make_attrs(/*use_bias=*/true);
 
       std::map<TensorSlotName, IncomingTensorRole> result =
-          get_conv2d_incoming_tensor_roles(attrs);
+          conv2d_get_incoming_tensor_roles_map(attrs);
       std::map<TensorSlotName, IncomingTensorRole> correct = {
           {
               TensorSlotName::INPUT,
@@ -54,7 +55,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       Conv2DAttrs attrs = make_attrs(/*use_bias=*/false);
 
       std::map<TensorSlotName, IncomingTensorRole> result =
-          get_conv2d_incoming_tensor_roles(attrs);
+          conv2d_get_incoming_tensor_roles_map(attrs);
       std::map<TensorSlotName, IncomingTensorRole> correct = {
           {
               TensorSlotName::INPUT,
@@ -63,6 +64,72 @@ TEST_SUITE(FF_TEST_SUITE) {
           {
               TensorSlotName::FILTER,
               IncomingTensorRole::WEIGHT,
+          },
+      };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("conv2d_get_tensor_roles_map") {
+    auto make_attrs = [](bool use_bias) {
+      return Conv2DAttrs{
+        /*out_channels=*/4_p,
+        /*kernel_h=*/3_p,
+        /*kernel_w=*/2_p,
+        /*stride_h=*/2_p,
+        /*stride_w=*/2_p,
+        /*padding_h=*/1_n,
+        /*padding_w=*/1_n,
+        /*groups=*/1_p,
+        /*activation=*/std::nullopt,
+        /*use_bias=*/use_bias};
+    };
+
+    SUBCASE("with bias") {
+      Conv2DAttrs attrs = make_attrs(/*use_bias=*/true);
+
+      std::map<TensorSlotName, TensorRole> result =
+          conv2d_get_tensor_roles_map(attrs);
+      std::map<TensorSlotName, TensorRole> correct = {
+          {
+              TensorSlotName::INPUT,
+              TensorRole::INPUT,
+          },
+          {
+              TensorSlotName::FILTER,
+              TensorRole::WEIGHT,
+          },
+          {
+              TensorSlotName::BIAS,
+              TensorRole::WEIGHT,
+          },
+          {
+              TensorSlotName::OUTPUT,
+              TensorRole::OUTPUT,
+          },
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("without bias") {
+      Conv2DAttrs attrs = make_attrs(/*use_bias=*/false);
+
+      std::map<TensorSlotName, TensorRole> result =
+          conv2d_get_incoming_tensor_roles_map(attrs);
+      std::map<TensorSlotName, TensorRole> correct = {
+          {
+              TensorSlotName::INPUT,
+              TensorRole::INPUT,
+          },
+          {
+              TensorSlotName::FILTER,
+              TensorRole::WEIGHT,
+          },
+          {
+              TensorSlotName::OUTPUT,
+              TensorRole::OUTPUT,
           },
       };
 

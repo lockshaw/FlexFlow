@@ -712,8 +712,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_reduced_shape(get_parallel_tensor_shape(pcg, t_input));
 
       TensorShape projection_weight_shape =
-          conv2d_get_weight_shapes(conv2d_attrs, casted_input_shape)
-              .at(TensorSlotName::FILTER);
+        conv2d_get_kernel_shape(conv2d_attrs, casted_input_shape);
 
       parallel_tensor_guid_t t_projection_weight =
           add_weight_layer(pcg, projection_weight_shape);
@@ -767,8 +766,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_reduced_shape(get_parallel_tensor_shape(pcg, t_input));
 
       TensorShape weight_shape =
-          conv2d_get_weight_shapes(conv2d_attrs, casted_input_shape)
-              .at(TensorSlotName::FILTER);
+          conv2d_get_kernel_shape(conv2d_attrs, casted_input_shape);
 
       parallel_tensor_guid_t t_replicated_weight =
           add_replicate_layer(pcg, degree, add_weight_layer(pcg, weight_shape));

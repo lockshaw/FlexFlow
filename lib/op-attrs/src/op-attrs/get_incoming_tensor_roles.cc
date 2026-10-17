@@ -54,7 +54,7 @@ std::map<TensorSlotName, IncomingTensorRole>
                                 });
           },
           [](Conv2DAttrs const &attrs) {
-            return get_conv2d_incoming_tensor_roles(attrs);
+            return conv2d_get_tensor_roles_map(attrs);
           },
           [](DropoutAttrs const &) {
             return std::map<TensorSlotName, IncomingTensorRole>{

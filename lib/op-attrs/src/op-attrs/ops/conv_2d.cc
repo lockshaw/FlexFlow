@@ -12,6 +12,7 @@
 #include "utils/orthotope/bounded_component.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
 #include <libassert/assert.hpp>
+#include "utils/containers/keys.h"
 
 namespace FlexFlow {
 
@@ -29,18 +30,36 @@ std::map<TensorSlotName, IncomingTensorRole>
   return result;
 }
 
-std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &attrs) {
-  std::set<TensorSlotName> result = {
+std::map<TensorSlotName, TensorRole>
+    conv2d_get_tensor_roles_map(Conv2DAttrs const &attrs)
+{
+  std::map<TensorSlotName, TensorRole> result = {
+    {
       TensorSlotName::INPUT,
+      TensorRole::INPUT,
+    },
+    {
       TensorSlotName::FILTER,
+      TensorRole::WEIGHT,
+    },
+    {
       TensorSlotName::OUTPUT,
+      TensorRole::OUTPUT,
+    },
   };
 
   if (attrs.use_bias) {
-    result.insert(TensorSlotName::BIAS);
+    result.insert({
+      TensorSlotName::BIAS,
+      TensorRole::WEIGHT,
+    });
   }
 
   return result;
+}
+
+std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &attrs) {
+  return keys(conv2d_get_tensor_roles_map(attrs));
 }
 
 TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
@@ -132,23 +151,32 @@ TensorShape conv2d_get_output_shape(Conv2DAttrs const &attrs,
 }
 
 std::map<TensorSlotName, TensorShape>
-    conv2d_get_weight_shapes(Conv2DAttrs const &attrs,
-                             TensorShape const &input_shape) {
-  std::map<TensorSlotName, TensorShape> weight_shapes = {
+    conv2d_get_tensor_shapes_map(Conv2DAttrs const &attrs,
+                                 TensorShape const &input_shape) {
+
+  std::map<TensorSlotName, TensorShape> result = {
+      {
+          TensorSlotName::INPUT,
+          input_shape,
+      },
       {
           TensorSlotName::FILTER,
           conv2d_get_kernel_shape(attrs, input_shape),
       },
+      {
+          TensorSlotName::OUTPUT,
+          conv2d_get_output_shape(attrs, input_shape),
+      },
   };
 
   if (attrs.use_bias) {
-    weight_shapes.insert({
+    result.insert({
         TensorSlotName::BIAS,
         assert_unwrap(conv2d_get_bias_shape(attrs, input_shape)),
     });
   }
 
-  return weight_shapes;
+  return result;
 }
 
 ParallelTensorDimDegrees conv2d_get_kernel_parallel_dim_degrees(
@@ -322,6 +350,36 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
   }
 }
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    conv2d_get_parallel_dim_degrees_map(
+        Conv2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+
+  std::map<TensorSlotName, ParallelTensorDimDegrees> result = {
+      {
+          TensorSlotName::INPUT,
+          input_degrees,
+      },
+      {
+          TensorSlotName::FILTER,
+          conv2d_get_kernel_parallel_dim_degrees(attrs, input_degrees),
+      },
+      {
+          TensorSlotName::OUTPUT,
+          conv2d_get_output_parallel_dim_degrees(attrs, input_degrees),
+      },
+  };
+
+  if (attrs.use_bias) {
+    result.insert({
+        TensorSlotName::BIAS,
+        assert_unwrap(conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees)),
+    });
+  }
+
+  return result;
+}
+
 StandardOperatorTaskGroup
     conv2d_get_task_group(Conv2DAttrs const &attrs,
                           ParallelTensorDimDegrees const &input_degrees) {
@@ -488,23 +546,32 @@ ParallelTensorShape
 }
 
 std::map<TensorSlotName, ParallelTensorShape>
-    conv2d_get_weight_parallel_shapes(Conv2DAttrs const &attrs,
-                                      ParallelTensorShape const &input_shape) {
-  std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
+    conv2d_get_parallel_tensor_shapes_map(Conv2DAttrs const &attrs,
+                                           ParallelTensorShape const &input_shape)
+{
+  std::map<TensorSlotName, ParallelTensorShape> result = {
+      {
+          TensorSlotName::INPUT,
+          input_shape,
+      },
       {
           TensorSlotName::FILTER,
           conv2d_get_kernel_parallel_shape(attrs, input_shape),
       },
+      {
+          TensorSlotName::OUTPUT,
+          conv2d_get_output_parallel_shape(attrs, input_shape),
+      },
   };
 
   if (attrs.use_bias) {
-    weight_shapes.insert({
+    result.insert({
         TensorSlotName::BIAS,
         assert_unwrap(conv2d_get_bias_parallel_shape(attrs, input_shape)),
     });
   }
 
-  return weight_shapes;
+  return result;
 }
 
 /**

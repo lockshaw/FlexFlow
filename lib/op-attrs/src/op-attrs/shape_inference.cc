@@ -36,6 +36,7 @@
 #include "utils/containers/zip_strict.h"
 #include "utils/not_implemented.h"
 #include "utils/overload.h"
+#include "utils/containers/filter_values.h"
 
 namespace FlexFlow {
 
@@ -363,7 +364,12 @@ std::map<TensorSlotName, TensorShape> get_weight_shapes(
         TensorShape input =
             require_only_key(input_shapes, TensorSlotName::INPUT);
 
-        return conv2d_get_weight_shapes(attrs, input);
+        std::map<TensorSlotName, TensorRole> roles = conv2d_get_tensor_roles_map(attrs);
+        std::set<TensorSlotName> weight_slots =
+          keys(filter_values(roles,
+                             [&](TensorRole r) { return r == TensorRole::WEIGHT; }));
+
+        return restrict_keys_strict(conv2d_get_tensor_shapes_map(attrs, input), weight_slots);
       },
       [&](DropoutAttrs const &attrs) -> std::map<TensorSlotName, TensorShape> {
         require_only_key(input_shapes, TensorSlotName::INPUT);
@@ -868,7 +874,12 @@ std::map<TensorSlotName, ParallelTensorShape> get_weight_shapes(
             ParallelTensorShape input =
                 require_only_key(input_shapes, TensorSlotName::INPUT);
 
-            return conv2d_get_weight_parallel_shapes(attrs, input);
+            std::map<TensorSlotName, TensorRole> roles = conv2d_get_tensor_roles_map(attrs);
+            std::set<TensorSlotName> weight_slots =
+              keys(filter_values(roles,
+                                 [&](TensorRole r) { return r == TensorRole::WEIGHT; }));
+
+            return restrict_keys_strict(conv2d_get_parallel_tensor_shapes_map(attrs, input), weight_slots);
           },
           [&](DropoutAttrs const &attrs)
               -> std::map<TensorSlotName, ParallelTensorShape> {
