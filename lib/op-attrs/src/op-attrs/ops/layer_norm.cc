@@ -312,6 +312,45 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 }
 
+OperatorTaskSpace layer_norm_get_operator_task_space(
+    LayerNormAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_input_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_gamma_weights_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_beta_weights_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    layer_norm_get_operator_to_output_mapping(
+        LayerNormAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  // TODO(@lockshaw)(#pr):
+  NOT_IMPLEMENTED();
+}
+
 std::map<TensorSlotName, InitializerAttrs>
     layer_norm_get_initializers(LayerNormAttrs const &attrs) {
   if (attrs.elementwise_affine) {
