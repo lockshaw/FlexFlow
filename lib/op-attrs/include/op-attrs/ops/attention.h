@@ -38,6 +38,27 @@ std::map<TensorSlotName, TensorShape>
                                 TensorShape const &input_k,
                                 TensorShape const &input_v);
 
+ParallelTensorDimDegrees attention_get_weights_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_input_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_output_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
+
 ParallelTensorDims
     attention_get_weights_parallel_dims(MultiHeadAttentionAttrs const &,
                                         ParallelTensorShape const &input_q,
