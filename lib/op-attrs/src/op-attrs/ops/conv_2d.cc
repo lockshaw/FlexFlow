@@ -322,6 +322,28 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
   }
 }
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    conv2d_get_weight_parallel_dim_degrees(
+        Conv2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
+      {
+          TensorSlotName::FILTER,
+          conv2d_get_kernel_parallel_dim_degrees(attrs, input_degrees),
+      },
+  };
+
+  if (attrs.use_bias) {
+    weight_degrees.insert({
+        TensorSlotName::BIAS,
+        assert_unwrap(
+            conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees)),
+    });
+  }
+
+  return weight_degrees;
+}
+
 StandardOperatorTaskGroup
     conv2d_get_task_group(Conv2DAttrs const &attrs,
                           ParallelTensorDimDegrees const &input_degrees) {
@@ -512,6 +534,36 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 
   return standard_operator_task_group_get_operator_to_ptensor_mapping(
       op_task_group, TensorSlotName::OUTPUT);
+}
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    conv2d_get_operator_to_parallel_tensor_mappings(
+        Conv2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
+  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+      mappings = {
+          {
+              TensorSlotName::INPUT,
+              conv2d_get_operator_to_input_mapping(attrs, input_degrees),
+          },
+          {
+              TensorSlotName::FILTER,
+              conv2d_get_operator_to_kernel_mapping(attrs, input_degrees),
+          },
+          {
+              TensorSlotName::OUTPUT,
+              conv2d_get_operator_to_output_mapping(attrs, input_degrees),
+          },
+      };
+
+  if (attrs.use_bias) {
+    mappings.insert({
+        TensorSlotName::BIAS,
+        conv2d_get_operator_to_bias_mapping(attrs, input_degrees),
+    });
+  }
+
+  return mappings;
 }
 
 ParallelTensorShape

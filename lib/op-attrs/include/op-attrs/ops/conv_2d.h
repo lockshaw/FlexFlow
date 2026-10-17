@@ -40,6 +40,11 @@ ParallelTensorDimDegrees conv2d_get_output_parallel_dim_degrees(
     Conv2DAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees);
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    conv2d_get_weight_parallel_dim_degrees(
+        Conv2DAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
+
 ParallelTensorShape
     conv2d_get_kernel_parallel_shape(Conv2DAttrs const &attrs,
                                      ParallelTensorShape const &input_shape);
@@ -79,6 +84,10 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     conv2d_get_operator_to_output_mapping(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input);
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    conv2d_get_operator_to_parallel_tensor_mappings(
         Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input);
 
 std::map<TensorSlotName, InitializerAttrs> conv2d_get_initializers(
