@@ -365,6 +365,153 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
+ParallelTensorDimDegrees attention_get_weights_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  TensorShape unpar_shape =
+      attention_get_weights_shape(attrs,
+                                  get_reduced_shape(input_q),
+                                  get_reduced_shape(input_k),
+                                  get_reduced_shape(input_v));
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+
+  positive_int joined_dim_degree = 1_p;
+  positive_int head_dim_degree = parsed.discard_copy_degree.value;
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/SumDegree{1_p},
+      /*discard_copy_degree=*/DiscardCopyDegree{parsed.batch_degree},
+      /*shard_degrees=*/
+      FFOrdered<positive_int>{joined_dim_degree, head_dim_degree},
+  };
+}
+
+ParallelTensorDimDegrees attention_get_input_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  TensorShape unpar_shape =
+      attention_get_input_bias_shape(attrs,
+                                     get_reduced_shape(input_q),
+                                     get_reduced_shape(input_k),
+                                     get_reduced_shape(input_v));
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+
+  SumDegree sum_degree = SumDegree{1_p};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{parsed.batch_degree * parsed.discard_copy_degree.value};
+  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
+ParallelTensorDimDegrees attention_get_output_bias_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  TensorShape unpar_shape =
+      attention_get_output_bias_shape(attrs,
+                                      get_reduced_shape(input_q),
+                                      get_reduced_shape(input_k),
+                                      get_reduced_shape(input_v));
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+
+  SumDegree sum_degree = SumDegree{1_p};
+  DiscardCopyDegree discard_copy_degree =
+      DiscardCopyDegree{parsed.batch_degree * parsed.discard_copy_degree.value};
+  FFOrdered<positive_int> shard_degrees = FFOrdered<positive_int>{1_p};
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/sum_degree,
+      /*discard_copy_degree=*/discard_copy_degree,
+      /*shard_degrees=*/shard_degrees,
+  };
+}
+
+ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
+    MultiHeadAttentionAttrs const &attrs,
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v) {
+  check_attrs(attrs);
+
+  TensorShape unpar_shape =
+      attention_get_output_shape(attrs,
+                                 get_reduced_shape(input_q),
+                                 get_reduced_shape(input_k),
+                                 get_reduced_shape(input_v));
+
+  MultiHeadAttentionParallelInputs parsed =
+      parse_attention_parallel_input_shape(input_q, input_k, input_v);
+
+  positive_int sum_degree = parsed.discard_copy_degree.value;
+  positive_int discard_copy_degree = 1_p;
+  positive_int batch_degree = parsed.batch_degree;
+  positive_int seq_len_degree = 1_p;
+  positive_int out_dim_degree = 1_p;
+
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/SumDegree{sum_degree},
+      /*discard_copy_degree=*/DiscardCopyDegree{discard_copy_degree},
+      /*shard_degrees=*/
+      FFOrdered<positive_int>{
+          batch_degree,
+          seq_len_degree,
+          out_dim_degree,
+      },
+  };
+}
+
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v) {
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
+      {
+          TensorSlotName::WEIGHT,
+          attention_get_weights_parallel_dim_degrees(
+              attrs, input_q, input_k, input_v),
+      },
+  };
+  if (attrs.bias) {
+    weight_degrees.insert({
+        TensorSlotName::INPUT_BIAS,
+        attention_get_input_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+
+    weight_degrees.insert({
+        TensorSlotName::OUTPUT_BIAS,
+        attention_get_output_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+  }
+
+  return weight_degrees;
+}
+
 std::map<TensorSlotName, ParallelTensorShape>
     attention_get_weight_parallel_shape_map(
         MultiHeadAttentionAttrs const &attrs,
@@ -486,6 +633,57 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         ParallelTensorDimDegrees const &input_k,
         ParallelTensorDimDegrees const &input_v) {
   NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    attention_get_operator_to_parallel_tensor_mappings(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v) {
+  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+      result = {
+          {
+              TensorSlotName::QUERY,
+              attention_get_operator_to_query_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::KEY,
+              attention_get_operator_to_key_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::VALUE,
+              attention_get_operator_to_value_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::WEIGHT,
+              attention_get_operator_to_weights_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::OUTPUT,
+              attention_get_operator_to_output_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+      };
+
+  if (attrs.bias) {
+    result.insert({
+        TensorSlotName::INPUT_BIAS,
+        attention_get_operator_to_input_bias_mapping(
+            attrs, input_q, input_k, input_v),
+    });
+    result.insert({
+        TensorSlotName::OUTPUT_BIAS,
+        attention_get_operator_to_output_bias_mapping(
+            attrs, input_q, input_k, input_v),
+    });
+  }
+
+  return result;
 }
 
 std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(

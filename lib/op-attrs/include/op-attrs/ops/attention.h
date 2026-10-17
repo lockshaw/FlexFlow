@@ -156,6 +156,13 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         ParallelTensorDimDegrees const &input_k,
         ParallelTensorDimDegrees const &input_v);
 
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    attention_get_operator_to_parallel_tensor_mappings(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v);
+
 std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(
     MultiHeadAttentionAttrs const &,
     TensorShape const &input_q,
