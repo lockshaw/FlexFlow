@@ -350,6 +350,36 @@ positive_int attention_get_oSize(TensorShape const &) {
   NOT_IMPLEMENTED();
 }
 
+std::map<TensorSlotName, ParallelTensorDimDegrees>
+    attention_get_weight_parallel_dim_degrees(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v) {
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
+      {
+          TensorSlotName::WEIGHT,
+          attention_get_weights_parallel_dim_degrees(
+              attrs, input_q, input_k, input_v),
+      },
+  };
+  if (attrs.bias) {
+    weight_degrees.insert({
+        TensorSlotName::INPUT_BIAS,
+        attention_get_input_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+
+    weight_degrees.insert({
+        TensorSlotName::OUTPUT_BIAS,
+        attention_get_output_bias_parallel_dim_degrees(
+            attrs, input_q, input_k, input_v),
+    });
+  }
+
+  return weight_degrees;
+}
+
 std::map<TensorSlotName, ParallelTensorShape>
     attention_get_weight_parallel_shapes(MultiHeadAttentionAttrs const &attrs,
                                          ParallelTensorShape const &input_q,
@@ -470,6 +500,57 @@ OperatorSpaceToParallelTensorSpaceBiuniqueMapping
         ParallelTensorDimDegrees const &input_k,
         ParallelTensorDimDegrees const &input_v) {
   NOT_IMPLEMENTED();
+}
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    attention_get_operator_to_parallel_tensor_mappings(
+        MultiHeadAttentionAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_q,
+        ParallelTensorDimDegrees const &input_k,
+        ParallelTensorDimDegrees const &input_v) {
+  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+      result = {
+          {
+              TensorSlotName::QUERY,
+              attention_get_operator_to_query_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::KEY,
+              attention_get_operator_to_key_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::VALUE,
+              attention_get_operator_to_value_input_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::WEIGHT,
+              attention_get_operator_to_weights_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+          {
+              TensorSlotName::OUTPUT,
+              attention_get_operator_to_output_mapping(
+                  attrs, input_q, input_k, input_v),
+          },
+      };
+
+  if (attrs.bias) {
+    result.insert({
+        TensorSlotName::INPUT_BIAS,
+        attention_get_operator_to_input_bias_mapping(
+            attrs, input_q, input_k, input_v),
+    });
+    result.insert({
+        TensorSlotName::OUTPUT_BIAS,
+        attention_get_operator_to_output_bias_mapping(
+            attrs, input_q, input_k, input_v),
+    });
+  }
+
+  return result;
 }
 
 std::map<TensorSlotName, InitializerAttrs> attention_get_initializers(
