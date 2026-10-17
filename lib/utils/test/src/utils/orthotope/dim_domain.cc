@@ -110,6 +110,82 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
+  TEST_CASE("restrict_domain_to_dims_strict") {
+    DimDomain<int> domain = DimDomain<int>{{
+        {3, 5_p},
+        {7, 2_p},
+        {1, 3_p},
+    }};
+
+    SUBCASE("allowed is a strict subset of the dims") {
+      std::set<int> allowed = {
+          3,
+          1,
+      };
+
+      DimDomain<int> result = restrict_domain_to_dims_strict(domain, allowed);
+      DimDomain<int> correct = DimDomain<int>{{
+          {3, 5_p},
+          {1, 3_p},
+      }};
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("allowed is the same as dims") {
+      std::set<int> allowed = {
+          3,
+          7,
+          1,
+      };
+
+      DimDomain<int> result = restrict_domain_to_dims_strict(domain, allowed);
+      DimDomain<int> correct = domain;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("allowed is empty") {
+      std::set<int> allowed = {};
+
+      DimDomain<int> result = restrict_domain_to_dims_strict(domain, allowed);
+      DimDomain<int> correct = DimDomain<int>{{}};
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("allowed is mutually exclusive with dims") {
+      std::set<int> allowed = {
+          6,
+          8,
+      };
+
+      CHECK_THROWS(restrict_domain_to_dims_strict(domain, allowed));
+    }
+
+    SUBCASE("allowed is overlapping with dims") {
+      std::set<int> allowed = {
+          6,
+          8,
+          7,
+      };
+
+      CHECK_THROWS(restrict_domain_to_dims_strict(domain, allowed));
+    }
+
+    SUBCASE("allowed is a superset of dims") {
+      std::set<int> allowed = {
+          6,
+          8,
+          7,
+          3,
+          1,
+      };
+
+      CHECK_THROWS(restrict_domain_to_dims_strict(domain, allowed));
+    }
+  }
+
   TEST_CASE("orthotope_from_dim_domain") {
     DimDomain<int> domain = DimDomain<int>{{
         {3, 5_p},

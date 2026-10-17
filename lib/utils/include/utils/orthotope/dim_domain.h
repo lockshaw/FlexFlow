@@ -6,6 +6,7 @@
 #include "utils/containers/map_from_keys_and_values.h"
 #include "utils/containers/product.h"
 #include "utils/containers/restrict_keys.h"
+#include "utils/containers/restrict_keys_strict.h"
 #include "utils/containers/set_minus.h"
 #include "utils/containers/sorted_by.h"
 #include "utils/containers/transform.h"
@@ -51,7 +52,17 @@ std::set<T> get_nontrivial_domain_dims(DimDomain<T> const &domain) {
 template <typename T>
 DimDomain<T> restrict_domain_to_dims(DimDomain<T> const &domain,
                                      std::set<T> const &allowed) {
-  return DimDomain<T>{restrict_keys(domain.dims, allowed)};
+  return DimDomain<T>{
+      restrict_keys(domain.dims, allowed),
+  };
+}
+
+template <typename T>
+DimDomain<T> restrict_domain_to_dims_strict(DimDomain<T> const &domain,
+                                            std::set<T> const &allowed) {
+  return DimDomain<T>{
+      restrict_keys_strict(domain.dims, allowed),
+  };
 }
 
 template <typename T>

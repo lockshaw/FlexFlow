@@ -25,6 +25,7 @@
 #include "utils/containers/transform.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 
 namespace FlexFlow {
@@ -173,6 +174,13 @@ DimDomain<parallel_tensor_dim_idx_t>
                                                                    idx);
                    }),
   };
+}
+
+DimDomain<parallel_tensor_dim_idx_t> dim_domain_for_ptensor_dim_idxs(
+    ParallelTensorDimDegrees const &dim_degrees,
+    std::set<parallel_tensor_dim_idx_t> const &dim_idxs) {
+  return restrict_domain_to_dims_strict(
+      dim_domain_from_parallel_tensor_dim_degrees(dim_degrees), dim_idxs);
 }
 
 ParallelTensorDimDegrees parallel_tensor_dim_degrees_from_dim_domain(

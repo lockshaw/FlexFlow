@@ -216,4 +216,52 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
+
+  TEST_CASE("dim_domain_for_ptensor_dim_idxs") {
+    ParallelTensorDimDegrees dim_degrees = ParallelTensorDimDegrees{
+        SumDegree{2_p},
+        DiscardCopyDegree{3_p},
+        FFOrdered<positive_int>{
+            5_p,
+            7_p,
+            11_p,
+            13_p,
+        },
+    };
+
+    SUBCASE("dim idx set is subset") {
+      std::set<parallel_tensor_dim_idx_t> dim_idxs = {
+          discard_copy_dim_idx(),
+          shard_dim_idx(ff_dim_t{0_n}),
+          shard_dim_idx(ff_dim_t{2_n}),
+          shard_dim_idx(ff_dim_t{3_n}),
+      };
+
+      DimDomain<parallel_tensor_dim_idx_t> result =
+          dim_domain_for_ptensor_dim_idxs(dim_degrees, dim_idxs);
+
+      DimDomain<parallel_tensor_dim_idx_t> correct =
+          DimDomain<parallel_tensor_dim_idx_t>{
+              /*dims=*/std::map<parallel_tensor_dim_idx_t, positive_int>{
+                  {discard_copy_dim_idx(), 3_p},
+                  {shard_dim_idx(ff_dim_t{0_n}), 5_p},
+                  {shard_dim_idx(ff_dim_t{2_n}), 11_p},
+                  {shard_dim_idx(ff_dim_t{3_n}), 13_p},
+              },
+          };
+    }
+
+    SUBCASE("dim idx set contains other/invalid elements") {
+      std::set<parallel_tensor_dim_idx_t> dim_idxs = {
+          discard_copy_dim_idx(),
+          shard_dim_idx(ff_dim_t{0_n}),
+          shard_dim_idx(ff_dim_t{2_n}),
+          shard_dim_idx(ff_dim_t{3_n}),
+          shard_dim_idx(ff_dim_t{4_n}),
+          shard_dim_idx(ff_dim_t{5_n}),
+      };
+
+      CHECK_THROWS(dim_domain_for_ptensor_dim_idxs(dim_degrees, dim_idxs));
+    }
+  }
 }

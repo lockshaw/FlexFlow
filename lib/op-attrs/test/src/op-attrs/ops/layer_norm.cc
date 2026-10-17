@@ -7,6 +7,24 @@
 
 using namespace ::FlexFlow;
 
+static LayerNormAttrs mk_attrs(bool elementwise_affine) {
+  return LayerNormAttrs{
+      /*axes=*/{ff_dim_t{1_n}, ff_dim_t{3_n}},
+      /*elementwise_affine=*/elementwise_affine,
+      /*eps=*/0.1,
+  };
+}
+
+template <typename... Args>
+static ParallelTensorDimDegrees
+    mk_degrees(int o_sum, int o_discard, Args... o_shards) {
+  return ParallelTensorDimDegrees{
+      SumDegree{positive_int{o_sum}},
+      DiscardCopyDegree{positive_int{o_discard}},
+      FFOrdered<positive_int>{positive_int{o_shards}...},
+  };
+}
+
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("get_layer_norm_incoming_tensor_roles") {
     auto make_attrs = [](bool elementwise_affine) {
@@ -56,237 +74,573 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("shape inference (LayerNorm)") {
-    LayerNormAttrs attrs_affine_true = LayerNormAttrs{
-        /*axes=*/{ff_dim_t{1_n}, ff_dim_t{3_n}},
-        /*elementwise_affine=*/true,
-        /*eps=*/0.1,
-    };
-
-    LayerNormAttrs attrs_affine_false = [&] {
-      LayerNormAttrs attrs = attrs_affine_true;
-      attrs.elementwise_affine = false;
-      return attrs;
-    }();
-
+  TEST_CASE("layer_norm_get_output_shape") {
     TensorShape input = TensorShape{
-        TensorDims{FFOrdered{
-            12_p,
-            14_p,
-            16_p,
-            18_p,
-        }},
+        TensorDims{
+            FFOrdered<positive_int>{
+                12_p,
+                8_p,
+                13_p,
+                10_p,
+            },
+        },
         DataType::FLOAT,
     };
 
-    TensorShape output = input;
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
 
-    TensorShape gamma = TensorShape{
-        TensorDims{FFOrdered{
-            12_p,
-            16_p,
-        }},
-        DataType::FLOAT,
-    };
-
-    TensorShape beta = gamma;
-
-    SUBCASE("layer_norm_get_output_shape") {
-      TensorShape result =
-          layer_norm_get_output_shape(attrs_affine_true, input);
-      TensorShape correct = output;
+      TensorShape result = layer_norm_get_output_shape(attrs, input);
+      TensorShape correct = input;
 
       CHECK(result == correct);
     }
 
-    SUBCASE("layer_norm_get_gamma_weights_shape") {
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      TensorShape result = layer_norm_get_output_shape(attrs, input);
+      TensorShape correct = input;
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("layer_norm_get_gamma_weights_shape") {
+    TensorShape input = TensorShape{
+        TensorDims{
+            FFOrdered<positive_int>{
+                12_p,
+                8_p,
+                13_p,
+                10_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
+
+      TensorShape result = layer_norm_get_gamma_weights_shape(attrs, input);
+      TensorShape correct = TensorShape{
+          TensorDims{
+              FFOrdered<positive_int>{
+                  8_p,
+                  10_p,
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      CHECK_THROWS(layer_norm_get_gamma_weights_shape(attrs, input));
+    }
+  }
+
+  TEST_CASE("layer_norm_get_beta_weights_shape") {
+    TensorShape input = TensorShape{
+        TensorDims{
+            FFOrdered<positive_int>{
+                12_p,
+                8_p,
+                13_p,
+                10_p,
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
+
+      TensorShape result = layer_norm_get_beta_weights_shape(attrs, input);
+      TensorShape correct = TensorShape{
+          TensorDims{
+              FFOrdered<positive_int>{
+                  8_p,
+                  10_p,
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      CHECK_THROWS(layer_norm_get_beta_weights_shape(attrs, input));
+    }
+  }
+
+  TEST_CASE("layer_norm_get_output_parallel_dim_degrees") {
+    LayerNormAttrs affine_true_attrs = mk_attrs(true);
+    LayerNormAttrs affine_false_attrs = mk_attrs(false);
+
+    SUBCASE("preexisting sum parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(3, 1, 1, 1, 1, 1);
+
       SUBCASE("elementwise_affine = true") {
-        TensorShape result =
-            layer_norm_get_gamma_weights_shape(attrs_affine_true, input);
-        TensorShape correct = gamma;
+        CHECK_THROWS(layer_norm_get_output_parallel_dim_degrees(
+            affine_true_attrs, input));
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_output_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("preexisting discard copy parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 3, 1, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_true_attrs,
+                                                       input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(3, 1, 1, 1, 1, 1);
 
         CHECK(result == correct);
       }
 
       SUBCASE("elementwise_affine = false") {
-        CHECK_THROWS(
-            layer_norm_get_gamma_weights_shape(attrs_affine_false, input));
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_false_attrs,
+                                                       input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(3, 1, 1, 1, 1, 1);
+
+        CHECK(result == correct);
       }
     }
 
-    SUBCASE("layer_norm_get_beta_weights_shape") {
+    SUBCASE("shard parallelism in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 1, 2, 1, 1);
+
       SUBCASE("elementwise_affine = true") {
-        TensorShape result =
-            layer_norm_get_beta_weights_shape(attrs_affine_true, input);
-        TensorShape correct = beta;
+        CHECK_THROWS(layer_norm_get_output_parallel_dim_degrees(
+            affine_true_attrs, input));
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_output_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("shard parallelism not in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 2, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_true_attrs,
+                                                       input);
+
+        ParallelTensorDimDegrees correct = input;
 
         CHECK(result == correct);
       }
 
       SUBCASE("elementwise_affine = false") {
-        CHECK_THROWS(
-            layer_norm_get_beta_weights_shape(attrs_affine_false, input));
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_false_attrs,
+                                                       input);
+
+        ParallelTensorDimDegrees correct = input;
+
+        CHECK(result == correct);
       }
     }
 
-    auto make_input = [&](SumDegree o_sum,
-                          DiscardCopyDegree o_eq,
-                          positive_int o0,
-                          positive_int o1,
-                          positive_int o2,
-                          positive_int o3) {
-      return lift_shape_to_parallel_with_degrees(
-          input, o_sum, o_eq, FFOrdered{o0, o1, o2, o3});
-    };
+    SUBCASE("hybrid parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 5, 7, 1, 2, 1);
 
-    auto make_output = [&](SumDegree o_sum,
-                           DiscardCopyDegree o_eq,
-                           positive_int o0,
-                           positive_int o1,
-                           positive_int o2,
-                           positive_int o3) {
-      return lift_shape_to_parallel_with_degrees(
-          output, o_sum, o_eq, FFOrdered{o0, o1, o2, o3});
-    };
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_true_attrs,
+                                                       input);
 
-    auto make_gamma_weights = [&](SumDegree o_sum,
-                                  DiscardCopyDegree o_eq,
-                                  positive_int o0,
-                                  positive_int o2) {
-      return lift_shape_to_parallel_with_degrees(
-          gamma, o_sum, o_eq, FFOrdered{o0, o2});
-    };
+        ParallelTensorDimDegrees correct = mk_degrees(5, 1, 7, 1, 2, 1);
 
-    auto make_beta_weights = [&](SumDegree o_sum,
-                                 DiscardCopyDegree o_eq,
-                                 positive_int o0,
-                                 positive_int o2) {
-      return lift_shape_to_parallel_with_degrees(
-          beta, o_sum, o_eq, FFOrdered{o0, o2});
-    };
-
-    SUBCASE("parallel shape inference (LayerNorm)") {
-      SUBCASE("partition parallelism (not in axes)") {
-        positive_int degree0 = 2_p;
-        positive_int degree2 = 3_p;
-
-        ParallelTensorShape par_input = make_input(
-            SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, 1_p, degree2, 1_p);
-
-        SUBCASE("layer_norm_get_output_parallel_shape") {
-          ParallelTensorShape result = layer_norm_get_output_parallel_shape(
-              attrs_affine_true, par_input);
-          ParallelTensorShape correct = make_output(SumDegree{1_p},
-                                                    DiscardCopyDegree{1_p},
-                                                    degree0,
-                                                    1_p,
-                                                    degree2,
-                                                    1_p);
-
-          CHECK(result == correct);
-        }
-
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
-          SUBCASE("elementwise_affine = true") {
-            ParallelTensorShape result =
-                layer_norm_get_gamma_weights_parallel_shape(attrs_affine_true,
-                                                            par_input);
-            ParallelTensorShape correct = make_gamma_weights(
-                SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, degree2);
-
-            CHECK(result == correct);
-          }
-
-          SUBCASE("elementwise_affine = false") {
-            CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
-                attrs_affine_false, par_input));
-          }
-        }
-
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
-          SUBCASE("elementwise_affine = true") {
-            ParallelTensorShape result =
-                layer_norm_get_beta_weights_parallel_shape(attrs_affine_true,
-                                                           par_input);
-            ParallelTensorShape correct = make_beta_weights(
-                SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, degree2);
-
-            CHECK(result == correct);
-          }
-
-          SUBCASE("elementwise_affine = false") {
-            CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
-                attrs_affine_false, par_input));
-          }
-        }
+        CHECK(result == correct);
       }
 
-      SUBCASE("partition parallelism (in axes)") {
-        positive_int degree1 = 2_p;
-        positive_int degree2 = 4_p;
+      SUBCASE("elementwise_affine = false") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_output_parallel_dim_degrees(affine_false_attrs,
+                                                       input);
 
-        ParallelTensorShape par_input = make_input(
-            SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, degree1, degree2, 1_p);
+        ParallelTensorDimDegrees correct = mk_degrees(5, 1, 7, 1, 2, 1);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
-                                                            par_input));
-        }
+        CHECK(result == correct);
+      }
+    }
+  }
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
+  TEST_CASE("layer_norm_get_gamma_weights_parallel_dim_degrees") {
+    LayerNormAttrs affine_true_attrs = mk_attrs(true);
+    LayerNormAttrs affine_false_attrs = mk_attrs(false);
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
+    SUBCASE("preexisting sum parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(3, 1, 1, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_true_attrs, input));
       }
 
-      SUBCASE("sum parallelism") {
-        SumDegree sum_degree = SumDegree{2_p};
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
 
-        ParallelTensorShape par_input =
-            make_input(sum_degree, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p, 1_p);
+    SUBCASE("preexisting discard copy parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 3, 1, 1, 1, 1);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
-                                                            par_input));
-        }
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_gamma_weights_parallel_dim_degrees(affine_true_attrs,
+                                                              input);
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
+        ParallelTensorDimDegrees correct = mk_degrees(3, 1, 1, 1);
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
+        CHECK(result == correct);
       }
 
-      SUBCASE("discard copy parallelism") {
-        DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{2_p};
-
-        ParallelTensorShape par_input =
-            make_input(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p, 1_p);
-
-        SUBCASE("layer_norm_get_output_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
-                                                            par_input));
-        }
-
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
-
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
-          CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
-              attrs_affine_true, par_input));
-        }
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
       }
+    }
+
+    SUBCASE("shard parallelism in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 1, 2, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_true_attrs, input));
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("shard parallelism not in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 2, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_gamma_weights_parallel_dim_degrees(affine_true_attrs,
+                                                              input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(1, 2, 1, 1);
+
+        CHECK(result == correct);
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("hybrid parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 5, 7, 1, 2, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_gamma_weights_parallel_dim_degrees(affine_true_attrs,
+                                                              input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(5, 7 * 2, 1, 1);
+
+        CHECK(result == correct);
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_gamma_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+  }
+
+  TEST_CASE("layer_norm_get_beta_weights_parallel_dim_degrees") {
+    LayerNormAttrs affine_true_attrs = mk_attrs(true);
+    LayerNormAttrs affine_false_attrs = mk_attrs(false);
+
+    SUBCASE("preexisting sum parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(3, 1, 1, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_true_attrs, input));
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("preexisting discard copy parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 3, 1, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_beta_weights_parallel_dim_degrees(affine_true_attrs,
+                                                             input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(3, 1, 1, 1);
+
+        CHECK(result == correct);
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("shard parallelism in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 1, 2, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_true_attrs, input));
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("shard parallelism not in norm axes") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 1, 2, 1, 1, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_beta_weights_parallel_dim_degrees(affine_true_attrs,
+                                                             input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(1, 2, 1, 1);
+
+        CHECK(result == correct);
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+
+    SUBCASE("hybrid parallelism") {
+      ParallelTensorDimDegrees input = mk_degrees(1, 5, 7, 1, 2, 1);
+
+      SUBCASE("elementwise_affine = true") {
+        ParallelTensorDimDegrees result =
+            layer_norm_get_beta_weights_parallel_dim_degrees(affine_true_attrs,
+                                                             input);
+
+        ParallelTensorDimDegrees correct = mk_degrees(5, 7 * 2, 1, 1);
+
+        CHECK(result == correct);
+      }
+
+      SUBCASE("elementwise_affine = false") {
+        CHECK_THROWS(layer_norm_get_beta_weights_parallel_dim_degrees(
+            affine_false_attrs, input));
+      }
+    }
+  }
+
+  TEST_CASE("layer_norm_get_output_parallel_shape") {
+    // since most of the edge cases are already tested in
+    // layer_norm_get_output_shape and
+    // layer_norm_get_output_parallel_dim_degrees, here we just do a
+    // basic check that they compose
+
+    ParallelTensorShape input_shape = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{49_p, 7_p},
+                ShardParallelDim{13_p, 1_p},
+                ShardParallelDim{16_p, 2_p},
+                ShardParallelDim{12_p, 1_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{5_p},
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
+
+      ParallelTensorShape result =
+          layer_norm_get_output_parallel_shape(attrs, input_shape);
+
+      ParallelTensorShape correct = ParallelTensorShape{
+          ParallelTensorDims{
+              FFOrdered<ShardParallelDim>{
+                  ShardParallelDim{49_p, 7_p},
+                  ShardParallelDim{13_p, 1_p},
+                  ShardParallelDim{16_p, 2_p},
+                  ShardParallelDim{12_p, 1_p},
+              },
+              ReplicaParallelDimSet{
+                  SumDegree{5_p},
+                  DiscardCopyDegree{1_p},
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      ParallelTensorShape result =
+          layer_norm_get_output_parallel_shape(attrs, input_shape);
+
+      ParallelTensorShape correct = ParallelTensorShape{
+          ParallelTensorDims{
+              FFOrdered<ShardParallelDim>{
+                  ShardParallelDim{49_p, 7_p},
+                  ShardParallelDim{13_p, 1_p},
+                  ShardParallelDim{16_p, 2_p},
+                  ShardParallelDim{12_p, 1_p},
+              },
+              ReplicaParallelDimSet{
+                  SumDegree{5_p},
+                  DiscardCopyDegree{1_p},
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("layer_norm_get_gamma_weights_parallel_shape") {
+    // since most of the edge cases are already tested in
+    // layer_norm_get_gamma_weights_shape and
+    // layer_norm_get_gamma_weights_parallel_dim_degrees, here we just do a
+    // basic check that they compose
+
+    ParallelTensorShape input_shape = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{49_p, 7_p},
+                ShardParallelDim{13_p, 1_p},
+                ShardParallelDim{16_p, 2_p},
+                ShardParallelDim{12_p, 1_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{5_p},
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
+
+      ParallelTensorShape result =
+          layer_norm_get_gamma_weights_parallel_shape(attrs, input_shape);
+
+      ParallelTensorShape correct = ParallelTensorShape{
+          ParallelTensorDims{
+              FFOrdered<ShardParallelDim>{
+                  ShardParallelDim{13_p, 1_p},
+                  ShardParallelDim{12_p, 1_p},
+              },
+              ReplicaParallelDimSet{
+                  SumDegree{5_p},
+                  DiscardCopyDegree{7_p * 2_p},
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      CHECK_THROWS(
+          layer_norm_get_gamma_weights_parallel_shape(attrs, input_shape));
+    }
+  }
+
+  TEST_CASE("layer_norm_get_beta_weights_parallel_shape") {
+    // since most of the edge cases are already tested in
+    // layer_norm_get_beta_weights_shape and
+    // layer_norm_get_beta_weights_parallel_dim_degrees, here we just do a
+    // basic check that they compose
+
+    ParallelTensorShape input_shape = ParallelTensorShape{
+        ParallelTensorDims{
+            FFOrdered<ShardParallelDim>{
+                ShardParallelDim{49_p, 7_p},
+                ShardParallelDim{13_p, 1_p},
+                ShardParallelDim{16_p, 2_p},
+                ShardParallelDim{12_p, 1_p},
+            },
+            ReplicaParallelDimSet{
+                SumDegree{1_p},
+                DiscardCopyDegree{5_p},
+            },
+        },
+        DataType::FLOAT,
+    };
+
+    SUBCASE("elementwise_affine = true") {
+      LayerNormAttrs attrs = mk_attrs(true);
+
+      ParallelTensorShape result =
+          layer_norm_get_beta_weights_parallel_shape(attrs, input_shape);
+
+      ParallelTensorShape correct = ParallelTensorShape{
+          ParallelTensorDims{
+              FFOrdered<ShardParallelDim>{
+                  ShardParallelDim{13_p, 1_p},
+                  ShardParallelDim{12_p, 1_p},
+              },
+              ReplicaParallelDimSet{
+                  SumDegree{5_p},
+                  DiscardCopyDegree{7_p * 2_p},
+              },
+          },
+          DataType::FLOAT,
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("elementwise_affine = false") {
+      LayerNormAttrs attrs = mk_attrs(false);
+
+      CHECK_THROWS(
+          layer_norm_get_beta_weights_parallel_shape(attrs, input_shape));
     }
   }
 }

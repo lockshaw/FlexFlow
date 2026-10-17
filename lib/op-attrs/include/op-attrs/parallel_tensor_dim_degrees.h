@@ -45,6 +45,10 @@ DimDomain<parallel_tensor_dim_idx_t>
     dim_domain_from_parallel_tensor_dim_degrees(
         ParallelTensorDimDegrees const &);
 
+DimDomain<parallel_tensor_dim_idx_t> dim_domain_for_ptensor_dim_idxs(
+    ParallelTensorDimDegrees const &,
+    std::set<parallel_tensor_dim_idx_t> const &);
+
 ParallelTensorDimDegrees parallel_tensor_dim_degrees_from_dim_domain(
     DimDomain<parallel_tensor_dim_idx_t> const &);
 
