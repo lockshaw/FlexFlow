@@ -6,6 +6,7 @@
 #include "op-attrs/ops/layer_norm_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 
@@ -13,6 +14,8 @@ namespace FlexFlow {
 
 std::map<TensorSlotName, IncomingTensorRole>
     get_layer_norm_incoming_tensor_roles(LayerNormAttrs const &);
+
+std::set<TensorSlotName> layer_norm_get_slots(LayerNormAttrs const &);
 
 TensorShape layer_norm_get_output_shape(LayerNormAttrs const &,
                                         TensorShape const &);
@@ -50,6 +53,10 @@ ParallelTensorShape
 std::map<TensorSlotName, ParallelTensorShape>
     layer_norm_get_weight_parallel_shapes(
         LayerNormAttrs const &attrs, ParallelTensorShape const &input_shape);
+
+StandardOperatorTaskGroup
+    layer_norm_get_task_group(LayerNormAttrs const &attrs,
+                              ParallelTensorDimDegrees const &input_degrees);
 
 /**
  * @brief Chosen to match pytorch

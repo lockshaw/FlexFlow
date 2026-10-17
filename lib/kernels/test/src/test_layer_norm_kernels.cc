@@ -33,13 +33,13 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     Allocator allocator = create_local_cuda_memory_allocator();
 
-    LayerNormPerDeviceState state = Kernels::LayerNorm::gpu_init_kernel(
-        managed_handle.raw_handle(),
-        allocator,
-        elementwise_affine,
-        batch_size.int_from_positive_int(),
-        feature_size.int_from_positive_int(),
-        epsilon);
+    LayerNormPerDeviceState state =
+        layer_norm_gpu_init_kernel(managed_handle.raw_handle(),
+                                   allocator,
+                                   elementwise_affine,
+                                   batch_size.int_from_positive_int(),
+                                   feature_size.int_from_positive_int(),
+                                   epsilon);
 
     GenericTensorAccessorR input_accessor =
         create_random_filled_accessor_r(input_shape, allocator);
@@ -52,12 +52,12 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW beta_accessor = create_constant_filled_accessor_w(
           feature_shape, allocator, make_float_data_type_value(0));
 
-      Kernels::LayerNorm::gpu_forward_kernel(managed_stream.raw_stream(),
-                                             state,
-                                             input_accessor,
-                                             output_accessor,
-                                             gamma_accessor,
-                                             beta_accessor);
+      layer_norm_gpu_forward_kernel(managed_stream.raw_stream(),
+                                    state,
+                                    input_accessor,
+                                    output_accessor,
+                                    gamma_accessor,
+                                    beta_accessor);
     }
 
     SUBCASE("gpu_backward_kernel") {
@@ -70,7 +70,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       GenericTensorAccessorW beta_grad_accessor =
           allocator.allocate_tensor(feature_shape);
 
-      Kernels::LayerNorm::gpu_backward_kernel(
+      layer_norm_gpu_backward_kernel(
           managed_stream.raw_stream(),
           state,
           output_grad_accessor,
