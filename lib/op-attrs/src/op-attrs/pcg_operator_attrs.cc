@@ -1,4 +1,5 @@
 #include "op-attrs/pcg_operator_attrs.h"
+#include "op-attrs/get_incoming_tensor_roles.h"
 #include "op-attrs/get_op_type.h"
 #include "op-attrs/ops/broadcast.h"
 #include "op-attrs/ops/cast.h"
@@ -34,6 +35,26 @@ PCGOperatorAttrs pcg_op_attrs_from_compgraph_op_attrs(
   return cg_attrs.visit<PCGOperatorAttrs>(overload{
       [](auto const &attrs) { return PCGOperatorAttrs{attrs}; },
   });
+}
+
+void pcg_op_attrs_check_incoming_tensor_roles(
+    PCGOperatorAttrs const &op_attrs,
+    std::unordered_set<TensorSlotName> const &input_slots,
+    std::unordered_set<TensorSlotName> const &weight_slots) {
+  std::unordered_map<TensorSlotName, IncomingTensorRole> correct =
+      get_incoming_tensor_roles(op_attrs);
+
+  std::unordered_map<TensorSlotName, IncomingTensorRole> current =
+      binary_merge_disjoint_maps(
+          generate_map(
+              input_slots,
+              [](TensorSlotName) { return IncomingTensorRole::INPUT; }),
+          generate_map(weight_slots, [](TensorSlotName) {
+            return IncomingTensorRole::WEIGHT;
+          }));
+
+  ASSERT(correct == current,
+         "check_incoming_tensor_roles found deviation in incoming tensors");
 }
 
 } // namespace FlexFlow

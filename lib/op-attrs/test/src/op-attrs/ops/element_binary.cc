@@ -84,7 +84,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                         DiscardCopyDegree o_eq,
                         positive_int o_1,
                         positive_int o_2,
-                        positive_int o_3) {
+                        positive_int o_3) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           unpar_lhs, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
@@ -93,7 +93,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                         DiscardCopyDegree o_eq,
                         positive_int o_1,
                         positive_int o_2,
-                        positive_int o_3) {
+                        positive_int o_3) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           unpar_rhs, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };
@@ -102,7 +102,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o_1,
                            positive_int o_2,
-                           positive_int o_3) {
+                           positive_int o_3) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           unpar_output, o_sum, o_eq, FFOrdered{o_1, o_2, o_3});
     };

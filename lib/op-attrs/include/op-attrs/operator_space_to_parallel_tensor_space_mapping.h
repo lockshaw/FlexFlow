@@ -3,6 +3,7 @@
 
 #include "op-attrs/num_ptensor_parallel_dims_t.h"
 #include "op-attrs/num_ptensor_shard_dims_t.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
@@ -21,12 +22,28 @@ OperatorTaskSpace get_operator_task_space_for_mapping(
 ParallelTensorDimDegrees get_parallel_tensor_space_for_mapping(
     OperatorSpaceToParallelTensorSpaceMapping const &);
 
+DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
+    get_projection_for_op_to_ptensor_identity_mapping(
+        std::set<operator_task_space_dim_idx_t> const &task_space_dims,
+        std::set<parallel_tensor_dim_idx_t> const &parallel_tensor_space_dims);
+
 OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
     OperatorTaskSpace const &operator_task_space,
     ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
 
 OperatorSpaceToParallelTensorSpaceMapping
     operator_ptensor_space_mapping_from_projection(
+        DimProjection<operator_task_space_dim_idx_t,
+                      parallel_tensor_dim_idx_t> const &projection,
+        OperatorTaskSpace const &op_task_space,
+        ParallelTensorDimDegrees const &parallel_tensor_dim_degrees);
+
+OperatorSpaceToParallelTensorSpaceMapping
+    operator_ptensor_space_mapping_from_biunique(
+        OperatorSpaceToParallelTensorSpaceBiuniqueMapping const &);
+
+OperatorSpaceToParallelTensorSpaceMapping
+    operator_ptensor_space_mapping_by_scaling_projection(
         DimProjection<operator_task_space_dim_idx_t,
                       parallel_tensor_dim_idx_t> const &projection,
         OperatorTaskSpace const &op_task_space,

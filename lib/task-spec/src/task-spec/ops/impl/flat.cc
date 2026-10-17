@@ -26,8 +26,6 @@ static std::optional<milliseconds_t>
   std::optional<ProfilingSettings> profiling = acc.get_profiling_settings();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
 
-  GenericTensorAccessorR input =
-      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
   GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
   GenericTensorAccessorW input_grad =

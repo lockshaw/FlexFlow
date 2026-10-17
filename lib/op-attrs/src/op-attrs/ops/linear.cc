@@ -137,8 +137,8 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
 
 //! [parallel shape inference composition example]
 ParallelTensorShape
-    linear_get_projection_shape(LinearAttrs const &attrs,
-                                ParallelTensorShape const &input) {
+    linear_get_projection_parallel_shape(LinearAttrs const &attrs,
+                                         ParallelTensorShape const &input) {
   TensorShape unpar =
       linear_get_projection_shape(attrs, get_reduced_shape(input));
 
@@ -241,8 +241,10 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 
   if (attrs.use_bias) {
-    weight_shapes.insert({TensorSlotName::BIAS,
-                          linear_get_bias_parallel_shape(attrs, input_shape)});
+    weight_shapes.insert({
+        TensorSlotName::BIAS,
+        linear_get_bias_parallel_shape(attrs, input_shape),
+    });
   }
 
   return weight_shapes;

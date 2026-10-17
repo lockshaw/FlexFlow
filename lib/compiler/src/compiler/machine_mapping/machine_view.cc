@@ -1,23 +1,31 @@
 #include "compiler/machine_mapping/machine_view.h"
 #include "compiler/machine_mapping/machine_view_dimension.dtg.h"
+#include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/stride_t.dtg.h"
+#include "op-attrs/generic_operator_task_group.h"
+#include "op-attrs/get_generic_operator_task_group.h"
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/shape_inference.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_role.dtg.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "pcg/machine_compute_specification.h"
 #include "pcg/machine_space_coordinate.dtg.h"
+#include "pcg/machine_space_offset.dtg.h"
 #include "pcg/machine_specification.dtg.h"
 #include "pcg/machine_specification_dimension.dtg.h"
+#include "pcg/unresolved_machine_space_offset.h"
 #include "utils/bidict/generate_bidict.h"
 #include "utils/containers/contains.h"
 #include "utils/containers/count.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/get_only.h"
+#include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/scanl.h"
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
@@ -131,6 +139,19 @@ std::set<MachineSpaceCoordinate> get_machine_space_coordinates(
                    });
 }
 
+std::set<device_id_t> get_device_ids(OperatorTaskSpace const &task_space,
+                                     MachineView const &mv,
+                                     MachineComputeSpecification const &ms) {
+  ASSERT(op_task_space_num_dims(task_space) ==
+         mv_get_expected_task_space_num_dims(mv));
+
+  return transform(get_machine_space_coordinates(
+                       task_space, compute_slice_from_specification(ms), mv),
+                   [&](MachineSpaceCoordinate const &coord) {
+                     return get_device_id(ms, coord);
+                   });
+}
+
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
                                        MachineSpecificationDimension const &dim,
                                        stride_t stride) {
@@ -160,25 +181,11 @@ static OperatorAtomicTaskShardBinding
       mv_task_space_coord_for_machine_space_coord(
           machine_space, machine_view, op_task_space, machine_space_coord);
 
-  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping> mappings =
-      get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
+  GenericOperatorTaskGroup op_task_group =
+      get_generic_operator_task_group(op_attrs, inputs_dim_degrees);
 
-  std::map<TensorSlotName, ParallelTensorSpaceCoordinate> ptensor_coords =
-      generate_map(
-          keys(inputs_dim_degrees),
-          [&](TensorSlotName const &slot_name)
-              -> ParallelTensorSpaceCoordinate {
-            num_ptensor_shard_dims_t num_shard_dims =
-                get_ptensor_dim_degrees_num_shard_dims(
-                    inputs_dim_degrees.at(slot_name));
-
-            return ptensor_coord_for_task_space_coord(
-                mappings.at(slot_name), task_space_coord, num_shard_dims);
-          });
-
-  return OperatorAtomicTaskShardBinding{
-      /*tensor_coords=*/ptensor_coords,
-  };
+  return generic_op_task_group_get_binding_for_task_space_coord(
+      op_task_group, task_space_coord);
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
@@ -195,7 +202,8 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
       generate_bidict(
           get_machine_space_coordinates(
               op_task_space, machine_space, machine_view),
-          [&](MachineSpaceCoordinate const &machine_space_coord) {
+          [&](MachineSpaceCoordinate const &machine_space_coord)
+              -> OperatorAtomicTaskShardBinding {
             return operator_atomic_task_shard_binding_from_machine_view(
                 op_attrs,
                 inputs_dim_degrees,

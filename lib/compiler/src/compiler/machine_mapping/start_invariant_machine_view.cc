@@ -1,13 +1,21 @@
 #include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/machine_view.h"
+#include "compiler/machine_mapping/machine_view_1d_projection.h"
+#include "compiler/machine_mapping/machine_view_2d_projection.h"
 #include "op-attrs/operator_task_space.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "pcg/flat_machine_space_offset.h"
 #include "pcg/machine_space_offset.h"
 #include "utils/containers/count.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/scanl.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip.h"
+#include "utils/containers/zip3.h"
+#include "utils/containers/zip3_strict.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/overload.h"
+
 namespace FlexFlow {
 
 MachineView machine_view_from_start_invariant(

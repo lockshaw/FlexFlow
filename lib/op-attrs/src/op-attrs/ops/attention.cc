@@ -17,14 +17,6 @@
 
 namespace FlexFlow {
 
-/* bool MultiHeadAttentionAttrs::is_valid(std::vector<ParallelTensorShape> const
- * &inputs) const { */
-/*   return (inputs.size() == 3 && std::all_of(inputs.begin(), inputs.end(),
- * [](ParallelTensorShape const &s) { return s.is_valid(); })); */
-/*   bool is_valid = true; */
-/*   return is_valid; */
-/* } */
-
 static void check_attrs(MultiHeadAttentionAttrs const &attrs) {
   ASSERT(!attrs.add_bias_kv,
          "add_bias_kv is not yet supported. If you need this "
@@ -249,6 +241,14 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar_shape, degrees);
 }
 
+positive_int attention_get_oSize(ParallelTensorShape const &) {
+  NOT_IMPLEMENTED();
+}
+
+positive_int attention_get_oSize(TensorShape const &) {
+  NOT_IMPLEMENTED();
+}
+
 ParallelTensorDimDegrees attention_get_weights_parallel_dim_degrees(
     MultiHeadAttentionAttrs const &attrs,
     ParallelTensorDimDegrees const &input_q,
@@ -342,14 +342,6 @@ ParallelTensorDimDegrees attention_get_output_parallel_dim_degrees(
   };
 }
 
-positive_int attention_get_oSize(ParallelTensorShape const &) {
-  NOT_IMPLEMENTED();
-}
-
-positive_int attention_get_oSize(TensorShape const &) {
-  NOT_IMPLEMENTED();
-}
-
 std::map<TensorSlotName, ParallelTensorDimDegrees>
     attention_get_weight_parallel_dim_degrees(
         MultiHeadAttentionAttrs const &attrs,
@@ -363,6 +355,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
               attrs, input_q, input_k, input_v),
       },
   };
+
   if (attrs.bias) {
     weight_degrees.insert({
         TensorSlotName::INPUT_BIAS,

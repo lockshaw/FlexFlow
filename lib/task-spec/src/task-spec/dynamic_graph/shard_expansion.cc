@@ -1,5 +1,5 @@
 #include "task-spec/dynamic_graph/shard_expansion.h"
-#include "pcg/mapped_parallel_computation_graph/operator_atomic_task_shard_binding.h"
+#include "op-attrs/operator_atomic_task_shard_binding.h"
 #include "task-spec/dynamic_graph/dynamic_node_invocation.h"
 #include "task-spec/dynamic_graph/dynamic_node_mapping.h"
 #include "task-spec/dynamic_graph/dynamic_open_dataflow_graph.h"
@@ -166,7 +166,6 @@ static DynamicNodeInvocation shard_invocation_for_binding(
   DynamicNodeAttrs expanded_node_attrs = [&]() {
     DynamicNodeAttrs result = i.node_attrs;
     result.device_ids = nonempty_set{device_id};
-    ;
     return result;
   }();
 

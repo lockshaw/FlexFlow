@@ -1,19 +1,25 @@
 #include "op-attrs/tensor_dims.h"
+#include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/ff_ordered/ff_ordered_enumerate.h"
 #include "op-attrs/ff_ordered/ff_ordered_filtrans.h"
 #include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip_with.h"
+#include "op-attrs/relative_ff_dim_t.h"
 #include "op-attrs/replica_parallel_dim_set.h"
 #include "op-attrs/shard_parallel_dim.dtg.h"
 #include "utils/containers/all_are_true.h"
 #include "utils/containers/all_of.h"
+#include "utils/containers/are_all_same.h"
 #include "utils/containers/cartesian_product.h"
 #include "utils/containers/contains.h"
+#include "utils/containers/get_only.h"
+#include "utils/containers/minimum.h"
 #include "utils/containers/product.h"
 #include "utils/containers/reversed.h"
 #include "utils/containers/set_of.h"
+#include "utils/containers/take_while.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/vector_of.h"
 #include "utils/containers/zip.h"
@@ -147,6 +153,63 @@ TensorDimsCoord get_broadcast_src_coord(TensorDims const &input_dims,
   return result;
 }
 
+TensorDims get_shared_leading_dims(std::set<TensorDims> const &not_reduced) {
+  num_tensor_dims_t min_dims = minimum(
+      transform(not_reduced, [&](TensorDims const &d) -> num_tensor_dims_t {
+        return get_num_dims(d);
+      }));
+
+  nonnegative_int num_leading_dims = num_elements(take_while(
+      ff_dim_range(min_dims.nonnegative_int_from_num_tensor_dims()),
+      [&](ff_dim_t d) -> bool {
+        std::set<positive_int> dim_sizes =
+            transform(not_reduced, [&](TensorDims const &t) -> positive_int {
+              return dim_at_idx(t, d);
+            });
+
+        return are_all_same(dim_sizes);
+      }));
+
+  ff_dim_t first_nonleading_dim = ff_dim_t{num_leading_dims};
+
+  return get_only(
+      transform(not_reduced, [&](TensorDims const &d) -> TensorDims {
+        return slice_tensor_dims(d, ff_dim_t{0_n}, first_nonleading_dim);
+      }));
+}
+
+TensorDims tensor_dims_remove_leading_dims(TensorDims const &d,
+                                           TensorDims const &leading_dims) {
+  nonnegative_int num_leading_dims =
+      get_num_dims(leading_dims).nonnegative_int_from_num_tensor_dims();
+
+  ff_dim_t first_nonleading_dim = ff_dim_t{num_leading_dims};
+
+  TensorDims d_leading_dims =
+      slice_tensor_dims(d, ff_dim_t{0_n}, first_nonleading_dim);
+  ASSERT(leading_dims == d_leading_dims);
+
+  return slice_tensor_dims(d, first_nonleading_dim, std::nullopt);
+}
+
+TensorDims tensor_dims_remove_trailing_dims(TensorDims const &d,
+                                            TensorDims const &trailing_dims) {
+  num_tensor_dims_t d_num_dims = get_num_dims(d);
+
+  nonnegative_int num_trailing_dims =
+      get_num_dims(trailing_dims).nonnegative_int_from_num_tensor_dims();
+
+  ff_dim_t first_trailing_dim = ff_dim_t_from_relative_ff_dim_t(
+      relative_ff_dim_t{-1 * num_trailing_dims.int_from_nonnegative_int()},
+      d_num_dims);
+
+  TensorDims d_trailing_dims =
+      slice_tensor_dims(d, first_trailing_dim, std::nullopt);
+  ASSERT(trailing_dims == d_trailing_dims);
+
+  return slice_tensor_dims(d, ff_dim_t{0_n}, first_trailing_dim);
+}
+
 std::set<TensorDimsCoord>
     get_tensor_dims_coord_set(TensorDims const &tensor_dims) {
   std::vector<std::vector<nonnegative_int>> per_dim_ranges = transform(
@@ -192,6 +255,13 @@ TensorDims tensor_dims_drop_dims(
   }
 
   return TensorDims{ff_ordered_of(result)};
+}
+
+TensorDims concat_tensor_dims(TensorDims const &leading,
+                              TensorDims const &trailing) {
+  return TensorDims{
+      ff_ordered_concat(leading.ff_ordered, trailing.ff_ordered),
+  };
 }
 
 TensorDims slice_tensor_dims(TensorDims const &dims,

@@ -3,6 +3,7 @@
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_task_space_to_operator_task_space_mapping.h"
+#include "op-attrs/parallel_op_attrs.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "op-attrs/shape_inference.h"
@@ -65,6 +66,12 @@ ParallelLayerAddedResult add_parallel_layer(
     std::map<TensorSlotName, parallel_tensor_guid_t> const &weights,
     std::optional<std::map<TensorSlotName, CreateGrad>> const
         &maybe_output_flags) {
+
+  pcg_op_attrs_check_incoming_tensor_roles(
+      /*op_attrs=*/layer_attrs.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weights));
+
   std::map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {
         return get_parallel_tensor_shape(pcg, i);

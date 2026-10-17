@@ -1018,7 +1018,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                           positive_int o_n,
                           positive_int o_c,
                           positive_int o_h,
-                          positive_int o_w) {
+                          positive_int o_w) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_n, o_c, o_h, o_w});
     };
@@ -1028,7 +1028,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                            positive_int o_n,
                            positive_int o_c,
                            positive_int o_h,
-                           positive_int o_w) {
+                           positive_int o_w) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o_n, o_c, o_h, o_w});
     };
@@ -1038,7 +1038,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                            positive_int o_outchannels,
                            positive_int o_inchannels,
                            positive_int o_kernel_h,
-                           positive_int o_kernel_w) {
+                           positive_int o_kernel_w) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           kernel,
           o_sum,
@@ -1048,7 +1048,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     auto make_bias = [&](SumDegree o_sum,
                          DiscardCopyDegree o_eq,
-                         positive_int o_outchannels) {
+                         positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           bias, o_sum, o_eq, FFOrdered{o_outchannels});
     };

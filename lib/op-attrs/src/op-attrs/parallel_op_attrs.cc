@@ -3,27 +3,27 @@
 #include "op-attrs/ops/reduction.h"
 #include "op-attrs/ops/repartition.h"
 #include "op-attrs/ops/replicate.h"
-#include "utils/exception.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(ParallelOpAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape) {
+ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(
+    ParallelOpAttrs const &attrs, ParallelTensorShape const &input_shape) {
   return attrs.visit<ParallelTensorShape>(overload{
       [&](CombineAttrs const &combine_attrs) {
         return combine_get_output_parallel_shape(combine_attrs, input_shape);
       },
       [&](ReductionAttrs const &reduction_attrs) {
-        return throw_if_unexpected(
-            get_output_shape(reduction_attrs, input_shape));
+        return reduction_get_output_parallel_shape(reduction_attrs,
+                                                   input_shape);
       },
       [&](RepartitionAttrs const &repartition_attrs) {
         return repartition_get_output_parallel_shape(repartition_attrs,
                                                      input_shape);
       },
       [&](ReplicateAttrs const &replicate_attrs) {
-        return get_output_shape(replicate_attrs, input_shape);
+        return replicate_get_output_parallel_shape(replicate_attrs,
+                                                   input_shape);
       },
   });
 }

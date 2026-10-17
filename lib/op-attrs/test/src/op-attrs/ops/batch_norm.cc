@@ -8,7 +8,7 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  TEST_CASE("get_batch_norm_incoming_tensor_roles(BatchNormAttrs)") {
+  TEST_CASE("get_batch_norm_incoming_tensor_roles") {
     auto make_attrs = [](bool affine) {
       return BatchNormAttrs{
           /*activation=*/std::nullopt,
@@ -209,28 +209,68 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("partition parallelism (not in channel dim)") {
-      positive_int degree = 2_p;
-
-      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
-          SumDegree{1_p},
-          DiscardCopyDegree{1_p},
-          FFOrdered{1_p, 1_p, degree, 1_p},
+    auto mk_input_degrees = [](int sum_degree,
+                               int discard_copy_degree,
+                               int n_degree,
+                               int c_degree,
+                               int h_degree,
+                               int w_degree) {
+      return ParallelTensorDimDegrees{
+          SumDegree{positive_int{sum_degree}},
+          DiscardCopyDegree{positive_int{discard_copy_degree}},
+          FFOrdered<positive_int>{
+              positive_int{n_degree},
+              positive_int{c_degree},
+              positive_int{h_degree},
+              positive_int{w_degree},
+          },
       };
+    };
+
+    auto mk_output_degrees = mk_input_degrees;
+
+    auto mk_gamma_degrees =
+        [](int sum_degree, int discard_copy_degree, int c_degree) {
+          return ParallelTensorDimDegrees{
+              SumDegree{positive_int{sum_degree}},
+              DiscardCopyDegree{positive_int{discard_copy_degree}},
+              FFOrdered<positive_int>{
+                  positive_int{c_degree},
+              },
+          };
+        };
+
+    auto mk_beta_degrees = mk_gamma_degrees;
+
+    SUBCASE("partition parallelism (not in channel dim)") {
+      ParallelTensorDimDegrees input = mk_input_degrees(1, 1, 1, 1, 2, 1);
 
       SUBCASE("batch_norm_get_output_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_output_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_output_parallel_dim_degrees(attrs_affine_true,
+                                                       input);
+
+        ParallelTensorDimDegrees correct = mk_output_degrees(1, 1, 1, 1, 2, 1);
+
+        CHECK(result == correct);
       }
 
       SUBCASE("batch_norm_get_gamma_weights_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_gamma_weights_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_gamma_weights_parallel_dim_degrees(attrs_affine_true,
+                                                              input);
+        ParallelTensorDimDegrees correct = mk_gamma_degrees(1, 2, 1);
+
+        CHECK(result == correct);
       }
 
       SUBCASE("batch_norm_get_beta_weights_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_beta_weights_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_beta_weights_parallel_dim_degrees(attrs_affine_true,
+                                                             input);
+        ParallelTensorDimDegrees correct = mk_beta_degrees(1, 2, 1);
+
+        CHECK(result == correct);
       }
     }
 
@@ -260,27 +300,33 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("discard copy parallelism") {
-      DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{2_p};
-
-      ParallelTensorDimDegrees input = ParallelTensorDimDegrees{
-          SumDegree{1_p},
-          discard_copy_degree,
-          FFOrdered{1_p, 1_p, 1_p, 1_p},
-      };
+      ParallelTensorDimDegrees input = mk_input_degrees(1, 2, 1, 1, 1, 1);
 
       SUBCASE("batch_norm_get_output_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_output_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_output_parallel_dim_degrees(attrs_affine_true,
+                                                       input);
+        ParallelTensorDimDegrees correct = mk_output_degrees(1, 2, 1, 1, 1, 1);
+
+        CHECK(result == correct);
       }
 
       SUBCASE("batch_norm_get_gamma_weights_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_gamma_weights_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_gamma_weights_parallel_dim_degrees(attrs_affine_true,
+                                                              input);
+        ParallelTensorDimDegrees correct = mk_gamma_degrees(1, 2, 1);
+
+        CHECK(result == correct);
       }
 
       SUBCASE("batch_norm_get_beta_weights_parallel_dim_degrees") {
-        CHECK_THROWS(batch_norm_get_beta_weights_parallel_dim_degrees(
-            attrs_affine_true, input));
+        ParallelTensorDimDegrees result =
+            batch_norm_get_beta_weights_parallel_dim_degrees(attrs_affine_true,
+                                                             input);
+        ParallelTensorDimDegrees correct = mk_beta_degrees(1, 2, 1);
+
+        CHECK(result == correct);
       }
     }
   }
@@ -323,7 +369,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("batch_norm_get_gamma_weights_parallel_shape") {
       ParallelTensorShape result =
-          batch_norm_get_gamma_weights_shape(attrs, input);
+          batch_norm_get_gamma_weights_parallel_shape(attrs, input);
       ParallelTensorShape correct = ParallelTensorShape{
           ParallelTensorDims{
               FFOrdered<ShardParallelDim>{

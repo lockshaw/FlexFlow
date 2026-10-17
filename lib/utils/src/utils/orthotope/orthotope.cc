@@ -6,10 +6,13 @@
 #include "utils/containers/filter_idxs.h"
 #include "utils/containers/maximum.h"
 #include "utils/containers/product.h"
+#include "utils/containers/require_all_same1.h"
+#include "utils/containers/require_same.h"
 #include "utils/containers/scanr.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/slice.h"
 #include "utils/containers/sum.h"
+#include "utils/containers/tail.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip3_with_strict.h"
 #include "utils/containers/zip_strict.h"
@@ -17,6 +20,7 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/nonnegative_int/range.h"
+#include "utils/orthotope/orthotope_coord.h"
 
 namespace FlexFlow {
 

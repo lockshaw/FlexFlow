@@ -39,6 +39,9 @@ std::set<InternalDynamicSlotSite>
     get_dynamic_slot_sites_for_invocation(dynamic_invocation_id_t const &,
                                           DynamicNodeInvocation const &);
 
+std::set<DynamicNodeSlot>
+    get_dynamic_node_slots_for_invocation(DynamicNodeInvocation const &);
+
 } // namespace FlexFlow
 
 #endif

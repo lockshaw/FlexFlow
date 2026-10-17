@@ -61,7 +61,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       });
 
       ParallelTensorShape output_shape =
-          throw_if_unexpected(get_output_shape(attrs, input_shape));
+          cast_get_output_parallel_shape(attrs, input_shape);
 
       OpCostEstimateKey op_cost_estimate_key = OpCostEstimateKey{
           /*op_attrs=*/PCGOperatorAttrs{attrs},
@@ -70,9 +70,9 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
-                               MachineSpecificationDimension::INTRA_NODE,
-                               stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);
@@ -152,25 +152,27 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           DataType::FLOAT,
       });
 
-      ParallelTensorShape weights_shape = throw_if_unexpected(
-          get_weights_shape(attrs, inputs_shape, inputs_shape, inputs_shape));
+      ParallelTensorShape weights_shape = attention_get_weights_parallel_shape(
+          attrs, inputs_shape, inputs_shape, inputs_shape);
 
-      ParallelTensorShape output_shape = throw_if_unexpected(
-          get_output_shape(attrs, inputs_shape, inputs_shape, inputs_shape));
+      ParallelTensorShape output_shape = attention_get_output_parallel_shape(
+          attrs, inputs_shape, inputs_shape, inputs_shape);
 
       OpCostEstimateKey op_cost_estimate_key = OpCostEstimateKey{
           /*op_attrs=*/PCGOperatorAttrs{attrs},
           /*input_shapes=*/
-          {{TensorSlotName::QUERY, inputs_shape},
-           {TensorSlotName::KEY, inputs_shape},
-           {TensorSlotName::VALUE, inputs_shape}},
+          {
+              {TensorSlotName::QUERY, inputs_shape},
+              {TensorSlotName::KEY, inputs_shape},
+              {TensorSlotName::VALUE, inputs_shape},
+          },
           /*weight_shapes=*/{{TensorSlotName::WEIGHT, weights_shape}},
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,
           /*machine_view=*/
-          make_1d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
-                               MachineSpecificationDimension::INTRA_NODE,
-                               stride_t{1_p}),
+          make_1d_to_2d_machine_view(MachineSpaceCoordinate{0_n, 0_n},
+                                     MachineSpecificationDimension::INTRA_NODE,
+                                     stride_t{1_p}),
       };
 
       OpCostMetrics result = cost_estimator.estimate_cost(op_cost_estimate_key);

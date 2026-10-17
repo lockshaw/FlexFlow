@@ -679,7 +679,10 @@ std::map<TensorSlotName, parallel_tensor_guid_t>
         std::map<TensorSlotName, InitializerAttrs> const &weight_initializers) {
 
   ASSERT(are_disjoint(keys(inputs), keys(weight_initializers)));
-  check_incoming_tensor_roles(layer, keys(inputs), keys(weight_initializers));
+  pcg_op_attrs_check_incoming_tensor_roles(
+      /*op_attrs=*/layer.op_attrs,
+      /*input_slots=*/keys(inputs),
+      /*weight_slots=*/keys(weight_initializers));
 
   std::map<TensorSlotName, ParallelTensorShape> input_shapes =
       map_values(inputs, [&](parallel_tensor_guid_t const &i) {

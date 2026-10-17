@@ -8,8 +8,8 @@
 
 namespace FlexFlow {
 
-TensorShape reverse_get_output_shape(ReverseAttrs const &,
-                                     TensorShape const &) {
+TensorShape reverse_get_output_shape(ReverseAttrs const &attrs,
+                                     TensorShape const &input_shape) {
   ASSERT(tensor_dims_has_dim(input_shape.dims, attrs.axis));
 
   return input_shape;
