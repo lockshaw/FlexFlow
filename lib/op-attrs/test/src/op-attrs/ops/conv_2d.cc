@@ -156,9 +156,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*use_bias=*/true,
     };
 
-    TensorShape result = conv2d_get_bias_shape(attrs, input);
+    std::optional<TensorShape> result = conv2d_get_bias_shape(attrs, input);
 
-    TensorShape correct = TensorShape{
+    std::optional<TensorShape> correct = TensorShape{
         TensorDims{FFOrdered{
             13_p,
         }},
@@ -483,14 +483,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{4_p, 1_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{1_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{4_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{1_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{1_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{4_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{1_p},
+            };
 
         CHECK(result == correct);
       }
@@ -550,14 +551,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 4_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{4_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{1_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{4_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{1_p},
+            };
 
         CHECK(result == correct);
       }
@@ -569,14 +571,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 1_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{1_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{4_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{1_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{4_p},
+            };
 
         CHECK(result == correct);
       }
@@ -588,14 +591,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 1_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{4_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{1_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{4_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{1_p},
+            };
 
         CHECK(result == correct);
       }
@@ -622,14 +626,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 4_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{1_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{4_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{1_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{4_p},
+            };
 
         CHECK(result == correct);
       }
@@ -641,14 +646,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 2_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{1_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{2_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{1_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{2_p},
+            };
 
         CHECK(result == correct);
       }
@@ -660,14 +666,15 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*shard_degrees=*/FFOrdered<positive_int>{1_p, 24_p, 1_p, 1_p},
         };
 
-        ParallelTensorDimDegrees result =
+        std::optional<ParallelTensorDimDegrees> result =
             conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees);
 
-        ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
-            /*sum_degree=*/SumDegree{6_p},
-            /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-            /*shard_degrees=*/FFOrdered<positive_int>{4_p},
-        };
+        std::optional<ParallelTensorDimDegrees> correct =
+            ParallelTensorDimDegrees{
+                /*sum_degree=*/SumDegree{6_p},
+                /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+                /*shard_degrees=*/FFOrdered<positive_int>{4_p},
+            };
 
         CHECK(result == correct);
       }
@@ -992,8 +999,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
 
     SUBCASE("conv2d_get_bias_shape") {
-      TensorShape result_bias = conv2d_get_bias_shape(attrs, input);
-      TensorShape correct_bias = bias;
+      std::optional<TensorShape> result_bias =
+          conv2d_get_bias_shape(attrs, input);
+      std::optional<TensorShape> correct_bias = bias;
       CHECK(result_bias == correct_bias);
     }
 
@@ -1059,9 +1067,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("get_bias_parallel_shape") {
-        ParallelTensorShape result =
+        std::optional<ParallelTensorShape> result =
             conv2d_get_bias_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
+        std::optional<ParallelTensorShape> correct =
             make_bias(SumDegree{1_p}, DiscardCopyDegree{degree}, 1_p);
         CHECK(result == correct);
       }
@@ -1089,9 +1097,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("conv2d_get_bias_parallel_shape") {
-        ParallelTensorShape result =
+        std::optional<ParallelTensorShape> result =
             conv2d_get_bias_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
+        std::optional<ParallelTensorShape> correct =
             make_bias(SumDegree{degree}, DiscardCopyDegree{1_p}, 1_p);
         CHECK(result == correct);
       }
@@ -1119,9 +1127,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("conv2d_get_bias_parallel_shape") {
-        ParallelTensorShape result =
+        std::optional<ParallelTensorShape> result =
             conv2d_get_bias_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
+        std::optional<ParallelTensorShape> correct =
             make_bias(SumDegree{1_p}, DiscardCopyDegree{1_p}, degree);
         CHECK(result == correct);
       }
@@ -1149,9 +1157,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
 
       SUBCASE("conv2d_get_bias_parallel_shape") {
-        ParallelTensorShape result =
+        std::optional<ParallelTensorShape> result =
             conv2d_get_bias_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
+        std::optional<ParallelTensorShape> correct =
             make_bias(SumDegree{degree}, DiscardCopyDegree{1_p}, 1_p);
         CHECK(result == correct);
       }
