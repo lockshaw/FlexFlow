@@ -1,8 +1,10 @@
 #include "op-attrs/ops/reshape.h"
 #include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/product.h"
 #include "utils/containers/zip_with_strict.h"
@@ -85,6 +87,37 @@ ParallelTensorShape
       attrs, get_parallel_degrees(input_shape));
 
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
+}
+
+StandardOperatorTaskGroup
+    reshape_get_task_group(ReshapeAttrs const &attrs,
+                           ParallelTensorDimDegrees const &input_degrees) {
+  ParallelTensorDimDegrees output_degrees =
+      reshape_get_output_parallel_dim_degrees(attrs, input_degrees);
+
+  return StandardOperatorTaskGroup{
+      transform(get_parallel_tensor_space_coordinates(input_degrees),
+                [&](ParallelTensorSpaceCoordinate const &input_coord)
+                    -> AbstractedOperatorAtomicTaskShardBinding {
+                  ParallelTensorSpaceCoordinate output_coord = input_coord;
+
+                  return AbstractedOperatorAtomicTaskShardBinding{
+                      /*tensor_coords=*/{
+                          {
+                              TensorSlotName::INPUT,
+                              input_coord,
+                          },
+                          {
+                              TensorSlotName::OUTPUT,
+                              output_coord,
+                          },
+                      },
+                      /*task_coord=*/
+                      task_coord_matching_parallel_tensor_space_coordinate(
+                          output_coord, output_degrees),
+                  };
+                }),
+  };
 }
 
 } // namespace FlexFlow
