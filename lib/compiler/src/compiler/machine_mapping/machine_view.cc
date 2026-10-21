@@ -195,7 +195,8 @@ MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
       generate_bidict(
           get_machine_space_coordinates(
               op_task_space, machine_space, machine_view),
-          [&](MachineSpaceCoordinate const &machine_space_coord) {
+          [&](MachineSpaceCoordinate const &machine_space_coord)
+              -> OperatorAtomicTaskShardBinding {
             return operator_atomic_task_shard_binding_from_machine_view(
                 op_attrs,
                 inputs_dim_degrees,
