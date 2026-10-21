@@ -160,25 +160,11 @@ static OperatorAtomicTaskShardBinding
       mv_task_space_coord_for_machine_space_coord(
           machine_space, machine_view, op_task_space, machine_space_coord);
 
-  std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping> mappings =
-      get_operator_to_ptensor_mappings(op_attrs, inputs_dim_degrees);
+  GenericOperatorTaskGroup op_task_group =
+      get_generic_operator_task_group(op_attrs, inputs_dim_degrees);
 
-  std::map<TensorSlotName, ParallelTensorSpaceCoordinate> ptensor_coords =
-      generate_map(
-          keys(inputs_dim_degrees),
-          [&](TensorSlotName const &slot_name)
-              -> ParallelTensorSpaceCoordinate {
-            num_ptensor_shard_dims_t num_shard_dims =
-                get_ptensor_dim_degrees_num_shard_dims(
-                    inputs_dim_degrees.at(slot_name));
-
-            return ptensor_coord_for_task_space_coord(
-                mappings.at(slot_name), task_space_coord, num_shard_dims);
-          });
-
-  return OperatorAtomicTaskShardBinding{
-      /*tensor_coords=*/ptensor_coords,
-  };
+  return generic_op_task_group_get_binding_for_task_space_coord(
+      op_task_group, task_space_coord);
 }
 
 MappedOperatorTaskGroup mapped_operator_task_group_from_machine_view(
