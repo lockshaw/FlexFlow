@@ -109,18 +109,6 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*num_inputs=*/3_ge2,
     };
 
-    auto mk_3d = [&](int o_sum, int o_eq, int o0, int o1, int o2) {
-      return ParallelTensorDimDegrees{
-          SumDegree{positive_int{o_sum}},
-          DiscardCopyDegree{positive_int{o_eq}},
-          FFOrdered<positive_int>{
-              positive_int{o0},
-              positive_int{o1},
-              positive_int{o2},
-          },
-      };
-    };
-
     SUBCASE("sum reduction parallelism") {
       SUBCASE("matching") {
         SumDegree sum_degree = SumDegree{2_p};
