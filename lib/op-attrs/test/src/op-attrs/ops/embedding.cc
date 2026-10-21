@@ -65,7 +65,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_input = [&](SumDegree o_sum,
                           DiscardCopyDegree o_eq,
                           positive_int o_batch,
-                          positive_int o_features) {
+                          positive_int o_features) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_batch, o_features});
     };
@@ -73,7 +73,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_output = [&](SumDegree o_sum,
                            DiscardCopyDegree o_eq,
                            positive_int o_batch,
-                           positive_int o_outchannels) {
+                           positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o_batch, o_outchannels});
     };
@@ -81,7 +81,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_weights = [&](SumDegree o_sum,
                             DiscardCopyDegree o_eq,
                             positive_int o_entries,
-                            positive_int o_outchannels) {
+                            positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           weights, o_sum, o_eq, FFOrdered{o_entries, o_outchannels});
     };
