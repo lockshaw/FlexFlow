@@ -242,4 +242,75 @@ TEST_SUITE(FF_TEST_SUITE) {
           };
     }
   }
+
+  TEST_CASE("parallel_tensor_coord_set_is_orthotopic") {
+    SUBCASE("coord set is empty") {
+      std::set<ParallelTensorSpaceCoordinate> coord_set = {};
+
+      bool result = parallel_tensor_coord_set_is_orthotopic(coord_set);
+      bool correct = false;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set contains coords of different dimensionalities") {
+      std::set<ParallelTensorSpaceCoordinate> coord_set = {
+          mk_1d_coord(1, 2, 0),
+          mk_2d_coord(0, 4, 0, 3),
+      };
+
+      CHECK_THROWS(parallel_tensor_coord_set_is_orthotopic(coord_set));
+    }
+
+    SUBCASE("coord set is not orthotopic") {
+      std::set<ParallelTensorSpaceCoordinate> coord_set = {
+          mk_1d_coord(0, 1, 2),
+          mk_1d_coord(2, 4, 1),
+          mk_1d_coord(3, 0, 0),
+      };
+
+      bool result = parallel_tensor_coord_set_is_orthotopic(coord_set);
+      bool correct = false;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set is orthotopic") {
+      std::set<ParallelTensorSpaceCoordinate> coord_set = {
+          mk_1d_coord(0, 0, 0),
+          mk_1d_coord(0, 1, 0),
+          mk_1d_coord(0, 2, 0),
+          mk_1d_coord(1, 0, 0),
+          mk_1d_coord(1, 1, 0),
+          mk_1d_coord(1, 2, 0),
+          mk_1d_coord(0, 0, 1),
+          mk_1d_coord(0, 1, 1),
+          mk_1d_coord(0, 2, 1),
+          mk_1d_coord(1, 0, 1),
+          mk_1d_coord(1, 1, 1),
+          mk_1d_coord(1, 2, 1),
+      };
+
+      bool result = parallel_tensor_coord_set_is_orthotopic(coord_set);
+      bool correct = true;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("coord set's space is orthotopic but not minimal") {
+      std::set<ParallelTensorSpaceCoordinate> coord_set = {
+          mk_1d_coord(0, 0, 0),
+          mk_1d_coord(0, 1, 0),
+          mk_1d_coord(0, 2, 0),
+          mk_1d_coord(1, 0, 0),
+          mk_1d_coord(1, 1, 0),
+          mk_1d_coord(1, 2, 0),
+      };
+
+      bool result = parallel_tensor_coord_set_is_orthotopic(coord_set);
+      bool correct = true;
+
+      CHECK(result == correct);
+    }
+  }
 }

@@ -93,6 +93,12 @@ std::optional<ParallelTensorDimDegrees>
   }
 }
 
+bool parallel_tensor_coord_set_is_orthotopic(
+    std::set<ParallelTensorSpaceCoordinate> const &coord_set) {
+  return strict_parallel_tensor_dim_degrees_for_coord_set(coord_set)
+      .has_value();
+}
+
 ParallelTensorSpaceCoordinate parallel_tensor_space_coord_from_map(
     std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &m) {
   ASSERT(contains_key(m, sum_dim_idx()));

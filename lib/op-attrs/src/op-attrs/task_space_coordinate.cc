@@ -51,4 +51,19 @@ DimCoord<operator_task_space_dim_idx_t>
       get_operator_task_space_dim_ordering());
 }
 
+bool task_space_coord_set_is_orthotopic(
+    std::set<TaskSpaceCoordinate> const &coord_set) {
+  std::set<DimCoord<operator_task_space_dim_idx_t>> dim_coord_set =
+      transform(coord_set,
+                [&](TaskSpaceCoordinate const &c)
+                    -> DimCoord<operator_task_space_dim_idx_t> {
+                  return dim_coord_from_task_space_coordinate(c);
+                });
+
+  std::optional<DimDomain<operator_task_space_dim_idx_t>> dim_domain =
+      strict_dim_domain_for_coord_set(dim_coord_set);
+
+  return dim_domain.has_value();
+}
+
 } // namespace FlexFlow
