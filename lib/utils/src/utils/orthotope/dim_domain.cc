@@ -23,6 +23,9 @@ template DimDomain<T> restrict_domain_to_dims(DimDomain<T> const &,
 template DimDomain<T> restrict_domain_to_dims_strict(DimDomain<T> const &,
                                                      std::set<T> const &);
 
+template DimDomain<T> lift_domain_to_dims(DimDomain<T> const &,
+                                          std::set<T> const &);
+
 template Orthotope orthotope_from_dim_domain(DimDomain<T> const &,
                                              DimOrdering<T> const &);
 

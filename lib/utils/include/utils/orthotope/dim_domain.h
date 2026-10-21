@@ -1,7 +1,10 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 
+#include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/filter.h"
+#include "utils/containers/generate_map.h"
+#include "utils/containers/is_subseteq_of.h"
 #include "utils/containers/keys.h"
 #include "utils/containers/map_from_keys_and_values.h"
 #include "utils/containers/product.h"
@@ -62,6 +65,21 @@ DimDomain<T> restrict_domain_to_dims_strict(DimDomain<T> const &domain,
                                             std::set<T> const &allowed) {
   return DimDomain<T>{
       restrict_keys_strict(domain.dims, allowed),
+  };
+}
+
+template <typename T>
+DimDomain<T> lift_domain_to_dims(DimDomain<T> const &domain,
+                                 std::set<T> const &target) {
+  std::set<T> current = get_domain_dims(domain);
+  ASSERT(is_subseteq_of(current, target));
+
+  std::set<T> to_add = set_minus(target, current);
+
+  return DimDomain<T>{
+      binary_merge_disjoint_maps(
+          domain.dims,
+          generate_map(to_add, [](T const &) -> positive_int { return 1_p; })),
   };
 }
 
