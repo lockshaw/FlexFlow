@@ -7,8 +7,8 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape get_output_shape(ParallelOpAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape) {
+ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(
+    ParallelOpAttrs const &attrs, ParallelTensorShape const &input_shape) {
   return attrs.visit<ParallelTensorShape>(overload{
       [&](CombineAttrs const &combine_attrs) {
         return combine_get_output_parallel_shape(combine_attrs, input_shape);
