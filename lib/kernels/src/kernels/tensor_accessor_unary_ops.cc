@@ -51,7 +51,7 @@ void tensor_accessor_scale_by_constant_inplace(GenericTensorAccessorW const &t,
                                                float constant) {
   ASSERT(t.shape.data_type == DataType::FLOAT);
 
-  return map_tensor_accessor_inplace(
+  map_tensor_accessor_inplace(
       t, [&](auto const &elem) { return elem * constant; });
 }
 
