@@ -34,4 +34,25 @@ PCGOperatorAttrs
       [](auto const &attrs) { return PCGOperatorAttrs{attrs}; });
 }
 
+std::optional<ParallelOpAttrs>
+    parallel_op_attrs_from_pcg_op_attrs(PCGOperatorAttrs const &attrs) {
+  return attrs.visit<std::optional<ParallelOpAttrs>>(overload{
+      [&](CombineAttrs const &attrs) -> std::optional<ParallelOpAttrs> {
+        return ParallelOpAttrs{attrs};
+      },
+      [&](ReductionAttrs const &attrs) -> std::optional<ParallelOpAttrs> {
+        return ParallelOpAttrs{attrs};
+      },
+      [&](RepartitionAttrs const &attrs) -> std::optional<ParallelOpAttrs> {
+        return ParallelOpAttrs{attrs};
+      },
+      [&](ReplicateAttrs const &attrs) -> std::optional<ParallelOpAttrs> {
+        return ParallelOpAttrs{attrs};
+      },
+      [](auto const &attrs) -> std::optional<ParallelOpAttrs> {
+        return std::nullopt;
+      },
+  });
+}
+
 } // namespace FlexFlow
