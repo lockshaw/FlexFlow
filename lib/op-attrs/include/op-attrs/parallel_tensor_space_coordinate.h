@@ -27,6 +27,10 @@ ParallelTensorDimDegrees smallest_parallel_tensor_dim_degrees_for_coord_set(
 std::optional<ParallelTensorDimDegrees>
     strict_parallel_tensor_dim_degrees_for_coord_set(
         std::set<ParallelTensorSpaceCoordinate> const &);
+
+bool parallel_tensor_coord_set_is_orthotopic(
+    std::set<ParallelTensorSpaceCoordinate> const &);
+
 ParallelTensorSpaceCoordinate parallel_tensor_space_coord_from_map(
     std::map<parallel_tensor_dim_idx_t, nonnegative_int> const &);
 
