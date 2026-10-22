@@ -7,6 +7,9 @@
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/product.h"
+#include "utils/containers/range.h"
+#include "utils/containers/set_union.h"
+#include "utils/containers/take_while.h"
 #include "utils/containers/zip_with_strict.h"
 
 namespace FlexFlow {

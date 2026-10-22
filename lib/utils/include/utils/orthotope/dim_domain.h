@@ -1,6 +1,7 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_H
 
+#include "utils/containers/all_of.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/generate_map.h"
@@ -16,6 +17,7 @@
 #include "utils/containers/values.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/orthotope/dim_domain.dtg.h"
+#include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/orthotope.dtg.h"
 
@@ -39,6 +41,10 @@ nonnegative_int dim_domain_num_dims(DimDomain<T> const &domain) {
 template <typename T>
 std::set<T> get_domain_dims(DimDomain<T> const &domain) {
   return keys(domain.dims);
+}
+
+positive_int dim_domain_volume(DimDomain<T> const &domain) {
+  return product(values(domain.dims));
 }
 
 template <typename T>
@@ -66,6 +72,17 @@ DimDomain<T> restrict_domain_to_dims_strict(DimDomain<T> const &domain,
   return DimDomain<T>{
       restrict_keys_strict(domain.dims, allowed),
   };
+}
+
+template <typename T>
+DimDomain<T> strict_restrict_domain_to_dims_by_dropping_only_trivial_dims(
+    DimDomain<T> const &domain, std::set<T> const &allowed) {
+
+  std::set<T> to_remove = set_minus(keys(domain.dims), allowed);
+  ASSERT(all_of(to_remove,
+                [&](T const &t) -> bool { return domain.dims.at(t) == 1_p; }));
+
+  return DimDomain<T>{restrict_keys_strict(domain.dims, allowed)};
 }
 
 template <typename T>

@@ -93,6 +93,9 @@ DynamicValueAttrs
     dynamic_value_attrs_for_slot_site(DynamicOpenDataflowGraph const &,
                                       DynamicSlotSite const &);
 
+std::unordered_set<DynamicNodeSlot>
+    get_dynamic_node_slots(DynamicOpenDataflowGraph const &);
+
 std::optional<DynamicValueAttrs>
     find_output_value_attrs(DynamicOpenDataflowGraph const &,
                             dynamic_tensor_guid_t,

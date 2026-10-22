@@ -1,5 +1,6 @@
 #include "kernels/transpose_kernels_cpu.h"
 #include "kernels/tensor_accessor_unary_ops.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

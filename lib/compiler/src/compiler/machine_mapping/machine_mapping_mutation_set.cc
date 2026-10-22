@@ -34,6 +34,7 @@ std::optional<MachineMapping>
                         MachineComputeSpecification const &resources) {
   ParallelComputationGraph pcg = mapped_pcg.pcg;
   std::vector<parallel_layer_guid_t> layers = topological_ordering(pcg);
+
   if (layers.size() == 0) {
     return std::nullopt;
   }

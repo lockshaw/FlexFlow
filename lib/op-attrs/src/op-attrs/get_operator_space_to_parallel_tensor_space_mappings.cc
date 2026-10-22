@@ -5,9 +5,25 @@
 #include "op-attrs/incoming_tensor_role.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
+#include "op-attrs/ops/embedding.h"
+#include "op-attrs/ops/flat.h"
+#include "op-attrs/ops/gather.h"
 #include "op-attrs/ops/input.h"
+#include "op-attrs/ops/layer_norm.h"
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/ops/noop.h"
+#include "op-attrs/ops/pool_2d.h"
+#include "op-attrs/ops/reduce.h"
+#include "op-attrs/ops/reduction.h"
+#include "op-attrs/ops/repartition.h"
+#include "op-attrs/ops/replicate.h"
+#include "op-attrs/ops/reshape.h"
+#include "op-attrs/ops/reverse.h"
+#include "op-attrs/ops/softmax.h"
+#include "op-attrs/ops/split.h"
+#include "op-attrs/ops/topk.h"
 #include "op-attrs/ops/transpose.h"
+#include "op-attrs/ops/upsample.h"
 #include "op-attrs/ops/weight.h"
 #include "op-attrs/pcg_operator_attrs.h"
 #include "utils/containers/filter_values.h"
@@ -16,11 +32,39 @@
 #include "utils/containers/keys.h"
 #include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/require_only_key.h"
+#include "utils/containers/require_three_keys.h"
 #include "utils/containers/require_two_keys.h"
+#include "utils/containers/restrict_keys_strict.h"
+#include "utils/containers/slice.h"
 #include "utils/containers/zip_values_strict.h"
 #include "utils/overload.h"
 
 namespace FlexFlow {
+
+template <typename T>
+static std::vector<T>
+    require_only_slots_sequence(std::map<TensorSlotName, T> const &v,
+                                std::vector<TensorSlotName> const &slots) {
+  nonnegative_int v_num_slots = num_elements(v);
+  ASSERT(v_num_slots <= slots.size());
+
+  std::vector<TensorSlotName> expected_slots =
+      slice(slots, 0, v_num_slots.unwrap_nonnegative());
+
+  ASSERT(set_of(expected_slots) == keys(v));
+
+  return transform(expected_slots, [&](TensorSlotName const &slot_name) {
+    return v.at(slot_name);
+  });
+};
+
+static std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
+    lift_biunique_mappings(
+        std::map<TensorSlotName,
+                 OperatorSpaceToParallelTensorSpaceBiuniqueMapping> const
+            &biunique) {
+  return map_values(biunique, operator_ptensor_space_mapping_from_biunique);
+}
 
 std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceMapping>
     get_operator_to_incoming_mappings(

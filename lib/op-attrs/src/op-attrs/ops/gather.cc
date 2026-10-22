@@ -6,6 +6,7 @@ namespace FlexFlow {
 TensorShape gather_get_output_shape(GatherAttrs const &,
                                     TensorShape const &input,
                                     TensorShape const &index) {
+  // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 

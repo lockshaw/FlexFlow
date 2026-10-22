@@ -62,9 +62,10 @@ struct positive_int {
 
   positive_int operator*(positive_int other) const;
   positive_int &operator*=(positive_int other);
-  nonnegative_int operator*(nonnegative_int other) const;
 
+  nonnegative_int operator*(nonnegative_int other) const;
   friend nonnegative_int operator*(nonnegative_int lhs, positive_int rhs);
+  friend nonnegative_int &operator*=(nonnegative_int &lhs, positive_int rhs);
 
   float operator*(float other) const;
   friend float operator*(float lhs, positive_int rhs);

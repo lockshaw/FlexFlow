@@ -22,6 +22,9 @@ TaskSpaceCoordinate task_space_coordinate_from_dim_coord(
 DimCoord<operator_task_space_dim_idx_t>
     dim_coord_from_task_space_coordinate(TaskSpaceCoordinate const &);
 
+TaskSpaceCoordinate
+    task_space_coordinate_from_orthotope_coord(OrthotopeCoord const &);
+
 TaskSpaceCoordinate task_coord_matching_parallel_tensor_space_coordinate(
     ParallelTensorSpaceCoordinate const &, ParallelTensorDimDegrees const &);
 

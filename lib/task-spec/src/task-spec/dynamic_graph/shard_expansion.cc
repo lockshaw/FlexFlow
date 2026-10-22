@@ -166,7 +166,6 @@ static DynamicNodeInvocation shard_invocation_for_binding(
   DynamicNodeAttrs expanded_node_attrs = [&]() {
     DynamicNodeAttrs result = i.node_attrs;
     result.device_ids = nonempty_set{device_id};
-    ;
     return result;
   }();
 

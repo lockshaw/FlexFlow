@@ -4,6 +4,7 @@
 #include "op-attrs/ops/batch_norm.h"
 #include "op-attrs/ops/cast.h"
 #include "op-attrs/ops/concat.h"
+#include "op-attrs/ops/conv_2d.h"
 #include "op-attrs/ops/dropout.h"
 #include "op-attrs/ops/element_binary.h"
 #include "op-attrs/ops/element_unary.h"
@@ -15,6 +16,7 @@
 #include "op-attrs/ops/noop.h"
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/ops/reduce.h"
+#include "op-attrs/ops/reshape.h"
 #include "op-attrs/ops/softmax.h"
 #include "op-attrs/ops/split.h"
 #include "op-attrs/ops/transpose.h"
@@ -80,6 +82,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
 
         return concat_get_task_group(attrs, inputs_dim_degrees);
       },
+      [&](Conv2DAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ParallelTensorDimDegrees input_dim_degrees =
+            require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+        return conv2d_get_task_group(attrs, input_dim_degrees);
+      },
       [&](DropoutAttrs const &attrs) -> StandardOperatorTaskGroup {
         ParallelTensorDimDegrees input_dim_degrees =
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
@@ -114,7 +122,7 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
         return flat_get_task_group(attrs, input_dim_degrees);
       },
       [&](InputAttrs const &attrs) -> StandardOperatorTaskGroup {
-        ASSERT(input_dim_degree_binding.empty());
+        ASSERT(input_dim_degree_binding.size() == 0);
 
         return input_get_task_group(attrs);
       },
@@ -157,6 +165,12 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
 
         return reduce_get_task_group(attrs, input_dim_degrees);
       },
+      [&](ReshapeAttrs const &attrs) -> StandardOperatorTaskGroup {
+        ParallelTensorDimDegrees input_dim_degrees =
+            require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
+
+        return reshape_get_task_group(attrs, input_dim_degrees);
+      },
       [&](SoftmaxAttrs const &attrs) -> StandardOperatorTaskGroup {
         ParallelTensorDimDegrees input_dim_degrees =
             require_only_key(input_dim_degree_binding, TensorSlotName::INPUT);
@@ -182,7 +196,7 @@ StandardOperatorTaskGroup get_standard_operator_task_group(
         return upsample_get_task_group(attrs, input_dim_degrees);
       },
       [&](WeightAttrs const &attrs) -> StandardOperatorTaskGroup {
-        ASSERT(input_dim_degree_binding.empty());
+        ASSERT(input_dim_degree_binding.size() == 0);
 
         return weight_get_task_group(attrs);
       },

@@ -6,7 +6,7 @@ std::string get_operator_type_name(OperatorType op) {
   return fmt::to_string(op);
 }
 
-bool is_parallel_op(OperatorType const &t) {
+bool is_parallel_op(OperatorType t) {
   switch (t) {
     case OperatorType::REPARTITION:
     case OperatorType::COMBINE:

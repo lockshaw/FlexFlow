@@ -365,6 +365,15 @@ std::set<InternalDynamicSlotSite>
   return found;
 }
 
+std::unordered_set<DynamicNodeSlot>
+    get_dynamic_node_slots(DynamicOpenDataflowGraph const &g) {
+  return flatmap(get_dynamic_invocation_set(g),
+                 [](DynamicNodeInvocation const &i)
+                     -> std::unordered_set<DynamicNodeSlot> {
+                   return get_dynamic_node_slots_for_invocation(i);
+                 });
+}
+
 DynamicSlotSite dynamic_graph_find_source_of_slot_site(
     DynamicOpenDataflowGraph const &g,
     InternalDynamicSlotSite const &slot_site) {

@@ -92,6 +92,8 @@ PCGInstance create_pcg_instance(
   DynamicOpenDataflowGraph dg =
       make_dynamic_open_dataflow_graph_from_mapped_pcg(mpcg, device_type);
   dg = perform_pass_expansion(dg);
+  // std::cerr << "After pass expansion insertion" << std::endl;
+  // debug_print_dynamic_open_dataflow_graph_as_dot(dg);
 
   std::map<DynamicValueAttrs, DynamicTensorAccessor> inputs = input_tensors;
   std::optional<DynamicValueAttrs> logit_grad_value;
@@ -152,7 +154,8 @@ PCGInstance create_pcg_instance(
           tensor_instance_backing,
           device_handle,
           optimizer_attrs,
-          ctx.get_outstanding_events());
+          ctx.get_outstanding_events(),
+          device_type);
 
   // Compute the topological ordering of the graph
   auto [kwarg_graph, node_map] =

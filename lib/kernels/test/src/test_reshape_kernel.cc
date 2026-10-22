@@ -7,6 +7,7 @@
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
+
 TEST_SUITE(FF_CUDA_TEST_SUITE) {
   TEST_CASE("Test Reshape Forward and Backward") {
     ManagedPerDeviceFFHandle managed_handle = initialize_single_gpu_handle(
@@ -20,6 +21,7 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
         TensorDims{FFOrdered{100_p}},
         DataType::FLOAT,
     };
+
     TensorShape output_shape = TensorShape{
         TensorDims{FFOrdered{100_p}},
         DataType::INT32,

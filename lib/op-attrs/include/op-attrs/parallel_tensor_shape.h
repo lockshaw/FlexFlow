@@ -9,6 +9,7 @@
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/replica_parallel_dim.dtg.h"
 #include "op-attrs/tensor_shape.h"
+#include "utils/record_formatter.h"
 #include <vector>
 
 namespace FlexFlow {
@@ -61,6 +62,8 @@ ParallelDim get_parallel_dim_at_idx(ParallelTensorShape const &shape,
 
 std::set<parallel_tensor_dim_idx_t>
     get_parallel_tensor_dim_indices(ParallelTensorShape const &shape);
+
+RecordFormatter dot_for_parallel_tensor_shape(ParallelTensorShape const &);
 
 } // namespace FlexFlow
 

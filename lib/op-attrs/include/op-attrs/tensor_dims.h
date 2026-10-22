@@ -6,6 +6,8 @@
 #include "op-attrs/tensor_dims.dtg.h"
 #include "op-attrs/tensor_dims_coord.dtg.h"
 #include "utils/bidict/bidict.h"
+#include "utils/containers/keys.h"
+#include "utils/containers/map_from_keys_and_values.h"
 
 namespace FlexFlow {
 

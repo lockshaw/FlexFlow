@@ -1,23 +1,17 @@
-namespace = "FlexFlow"
-name = "TrainingOpType"
-type = "variant"
-#include "task-spec/dynamic_graph/make_dynamic_open_dataflow_graph_from_mapped_pcg.h"
-features = [
-  "eq",
-  "hash",
-  "fmt",
-  "json",
-]
+namespace = "FlexFlow" name = "TrainingOpType" type = "variant" features =
+    [
+      "eq",
+      "hash",
+      "fmt",
+      "json",
+    ]
 
-includes = [
-  "task-spec/dynamic_graph/training_only_op_type.dtg.h",
-  "op-attrs/operator_type.dtg.h",
-]
+    includes =
+        [
+          "task-spec/dynamic_graph/training_only_op_type.dtg.h",
+          "op-attrs/operator_type.dtg.h",
+        ]
 
-[[values]]
-type = "::FlexFlow::OperatorType"
-key = "pcg_op"
+    [[values]] type = "::FlexFlow::OperatorType" key = "pcg_op"
 
-[[values]]
-type = "::FlexFlow::TrainingOnlyOpType"
-key = "training_only_op"
+    [[values]] type = "::FlexFlow::TrainingOnlyOpType" key = "training_only_op"

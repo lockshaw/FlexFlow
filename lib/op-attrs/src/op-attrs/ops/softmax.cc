@@ -40,7 +40,7 @@ ParallelTensorDimDegrees softmax_get_output_parallel_dim_degrees(
 ParallelTensorShape
     softmax_get_output_parallel_shape(SoftmaxAttrs const &attrs,
                                       ParallelTensorShape const &input_shape) {
-  TensorShape unpar =
+  TensorShape output_shape =
       softmax_get_output_shape(attrs, get_reduced_shape(input_shape));
 
   ParallelTensorDimDegrees output_degrees =

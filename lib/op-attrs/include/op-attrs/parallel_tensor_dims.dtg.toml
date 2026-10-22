@@ -1,28 +1,22 @@
-namespace = "FlexFlow"
-name = "ParallelTensorDims"
-type = "struct"
-features = [
-  "eq",
-  "ord",
-  "hash",
-  "json",
-  "rapidcheck",
-  "fmt",
-]
+namespace = "FlexFlow" name = "ParallelTensorDims" type = "struct" features =
+    [
+      "eq",
+      "ord",
+      "hash",
+      "json",
+      "rapidcheck",
+      "fmt",
+    ]
 
-includes = [
-  "op-attrs/ff_ordered/ff_ordered.h",
-  "op-attrs/shard_parallel_dim.dtg.h",
-  "op-attrs/replica_parallel_dim_set.dtg.h",
-  "<map>",
-  "utils/fmt/map.h",
-  "utils/fmt/pair.h",
-]
+    includes =
+        [
+          "op-attrs/ff_ordered/ff_ordered.h",
+          "op-attrs/shard_parallel_dim.dtg.h",
+          "op-attrs/replica_parallel_dim_set.dtg.h",
+          "<map>",
+        ]
 
-[[fields]]
-name = "shard_dims"
-type = "::FlexFlow::FFOrdered<::FlexFlow::ShardParallelDim>"
+    [[fields]] name = "shard_dims" type =
+        "::FlexFlow::FFOrdered<::FlexFlow::ShardParallelDim>"
 
-[[fields]]
-name = "replica_dims"
-type = "::FlexFlow::ReplicaParallelDimSet"
+    [[fields]] name = "replica_dims" type = "::FlexFlow::ReplicaParallelDimSet"

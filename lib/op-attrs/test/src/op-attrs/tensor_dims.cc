@@ -58,9 +58,9 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-  TEST_CASE("tensor_dims_is_broadcastable_to(TensorDims, TensorDims)") {
+  TEST_CASE("tensor_dims_is_broadcastable_to") {
 
-    TensorDims goal = TensorDims{FFOrdered{1_p, 1_p, 4_p, 3_p}};
+    TensorDims goal = TensorDims{FFOrdered{4_p, 6_p, 4_p, 3_p}};
 
     SUBCASE("dims match") {
       bool result = tensor_dims_is_broadcastable_to(goal, goal);
@@ -71,6 +71,15 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("curr only needs num_dims promotion") {
       TensorDims curr = TensorDims{FFOrdered{4_p, 3_p}};
+
+      bool result = tensor_dims_is_broadcastable_to(curr, goal);
+      bool correct = true;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("can broadcast inner dims") {
+      TensorDims curr = TensorDims{FFOrdered{4_p, 1_p}};
 
       bool result = tensor_dims_is_broadcastable_to(curr, goal);
       bool correct = true;

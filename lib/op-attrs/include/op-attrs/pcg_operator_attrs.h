@@ -10,10 +10,16 @@ namespace FlexFlow {
 
 bool is_parallel_op(PCGOperatorAttrs const &);
 OperatorType pcg_op_attrs_get_op_type(PCGOperatorAttrs const &);
+
 PCGOperatorAttrs
     pcg_op_attrs_from_compgraph_op_attrs(ComputationGraphOpAttrs const &);
 
 nlohmann::json pcg_op_attrs_as_dot_json(PCGOperatorAttrs const &);
+
+void pcg_op_attrs_check_incoming_tensor_roles(
+    PCGOperatorAttrs const &op_attrs,
+    std::unordered_set<TensorSlotName> const &input_slots,
+    std::unordered_set<TensorSlotName> const &weight_slots);
 
 } // namespace FlexFlow
 

@@ -11,6 +11,7 @@
 #include "utils/containers/set_of.h"
 #include "utils/containers/slice.h"
 #include "utils/containers/sum.h"
+#include "utils/containers/tail.h"
 #include "utils/containers/transform.h"
 #include "utils/containers/zip3_with_strict.h"
 #include "utils/containers/zip_strict.h"

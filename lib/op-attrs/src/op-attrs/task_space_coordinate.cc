@@ -63,6 +63,11 @@ DimCoord<operator_task_space_dim_idx_t>
       get_operator_task_space_dim_ordering());
 }
 
+TaskSpaceCoordinate task_space_coordinate_from_orthotope_coord(
+    OrthotopeCoord const &orthotope_coord) {
+  return TaskSpaceCoordinate{orthotope_coord};
+}
+
 TaskSpaceCoordinate task_coord_matching_parallel_tensor_space_coordinate(
     ParallelTensorSpaceCoordinate const &output_coord,
     ParallelTensorDimDegrees const &output_degrees) {

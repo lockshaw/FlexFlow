@@ -3,6 +3,7 @@
 #include "kernels/local_cpu_allocator.h"
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "kernels/tensor_accessor_split.h"
+#include "op-attrs/tensor_dims.h"
 #include "utils/containers/foldl1.h"
 
 namespace FlexFlow {

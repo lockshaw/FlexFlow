@@ -5,7 +5,6 @@
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
-  // TODO(@lockshaw)(#pr): I don't think we need this function anymore
   TEST_CASE("dim_domain_hemiunique_mapping_by_scaling_projection") {
     SUBCASE("scaling up an already parallel dimension") {
       DimDomain<int> input_domain = DimDomain<int>{{

@@ -653,451 +653,611 @@ TEST_SUITE(FF_TEST_SUITE) {
           DeviceType::GPU,
       };
 
-      DynamicNodeInvocation input = DynamicNodeInvocation{
-          /*inputs=*/{
-              {
-                  mk_slot(TensorSlotName::INPUT),
-                  mk_op_value(0,
-                              TensorSlotName::OUTPUT,
-                              TensorSlotName::INPUT,
-                              node_mapping,
-                              std::nullopt),
-              },
-              {
-                  mk_slot(TensorSlotName::WEIGHT),
-                  mk_op_value(1,
-                              TensorSlotName::OUTPUT,
-                              TensorSlotName::WEIGHT,
-                              node_mapping,
-                              std::nullopt),
-              },
-          },
-          /*node_attrs=*/
-          DynamicNodeAttrs{
-              /*task_type=*/std::nullopt,
-              /*device_coord=*/std::nullopt,
-              /*mapping=*/node_mapping,
-              /*op_attrs=*/op_attrs,
-              /*layer_guid=*/
-              dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
-              /*per_device_op_state=*/std::nullopt,
-          },
-          /*outputs=*/
-          {
-              {
-                  mk_slot(TensorSlotName::OUTPUT_01),
-                  mk_op_value(20,
-                              TensorSlotName::OUTPUT_01,
-                              TensorSlotName::OUTPUT_01,
-                              node_mapping,
-                              std::nullopt),
-              },
-              {
-                  mk_slot(TensorSlotName::OUTPUT_02),
-                  mk_op_value(20,
-                              TensorSlotName::OUTPUT_02,
-                              TensorSlotName::OUTPUT_02,
-                              node_mapping,
-                              std::nullopt),
-              },
-          },
-      };
+      TEST_CASE("perform_shard_expansion_for_invocation") {
 
-      std::set<DynamicNodeInvocationShardingInfo> result =
-          generate_shard_expansion_for_invocation(input);
+        auto mk_slot = [](TensorSlotName const &slot_name) {
+          return DynamicTensorSlot{
+              /*slot_name=*/slot_name,
+              /*slot_tensor_role=*/std::nullopt,
+          };
 
-      auto mk_invocation_shard =
-          [&](global_device_id_t const &device_coord,
-              ParallelTensorSpaceCoordinate const &input_shard_coord,
-              ParallelTensorSpaceCoordinate const &weight_shard_coord,
-              ParallelTensorSpaceCoordinate const &output_1_shard_coord,
-              ParallelTensorSpaceCoordinate const &output_2_shard_coord)
-          -> DynamicNodeInvocationShardingInfo {
-        return DynamicNodeInvocationShardingInfo{
-            /*device_coord=*/nonempty_set{device_coord},
-            /*value_sharding=*/
-            {
-                mk_sharding_info(
-                    TensorSlotName::INPUT, input_shard_coord, node_mapping),
-                mk_sharding_info(
-                    TensorSlotName::WEIGHT, weight_shard_coord, node_mapping),
-                mk_sharding_info(TensorSlotName::OUTPUT_01,
-                                 output_1_shard_coord,
-                                 node_mapping),
-                mk_sharding_info(TensorSlotName::OUTPUT_02,
-                                 output_2_shard_coord,
-                                 node_mapping),
-            },
-        };
-      };
+          DeviceType device_type = DeviceType::GPU;
+          auto mk_device_id =
+              [&](MachineSpaceCoordinate const &c) -> device_id_t {
+            return device_id_t{c, device_type};
+          };
 
-      std::set<DynamicNodeInvocationShardingInfo> correct = {
-          mk_invocation_shard(dev1,
-                              mc1_input_coord,
-                              mc1_weight_coord,
-                              mc1_output_1_coord,
-                              mc1_output_2_coord),
-          mk_invocation_shard(dev2,
-                              mc2_input_coord,
-                              mc2_weight_coord,
-                              mc2_output_1_coord,
-                              mc2_output_2_coord),
-      };
+          auto mk_value = [&](size_t src_node_id,
+                              TensorSlotName src_slot_name,
+                              bidict<ParallelTensorSpaceCoordinate, device_id_t>
+                                  tensor_binding,
+                              std::optional<ParallelTensorSpaceCoordinate> const
+                                  &shard_coord) -> DynamicValueAttrs {
+            if (shard_coord.has_value()) {
+              tensor_binding = filter_keys(
+                  tensor_binding,
+                  [&](ParallelTensorSpaceCoordinate const &p) -> bool {
+                    return p == shard_coord.value();
+                  });
+            }
 
-      CHECK(result.size() == correct.size());
-      CHECK(result == correct);
-    }
-
-    SUBCASE("for copy operator") {
-      ParallelTensorSpaceCoordinate pt1 = mk_pt_coord(0_n, 0_n, 0_n, 0_n);
-      ParallelTensorSpaceCoordinate pt2 = mk_pt_coord(0_n, 1_n, 0_n, 0_n);
-
-      bidict<ParallelTensorSpaceCoordinate, global_device_id_t> src_binding{
-          {pt1, dev1},
-          {pt2, dev2},
-      };
-      bidict<ParallelTensorSpaceCoordinate, global_device_id_t> dst_binding{
-          {pt1, dev3},
-          {pt2, dev4},
-      };
-
-      DynamicNodeInvocation input = DynamicNodeInvocation{
-          /*inputs=*/{
-              {
-                  mk_slot(TensorSlotName::INPUT),
-                  mk_value(
-                      0, TensorSlotName::OUTPUT, src_binding, std::nullopt),
-              },
-          },
-          /*node_attrs=*/
-          DynamicNodeAttrs{
-              /*task_type=*/std::nullopt,
-              /*device_coord=*/std::nullopt,
-              /*mapping=*/std::nullopt,
-              /*op_attrs=*/TrainingOperationAttrs{CopyAttrs{}},
-              /*layer_guid=*/dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
-              /*per_device_op_state=*/std::nullopt,
-          },
-          /*outputs=*/
-          {
-              {
-                  mk_slot(TensorSlotName::OUTPUT),
-                  mk_value(
-                      20, TensorSlotName::OUTPUT, dst_binding, std::nullopt),
-              },
-          },
-      };
-
-      std::set<DynamicNodeInvocationShardingInfo> result =
-          generate_shard_expansion_for_invocation(input);
-
-      auto mk_invocation_shard =
-          [&](global_device_id_t const &device_coord,
-              ParallelTensorSpaceCoordinate const &tensor_shard_coord)
-          -> DynamicNodeInvocationShardingInfo {
-        return DynamicNodeInvocationShardingInfo{
-            /*device_coord=*/nonempty_set{device_coord},
-            /*value_sharding=*/
-            BinaryRelation<DynamicTensorSlot, DynamicValueAttrsShardingInfo>{
-                {
-                    mk_slot(TensorSlotName::INPUT),
-                    DynamicValueAttrsShardingInfo{
-                        tensor_shard_coord,
-                        src_binding.at_l(tensor_shard_coord),
+            return DynamicValueAttrs{
+                /*tensor_guid=*/dynamic_tensor_guid_t{parallel_tensor_guid_t{
+                    KwargDataflowOutput<TensorSlotName>{
+                        Node{src_node_id},
+                        src_slot_name,
                     },
-                },
-                {
-                    mk_slot(TensorSlotName::OUTPUT),
-                    DynamicValueAttrsShardingInfo{
-                        tensor_shard_coord,
-                        dst_binding.at_l(tensor_shard_coord),
-                    },
-                },
-            },
-        };
-      };
+                }},
+                /*parallel_tensor_shape=*/std::nullopt,
+                /*shard_coord=*/shard_coord,
+                /*mapping=*/
+                ParallelTensorMapping{tensor_binding},
+                /*accessor=*/std::nullopt,
+                /*role=*/std::nullopt,
+            };
+          };
 
-      std::set<DynamicNodeInvocationShardingInfo> correct = {
-          mk_invocation_shard(dev1, pt1),
-          mk_invocation_shard(dev2, pt2),
-      };
-
-      CHECK(result.size() == correct.size());
-      CHECK(result == correct);
-    }
-
-    SUBCASE("replicate operator") {
-      ParallelTensorSpaceCoordinate pt1 = mk_pt_coord(0_n, 0_n, 0_n, 0_n);
-      ParallelTensorSpaceCoordinate pt2 = mk_pt_coord(0_n, 0_n, 0_n, 1_n);
-      ParallelTensorSpaceCoordinate pt3 = mk_pt_coord(0_n, 1_n, 0_n, 0_n);
-      ParallelTensorSpaceCoordinate pt4 = mk_pt_coord(0_n, 1_n, 0_n, 1_n);
-
-      auto mk_shard_binding = [&](ParallelTensorSpaceCoordinate const &c1,
-                                  ParallelTensorSpaceCoordinate const &c2)
-          -> OperatorAtomicTaskShardBinding {
-        return OperatorAtomicTaskShardBinding{
-            /*tensor_coords=*/{
-                {
-                    TensorSlotName::INPUT,
-                    c1,
-                },
-                {
-                    TensorSlotName::OUTPUT,
-                    c2,
-                },
-            },
-        };
-      };
-
-      DynamicNodeMapping node_mapping = DynamicNodeMapping{
-          /*op_task_group=*/MappedOperatorTaskGroup{
-              bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
-                  {
-                      dev1.coord,
-                      mk_shard_binding(pt1, pt1),
+          SUBCASE("standard operators") {
+            auto mk_shard_binding = [&](ParallelTensorSpaceCoordinate const &c1,
+                                        ParallelTensorSpaceCoordinate const &c2,
+                                        ParallelTensorSpaceCoordinate const &c3,
+                                        ParallelTensorSpaceCoordinate const &c4)
+                -> OperatorAtomicTaskShardBinding {
+              return OperatorAtomicTaskShardBinding{
+                  /*tensor_coords=*/{
+                      {
+                          TensorSlotName::INPUT,
+                          c1,
+                      },
+                      {
+                          TensorSlotName::WEIGHT,
+                          c2,
+                      },
+                      {
+                          TensorSlotName::OUTPUT_1,
+                          c3,
+                      },
+                      {
+                          TensorSlotName::OUTPUT_2,
+                          c4,
+                      },
                   },
-                  {
-                      dev2.coord,
-                      mk_shard_binding(pt1, pt2),
-                  },
-                  {
-                      dev3.coord,
-                      mk_shard_binding(pt2, pt3),
-                  },
-                  {
-                      dev4.coord,
-                      mk_shard_binding(pt2, pt4),
-                  },
-              },
-          },
-          /*device_type=*/DeviceType::GPU,
-      };
+              };
+            };
 
-      SUBCASE("fwd") {
-        bidict<ParallelTensorSpaceCoordinate, global_device_id_t> src_binding{
-            {pt1, dev1},
-            {pt2, dev2},
-        };
+            MachineSpaceCoordinate mc1 = mk_machine_coord(0_n, 0_n);
+            MachineSpaceCoordinate mc2 = mk_machine_coord(2_n, 0_n);
 
-        bidict<ParallelTensorSpaceCoordinate, global_device_id_t> dst_binding{
-            {pt1, dev1},
-            {pt2, dev2},
-            {pt3, dev3},
-            {pt4, dev4},
-        };
+            ParallelTensorSpaceCoordinate mc1_input_coord =
+                mk_pt_coord(0_n, 0_n, 0_n, 0_n);
+            ParallelTensorSpaceCoordinate mc1_weight_coord =
+                mk_pt_coord(0_n, 1_n, 2_n, 0_n);
+            ParallelTensorSpaceCoordinate mc1_output_1_coord =
+                mk_pt_coord(1_n, 0_n, 0_n, 1_n);
+            ParallelTensorSpaceCoordinate mc1_output_2_coord =
+                mk_pt_coord(3_n, 0_n, 0_n, 0_n);
 
-        DynamicNodeInvocation input = DynamicNodeInvocation{
-            /*inputs=*/{
-                {
-                    DynamicTensorSlot{
-                        /*slot_name=*/TensorSlotName::INPUT,
-                        /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
-                        /*task_shard=*/std::nullopt,
-                    },
-                    mk_value(
-                        0, TensorSlotName::OUTPUT, src_binding, std::nullopt),
-                },
-            },
-            /*node_attrs=*/
-            DynamicNodeAttrs{
-                /*task_type=*/DynamicTaskType::FWD,
-                /*device_ids=*/std::nullopt,
-                /*mapping=*/node_mapping,
-                /*op_attrs=*/
-                TrainingOperationAttrs{
-                    PCGOperatorAttrs{
-                        ReplicateAttrs{
-                            /*replicate_degree=*/2_ge2,
+            ParallelTensorSpaceCoordinate mc2_input_coord =
+                mk_pt_coord(0_n, 1_n, 0_n, 0_n);
+            ParallelTensorSpaceCoordinate mc2_weight_coord =
+                mk_pt_coord(0_n, 4_n, 2_n, 0_n);
+            ParallelTensorSpaceCoordinate mc2_output_1_coord =
+                mk_pt_coord(1_n, 2_n, 0_n, 1_n);
+            ParallelTensorSpaceCoordinate mc2_output_2_coord =
+                mk_pt_coord(0_n, 0_n, 0_n, 0_n);
+
+            DynamicNodeMapping node_mapping = DynamicNodeMapping{
+                MappedOperatorTaskGroup{
+                    bidict<MachineSpaceCoordinate,
+                           OperatorAtomicTaskShardBinding>{
+                        {
+                            mc1,
+                            mk_shard_binding(mc1_input_coord,
+                                             mc1_weight_coord,
+                                             mc1_output_1_coord,
+                                             mc1_output_2_coord),
+                        },
+                        {
+                            mc2,
+                            mk_shard_binding(mc2_input_coord,
+                                             mc2_weight_coord,
+                                             mc2_output_1_coord,
+                                             mc2_output_2_coord),
                         },
                     },
                 },
-                /*layer_guid=*/
-                dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
-                /*per_device_op_state=*/std::nullopt,
-            },
-            /*outputs=*/
-            {
-                {
-                    DynamicTensorSlot{
-                        /*slot_name=*/TensorSlotName::OUTPUT,
-                        /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
-                        /*task_shard=*/std::nullopt,
+                device_type,
+            };
+
+            auto mk_op_value =
+                [&](size_t src_node_id,
+                    TensorSlotName src_slot_name,
+                    TensorSlotName use_slot_name,
+                    std::optional<ParallelTensorSpaceCoordinate> const
+                        &shard_coord) -> DynamicValueAttrs {
+              bidict<ParallelTensorSpaceCoordinate, device_id_t>
+                  tensor_binding = dynamic_node_mapping_bindings_for_slot_name(
+                      node_mapping, use_slot_name);
+              return mk_value(
+                  src_node_id, src_slot_name, tensor_binding, shard_coord);
+            };
+
+            DynamicNodeInvocation input = DynamicNodeInvocation{
+                /*inputs=*/{
+                    {
+                        mk_slot(TensorSlotName::INPUT),
+                        mk_op_value(0,
+                                    TensorSlotName::OUTPUT,
+                                    TensorSlotName::INPUT,
+                                    node_mapping,
+                                    std::nullopt),
                     },
-                    mk_value(
-                        20, TensorSlotName::OUTPUT, dst_binding, std::nullopt),
+                    {
+                        mk_slot(TensorSlotName::WEIGHT),
+                        mk_op_value(1,
+                                    TensorSlotName::OUTPUT,
+                                    TensorSlotName::WEIGHT,
+                                    node_mapping,
+                                    std::nullopt),
+                    },
                 },
-            },
-        };
+                /*node_attrs=*/
+                DynamicNodeAttrs{
+                    /*task_type=*/std::nullopt,
+                    /*device_coord=*/std::nullopt,
+                    /*mapping=*/node_mapping,
+                    /*op_attrs=*/op_attrs,
+                    /*layer_guid=*/
+                    dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
+                    /*per_device_op_state=*/std::nullopt,
+                },
+                /*outputs=*/
+                {
+                    {
+                        mk_slot(TensorSlotName::OUTPUT_01),
+                        mk_op_value(20,
+                                    TensorSlotName::OUTPUT_01,
+                                    TensorSlotName::OUTPUT_01,
+                                    node_mapping,
+                                    std::nullopt),
+                    },
+                    {
+                        mk_slot(TensorSlotName::OUTPUT_02),
+                        mk_op_value(20,
+                                    TensorSlotName::OUTPUT_02,
+                                    TensorSlotName::OUTPUT_02,
+                                    node_mapping,
+                                    std::nullopt),
+                    },
+                },
+            };
 
-        std::set<DynamicNodeInvocationShardingInfo> result =
-            generate_shard_expansion_for_invocation(input);
+            std::set<DynamicNodeInvocationShardingInfo> result =
+                generate_shard_expansion_for_invocation(input);
 
-        auto mk_output_binding = [&](global_device_id_t const &device)
-            -> std::pair<DynamicTensorSlot, DynamicValueAttrsShardingInfo> {
-          return {
-              DynamicTensorSlot{
-                  /*slot_name=*/TensorSlotName::OUTPUT,
-                  /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
-                  /*task_shard=*/device.coord,
-              },
-              DynamicValueAttrsShardingInfo{
-                  dst_binding.at_r(device),
-                  device,
-              },
-          };
-        };
+            auto mk_invocation_shard =
+                [&](global_device_id_t const &device_coord,
+                    ParallelTensorSpaceCoordinate const &input_shard_coord,
+                    ParallelTensorSpaceCoordinate const &weight_shard_coord,
+                    ParallelTensorSpaceCoordinate const &output_1_shard_coord,
+                    ParallelTensorSpaceCoordinate const &output_2_shard_coord)
+                -> DynamicNodeInvocationShardingInfo {
+              return DynamicNodeInvocationShardingInfo{
+                  /*device_coord=*/nonempty_set{device_coord},
+                  /*value_sharding=*/
+                  {
+                      mk_sharding_info(TensorSlotName::INPUT,
+                                       input_shard_coord,
+                                       node_mapping),
+                      mk_sharding_info(TensorSlotName::WEIGHT,
+                                       weight_shard_coord,
+                                       node_mapping),
+                      mk_sharding_info(TensorSlotName::OUTPUT_01,
+                                       output_1_shard_coord,
+                                       node_mapping),
+                      mk_sharding_info(TensorSlotName::OUTPUT_02,
+                                       output_2_shard_coord,
+                                       node_mapping),
+                  },
+              };
+            };
 
-        auto mk_invocation_shard =
-            [&](nonempty_set<global_device_id_t> const &device_ids,
-                ParallelTensorSpaceCoordinate const &input_shard_coord,
-                std::set<global_device_id_t> const &output_task_shards)
-            -> DynamicNodeInvocationShardingInfo {
-          return DynamicNodeInvocationShardingInfo{
-              /*device_ids=*/device_ids,
-              /*value_sharding=*/
-              binary_relation_from_map(binary_merge_disjoint_maps(
-                  std::map<DynamicTensorSlot, DynamicValueAttrsShardingInfo>{
+            std::set<DynamicNodeInvocationShardingInfo> correct = {
+                mk_invocation_shard(dev1,
+                                    mc1_input_coord,
+                                    mc1_weight_coord,
+                                    mc1_output_1_coord,
+                                    mc1_output_2_coord),
+                mk_invocation_shard(dev2,
+                                    mc2_input_coord,
+                                    mc2_weight_coord,
+                                    mc2_output_1_coord,
+                                    mc2_output_2_coord),
+            };
+
+            CHECK(result.size() == correct.size());
+            CHECK(result == correct);
+          }
+
+          SUBCASE("for copy operator") {
+            ParallelTensorSpaceCoordinate pt1 = mk_pt_coord(0_n, 0_n, 0_n, 0_n);
+            ParallelTensorSpaceCoordinate pt2 = mk_pt_coord(0_n, 1_n, 0_n, 0_n);
+
+            bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                src_binding{
+                    {pt1, dev1},
+                    {pt2, dev2},
+                };
+            bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                dst_binding{
+                    {pt1, dev3},
+                    {pt2, dev4},
+                };
+
+            DynamicNodeInvocation input = DynamicNodeInvocation{
+                /*inputs=*/{
+                    {
+                        mk_slot(TensorSlotName::INPUT),
+                        mk_value(0,
+                                 TensorSlotName::OUTPUT,
+                                 src_binding,
+                                 std::nullopt),
+                    },
+                },
+                /*node_attrs=*/
+                DynamicNodeAttrs{
+                    /*task_type=*/std::nullopt,
+                    /*device_coord=*/std::nullopt,
+                    /*mapping=*/std::nullopt,
+                    /*op_attrs=*/TrainingOperationAttrs{CopyAttrs{}},
+                    /*layer_guid=*/
+                    dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
+                    /*per_device_op_state=*/std::nullopt,
+                },
+                /*outputs=*/
+                {
+                    {
+                        mk_slot(TensorSlotName::OUTPUT),
+                        mk_value(20,
+                                 TensorSlotName::OUTPUT,
+                                 dst_binding,
+                                 std::nullopt),
+                    },
+                },
+            };
+
+            std::set<DynamicNodeInvocationShardingInfo> result =
+                generate_shard_expansion_for_invocation(input);
+
+            auto mk_invocation_shard =
+                [&](global_device_id_t const &device_coord,
+                    ParallelTensorSpaceCoordinate const &tensor_shard_coord)
+                -> DynamicNodeInvocationShardingInfo {
+              return DynamicNodeInvocationShardingInfo{
+                  /*device_coord=*/nonempty_set{device_coord},
+                  /*value_sharding=*/
+                  BinaryRelation<DynamicTensorSlot,
+                                 DynamicValueAttrsShardingInfo>{
+                      {
+                          mk_slot(TensorSlotName::INPUT),
+                          DynamicValueAttrsShardingInfo{
+                              tensor_shard_coord,
+                              src_binding.at_l(tensor_shard_coord),
+                          },
+                      },
+                      {
+                          mk_slot(TensorSlotName::OUTPUT),
+                          DynamicValueAttrsShardingInfo{
+                              tensor_shard_coord,
+                              dst_binding.at_l(tensor_shard_coord),
+                          },
+                      },
+                  },
+              };
+            };
+
+            std::set<DynamicNodeInvocationShardingInfo> correct = {
+                mk_invocation_shard(dev1, pt1),
+                mk_invocation_shard(dev2, pt2),
+            };
+
+            CHECK(result.size() == correct.size());
+            CHECK(result == correct);
+          }
+
+          SUBCASE("replicate operator") {
+            ParallelTensorSpaceCoordinate pt1 = mk_pt_coord(0_n, 0_n, 0_n, 0_n);
+            ParallelTensorSpaceCoordinate pt2 = mk_pt_coord(0_n, 0_n, 0_n, 1_n);
+            ParallelTensorSpaceCoordinate pt3 = mk_pt_coord(0_n, 1_n, 0_n, 0_n);
+            ParallelTensorSpaceCoordinate pt4 = mk_pt_coord(0_n, 1_n, 0_n, 1_n);
+
+            auto mk_shard_binding = [&](ParallelTensorSpaceCoordinate const &c1,
+                                        ParallelTensorSpaceCoordinate const &c2)
+                -> OperatorAtomicTaskShardBinding {
+              return OperatorAtomicTaskShardBinding{
+                  /*tensor_coords=*/{
+                      {
+                          TensorSlotName::INPUT,
+                          c1,
+                      },
+                      {
+                          TensorSlotName::OUTPUT,
+                          c2,
+                      },
+                  },
+              };
+            };
+
+            DynamicNodeMapping node_mapping = DynamicNodeMapping{
+                /*op_task_group=*/MappedOperatorTaskGroup{
+                    bidict<MachineSpaceCoordinate,
+                           OperatorAtomicTaskShardBinding>{
+                        {
+                            dev1.coord,
+                            mk_shard_binding(pt1, pt1),
+                        },
+                        {
+                            dev2.coord,
+                            mk_shard_binding(pt1, pt2),
+                        },
+                        {
+                            dev3.coord,
+                            mk_shard_binding(pt2, pt3),
+                        },
+                        {
+                            dev4.coord,
+                            mk_shard_binding(pt2, pt4),
+                        },
+                    },
+                },
+                /*device_type=*/DeviceType::GPU,
+            };
+
+            SUBCASE("fwd") {
+              bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                  src_binding{
+                      {pt1, dev1},
+                      {pt2, dev2},
+                  };
+
+              bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                  dst_binding{
+                      {pt1, dev1},
+                      {pt2, dev2},
+                      {pt3, dev3},
+                      {pt4, dev4},
+                  };
+
+              DynamicNodeInvocation input = DynamicNodeInvocation{
+                  /*inputs=*/{
                       {
                           DynamicTensorSlot{
                               /*slot_name=*/TensorSlotName::INPUT,
                               /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
                               /*task_shard=*/std::nullopt,
                           },
-                          DynamicValueAttrsShardingInfo{
-                              input_shard_coord,
-                              src_binding.at_l(input_shard_coord),
-                          },
+                          mk_value(0,
+                                   TensorSlotName::OUTPUT,
+                                   src_binding,
+                                   std::nullopt),
                       },
                   },
-                  map_from_pairs(
-                      transform(output_task_shards, mk_output_binding)))),
-          };
-        };
+                  /*node_attrs=*/
+                  DynamicNodeAttrs{
+                      /*task_type=*/DynamicTaskType::FWD,
+                      /*device_ids=*/std::nullopt,
+                      /*mapping=*/node_mapping,
+                      /*op_attrs=*/
+                      TrainingOperationAttrs{
+                          PCGOperatorAttrs{
+                              ReplicateAttrs{
+                                  /*replicate_degree=*/2_ge2,
+                              },
+                          },
+                      },
+                      /*layer_guid=*/
+                      dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
+                      /*per_device_op_state=*/std::nullopt,
+                  },
+                  /*outputs=*/
+                  {
+                      {
+                          DynamicTensorSlot{
+                              /*slot_name=*/TensorSlotName::OUTPUT,
+                              /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
+                              /*task_shard=*/std::nullopt,
+                          },
+                          mk_value(20,
+                                   TensorSlotName::OUTPUT,
+                                   dst_binding,
+                                   std::nullopt),
+                      },
+                  },
+              };
 
-        std::set<DynamicNodeInvocationShardingInfo> correct = {
-            mk_invocation_shard(nonempty_set{dev1, dev2}, pt1, {dev1, dev2}),
-            mk_invocation_shard(nonempty_set{dev3, dev4}, pt2, {dev3, dev4}),
-        };
+              std::set<DynamicNodeInvocationShardingInfo> result =
+                  generate_shard_expansion_for_invocation(input);
 
-        CHECK(result.size() == correct.size());
-        CHECK(result == correct);
-      }
-
-      SUBCASE("bwd") {
-        bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
-            output_grad_binding{
-                {pt1, dev1},
-                {pt2, dev2},
-                {pt3, dev3},
-                {pt4, dev4},
-            };
-
-        bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
-            input_grad_binding{
-                {pt1, dev1},
-                {pt2, dev2},
-            };
-
-        DynamicNodeInvocation input = DynamicNodeInvocation{
-            /*inputs=*/{
-                {
+              auto mk_output_binding = [&](global_device_id_t const &device)
+                  -> std::pair<DynamicTensorSlot,
+                               DynamicValueAttrsShardingInfo> {
+                return {
                     DynamicTensorSlot{
                         /*slot_name=*/TensorSlotName::OUTPUT,
-                        /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
-                        /*task_shard=*/std::nullopt,
+                        /*slot_tensor_role=*/mk_dynamic_tensor_role_fwd(),
+                        /*task_shard=*/device.coord,
                     },
-                    mk_value(0,
-                             TensorSlotName::OUTPUT,
-                             output_grad_binding,
-                             std::nullopt),
-                },
-            },
-            /*node_attrs=*/
-            DynamicNodeAttrs{
-                /*task_type=*/DynamicTaskType::BWD,
-                /*device_ids=*/std::nullopt,
-                /*mapping=*/node_mapping,
-                /*op_attrs=*/
-                TrainingOperationAttrs{
-                    PCGOperatorAttrs{
-                        ReplicateAttrs{
-                            /*replicate_degree=*/2_ge2,
+                    DynamicValueAttrsShardingInfo{
+                        dst_binding.at_r(device),
+                        device,
+                    },
+                };
+              };
+
+              auto mk_invocation_shard =
+                  [&](nonempty_set<global_device_id_t> const &device_ids,
+                      ParallelTensorSpaceCoordinate const &input_shard_coord,
+                      std::set<global_device_id_t> const &output_task_shards)
+                  -> DynamicNodeInvocationShardingInfo {
+                return DynamicNodeInvocationShardingInfo{
+                    /*device_ids=*/device_ids,
+                    /*value_sharding=*/
+                    binary_relation_from_map(binary_merge_disjoint_maps(
+                        std::map<DynamicTensorSlot,
+                                 DynamicValueAttrsShardingInfo>{
+                            {
+                                DynamicTensorSlot{
+                                    /*slot_name=*/TensorSlotName::INPUT,
+                                    /*slot_tensor_role=*/
+                                    mk_dynamic_tensor_role_fwd(),
+                                    /*task_shard=*/std::nullopt,
+                                },
+                                DynamicValueAttrsShardingInfo{
+                                    input_shard_coord,
+                                    src_binding.at_l(input_shard_coord),
+                                },
+                            },
                         },
-                    },
-                },
-                /*layer_guid=*/
-                dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
-                /*per_device_op_state=*/std::nullopt,
-            },
-            /*outputs=*/
-            {
-                {
-                    DynamicTensorSlot{
-                        /*slot_name=*/TensorSlotName::INPUT,
-                        /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
-                        /*task_shard=*/std::nullopt,
-                    },
-                    mk_value(20,
-                             TensorSlotName::INPUT,
-                             input_grad_binding,
-                             std::nullopt),
-                },
-            },
-        };
+                        map_from_pairs(
+                            transform(output_task_shards, mk_output_binding)))),
+                };
+              };
 
-        std::set<DynamicNodeInvocationShardingInfo> result =
-            generate_shard_expansion_for_invocation(input);
+              std::set<DynamicNodeInvocationShardingInfo> correct = {
+                  mk_invocation_shard(
+                      nonempty_set{dev1, dev2}, pt1, {dev1, dev2}),
+                  mk_invocation_shard(
+                      nonempty_set{dev3, dev4}, pt2, {dev3, dev4}),
+              };
 
-        auto mk_output_grad_binding = [&](global_device_id_t const &device)
-            -> std::pair<DynamicTensorSlot, DynamicValueAttrsShardingInfo> {
-          return {
-              DynamicTensorSlot{
-                  /*slot_name=*/TensorSlotName::OUTPUT,
-                  /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
-                  /*task_shard=*/device.coord,
-              },
-              DynamicValueAttrsShardingInfo{
-                  output_grad_binding.at_r(device),
-                  device,
-              },
-          };
-        };
+              CHECK(result.size() == correct.size());
+              CHECK(result == correct);
+            }
 
-        auto mk_invocation_shard =
-            [&](nonempty_set<global_device_id_t> const &device_ids,
-                std::set<global_device_id_t> const &output_grad_task_shards,
-                ParallelTensorSpaceCoordinate const &input_grad_shard_coord)
-            -> DynamicNodeInvocationShardingInfo {
-          return DynamicNodeInvocationShardingInfo{
-              /*device_ids=*/device_ids,
-              /*value_sharding=*/
-              binary_relation_from_map(binary_merge_disjoint_maps(
-                  std::map<DynamicTensorSlot, DynamicValueAttrsShardingInfo>{
+            SUBCASE("bwd") {
+              bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                  output_grad_binding{
+                      {pt1, dev1},
+                      {pt2, dev2},
+                      {pt3, dev3},
+                      {pt4, dev4},
+                  };
+
+              bidict<ParallelTensorSpaceCoordinate, global_device_id_t>
+                  input_grad_binding{
+                      {pt1, dev1},
+                      {pt2, dev2},
+                  };
+
+              DynamicNodeInvocation input = DynamicNodeInvocation{
+                  /*inputs=*/{
+                      {
+                          DynamicTensorSlot{
+                              /*slot_name=*/TensorSlotName::OUTPUT,
+                              /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
+                              /*task_shard=*/std::nullopt,
+                          },
+                          mk_value(0,
+                                   TensorSlotName::OUTPUT,
+                                   output_grad_binding,
+                                   std::nullopt),
+                      },
+                  },
+                  /*node_attrs=*/
+                  DynamicNodeAttrs{
+                      /*task_type=*/DynamicTaskType::BWD,
+                      /*device_ids=*/std::nullopt,
+                      /*mapping=*/node_mapping,
+                      /*op_attrs=*/
+                      TrainingOperationAttrs{
+                          PCGOperatorAttrs{
+                              ReplicateAttrs{
+                                  /*replicate_degree=*/2_ge2,
+                              },
+                          },
+                      },
+                      /*layer_guid=*/
+                      dynamic_layer_guid_t{parallel_layer_guid_t{Node{20}}},
+                      /*per_device_op_state=*/std::nullopt,
+                  },
+                  /*outputs=*/
+                  {
                       {
                           DynamicTensorSlot{
                               /*slot_name=*/TensorSlotName::INPUT,
                               /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
                               /*task_shard=*/std::nullopt,
                           },
-                          DynamicValueAttrsShardingInfo{
-                              input_grad_shard_coord,
-                              input_grad_binding.at_l(input_grad_shard_coord),
-                          },
+                          mk_value(20,
+                                   TensorSlotName::INPUT,
+                                   input_grad_binding,
+                                   std::nullopt),
                       },
                   },
-                  map_from_pairs(transform(output_grad_task_shards,
-                                           mk_output_grad_binding)))),
-          };
-        };
+              };
 
-        std::set<DynamicNodeInvocationShardingInfo> correct = {
-            mk_invocation_shard(nonempty_set{dev1, dev2}, {dev1, dev2}, pt1),
-            mk_invocation_shard(nonempty_set{dev3, dev4}, {dev3, dev4}, pt2),
-        };
+              std::set<DynamicNodeInvocationShardingInfo> result =
+                  generate_shard_expansion_for_invocation(input);
 
-        CHECK(result.size() == correct.size());
-        CHECK(result == correct);
+              auto mk_output_grad_binding =
+                  [&](global_device_id_t const &device)
+                  -> std::pair<DynamicTensorSlot,
+                               DynamicValueAttrsShardingInfo> {
+                return {
+                    DynamicTensorSlot{
+                        /*slot_name=*/TensorSlotName::OUTPUT,
+                        /*slot_tensor_role=*/mk_dynamic_tensor_role_bwd(),
+                        /*task_shard=*/device.coord,
+                    },
+                    DynamicValueAttrsShardingInfo{
+                        output_grad_binding.at_r(device),
+                        device,
+                    },
+                };
+              };
+
+              auto mk_invocation_shard =
+                  [&](nonempty_set<global_device_id_t> const &device_ids,
+                      std::set<global_device_id_t> const
+                          &output_grad_task_shards,
+                      ParallelTensorSpaceCoordinate const
+                          &input_grad_shard_coord)
+                  -> DynamicNodeInvocationShardingInfo {
+                return DynamicNodeInvocationShardingInfo{
+                    /*device_ids=*/device_ids,
+                    /*value_sharding=*/
+                    binary_relation_from_map(binary_merge_disjoint_maps(
+                        std::map<DynamicTensorSlot,
+                                 DynamicValueAttrsShardingInfo>{
+                            {
+                                DynamicTensorSlot{
+                                    /*slot_name=*/TensorSlotName::INPUT,
+                                    /*slot_tensor_role=*/
+                                    mk_dynamic_tensor_role_bwd(),
+                                    /*task_shard=*/std::nullopt,
+                                },
+                                DynamicValueAttrsShardingInfo{
+                                    input_grad_shard_coord,
+                                    input_grad_binding.at_l(
+                                        input_grad_shard_coord),
+                                },
+                            },
+                        },
+                        map_from_pairs(transform(output_grad_task_shards,
+                                                 mk_output_grad_binding)))),
+                };
+              };
+
+              std::set<DynamicNodeInvocationShardingInfo> correct = {
+                  mk_invocation_shard(
+                      nonempty_set{dev1, dev2}, {dev1, dev2}, pt1),
+                  mk_invocation_shard(
+                      nonempty_set{dev3, dev4}, {dev3, dev4}, pt2),
+              };
+
+              CHECK(result.size() == correct.size());
+              CHECK(result == correct);
+            }
+          }
+        }
       }
-    }
-  }
-}

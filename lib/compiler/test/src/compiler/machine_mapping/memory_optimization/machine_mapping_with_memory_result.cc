@@ -139,6 +139,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         /*backward_runtime=*/2_ms,
         /*memory_usage=*/2_bytes,
     };
+
     MachineMappingWithMemoryResult pre = MachineMappingWithMemoryResult{{
         ParetoOptimalMachineMapping{
             pre_cost,

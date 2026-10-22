@@ -1,6 +1,7 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_RESTRICT_KEYS_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_RESTRICT_KEYS_H
 
+#include "utils/binary_relation/binary_relation_is_biunique.h"
 #include "utils/containers/contains.h"
 #include <map>
 #include <set>
@@ -31,6 +32,7 @@ std::map<K, V> restrict_keys(std::map<K, V> const &m, std::set<K> const &mask) {
   }
   return result;
 }
+
 } // namespace FlexFlow
 
 #endif

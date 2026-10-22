@@ -11,6 +11,7 @@
 #include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
+#include <tl/expected.hpp>
 
 namespace FlexFlow {
 

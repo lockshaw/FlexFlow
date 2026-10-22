@@ -3,6 +3,7 @@
 
 #include "utils/containers/transform.h"
 #include "utils/one_to_many/one_to_many.h"
+#include "utils/one_to_many/one_to_many_from_unstructured_relation.h"
 
 namespace FlexFlow {
 

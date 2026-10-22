@@ -1130,8 +1130,8 @@ tensor_guid_t ComputationGraphBuilder::transpose(
       /*permutation=*/
       TensorDimPermutation{
           bidict_from_keys_and_values(
-              ff_dim_range(num_elements(perm)),
-              transform(perm, [](nonnegative_int n) { return ff_dim_t{n}; })),
+              transform(perm, [](nonnegative_int n) { return ff_dim_t{n}; }),
+              ff_dim_range(num_elements(perm))),
       },
   };
 

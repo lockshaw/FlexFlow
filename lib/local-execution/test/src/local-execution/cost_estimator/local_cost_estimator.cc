@@ -161,9 +161,11 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
       OpCostEstimateKey op_cost_estimate_key = OpCostEstimateKey{
           /*op_attrs=*/PCGOperatorAttrs{attrs},
           /*input_shapes=*/
-          {{TensorSlotName::QUERY, inputs_shape},
-           {TensorSlotName::KEY, inputs_shape},
-           {TensorSlotName::VALUE, inputs_shape}},
+          {
+              {TensorSlotName::QUERY, inputs_shape},
+              {TensorSlotName::KEY, inputs_shape},
+              {TensorSlotName::VALUE, inputs_shape},
+          },
           /*weight_shapes=*/{{TensorSlotName::WEIGHT, weights_shape}},
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},
           /*optimizer_attrs=*/optimizer_attrs,

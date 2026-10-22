@@ -6,6 +6,7 @@
 #include <random>
 
 namespace FlexFlow {
+
 std::optional<MachineMapping>
     get_random_mapping(std::mt19937 &gen,
                        ParallelComputationGraph const &pcg,

@@ -6,13 +6,15 @@
 #include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
+#include "utils/containers/keys.h"
 #include "utils/containers/require_same.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
+#include "utils/not_implemented.h"
+#include "utils/optional.h"
 #include "utils/orthotope/bounded_component.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
 #include <libassert/assert.hpp>
-#include "utils/containers/keys.h"
 
 namespace FlexFlow {
 
@@ -31,27 +33,26 @@ std::map<TensorSlotName, IncomingTensorRole>
 }
 
 std::map<TensorSlotName, TensorRole>
-    conv2d_get_tensor_roles_map(Conv2DAttrs const &attrs)
-{
+    conv2d_get_tensor_roles_map(Conv2DAttrs const &attrs) {
   std::map<TensorSlotName, TensorRole> result = {
-    {
-      TensorSlotName::INPUT,
-      TensorRole::INPUT,
-    },
-    {
-      TensorSlotName::FILTER,
-      TensorRole::WEIGHT,
-    },
-    {
-      TensorSlotName::OUTPUT,
-      TensorRole::OUTPUT,
-    },
+      {
+          TensorSlotName::INPUT,
+          TensorRole::INPUT,
+      },
+      {
+          TensorSlotName::FILTER,
+          TensorRole::WEIGHT,
+      },
+      {
+          TensorSlotName::OUTPUT,
+          TensorRole::OUTPUT,
+      },
   };
 
   if (attrs.use_bias) {
     result.insert({
-      TensorSlotName::BIAS,
-      TensorRole::WEIGHT,
+        TensorSlotName::BIAS,
+        TensorRole::WEIGHT,
     });
   }
 
@@ -373,7 +374,8 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
   if (attrs.use_bias) {
     result.insert({
         TensorSlotName::BIAS,
-        assert_unwrap(conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees)),
+        assert_unwrap(
+            conv2d_get_bias_parallel_dim_degrees(attrs, input_degrees)),
     });
   }
 
@@ -546,9 +548,8 @@ ParallelTensorShape
 }
 
 std::map<TensorSlotName, ParallelTensorShape>
-    conv2d_get_parallel_tensor_shapes_map(Conv2DAttrs const &attrs,
-                                           ParallelTensorShape const &input_shape)
-{
+    conv2d_get_parallel_tensor_shapes_map(
+        Conv2DAttrs const &attrs, ParallelTensorShape const &input_shape) {
   std::map<TensorSlotName, ParallelTensorShape> result = {
       {
           TensorSlotName::INPUT,

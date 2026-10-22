@@ -89,6 +89,8 @@ struct bidict {
       fwd_map.insert({l, r});
       bwd_map.insert({r, l});
     }
+
+    this->check_invariants();
   }
 
   void equate(std::pair<L, R> const &lr) {

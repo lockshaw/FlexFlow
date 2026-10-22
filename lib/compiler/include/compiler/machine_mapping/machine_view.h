@@ -6,6 +6,7 @@
 #include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
+#include "op-attrs/pcg_operator_attrs.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
 #include "pcg/machine_compute_resource_slice.dtg.h"
 #include "pcg/machine_compute_specification.dtg.h"
@@ -85,6 +86,10 @@ std::set<MachineSpaceCoordinate> get_machine_space_coordinates(
     OperatorTaskSpace const &task,
     MachineComputeResourceSlice const &machine_space,
     MachineView const &mv);
+
+std::set<device_id_t> get_device_ids(OperatorTaskSpace const &task,
+                                     MachineView const &mv,
+                                     MachineComputeSpecification const &ms);
 
 MachineView make_1d_to_2d_machine_view(MachineSpaceCoordinate const &start,
                                        MachineSpecificationDimension const &dim,

@@ -42,6 +42,11 @@ ParallelLayerAddedResult
                         TensorShape const &tensor_shape,
                         CreateGrad create_grad = CreateGrad::NO);
 
+ParallelLayerAddedResult
+    pcg_add_weight_layer(ParallelComputationGraph &pcg,
+                         TensorShape const &tensor_shape,
+                         InitializerAttrs const &initializer_attrs);
+
 OperatorTaskSpace get_operator_task_space(ParallelComputationGraph const &pcg,
                                           parallel_layer_guid_t const &layer);
 

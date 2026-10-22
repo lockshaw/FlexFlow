@@ -112,7 +112,7 @@ static FFOrdered<T> permute_ff_ordered(TensorDimPermutation const &permutation,
                                        FFOrdered<T> const &ff_ordered) {
   return ff_ordered_from_map(
       map_keys(map_from_ff_ordered(ff_ordered),
-               [&](ff_dim_t k) { return permutation.at_r(k); }));
+               [&](ff_dim_t k) { return permutation.at_l(k); }));
 }
 
 TensorDims permute_tensor_dims(TensorDimPermutation const &permutation,

@@ -18,7 +18,6 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
     MachineMapping const &mapping) {
 
   std::set<parallel_layer_guid_t> pcg_layers = pcg_get_parallel_layers(pcg);
-
   std::set<parallel_layer_guid_t> mapped_layers = keys(mapping.machine_views);
 
   ASSERT(mapped_layers == pcg_layers);
@@ -27,58 +26,66 @@ MappedParallelComputationGraph mapped_pcg_from_pcg_and_mapping(
       [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
     PCGOperatorAttrs op_attrs = pcg_get_op_attrs(pcg, l);
 
-    std::map<TensorSlotName, ParallelTensorDimDegrees> inputs_dim_degrees =
-        get_incoming_input_degrees(pcg, l);
+    ASSERT(mapped_layers == pcg_layers);
 
-    ASSERT(contains_key(mapping.machine_views, l));
-    MachineView machine_view = mapping.machine_views.at(l);
+    auto mapping_for_layer =
+        [&](parallel_layer_guid_t l) -> MappedOperatorTaskGroup {
+      ComputationGraphOpAttrs op_attrs = assert_unwrap(
+          compgraph_op_attrs_from_pcg_op_attrs(pcg_get_op_attrs(pcg, l)));
 
-    return mapped_operator_task_group_from_machine_view(
-        op_attrs,
-        inputs_dim_degrees,
-        compute_slice_from_specification(machine_compute_spec),
-        machine_view);
-  };
+      std::map<TensorSlotName, ParallelTensorDimDegrees> inputs_dim_degrees =
+          get_incoming_input_degrees(pcg, l);
 
-  std::map<parallel_layer_guid_t, MappedOperatorTaskGroup>
-      mapped_op_task_groups = generate_map(mapped_layers, mapping_for_layer);
+      ASSERT(contains_key(mapping.machine_views, l));
+      MachineView machine_view = mapping.machine_views.at(l);
 
-  return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg,
-                                                       mapped_op_task_groups);
-}
+      return mapped_operator_task_group_from_machine_view(
+          op_attrs,
+          inputs_dim_degrees,
+          compute_slice_from_specification(machine_compute_spec),
+          machine_view);
+    };
 
-MachineMapping combine_disjoint_mappings(MachineMapping const &m1,
-                                         MachineMapping const &m2) {
-  return MachineMapping{
-      binary_merge_disjoint_maps(m1.machine_views, m2.machine_views),
-  };
-}
+    std::map<parallel_layer_guid_t, MappedOperatorTaskGroup>
+        mapped_op_task_groups = generate_map(mapped_layers, mapping_for_layer);
 
-bool nodes_are_disjoint(MachineMapping const &m1, MachineMapping const &m2) {
-  return are_disjoint(keys(m1.machine_views), keys(m2.machine_views));
-}
+    return mapped_pcg_from_pcg_and_mapped_op_task_groups(pcg,
+                                                         mapped_op_task_groups);
+  }
 
-std::optional<MachineMapping> get_machine_mapping_from_machine_mapping_result(
-    PCGBinarySPDecomposition const &sp_decomposition,
-    MachineMappingResult const &mm_result) {
+  MachineMapping
+      combine_disjoint_mappings(MachineMapping const &m1,
+                                MachineMapping const &m2) {
+    return MachineMapping{
+        binary_merge_disjoint_maps(m1.machine_views, m2.machine_views),
+    };
+  }
 
-  FeasibleMachineMappingResult feasible_mapping = ({
-    if (is_infeasible(mm_result)) {
-      return std::nullopt;
-    }
+  bool nodes_are_disjoint(MachineMapping const &m1, MachineMapping const &m2) {
+    return are_disjoint(keys(m1.machine_views), keys(m2.machine_views));
+  }
 
-    require_feasible(mm_result);
-  });
+  std::optional<MachineMapping> get_machine_mapping_from_machine_mapping_result(
+      PCGBinarySPDecomposition const &sp_decomposition,
+      MachineMappingResult const &mm_result) {
 
-  bidict<BinaryTreePath, parallel_layer_guid_t> path_to_leaf_map =
-      bidict_from_map(pcg_sp_tree_get_path_to_leaf_map(sp_decomposition));
+    FeasibleMachineMappingResult feasible_mapping = ({
+      if (is_infeasible(mm_result)) {
+        return std::nullopt;
+      }
 
-  return MachineMapping{
-      map_keys(feasible_mapping.machine_mapping.raw_mapping,
-               [&](BinaryTreePath const &p) -> parallel_layer_guid_t {
-                 return path_to_leaf_map.at_l(p);
-               }),
-  };
-}
+      require_feasible(mm_result);
+    });
+
+    bidict<BinaryTreePath, parallel_layer_guid_t> path_to_leaf_map =
+        bidict_from_map(pcg_sp_tree_get_path_to_leaf_map(sp_decomposition));
+
+    return MachineMapping{
+        map_keys(feasible_mapping.machine_mapping.raw_mapping,
+                 [&](BinaryTreePath const &p) -> parallel_layer_guid_t {
+                   return path_to_leaf_map.at_l(p);
+                 }),
+    };
+  }
 
 } // namespace FlexFlow
