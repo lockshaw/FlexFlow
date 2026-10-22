@@ -11,6 +11,7 @@
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
 #include "utils/nonnegative_int/range.h"
+#include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "utils/orthotope/minimal_dim_domain_mapping.h"
@@ -19,7 +20,6 @@ namespace FlexFlow {
 
 OperatorSpaceToParallelTensorSpaceMapping
     empty_operator_space_to_ptensor_space_map() {
-
   return OperatorSpaceToParallelTensorSpaceMapping{
       empty_dim_domain_hemiunique_mapping<operator_task_space_dim_idx_t,
                                           parallel_tensor_dim_idx_t>(),
@@ -71,39 +71,22 @@ OperatorSpaceToParallelTensorSpaceMapping get_identity_mapping(
     OperatorTaskSpace const &operator_task_space,
     ParallelTensorDimDegrees const &parallel_tensor_dim_degrees) {
 
-  MinimalDimDomain<parallel_tensor_dim_idx_t> pt_minimal_dim_domain =
-      minimal_dim_domain_from_parallel_tensor_dim_degrees(
-          parallel_tensor_dim_degrees);
-
-  ASSERT(op_task_space_num_dims(operator_task_space) ==
-         minimal_dim_domain_num_dims(pt_minimal_dim_domain));
-
-  std::vector<operator_task_space_dim_idx_t> op_minimal_domain_dims =
-      sorted_by(operator_task_space_get_dim_idxs(operator_task_space),
-                get_operator_task_space_dim_ordering().lt);
-
-  std::vector<parallel_tensor_dim_idx_t> pt_minimal_domain_dims =
-      sorted_by(get_minimal_domain_dims(pt_minimal_dim_domain),
-                get_parallel_tensor_dim_ordering().lt);
-
-  bidict<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> projection =
-      bidict_from_keys_and_values(op_minimal_domain_dims,
-                                  pt_minimal_domain_dims);
-
-  for (std::pair<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t> const
-           &p : projection) {
-    positive_int op_task_space_dim_size =
-        op_task_space_dim_size_for_idx(operator_task_space, p.first);
-    positive_int parallel_tensor_space_dim_size =
-        get_degree_for_parallel_tensor_dim_idx(parallel_tensor_dim_degrees,
-                                               p.second);
-    ASSERT(op_task_space_dim_size == parallel_tensor_space_dim_size);
-  }
+  DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
+      projection = get_projection_for_op_to_ptensor_identity_mapping(
+          operator_task_space_get_dim_idxs(operator_task_space),
+          get_nontrivial_parallel_tensor_dim_indices(
+              parallel_tensor_dim_degrees));
 
   return operator_ptensor_space_mapping_from_projection(
-      DimProjection{EqProjection{projection}},
-      operator_task_space,
-      parallel_tensor_dim_degrees);
+      projection, operator_task_space, parallel_tensor_dim_degrees);
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    operator_ptensor_space_mapping_from_biunique(
+        OperatorSpaceToParallelTensorSpaceBiuniqueMapping const &biunique) {
+  return OperatorSpaceToParallelTensorSpaceMapping{
+      hemiunique_from_biunique_dim_domain_mapping(biunique.raw_mapping),
+  };
 }
 
 OperatorSpaceToParallelTensorSpaceMapping
@@ -125,6 +108,30 @@ OperatorSpaceToParallelTensorSpaceMapping
                   parallel_tensor_dim_degrees)),
           /*l_dim_ordering=*/get_operator_task_space_dim_ordering(),
           /*r_dim_ordering=*/get_parallel_tensor_dim_ordering()),
+  };
+}
+
+OperatorSpaceToParallelTensorSpaceMapping
+    operator_ptensor_space_mapping_by_scaling_projection(
+        DimProjection<operator_task_space_dim_idx_t,
+                      parallel_tensor_dim_idx_t> const &projection,
+        OperatorTaskSpace const &op_task_space,
+        ParallelTensorDimDegrees const &parallel_tensor_dim_degrees) {
+  return OperatorSpaceToParallelTensorSpaceMapping{
+      dim_domain_hemiunique_mapping_lift_right_domain(
+          dim_domain_hemiunique_mapping_by_scaling_projection(
+              /*projection=*/projection,
+              /*l_domain=*/
+              lift_minimal_dim_domain(
+                  minimal_dim_domain_from_operator_task_space(op_task_space)),
+              /*r_domain=*/
+              strict_restrict_domain_to_dims_by_dropping_only_trivial_dims(
+                  dim_domain_from_parallel_tensor_dim_degrees(
+                      parallel_tensor_dim_degrees),
+                  output_dims_of_projection(projection)),
+              /*l_dim_ordering=*/get_operator_task_space_dim_ordering(),
+              /*r_dim_ordering=*/get_parallel_tensor_dim_ordering()),
+          get_parallel_tensor_dim_indices(parallel_tensor_dim_degrees)),
   };
 }
 

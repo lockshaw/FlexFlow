@@ -1,3 +1,4 @@
+#include "kernels/accessor.h"
 #include "kernels/accessor_contains_non_zero_value.h"
 #include "kernels/create_constant_filled_accessor_r.h"
 #include "kernels/flat_kernels_gpu.h"
@@ -8,6 +9,7 @@
 #include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
+
 TEST_SUITE(FF_CUDA_TEST_SUITE) {
   TEST_CASE("Test Flat Kernel") {
     Allocator allocator = create_local_cuda_memory_allocator();

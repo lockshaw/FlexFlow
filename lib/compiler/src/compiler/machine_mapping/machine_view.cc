@@ -1,23 +1,31 @@
 #include "compiler/machine_mapping/machine_view.h"
 #include "compiler/machine_mapping/machine_view_dimension.dtg.h"
+#include "compiler/machine_mapping/start_invariant_machine_view.h"
 #include "compiler/machine_mapping/stride_t.dtg.h"
+#include "op-attrs/generic_operator_task_group.h"
+#include "op-attrs/get_generic_operator_task_group.h"
 #include "op-attrs/get_operator_space_to_parallel_tensor_space_mappings.h"
 #include "op-attrs/get_operator_task_space.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/shape_inference.h"
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_role.dtg.h"
+#include "pcg/machine_compute_resource_slice.h"
 #include "pcg/machine_compute_specification.h"
 #include "pcg/machine_space_coordinate.dtg.h"
+#include "pcg/machine_space_offset.dtg.h"
 #include "pcg/machine_specification.dtg.h"
 #include "pcg/machine_specification_dimension.dtg.h"
+#include "pcg/unresolved_machine_space_offset.h"
 #include "utils/bidict/generate_bidict.h"
 #include "utils/containers/contains.h"
 #include "utils/containers/count.h"
 #include "utils/containers/filter.h"
 #include "utils/containers/get_only.h"
+#include "utils/containers/merge_disjoint_maps.h"
 #include "utils/containers/scanl.h"
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
@@ -128,6 +136,19 @@ std::set<MachineSpaceCoordinate> get_machine_space_coordinates(
                    [&](TaskSpaceCoordinate const &coord) {
                      return get_machine_space_coordinate(
                          task_space, machine_view, machine_space, coord);
+                   });
+}
+
+std::set<device_id_t> get_device_ids(OperatorTaskSpace const &task_space,
+                                     MachineView const &mv,
+                                     MachineComputeSpecification const &ms) {
+  ASSERT(op_task_space_num_dims(task_space) ==
+         mv_get_expected_task_space_num_dims(mv));
+
+  return transform(get_machine_space_coordinates(
+                       task_space, compute_slice_from_specification(ms), mv),
+                   [&](MachineSpaceCoordinate const &coord) {
+                     return get_device_id(ms, coord);
                    });
 }
 

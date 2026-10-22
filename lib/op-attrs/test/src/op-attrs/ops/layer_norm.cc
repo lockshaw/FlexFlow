@@ -91,7 +91,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     TensorShape beta = gamma;
 
-    SUBCASE("layer_norm_get_output_shape") {
+    SUBCASE("layer_norm_get_output_shape(LayerNormAttrs, TensorShape)") {
       TensorShape result =
           layer_norm_get_output_shape(attrs_affine_true, input);
       TensorShape correct = output;
@@ -99,7 +99,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("layer_norm_get_gamma_weights_shape") {
+    SUBCASE("layer_norm_get_gamma_weights_shape(LayerNormAttrs, TensorShape)") {
       SUBCASE("elementwise_affine = true") {
         TensorShape result =
             layer_norm_get_gamma_weights_shape(attrs_affine_true, input);
@@ -114,7 +114,7 @@ TEST_SUITE(FF_TEST_SUITE) {
       }
     }
 
-    SUBCASE("layer_norm_get_beta_weights_shape") {
+    SUBCASE("layer_norm_get_beta_weights_shape(LayerNormAttrs, TensorShape)") {
       SUBCASE("elementwise_affine = true") {
         TensorShape result =
             layer_norm_get_beta_weights_shape(attrs_affine_true, input);
@@ -173,7 +173,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape par_input = make_input(
             SumDegree{1_p}, DiscardCopyDegree{1_p}, degree0, 1_p, degree2, 1_p);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
+        SUBCASE("layer_norm_get_output_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           ParallelTensorShape result = layer_norm_get_output_parallel_shape(
               attrs_affine_true, par_input);
           ParallelTensorShape correct = make_output(SumDegree{1_p},
@@ -186,7 +187,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           CHECK(result == correct);
         }
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           SUBCASE("elementwise_affine = true") {
             ParallelTensorShape result =
                 layer_norm_get_gamma_weights_parallel_shape(attrs_affine_true,
@@ -203,7 +205,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           }
         }
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           SUBCASE("elementwise_affine = true") {
             ParallelTensorShape result =
                 layer_norm_get_beta_weights_parallel_shape(attrs_affine_true,
@@ -228,17 +231,20 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape par_input = make_input(
             SumDegree{1_p}, DiscardCopyDegree{1_p}, 1_p, degree1, degree2, 1_p);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
+        SUBCASE("layer_norm_get_output_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
                                                             par_input));
         }
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
               attrs_affine_true, par_input));
         }
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
               attrs_affine_true, par_input));
         }
@@ -250,17 +256,20 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape par_input =
             make_input(sum_degree, DiscardCopyDegree{1_p}, 1_p, 1_p, 1_p, 1_p);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
+        SUBCASE("layer_norm_get_output_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
                                                             par_input));
         }
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
               attrs_affine_true, par_input));
         }
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
               attrs_affine_true, par_input));
         }
@@ -272,17 +281,20 @@ TEST_SUITE(FF_TEST_SUITE) {
         ParallelTensorShape par_input =
             make_input(SumDegree{1_p}, discard_copy_degree, 1_p, 1_p, 1_p, 1_p);
 
-        SUBCASE("layer_norm_get_output_parallel_shape") {
+        SUBCASE("layer_norm_get_output_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_output_parallel_shape(attrs_affine_true,
                                                             par_input));
         }
 
-        SUBCASE("layer_norm_get_gamma_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_gamma_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_gamma_weights_parallel_shape(
               attrs_affine_true, par_input));
         }
 
-        SUBCASE("layer_norm_get_beta_weights_parallel_shape") {
+        SUBCASE("layer_norm_get_beta_weights_parallel_shape(LayerNormAttrs, "
+                "ParallelTensorShape)") {
           CHECK_THROWS(layer_norm_get_beta_weights_parallel_shape(
               attrs_affine_true, par_input));
         }

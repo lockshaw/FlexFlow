@@ -34,7 +34,6 @@ ParallelTensorShape
   return input_shape;
 }
 
-// TODO(@lockshaw)(#pr): Add shard signature functions
 OperatorTaskSpace dropout_get_operator_task_space(
     DropoutAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =

@@ -26,7 +26,8 @@ std::pair<Realm::RegionInstance, Realm::Event>
 TensorInstanceBacking perform_instance_allocation(
     DynamicOpenDataflowGraph const &g,
     std::map<DynamicValueAttrs, DynamicTensorAccessor> const &preallocated,
-    RealmContext &ctx);
+    RealmContext &ctx,
+    DeviceType device_type);
 
 /**
  * @brief Destroys all of the instances held in \p instances.

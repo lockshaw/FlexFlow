@@ -84,6 +84,8 @@ static std::optional<milliseconds_t>
   GenericTensorAccessorR filter =
       acc.get_tensor<Permissions::RO>(TensorSlotName::FILTER);
 
+  GenericTensorAccessorW input_grad =
+      acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
   GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
   GenericTensorAccessorR input_grad =

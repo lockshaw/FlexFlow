@@ -163,6 +163,7 @@ void pool2d_cpu_forward_kernel(Pool2DAttrs const &attrs,
 void pool2d_cpu_backward_kernel(Pool2DAttrs const &attrs,
                                 GenericTensorAccessorR const &output_grad,
                                 GenericTensorAccessorW const &input_grad) {
+  // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 

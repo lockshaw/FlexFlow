@@ -16,14 +16,6 @@
 
 namespace FlexFlow {
 
-/* bool MultiHeadAttentionAttrs::is_valid(std::vector<ParallelTensorShape> const
- * &inputs) const { */
-/*   return (inputs.size() == 3 && std::all_of(inputs.begin(), inputs.end(),
- * [](ParallelTensorShape const &s) { return s.is_valid(); })); */
-/*   bool is_valid = true; */
-/*   return is_valid; */
-/* } */
-
 static void check_attrs(MultiHeadAttentionAttrs const &attrs) {
   ASSERT(!attrs.add_bias_kv,
          "add_bias_kv is not yet supported. If you need this "
@@ -378,6 +370,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
               attrs, input_q, input_k, input_v),
       },
   };
+
   if (attrs.bias) {
     weight_degrees.insert({
         TensorSlotName::INPUT_BIAS,

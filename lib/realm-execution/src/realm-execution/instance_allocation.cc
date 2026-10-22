@@ -37,7 +37,8 @@ std::pair<Realm::RegionInstance, Realm::Event>
 TensorInstanceBacking perform_instance_allocation(
     DynamicOpenDataflowGraph const &g,
     std::map<DynamicValueAttrs, DynamicTensorAccessor> const &preallocated,
-    RealmContext &ctx) {
+    RealmContext &ctx,
+    DeviceType device_type) {
   ASSERT(no_tensors_are_allocated(g));
   ASSERT(tensors_are_ready_for_allocation(g));
   for (DynamicValueAttrs const &v : keys(preallocated)) {

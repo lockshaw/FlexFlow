@@ -12,6 +12,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/expected.h"
 #include "utils/fmt/set.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
