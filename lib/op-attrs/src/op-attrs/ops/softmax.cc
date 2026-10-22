@@ -6,6 +6,7 @@
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -39,7 +40,7 @@ ParallelTensorDimDegrees softmax_get_output_parallel_dim_degrees(
 ParallelTensorShape
     softmax_get_output_parallel_shape(SoftmaxAttrs const &attrs,
                                       ParallelTensorShape const &input_shape) {
-  TensorShape unpar =
+  TensorShape output_shape =
       softmax_get_output_shape(attrs, get_reduced_shape(input_shape));
 
   ParallelTensorDimDegrees output_degrees =

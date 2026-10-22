@@ -117,10 +117,6 @@ TensorDims get_piece_dims(ParallelTensorDims const &dims) {
   return TensorDims{dim_sizes};
 }
 
-TensorDims get_tensor_dims_unsafe(ParallelTensorDims const &) {
-  NOT_IMPLEMENTED();
-}
-
 TensorDims get_reduced_dims(ParallelTensorDims const &dims) {
   FFOrdered<positive_int> dim_sizes = ff_ordered_transform(
       dims.shard_dims,

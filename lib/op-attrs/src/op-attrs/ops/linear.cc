@@ -241,8 +241,10 @@ std::map<TensorSlotName, ParallelTensorShape>
   };
 
   if (attrs.use_bias) {
-    weight_shapes.insert({TensorSlotName::BIAS,
-                          linear_get_bias_parallel_shape(attrs, input_shape)});
+    weight_shapes.insert({
+        TensorSlotName::BIAS,
+        linear_get_bias_parallel_shape(attrs, input_shape),
+    });
   }
 
   return weight_shapes;

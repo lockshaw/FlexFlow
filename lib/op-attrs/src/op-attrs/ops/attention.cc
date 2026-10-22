@@ -495,6 +495,7 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
               attrs, input_q, input_k, input_v),
       },
   };
+
   if (attrs.bias) {
     weight_degrees.insert({
         TensorSlotName::INPUT_BIAS,

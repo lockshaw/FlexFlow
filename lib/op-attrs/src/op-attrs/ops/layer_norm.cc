@@ -16,6 +16,7 @@
 #include "utils/containers/vector_of.h"
 #include "utils/expected.h"
 #include "utils/fmt/set.h"
+#include "utils/not_implemented.h"
 #include "utils/orthotope/dim_domain.h"
 
 namespace FlexFlow {

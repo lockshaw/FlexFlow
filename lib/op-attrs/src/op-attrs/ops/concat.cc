@@ -16,6 +16,7 @@
 #include "utils/containers/sum.h"
 #include "utils/containers/transform.h"
 #include "utils/fmt/map.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

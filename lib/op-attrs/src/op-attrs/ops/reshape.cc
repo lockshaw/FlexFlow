@@ -1,4 +1,6 @@
 #include "op-attrs/ops/reshape.h"
+#include "op-attrs/ff_ordered/ff_ordered_concat.h"
+#include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_dims.h"
@@ -6,6 +8,9 @@
 #include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "utils/containers/product.h"
+#include "utils/containers/range.h"
+#include "utils/containers/set_union.h"
+#include "utils/containers/take_while.h"
 #include "utils/containers/zip_with_strict.h"
 
 namespace FlexFlow {
@@ -47,9 +52,9 @@ std::set<parallel_tensor_dim_idx_t> get_dims_allowed_parallel(ReshapeAttrs const
 
   std::set<parallel_tensor_dim_idx_t> dims_allowed_parallel =
     set_union(
-      transform(leading_dims,
+      transform(leading_dims, 
                 [&](ff_dim_t d) -> parallel_tensor_dim_idx_t {
-                  return shard_dim_idx(d);
+                  return shard_dim_idx(d); 
                 }),
       std::set{sum_dim_idx(), discard_copy_dim_idx()});
 

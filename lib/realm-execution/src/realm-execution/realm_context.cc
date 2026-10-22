@@ -4,6 +4,7 @@
 #include "op-attrs/datatype.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_dims.dtg.h"
+#include "pcg/device_id_t.h"
 #include "realm-execution/address_space.h"
 #include "realm-execution/fmt/realm_processor.h"
 #include "realm-execution/fmt/realm_processor_kind.h"

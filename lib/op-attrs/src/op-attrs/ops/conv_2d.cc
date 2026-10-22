@@ -9,6 +9,8 @@
 #include "utils/containers/require_same.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
+#include "utils/not_implemented.h"
+#include "utils/optional.h"
 #include "utils/orthotope/bounded_component.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
 #include <libassert/assert.hpp>
@@ -565,6 +567,10 @@ std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
 
   return mappings;
 }
+
+std::map<TensorSlotName, OperatorSpaceToParallelTensorSpaceBiuniqueMapping>
+    conv2d_get_operator_to_parallel_tensor_mappings(
+        Conv2DAttrs const &attrs, ParallelTensorDimDegrees const &input);
 
 ParallelTensorShape
     conv2d_get_kernel_parallel_shape(Conv2DAttrs const &attrs,

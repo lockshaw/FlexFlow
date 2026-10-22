@@ -1,4 +1,5 @@
 #include "pcg/machine_compute_resource_slice.h"
+#include "utils/overload.h"
 #include <libassert/assert.hpp>
 
 namespace FlexFlow {
@@ -20,7 +21,6 @@ positive_int
 bool is_valid_machine_space_coordinate_in_slice(
     MachineComputeResourceSlice const &slice,
     MachineSpaceCoordinate const &coord) {
-
   return (coord.node_idx < slice.num_nodes) &&
          (coord.device_idx < slice.num_gpus_per_node);
 }
