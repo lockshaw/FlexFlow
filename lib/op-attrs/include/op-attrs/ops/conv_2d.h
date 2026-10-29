@@ -3,8 +3,11 @@
 
 #include "op-attrs/incoming_tensor_role.dtg.h"
 #include "op-attrs/initializer_attrs.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/conv_2d_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/tensor_shape.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 
@@ -12,6 +15,8 @@ namespace FlexFlow {
 
 std::map<TensorSlotName, IncomingTensorRole>
     get_conv2d_incoming_tensor_roles(Conv2DAttrs const &);
+
+std::set<TensorSlotName> conv2d_get_slots(Conv2DAttrs const &);
 
 TensorShape conv2d_get_kernel_shape(Conv2DAttrs const &attrs,
                                     TensorShape const &input);
@@ -47,6 +52,10 @@ ParallelTensorShape
 std::map<TensorSlotName, ParallelTensorShape>
     conv2d_get_weight_parallel_shapes(Conv2DAttrs const &attrs,
                                       ParallelTensorShape const &input_shape);
+
+StandardOperatorTaskGroup
+    conv2d_get_task_group(Conv2DAttrs const &attrs,
+                          ParallelTensorDimDegrees const &input_degrees);
 
 std::map<TensorSlotName, InitializerAttrs> conv2d_get_initializers(
     Conv2DAttrs const &attrs,
