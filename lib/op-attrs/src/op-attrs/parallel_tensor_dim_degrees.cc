@@ -29,6 +29,8 @@
 #include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/minimal_dim_domain.h"
+#include "op-attrs/ff_ordered/ff_ordered_remove_suffix.h"
+#include "op-attrs/ff_ordered/ff_ordered_concat.h"
 
 namespace FlexFlow {
 
@@ -228,6 +230,27 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
 
   return minimal_dim_domain_from_dim_domain(
       dim_domain_from_parallel_tensor_dim_degrees(dim_degrees));
+}
+
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_remove_trailing_dims(
+    ParallelTensorDimDegrees const &input,
+    FFOrdered<positive_int> const &trailing_dims) {
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/input.sum_degree,
+      /*discard_copy_degree=*/input.discard_copy_degree,
+      /*shard_degrees=*/
+      ff_ordered_remove_suffix(input.shard_degrees, trailing_dims),
+  };
+}
+
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_append_trailing_dims(
+    ParallelTensorDimDegrees const &input,
+    FFOrdered<positive_int> const &trailing_dims) {
+  return ParallelTensorDimDegrees{
+      /*sum_degree=*/input.sum_degree,
+      /*discard_copy_degree=*/input.discard_copy_degree,
+      /*shard_degrees=*/ff_ordered_concat(input.shard_degrees, trailing_dims),
+  };
 }
 
 } // namespace FlexFlow

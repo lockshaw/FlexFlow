@@ -395,4 +395,154 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
+
+  TEST_CASE("parallel_tensor_dim_degrees_remove_trailing_dims") {
+    ParallelTensorDimDegrees degrees = ParallelTensorDimDegrees{
+        /*sum_degree=*/SumDegree{4_p},
+        /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+        /*shard_degrees=*/
+        FFOrdered<positive_int>{
+            1_p,
+            8_p,
+            3_p,
+            3_p,
+            8_p,
+        },
+    };
+
+    SUBCASE("trailing dims match") {
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{
+          3_p,
+          8_p,
+      };
+
+      ParallelTensorDimDegrees result =
+          parallel_tensor_dim_degrees_remove_trailing_dims(degrees,
+                                                           trailing_dims);
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          /*sum_degree=*/SumDegree{4_p},
+          /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+          /*shard_degrees=*/
+          FFOrdered<positive_int>{
+              1_p,
+              8_p,
+              3_p,
+          },
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("trailing dims do not match") {
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{
+          1_p,
+          8_p,
+      };
+
+      CHECK_THROWS(parallel_tensor_dim_degrees_remove_trailing_dims(
+          degrees, trailing_dims));
+    }
+
+    SUBCASE("trailing dims are empty") {
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{};
+
+      ParallelTensorDimDegrees result =
+          parallel_tensor_dim_degrees_remove_trailing_dims(degrees,
+                                                           trailing_dims);
+      ParallelTensorDimDegrees correct = degrees;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("same number input dims as trailing dims") {
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{
+          1_p,
+          8_p,
+          3_p,
+          3_p,
+          8_p,
+      };
+
+      ParallelTensorDimDegrees result =
+          parallel_tensor_dim_degrees_remove_trailing_dims(degrees,
+                                                           trailing_dims);
+      ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+          /*sum_degree=*/SumDegree{4_p},
+          /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+          /*shard_degrees=*/FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("fewer input dims than trailing dims") {
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{
+          3_p,
+          1_p,
+          8_p,
+          3_p,
+          3_p,
+          8_p,
+      };
+
+      CHECK_THROWS(parallel_tensor_dim_degrees_remove_trailing_dims(
+          degrees, trailing_dims));
+    }
+
+    SUBCASE("input dims are empty") {
+      ParallelTensorDimDegrees empty_degrees = ParallelTensorDimDegrees{
+          /*sum_degree=*/SumDegree{4_p},
+          /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+          /*shard_degrees=*/FFOrdered<positive_int>{},
+      };
+
+      FFOrdered<positive_int> trailing_dims = FFOrdered<positive_int>{};
+
+      ParallelTensorDimDegrees result =
+          parallel_tensor_dim_degrees_remove_trailing_dims(degrees,
+                                                           trailing_dims);
+      ParallelTensorDimDegrees correct = empty_degrees;
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("parallel_tensor_dim_degrees_append_trailing_dims") {
+    ParallelTensorDimDegrees degrees = ParallelTensorDimDegrees{
+        /*sum_degree=*/SumDegree{4_p},
+        /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+        /*shard_degrees=*/
+        FFOrdered<positive_int>{
+            1_p,
+            8_p,
+            3_p,
+            3_p,
+            8_p,
+        },
+    };
+
+    FFOrdered<positive_int> trailing_dims =
+        FFOrdered<positive_int>{8_p, 1_p, 3_p};
+
+    ParallelTensorDimDegrees result =
+        parallel_tensor_dim_degrees_append_trailing_dims(degrees,
+                                                         trailing_dims);
+    ParallelTensorDimDegrees correct = ParallelTensorDimDegrees{
+        /*sum_degree=*/SumDegree{4_p},
+        /*discard_copy_degree=*/DiscardCopyDegree{3_p},
+        /*shard_degrees=*/
+        FFOrdered<positive_int>{
+            1_p,
+            8_p,
+            3_p,
+            3_p,
+            8_p,
+            8_p,
+            1_p,
+            3_p,
+        },
+    };
+
+    CHECK(result == correct);
+  }
 }
