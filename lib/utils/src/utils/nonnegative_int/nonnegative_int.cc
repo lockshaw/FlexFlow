@@ -203,8 +203,7 @@ int format_as(nonnegative_int const &x) {
 nonnegative_int operator""_n(unsigned long long int x) {
   if (x >
       static_cast<unsigned long long int>(std::numeric_limits<int>::max())) {
-    PANIC(
-        fmt::format("Value too large to wrap as nonnegative_int: {}", x));
+    PANIC(fmt::format("Value too large to wrap as nonnegative_int: {}", x));
   }
 
   return nonnegative_int{static_cast<int>(x)};

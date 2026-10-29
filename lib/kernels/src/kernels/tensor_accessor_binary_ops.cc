@@ -1,11 +1,11 @@
 #include "kernels/tensor_accessor_binary_ops.h"
 #include "kernels/map_tensor_accessors.h"
-#include "op-attrs/tensor_shape.h"
-#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
-#include "utils/containers/generate_map.h"
-#include "op-attrs/tensor_dims.h"
 #include "op-attrs/ff_ordered/ff_ordered_from_map.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
+#include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_dims_coord.h"
+#include "op-attrs/tensor_shape.h"
+#include "utils/containers/generate_map.h"
 #include "utils/nonnegative_int/nonnegative_int.h"
 
 namespace FlexFlow {
@@ -83,8 +83,8 @@ void tensor_accessor_elementwise_multiply_to(
 
 GenericTensorAccessorW
     tensor_accessor_elementwise_divide(GenericTensorAccessorR const &lhs,
-                                         GenericTensorAccessorR const &rhs,
-                                         Allocator &output_allocator) {
+                                       GenericTensorAccessorR const &rhs,
+                                       Allocator &output_allocator) {
   return map_tensor_accessors2(
       lhs,
       rhs,
@@ -125,57 +125,47 @@ static TensorShape get_matmul_output_shape(TensorShape const &lhs,
 
 GenericTensorAccessorW
     tensor_accessor_elementwise_max(GenericTensorAccessorR const &lhs,
-                                         GenericTensorAccessorR const &rhs,
-                                         Allocator &output_allocator) {
+                                    GenericTensorAccessorR const &rhs,
+                                    Allocator &output_allocator) {
   return map_tensor_accessors2(
       lhs,
       rhs,
       require_same(lhs.shape.data_type, rhs.shape.data_type),
-      [](auto const &l, auto const &r) { 
-        return (l < r) ? r : l;
-      },
+      [](auto const &l, auto const &r) { return (l < r) ? r : l; },
       output_allocator);
 }
 
-void tensor_accessor_elementwise_max_to(
-    GenericTensorAccessorR const &lhs,
-    GenericTensorAccessorR const &rhs,
-    GenericTensorAccessorW const &output) {
+void tensor_accessor_elementwise_max_to(GenericTensorAccessorR const &lhs,
+                                        GenericTensorAccessorR const &rhs,
+                                        GenericTensorAccessorW const &output) {
   map_tensor_accessors2_to(
       lhs,
       rhs,
       require_same(lhs.shape.data_type, rhs.shape.data_type),
-      [](auto const &l, auto const &r) { 
-        return (l < r) ? r : l;
-      },
+      [](auto const &l, auto const &r) { return (l < r) ? r : l; },
       output);
 }
 
 GenericTensorAccessorW
     tensor_accessor_elementwise_min(GenericTensorAccessorR const &lhs,
-                                         GenericTensorAccessorR const &rhs,
-                                         Allocator &output_allocator) {
+                                    GenericTensorAccessorR const &rhs,
+                                    Allocator &output_allocator) {
   return map_tensor_accessors2(
       lhs,
       rhs,
       require_same(lhs.shape.data_type, rhs.shape.data_type),
-      [](auto const &l, auto const &r) { 
-        return (l < r) ? l : r;
-      },
+      [](auto const &l, auto const &r) { return (l < r) ? l : r; },
       output_allocator);
 }
 
-void tensor_accessor_elementwise_min_to(
-    GenericTensorAccessorR const &lhs,
-    GenericTensorAccessorR const &rhs,
-    GenericTensorAccessorW const &output) {
+void tensor_accessor_elementwise_min_to(GenericTensorAccessorR const &lhs,
+                                        GenericTensorAccessorR const &rhs,
+                                        GenericTensorAccessorW const &output) {
   map_tensor_accessors2_to(
       lhs,
       rhs,
       require_same(lhs.shape.data_type, rhs.shape.data_type),
-      [](auto const &l, auto const &r) { 
-        return (l < r) ? l : r;
-      },
+      [](auto const &l, auto const &r) { return (l < r) ? l : r; },
       output);
 }
 
@@ -315,18 +305,16 @@ static TensorShape get_concat_output_shape(TensorShape const &lhs,
                                            TensorShape const &rhs,
                                            ff_dim_t dim_idx) {
   std::map<ff_dim_t, positive_int> lhs_dim_sizes =
-    map_from_ff_ordered(ff_ordered(lhs.dims));
+      map_from_ff_ordered(ff_ordered(lhs.dims));
 
   std::map<ff_dim_t, positive_int> rhs_dim_sizes =
-    map_from_ff_ordered(ff_ordered(rhs.dims));
+      map_from_ff_ordered(ff_ordered(rhs.dims));
 
   std::set<ff_dim_t> output_dims =
-    require_same(keys(lhs_dim_sizes), keys(rhs_dim_sizes));
+      require_same(keys(lhs_dim_sizes), keys(rhs_dim_sizes));
 
   std::map<ff_dim_t, positive_int> output_dim_sizes =
-    generate_map(
-      output_dims,
-      [&](ff_dim_t d) -> positive_int {
+      generate_map(output_dims, [&](ff_dim_t d) -> positive_int {
         positive_int lhs_dim_size = lhs_dim_sizes.at(d);
         positive_int rhs_dim_size = rhs_dim_sizes.at(d);
 
@@ -338,10 +326,10 @@ static TensorShape get_concat_output_shape(TensorShape const &lhs,
       });
 
   return TensorShape{
-    TensorDims{
-      ff_ordered_from_map(output_dim_sizes),
-    },
-    /*data_type=*/require_same(lhs.data_type, rhs.data_type),
+      TensorDims{
+          ff_ordered_from_map(output_dim_sizes),
+      },
+      /*data_type=*/require_same(lhs.data_type, rhs.data_type),
   };
 }
 
@@ -354,31 +342,32 @@ struct CPUConcatAccessors2 {
 
     using ValueType = real_type_t<DT>;
 
-    positive_int lhs_concat_dim_size =
-      dim_at_idx(lhs.shape.dims, dim_idx);
+    positive_int lhs_concat_dim_size = dim_at_idx(lhs.shape.dims, dim_idx);
 
     ASSERT(lhs.device_type == DeviceType::CPU);
     ASSERT(rhs.device_type == DeviceType::CPU);
     ASSERT(output.device_type == DeviceType::CPU);
 
-    auto get_output_value = [&](TensorDimsCoord const &output_coord) -> ValueType
-    {
-      nonnegative_int dim_idx_component = tensor_dims_coord_at_idx(output_coord, dim_idx);
+    auto get_output_value =
+        [&](TensorDimsCoord const &output_coord) -> ValueType {
+      nonnegative_int dim_idx_component =
+          tensor_dims_coord_at_idx(output_coord, dim_idx);
 
       if (dim_idx_component < lhs_concat_dim_size) {
         return lhs.at<DT>(output_coord);
       } else {
         TensorDimsCoord rhs_coord = output_coord;
         tensor_dims_coord_at_idx(rhs_coord, dim_idx) = nonnegative_int{
-          dim_idx_component.int_from_nonnegative_int()
-            - lhs_concat_dim_size.int_from_positive_int(),
+            dim_idx_component.int_from_nonnegative_int() -
+                lhs_concat_dim_size.int_from_positive_int(),
         };
 
         return rhs.at<DT>(rhs_coord);
       }
     };
 
-    for (TensorDimsCoord const &coord : get_tensor_dims_coord_set(output.shape.dims)) {
+    for (TensorDimsCoord const &coord :
+         get_tensor_dims_coord_set(output.shape.dims)) {
       output.at<DT>(coord) = get_output_value(coord);
     }
   }
@@ -403,10 +392,9 @@ GenericTensorAccessorW
 }
 
 void tensor_accessor_binary_concat_to(GenericTensorAccessorR const &lhs,
-                               GenericTensorAccessorR const &rhs,
-                               ff_dim_t dim_idx,
-                               GenericTensorAccessorW const &output)
-{
+                                      GenericTensorAccessorR const &rhs,
+                                      ff_dim_t dim_idx,
+                                      GenericTensorAccessorW const &output) {
   TensorShape output_shape =
       get_concat_output_shape(get_tensor_shape_for_accessor_r(lhs),
                               get_tensor_shape_for_accessor_r(rhs),
@@ -421,16 +409,10 @@ void tensor_accessor_binary_concat_to(GenericTensorAccessorR const &lhs,
       cpu_allocator.allocate_tensor(output_shape);
 
   DataType data_type = require_same(
-    lhs.shape.data_type,
-    rhs.shape.data_type,
-    output_shape.data_type);
+      lhs.shape.data_type, rhs.shape.data_type, output_shape.data_type);
 
   DataTypeDispatch1<CPUConcatAccessors2>{}(
-    data_type,
-    lhs_cpu,
-    rhs_cpu,
-    output_cpu,
-    dim_idx);
+      data_type, lhs_cpu, rhs_cpu, output_cpu, dim_idx);
 
   return copy_accessor_data_to_l_from_r(output, output_cpu);
 }

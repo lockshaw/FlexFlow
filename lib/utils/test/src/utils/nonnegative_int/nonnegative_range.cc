@@ -40,7 +40,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     CHECK(result == correct);
   }
 
-  TEST_CASE("nonnegative_range_inclusive(nonnegative_int, nonnegative_int, int)") {
+  TEST_CASE(
+      "nonnegative_range_inclusive(nonnegative_int, nonnegative_int, int)") {
     SUBCASE("start < stop") {
       std::vector<nonnegative_int> result = nonnegative_range_inclusive(
           /*start=*/1_n,

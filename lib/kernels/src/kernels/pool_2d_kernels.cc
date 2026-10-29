@@ -1,17 +1,17 @@
 #include "kernels/pool_2d_kernels.h"
 #include "kernels/pool_2d_kernels_cpu.h"
 #include "kernels/pool_2d_kernels_gpu.h"
-#include <libassert/assert.hpp>
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/tensor_dims.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
 std::optional<Pool2DPerDeviceState>
     pool2d_init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                Pool2DAttrs const &attrs,
-                TensorShape const &input_shape) {
+                       device_handle_t const &handle,
+                       Pool2DAttrs const &attrs,
+                       TensorShape const &input_shape) {
   if (device_type == DeviceType::GPU) {
     TensorDims input_dims = input_shape.dims;
     TensorDims output_dims = pool2d_get_output_shape(attrs, input_shape).dims;
@@ -50,11 +50,12 @@ std::optional<Pool2DPerDeviceState>
   }
 }
 
-void pool2d_forward_kernel(device_stream_t const &stream,
-                    std::optional<Pool2DPerDeviceState> const &per_device_state,
-                    Pool2DAttrs const &attrs,
-                    GenericTensorAccessorR const &input,
-                    GenericTensorAccessorW const &output) {
+void pool2d_forward_kernel(
+    device_stream_t const &stream,
+    std::optional<Pool2DPerDeviceState> const &per_device_state,
+    Pool2DAttrs const &attrs,
+    GenericTensorAccessorR const &input,
+    GenericTensorAccessorW const &output) {
   if (stream.is_gpu()) {
     pool2d_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),
@@ -89,14 +90,15 @@ void pool2d_backward_kernel(
   } else {
     ASSERT(stream.is_cpu());
     pool2d_cpu_backward_kernel(
-      /*attrs=*/attrs,
-      /*output_grad=*/output_grad,
-      /*input_grad=*/input_grad);
+        /*attrs=*/attrs,
+        /*output_grad=*/output_grad,
+        /*input_grad=*/input_grad);
   }
 }
 
-void pool2d_cleanup_kernel(DeviceType device_type,
-                    std::optional<Pool2DPerDeviceState> &per_device_state) {
+void pool2d_cleanup_kernel(
+    DeviceType device_type,
+    std::optional<Pool2DPerDeviceState> &per_device_state) {
   if (device_type == DeviceType::GPU) {
     pool2d_gpu_cleanup_kernel(per_device_state.value());
   } else {
@@ -105,4 +107,4 @@ void pool2d_cleanup_kernel(DeviceType device_type,
   }
 }
 
-} // namespace FlexFlow::Kernels::Pool2D
+} // namespace FlexFlow

@@ -15,12 +15,12 @@
 
 #include "task-spec/ops/impl/concat.h"
 #include "kernels/concat_kernels.h"
+#include "op-attrs/ops/concat.h"
 #include "op-attrs/tensor_slot_name.h"
 #include "task-spec/profiling.h"
 #include "task-spec/variadic_tensor_ref.h"
 #include "utils/containers/slice.h"
 #include "utils/hash-utils.h"
-#include "op-attrs/ops/concat.h"
 
 namespace FlexFlow {
 
@@ -38,7 +38,8 @@ static std::optional<milliseconds_t>
                   return acc.get_tensor<Permissions::RO>(input_slot_name);
                 });
 
-  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   return profile(concat_forward_kernel,
                  profiling,

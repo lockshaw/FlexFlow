@@ -10,15 +10,16 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape replicate_get_output_parallel_shape(ReplicateAttrs const &attrs,
-                                               ParallelTensorShape const &input_shape);
+ParallelTensorShape
+    replicate_get_output_parallel_shape(ReplicateAttrs const &attrs,
+                                        ParallelTensorShape const &input_shape);
 
 ParallelTensorDimDegrees replicate_get_output_parallel_dim_degrees(
     ReplicateAttrs const &, ParallelTensorDimDegrees const &input_degrees);
 
-ParallelismOperatorTaskGroup replicate_get_task_group(
-    ReplicateAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees);
+ParallelismOperatorTaskGroup
+    replicate_get_task_group(ReplicateAttrs const &attrs,
+                             ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace replicate_get_operator_task_space(
     ReplicateAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);

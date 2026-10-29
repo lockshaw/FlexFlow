@@ -491,34 +491,35 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     std::set<DynamicSlotSite> result = get_dynamic_slot_sites(g);
 
-    auto mk_internal_slot_site = [](dynamic_invocation_id_t const &invocation_id,
-                                    TensorDirection direction,
-                                    TensorSlotName slot_name) {
-      return DynamicSlotSite{
-          InternalDynamicSlotSite{
-              /*invocation_id=*/invocation_id,
-              /*direction=*/direction,
-              /*slot_name=*/
-              DynamicTensorSlot{
-                  /*slot_name=*/slot_name,
-                  /*slot_tensor_role=*/std::nullopt,
-                  /*task_shard=*/std::nullopt,
+    auto mk_internal_slot_site =
+        [](dynamic_invocation_id_t const &invocation_id,
+           TensorDirection direction,
+           TensorSlotName slot_name) {
+          return DynamicSlotSite{
+              InternalDynamicSlotSite{
+                  /*invocation_id=*/invocation_id,
+                  /*direction=*/direction,
+                  /*slot_name=*/
+                  DynamicTensorSlot{
+                      /*slot_name=*/slot_name,
+                      /*slot_tensor_role=*/std::nullopt,
+                      /*task_shard=*/std::nullopt,
+                  },
               },
-          },
-      };
-    };
+          };
+        };
 
-    dynamic_invocation_id_t invocation_1_id = 
-      dynamic_graph_get_id_for_invocation(g, invocation_1);
+    dynamic_invocation_id_t invocation_1_id =
+        dynamic_graph_get_id_for_invocation(g, invocation_1);
 
-    dynamic_invocation_id_t invocation_2_id = 
-      dynamic_graph_get_id_for_invocation(g, invocation_2);
+    dynamic_invocation_id_t invocation_2_id =
+        dynamic_graph_get_id_for_invocation(g, invocation_2);
 
-    dynamic_external_value_id_t value_1_id = 
-      dynamic_graph_get_id_for_value(g, value_1).require_external();
+    dynamic_external_value_id_t value_1_id =
+        dynamic_graph_get_id_for_value(g, value_1).require_external();
 
-    dynamic_external_value_id_t value_3_id = 
-      dynamic_graph_get_id_for_value(g, value_3).require_external();
+    dynamic_external_value_id_t value_3_id =
+        dynamic_graph_get_id_for_value(g, value_3).require_external();
 
     std::set<DynamicSlotSite> correct = {
         DynamicSlotSite{

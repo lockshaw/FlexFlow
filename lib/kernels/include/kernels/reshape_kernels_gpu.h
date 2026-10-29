@@ -7,12 +7,12 @@
 namespace FlexFlow {
 
 void reshape_gpu_forward_kernel(ffStream_t stream,
-                        GenericTensorAccessorR const &input,
-                        GenericTensorAccessorW const &output);
+                                GenericTensorAccessorR const &input,
+                                GenericTensorAccessorW const &output);
 
 void reshape_gpu_backward_kernel(ffStream_t stream,
-                         GenericTensorAccessorR const &output,
-                         GenericTensorAccessorW const &input);
+                                 GenericTensorAccessorR const &output,
+                                 GenericTensorAccessorW const &input);
 
 } // namespace FlexFlow
 

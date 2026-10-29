@@ -1,10 +1,10 @@
-#include <doctest/doctest.h>
 #include "kernels/tensor_accessor_binary_ops.h"
-#include "kernels/local_cpu_allocator.h"
-#include "kernels/create_accessor_with_contents.h"
 #include "kernels/accessors_are_equal.h"
+#include "kernels/create_accessor_with_contents.h"
 #include "kernels/format_accessor_contents.h"
+#include "kernels/local_cpu_allocator.h"
 #include "test/utils/doctest/check_kv.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -30,8 +30,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
         cpu_allocator);
 
-    GenericTensorAccessorW result = tensor_accessor_binary_concat(
-      lhs, rhs, ff_dim_t{1_n}, cpu_allocator);
+    GenericTensorAccessorW result =
+        tensor_accessor_binary_concat(lhs, rhs, ff_dim_t{1_n}, cpu_allocator);
 
     GenericTensorAccessorW correct = create_2d_accessor_w_with_contents<float>(
         {
@@ -42,8 +42,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
         cpu_allocator);
 
-    CHECK_MESSAGE(
-        accessors_are_equal(result, correct),
-        check_kv("result", format_accessor_w_contents(result)));
+    CHECK_MESSAGE(accessors_are_equal(result, correct),
+                  check_kv("result", format_accessor_w_contents(result)));
   }
 }

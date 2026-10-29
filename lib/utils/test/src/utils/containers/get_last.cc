@@ -1,5 +1,5 @@
-#include <doctest/doctest.h>
 #include "utils/containers/get_last.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 

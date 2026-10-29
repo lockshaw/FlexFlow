@@ -18,8 +18,7 @@ Tree get_child(Parent const &parent,
     case BinaryTreePathEntry::RIGHT_CHILD:
       return impl.get_right_child(parent);
     default:
-      PANIC(
-          fmt::format("Unhandled BinaryTreePathEntry value: {}", e));
+      PANIC(fmt::format("Unhandled BinaryTreePathEntry value: {}", e));
   }
 }
 

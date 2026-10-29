@@ -1,11 +1,11 @@
 #ifndef _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_MAPPED_STANDARD_OPERATOR_TASK_GROUP_H
 #define _FLEXFLOW_LIB_PCG_INCLUDE_PCG_MAPPED_PARALLEL_COMPUTATION_GRAPH_MAPPED_STANDARD_OPERATOR_TASK_GROUP_H
 
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/machine_space_coordinate.dtg.h"
-#include <nlohmann/json.hpp>
 #include "utils/bidict/bidict.h"
-#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
+#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 
@@ -57,7 +57,8 @@ namespace nlohmann {
 template <>
 struct adl_serializer<::FlexFlow::MappedStandardOperatorTaskGroup> {
   static ::FlexFlow::MappedStandardOperatorTaskGroup from_json(json const &j);
-  static void to_json(json &j, ::FlexFlow::MappedStandardOperatorTaskGroup const &t);
+  static void to_json(json &j,
+                      ::FlexFlow::MappedStandardOperatorTaskGroup const &t);
 };
 
 } // namespace nlohmann

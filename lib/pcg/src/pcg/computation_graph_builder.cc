@@ -25,6 +25,7 @@
 #include "op-attrs/ops/linear_attrs.dtg.h"
 #include "op-attrs/ops/pool_2d.h"
 #include "op-attrs/ops/pool_2d_attrs.dtg.h"
+#include "op-attrs/ops/reshape_attrs.dtg.h"
 #include "op-attrs/ops/softmax_attrs.dtg.h"
 #include "op-attrs/ops/upsample_attrs.dtg.h"
 #include "op-attrs/ops/weight_attrs.dtg.h"
@@ -53,7 +54,6 @@
 #include "utils/fmt/set.h"
 #include "utils/stack_vector/stack_vector_of.h"
 #include <fmt/format.h>
-#include "op-attrs/ops/reshape_attrs.dtg.h"
 
 namespace FlexFlow {
 
@@ -164,11 +164,10 @@ tensor_guid_t ComputationGraphBuilder::as_type(tensor_guid_t const &x,
   if (x_datatype < data_type) {
     return this->cast(x, data_type, name);
   } else if (x_datatype > data_type) {
-    PANIC(
-        fmt::format("Could not convert provided tensor data type {} to "
-                    "desired data type {}",
-                    x_datatype,
-                    data_type));
+    PANIC(fmt::format("Could not convert provided tensor data type {} to "
+                      "desired data type {}",
+                      x_datatype,
+                      data_type));
   } else {
     return x;
   }
@@ -291,7 +290,8 @@ tensor_guid_t ComputationGraphBuilder::element_binary(
   ElementBinaryAttrs attrs =
       ElementBinaryAttrs{op_type, compute_type, false, false};
 
-  std::string name = maybe_name.value_or(get_default_name(ComputationGraphOpAttrs{attrs}));
+  std::string name =
+      maybe_name.value_or(get_default_name(ComputationGraphOpAttrs{attrs}));
 
   LayerAttrs layer = LayerAttrs{ComputationGraphOpAttrs{attrs}, name};
 
@@ -434,7 +434,8 @@ tensor_guid_t
 tensor_guid_t
     ComputationGraphBuilder::identity(tensor_guid_t const &input,
                                       std::optional<std::string> const &name) {
-  return this->element_unary(ElementUnaryOp::IDENTITY, input, std::nullopt, name);
+  return this->element_unary(
+      ElementUnaryOp::IDENTITY, input, std::nullopt, name);
 }
 
 tensor_guid_t
@@ -446,7 +447,8 @@ tensor_guid_t
 tensor_guid_t
     ComputationGraphBuilder::sigmoid(tensor_guid_t const &input,
                                      std::optional<std::string> const &name) {
-  return this->element_unary(ElementUnaryOp::SIGMOID, input, std::nullopt, name);
+  return this->element_unary(
+      ElementUnaryOp::SIGMOID, input, std::nullopt, name);
 }
 
 tensor_guid_t
@@ -1012,15 +1014,16 @@ tensor_guid_t ComputationGraphBuilder::reshape(
   TensorDims input_dims = this->get_shape(input).dims;
   TensorDims output_dims = TensorDims{ff_ordered_of(shape)};
 
-  TensorDims shared_leading_dims =
-    get_shared_leading_dims(std::set<TensorDims>{
+  TensorDims shared_leading_dims = get_shared_leading_dims(std::set<TensorDims>{
       input_dims,
       output_dims,
-    });
+  });
 
   ReshapeAttrs attrs = ReshapeAttrs{
-    /*core_input_dims=*/tensor_dims_remove_leading_dims(input_dims, shared_leading_dims),
-    /*core_output_dims=*/tensor_dims_remove_leading_dims(output_dims, shared_leading_dims),
+      /*core_input_dims=*/tensor_dims_remove_leading_dims(input_dims,
+                                                          shared_leading_dims),
+      /*core_output_dims=*/
+      tensor_dims_remove_leading_dims(output_dims, shared_leading_dims),
   };
 
   std::string name =

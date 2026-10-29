@@ -50,16 +50,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     // embedding_get_output_shape
     {
-      TensorShape output_result =
-          embedding_get_output_shape(attrs, input);
+      TensorShape output_result = embedding_get_output_shape(attrs, input);
       TensorShape output_correct = output;
       CHECK(output_result == output_correct);
     }
 
     // get_weights_shape
     {
-      TensorShape weight_result =
-          embedding_get_weights_shape(attrs, input);
+      TensorShape weight_result = embedding_get_weights_shape(attrs, input);
       TensorShape weight_correct = weights;
       CHECK(weight_result == weight_correct);
     }
@@ -67,9 +65,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_input = [&](SumDegree o_sum,
                           DiscardCopyDegree o_eq,
                           positive_int o_batch,
-                          positive_int o_features)
-      -> ParallelTensorShape
-    {
+                          positive_int o_features) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_batch, o_features});
     };
@@ -77,9 +73,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_output = [&](SumDegree o_sum,
                            DiscardCopyDegree o_eq,
                            positive_int o_batch,
-                           positive_int o_outchannels)
-      -> ParallelTensorShape
-    {
+                           positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o_batch, o_outchannels});
     };
@@ -87,9 +81,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_weights = [&](SumDegree o_sum,
                             DiscardCopyDegree o_eq,
                             positive_int o_entries,
-                            positive_int o_outchannels)
-      -> ParallelTensorShape
-    {
+                            positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           weights, o_sum, o_eq, FFOrdered{o_entries, o_outchannels});
     };

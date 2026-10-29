@@ -5,11 +5,9 @@
 
 namespace FlexFlow {
 
-std::multiset<int_ge_two>
-  prime_factorization(positive_int x);
+std::multiset<int_ge_two> prime_factorization(positive_int x);
 
-std::multiset<int_ge_two>
-  prime_factorization(int_ge_two x);
+std::multiset<int_ge_two> prime_factorization(int_ge_two x);
 
 } // namespace FlexFlow
 

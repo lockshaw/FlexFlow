@@ -25,8 +25,10 @@ static std::optional<milliseconds_t>
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   ReshapeAttrs attrs = acc.get_op_attrs().require_reshape();
 
-  GenericTensorAccessorR input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   return profile(reshape_forward_kernel,
                  profiling,
@@ -42,8 +44,10 @@ static std::optional<milliseconds_t>
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   ReshapeAttrs attrs = acc.get_op_attrs().require_reshape();
 
-  GenericTensorAccessorW input_grad = acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
-  GenericTensorAccessorR output_grad = acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorW input_grad =
+      acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
+  GenericTensorAccessorR output_grad =
+      acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);
 
   return profile(reshape_backward_kernel,
                  profiling,

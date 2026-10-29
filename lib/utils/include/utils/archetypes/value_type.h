@@ -4,9 +4,9 @@
 #include <fmt/format.h>
 #include <functional>
 #include <libassert/assert.hpp>
+#include <nlohmann/json.hpp>
 #include <ostream>
 #include <sstream>
-#include <nlohmann/json.hpp>
 
 namespace FlexFlow {
 

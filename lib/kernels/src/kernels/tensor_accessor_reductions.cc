@@ -1,9 +1,9 @@
 #include "kernels/tensor_accessor_reductions.h"
 #include "kernels/reduce_tensor_accessor.h"
-#include "utils/overload.h"
 #include "utils/containers/all_are_true.h"
 #include "utils/containers/any_are_true.h"
 #include "utils/containers/get_element_type.h"
+#include "utils/overload.h"
 
 namespace FlexFlow {
 

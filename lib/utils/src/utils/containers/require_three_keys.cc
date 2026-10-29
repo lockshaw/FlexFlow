@@ -7,8 +7,7 @@ namespace FlexFlow {
 using K = ordered_value_type<0>;
 using V = value_type<1>;
 
-template
-  std::tuple<V, V, V>
-      require_three_keys(std::map<K, V> const &, K const &, K const &, K const &);
+template std::tuple<V, V, V>
+    require_three_keys(std::map<K, V> const &, K const &, K const &, K const &);
 
 } // namespace FlexFlow

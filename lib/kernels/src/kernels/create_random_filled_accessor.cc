@@ -1,9 +1,9 @@
 #include "kernels/create_random_filled_accessor.h"
+#include "kernels/accessor.h"
+#include "kernels/datatype_dispatch.h"
 #include "kernels/local_cpu_allocator.h"
 #include "op-attrs/tensor_dims.h"
 #include <random>
-#include "kernels/datatype_dispatch.h"
-#include "kernels/accessor.h"
 
 namespace FlexFlow {
 
@@ -60,18 +60,14 @@ GenericTensorAccessorR create_random_filled_accessor_r(TensorShape const &shape,
   return read_only_accessor_from_write_accessor(accessor);
 }
 
-GenericTensorAccessorW create_random_filled_accessor_w_with_gen(TensorShape const &shape,
-                                                                Allocator &allocator,
-                                                                std::mt19937 &gen)
-{
+GenericTensorAccessorW create_random_filled_accessor_w_with_gen(
+    TensorShape const &shape, Allocator &allocator, std::mt19937 &gen) {
   return DataTypeDispatch1<CreateRandomFilledAccessorW>{}(
       shape.data_type, shape, allocator, gen);
 }
 
-GenericTensorAccessorR create_random_filled_accessor_r_with_gen(TensorShape const &shape,
-                                                                Allocator &allocator,
-                                                                std::mt19937 &gen)
-{
+GenericTensorAccessorR create_random_filled_accessor_r_with_gen(
+    TensorShape const &shape, Allocator &allocator, std::mt19937 &gen) {
   GenericTensorAccessorW accessor =
       create_random_filled_accessor_w_with_gen(shape, allocator, gen);
 

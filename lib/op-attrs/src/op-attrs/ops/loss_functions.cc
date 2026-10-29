@@ -27,8 +27,8 @@ LossFunction parse_loss_name(std::string const &raw_name) {
   } else if (name == "identity") {
     return LossFunction::IDENTITY;
   } else {
-    PANIC(fmt::format(
-        "Unknown loss type {}. Please report this as an issue.", name));
+    PANIC(fmt::format("Unknown loss type {}. Please report this as an issue.",
+                      name));
   }
 }
 

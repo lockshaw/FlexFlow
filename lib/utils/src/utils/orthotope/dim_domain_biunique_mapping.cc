@@ -1,6 +1,6 @@
 #include "utils/orthotope/dim_domain_biunique_mapping.h"
-#include "utils/archetypes/ordered_value_type.h"
 #include "utils/archetypes/jsonable_ordered_value_type.h"
+#include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {
 
@@ -22,17 +22,13 @@ template DimDomainBiuniqueMapping<L, R>
 
 template DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping();
 
-template
-  DimDomainBiuniqueMapping<L, R>
+template DimDomainBiuniqueMapping<L, R>
     dim_domain_biunique_mapping_lift_left_domain(
-      DimDomainBiuniqueMapping<L, R> const &,
-      std::set<L> const &);
+        DimDomainBiuniqueMapping<L, R> const &, std::set<L> const &);
 
-template
-  DimDomainBiuniqueMapping<L, R>
+template DimDomainBiuniqueMapping<L, R>
     dim_domain_biunique_mapping_lift_right_domain(
-      DimDomainBiuniqueMapping<L, R> const &,
-      std::set<R> const &);
+        DimDomainBiuniqueMapping<L, R> const &, std::set<R> const &);
 
 template DimDomainBiuniqueMapping<R, L>
     invert_dim_domain_biunique_mapping(DimDomainBiuniqueMapping<L, R> const &);
@@ -70,4 +66,4 @@ using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::DimDomainBiuniqueMapping<L, R>>;
 
-}
+} // namespace std

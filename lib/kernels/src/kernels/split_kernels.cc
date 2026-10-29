@@ -22,7 +22,7 @@ static std::pair<positive_int, positive_int>
 }
 
 void split_forward_kernel(device_stream_t const &stream,
-                     SplitAttrs const &attrs,
+                          SplitAttrs const &attrs,
                           GenericTensorAccessorR const &input,
                           std::vector<GenericTensorAccessorW> const &outputs) {
   if (stream.is_gpu()) {
@@ -30,14 +30,13 @@ void split_forward_kernel(device_stream_t const &stream,
     auto [num_blocks, in_block_size] = calc_block_size(input.shape, attrs.axis);
 
     for (int i = 0; i < attrs.splits.size(); i++) {
-      auto [_, out_block_size] = calc_block_size(outputs.at(i).shape, attrs.axis);
+      auto [_, out_block_size] =
+          calc_block_size(outputs.at(i).shape, attrs.axis);
       out_block_sizes[i] = out_block_size.int_from_positive_int();
     }
 
     std::vector<float *> output_ptrs =
-      transform(
-        outputs,
-        [&](GenericTensorAccessorW const &t) -> float * {
+        transform(outputs, [&](GenericTensorAccessorW const &t) -> float * {
           return t.get_float_ptr();
         });
 
@@ -57,10 +56,11 @@ void split_forward_kernel(device_stream_t const &stream,
   }
 }
 
-void split_backward_kernel(device_stream_t const &stream,
-                     SplitAttrs const &attrs,
-                     std::vector<GenericTensorAccessorR> const &output_grads,
-                     GenericTensorAccessorW const &input_grad) {
+void split_backward_kernel(
+    device_stream_t const &stream,
+    SplitAttrs const &attrs,
+    std::vector<GenericTensorAccessorR> const &output_grads,
+    GenericTensorAccessorW const &input_grad) {
   if (stream.is_gpu()) {
     int out_block_sizes[MAX_NUM_OUTPUTS];
     auto [num_blocks, in_block_size] =
@@ -68,15 +68,15 @@ void split_backward_kernel(device_stream_t const &stream,
 
     for (int i = 0; i < attrs.splits.size(); i++) {
       int out_num_blocks;
-      auto [_, out_block_size] = calc_block_size(output_grads.at(i).shape, attrs.axis);
+      auto [_, out_block_size] =
+          calc_block_size(output_grads.at(i).shape, attrs.axis);
       out_block_sizes[i] = out_block_size.int_from_positive_int();
     }
 
-    std::vector<float const *> output_grad_ptrs =
-      transform(output_grads,
-                [&](GenericTensorAccessorR const &t) -> float const * {
-                  return t.get_float_ptr();
-                });
+    std::vector<float const *> output_grad_ptrs = transform(
+        output_grads, [&](GenericTensorAccessorR const &t) -> float const * {
+          return t.get_float_ptr();
+        });
 
     split_gpu_backward_kernel(
         /*stream=*/stream.require_gpu(),

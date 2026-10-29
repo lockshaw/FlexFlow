@@ -8,9 +8,7 @@ using Out = ordered_value_type<1>;
 
 using F = std::function<Out(In const &)>;
 
-template
-  nonempty_set<Out> transform_nonempty_set(
-    nonempty_set<In> const &,
-    F const &);
+template nonempty_set<Out> transform_nonempty_set(nonempty_set<In> const &,
+                                                  F const &);
 
 } // namespace FlexFlow

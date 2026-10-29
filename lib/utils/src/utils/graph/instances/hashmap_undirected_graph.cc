@@ -27,14 +27,12 @@ void HashmapUndirectedGraph::remove_node_unsafe(Node const &n) {
 
 void HashmapUndirectedGraph::add_edge(UndirectedEdge const &e) {
   if (!contains_key(this->adjacency, e.endpoints.max())) {
-    PANIC(
-        fmt::format("Could not add edge connected to non-existent node {}",
-                    e.endpoints.max()));
+    PANIC(fmt::format("Could not add edge connected to non-existent node {}",
+                      e.endpoints.max()));
   }
   if (!contains_key(this->adjacency, e.endpoints.min())) {
-    PANIC(
-        fmt::format("Could not add edge connected to non-existent node {}",
-                    e.endpoints.min()));
+    PANIC(fmt::format("Could not add edge connected to non-existent node {}",
+                      e.endpoints.min()));
   }
 
   this->adjacency.at(e.endpoints.max()).insert(e.endpoints.min());

@@ -1,8 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GET_LAST_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GET_LAST_H
 
-#include <vector>
 #include <libassert/assert.hpp>
+#include <vector>
 
 namespace FlexFlow {
 

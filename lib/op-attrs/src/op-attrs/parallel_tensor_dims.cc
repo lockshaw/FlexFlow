@@ -1,6 +1,7 @@
 #include "op-attrs/parallel_tensor_dims.h"
 #include "op-attrs/ff_ordered/ff_ordered_transform.h"
 #include "op-attrs/ff_ordered/ff_ordered_zip.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/replica_parallel_dim.h"
 #include "op-attrs/replica_parallel_dim_set.h"
 #include "op-attrs/shard_parallel_dim.h"
@@ -12,7 +13,6 @@
 #include "utils/containers/vector_of.h"
 #include "utils/integer_conversions.h"
 #include "utils/nonnegative_int/num_elements.h"
-#include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "utils/not_implemented.h"
 
 namespace FlexFlow {
@@ -45,7 +45,8 @@ ParallelTensorDimDegrees get_parallel_degrees(ParallelTensorDims const &d) {
 }
 
 ParallelTensorDims lift_dims_to_parallel(TensorDims const &dims) {
-  return lift_dims_to_parallel_with_degrees(dims, trivial_degrees_for_tensor_dims(dims));
+  return lift_dims_to_parallel_with_degrees(
+      dims, trivial_degrees_for_tensor_dims(dims));
 }
 
 ParallelTensorDims lift_dims_to_parallel_with_degrees(
@@ -68,13 +69,12 @@ ParallelTensorDims lift_dims_to_parallel_with_degrees(
                             }};
 }
 
-ParallelTensorDims
-    lift_dims_to_parallel_with_degrees(TensorDims const &unpar,
-                                       ParallelTensorDimDegrees const &degrees) {
+ParallelTensorDims lift_dims_to_parallel_with_degrees(
+    TensorDims const &unpar, ParallelTensorDimDegrees const &degrees) {
   return lift_dims_to_parallel_with_degrees(unpar,
-                                       degrees.sum_degree,
-                                       degrees.discard_copy_degree,
-                                       degrees.shard_degrees);
+                                            degrees.sum_degree,
+                                            degrees.discard_copy_degree,
+                                            degrees.shard_degrees);
 }
 
 positive_int total_replica_degree(ParallelTensorDims const &dims) {
@@ -110,11 +110,9 @@ ShardParallelDim &shard_dim_at_idx(ParallelTensorDims &d,
 
 TensorDims get_piece_dims(ParallelTensorDims const &dims) {
   FFOrdered<positive_int> dim_sizes = ff_ordered_transform(
-      dims.shard_dims,
-      [](ShardParallelDim const &d) -> positive_int {
+      dims.shard_dims, [](ShardParallelDim const &d) -> positive_int {
         return positive_int{d.size / d.degree};
-      }
-  );
+      });
 
   return TensorDims{dim_sizes};
 }

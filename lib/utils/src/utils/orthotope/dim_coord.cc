@@ -43,9 +43,9 @@ template DimCoord<T> unflatten_dim_coord(nonnegative_int,
                                          DimOrdering<T> const &);
 
 template DimDomain<T>
-  smallest_dim_domain_for_coord_set(std::set<DimCoord<T>> const &);
+    smallest_dim_domain_for_coord_set(std::set<DimCoord<T>> const &);
 
 template std::optional<DimDomain<T>>
-  strict_dim_domain_for_coord_set(std::set<DimCoord<T>> const &);
+    strict_dim_domain_for_coord_set(std::set<DimCoord<T>> const &);
 
 } // namespace FlexFlow

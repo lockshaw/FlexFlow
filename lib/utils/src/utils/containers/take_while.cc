@@ -5,8 +5,7 @@ namespace FlexFlow {
 
 using T = value_type<0>;
 
-template
-  std::vector<T> take_while(std::vector<T> const &,
-                            std::function<bool(T const &)> const &);
+template std::vector<T> take_while(std::vector<T> const &,
+                                   std::function<bool(T const &)> const &);
 
 } // namespace FlexFlow

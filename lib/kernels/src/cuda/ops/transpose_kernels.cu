@@ -79,9 +79,9 @@ static TransposeStrides make_strides(TransposeAttrs const &m,
 }
 
 void transpose_gpu_forward_kernel(cudaStream_t stream,
-                        TransposeAttrs const &m,
-                        GenericTensorAccessorR const &input,
-                        GenericTensorAccessorW const &output) {
+                                  TransposeAttrs const &m,
+                                  GenericTensorAccessorR const &input,
+                                  GenericTensorAccessorW const &output) {
   transpose_simple_kernel<<<
       GET_BLOCKS(get_num_elements(output.shape.dims).int_from_positive_int()),
       CUDA_NUM_THREADS,
@@ -94,9 +94,9 @@ void transpose_gpu_forward_kernel(cudaStream_t stream,
 }
 
 void transpose_gpu_backward_kernel(cudaStream_t stream,
-                         TransposeAttrs const &m,
-                         GenericTensorAccessorR const &out_grad,
-                         GenericTensorAccessorW const &in_grad) {
+                                   TransposeAttrs const &m,
+                                   GenericTensorAccessorR const &out_grad,
+                                   GenericTensorAccessorW const &in_grad) {
   ASSERT(get_num_dims(in_grad.shape.dims) == m.permutation.num_tensor_dims());
 
   transpose_simple_kernel<<<

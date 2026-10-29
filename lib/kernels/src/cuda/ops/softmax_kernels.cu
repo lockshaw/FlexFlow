@@ -15,10 +15,10 @@
 
 #include "internal/device.h"
 #include "kernels/softmax_kernels_gpu.h"
-#include "utils/not_implemented.h"
 #include "op-attrs/ff_dim_t.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
+#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

@@ -3,13 +3,13 @@
 
 #include "op-attrs/num_ptensor_parallel_dims_t.h"
 #include "op-attrs/num_ptensor_shard_dims_t.dtg.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.dtg.h"
 #include "op-attrs/task_space_coordinate.dtg.h"
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
 
 namespace FlexFlow {
 
@@ -40,7 +40,7 @@ OperatorSpaceToParallelTensorSpaceMapping
 
 OperatorSpaceToParallelTensorSpaceMapping
     operator_ptensor_space_mapping_from_biunique(
-      OperatorSpaceToParallelTensorSpaceBiuniqueMapping const &);
+        OperatorSpaceToParallelTensorSpaceBiuniqueMapping const &);
 
 OperatorSpaceToParallelTensorSpaceMapping
     operator_ptensor_space_mapping_by_scaling_projection(

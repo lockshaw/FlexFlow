@@ -7,11 +7,10 @@
 namespace FlexFlow {
 
 OperatorAtomicTaskShardBinding
-  operator_atomic_task_shard_binding_from_abstracted(
-    AbstractedOperatorAtomicTaskShardBinding const &abstracted)
-{
+    operator_atomic_task_shard_binding_from_abstracted(
+        AbstractedOperatorAtomicTaskShardBinding const &abstracted) {
   return OperatorAtomicTaskShardBinding{
-    /*tensor_coords=*/abstracted.tensor_coords,
+      /*tensor_coords=*/abstracted.tensor_coords,
   };
 }
 

@@ -12,10 +12,8 @@
 
 namespace FlexFlow {
 
-GenericTensorAccessorW
-    tensor_accessor_exp(GenericTensorAccessorR const &input,
-                        Allocator &output_allocator)
-{
+GenericTensorAccessorW tensor_accessor_exp(GenericTensorAccessorR const &input,
+                                           Allocator &output_allocator) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
   return map_tensor_accessor(
@@ -25,27 +23,22 @@ GenericTensorAccessorW
 }
 
 void tensor_accessor_exp_to(GenericTensorAccessorR const &input,
-                            GenericTensorAccessorW const &output)
-{
+                            GenericTensorAccessorW const &output) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
   map_tensor_accessor_to(
       input, [](auto elem) { return std::exp(elem); }, output);
 }
 
-void tensor_accessor_exp_inplace(
-    GenericTensorAccessorW const &input)
-{
+void tensor_accessor_exp_inplace(GenericTensorAccessorW const &input) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
-  map_tensor_accessor_inplace(
-      input, [&](auto &elem) { return std::exp(elem); });
+  map_tensor_accessor_inplace(input,
+                              [&](auto &elem) { return std::exp(elem); });
 }
 
-GenericTensorAccessorW
-    tensor_accessor_sqrt(GenericTensorAccessorR const &input,
-                        Allocator &output_allocator)
-{
+GenericTensorAccessorW tensor_accessor_sqrt(GenericTensorAccessorR const &input,
+                                            Allocator &output_allocator) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
   return map_tensor_accessor(
@@ -55,21 +48,18 @@ GenericTensorAccessorW
 }
 
 void tensor_accessor_sqrt_to(GenericTensorAccessorR const &input,
-                            GenericTensorAccessorW const &output)
-{
+                             GenericTensorAccessorW const &output) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
   map_tensor_accessor_to(
       input, [](auto elem) { return std::sqrt(elem); }, output);
 }
 
-void tensor_accessor_sqrt_inplace(
-    GenericTensorAccessorW const &input)
-{
+void tensor_accessor_sqrt_inplace(GenericTensorAccessorW const &input) {
   ASSERT(input.shape.data_type == DataType::FLOAT);
 
-  map_tensor_accessor_inplace(
-      input, [&](auto &elem) { return std::sqrt(elem); });
+  map_tensor_accessor_inplace(input,
+                              [&](auto &elem) { return std::sqrt(elem); });
 }
 
 GenericTensorAccessorW
@@ -92,8 +82,8 @@ void tensor_accessor_scale_by_constant_inplace(GenericTensorAccessorW const &t,
 
 GenericTensorAccessorW
     tensor_accessor_add_constant(GenericTensorAccessorR const &t,
-                                      float constant,
-                                      Allocator &output_allocator) {
+                                 float constant,
+                                 Allocator &output_allocator) {
   ASSERT(t.shape.data_type == DataType::FLOAT);
 
   return map_tensor_accessor(
@@ -101,7 +91,7 @@ GenericTensorAccessorW
 }
 
 void tensor_accessor_add_constant_inplace(GenericTensorAccessorW const &t,
-                                               float constant) {
+                                          float constant) {
   ASSERT(t.shape.data_type == DataType::FLOAT);
 
   map_tensor_accessor_inplace(
@@ -170,9 +160,8 @@ void tensor_accessor_broadcast_to(GenericTensorAccessorR const &input,
                                   TensorDims const &output_dims,
                                   GenericTensorAccessorW const &output) {
   ASSERT(
-    tensor_dims_is_broadcastable_to(input.shape.dims, output_dims),
-    fmt::format("Cannot broadcast {} to {}", input.shape.dims, output_dims)
-  );
+      tensor_dims_is_broadcastable_to(input.shape.dims, output_dims),
+      fmt::format("Cannot broadcast {} to {}", input.shape.dims, output_dims));
 
   TensorShape output_shape = TensorShape{output_dims, input.shape.data_type};
   ASSERT(get_tensor_shape_for_accessor_w(output) == output_shape);
@@ -214,24 +203,25 @@ struct CPUTensorAccessorTranspose {
     for (TensorDimsCoord const &input_coord :
          get_tensor_dims_coord_set(input.shape.dims)) {
 
-      TensorDimsCoord output_coord = permute_tensor_dims_coord(dim_permutation, input_coord);
+      TensorDimsCoord output_coord =
+          permute_tensor_dims_coord(dim_permutation, input_coord);
 
       output.at<DT>(output_coord) = input.at<DT>(input_coord);
     }
   }
 };
 
-static TensorShape get_transpose_output_shape(TensorShape const &input_shape,
-                                              TensorDimPermutation const &dim_permutation) {
+static TensorShape
+    get_transpose_output_shape(TensorShape const &input_shape,
+                               TensorDimPermutation const &dim_permutation) {
   return permute_tensor_shape(dim_permutation, input_shape);
 }
 
 void tensor_accessor_transpose_to(GenericTensorAccessorR const &input,
                                   TensorDimPermutation const &dim_permutation,
                                   GenericTensorAccessorW const &output) {
-  TensorShape output_shape =
-      get_transpose_output_shape(get_tensor_shape_for_accessor_r(input),
-                                 dim_permutation);
+  TensorShape output_shape = get_transpose_output_shape(
+      get_tensor_shape_for_accessor_r(input), dim_permutation);
   ASSERT(get_tensor_shape_for_accessor_w(output) == output_shape);
 
   Allocator cpu_allocator = create_local_cpu_memory_allocator();
@@ -252,9 +242,8 @@ GenericTensorAccessorW
                               TensorDimPermutation const &dim_permutation,
                               Allocator &output_allocator) {
 
-  TensorShape output_shape =
-      get_transpose_output_shape(get_tensor_shape_for_accessor_r(input),
-                                 dim_permutation);
+  TensorShape output_shape = get_transpose_output_shape(
+      get_tensor_shape_for_accessor_r(input), dim_permutation);
 
   GenericTensorAccessorW output =
       output_allocator.allocate_tensor(output_shape);
@@ -269,10 +258,10 @@ static TensorDimPermutation get_2d_transpose_permutation() {
   ff_dim_t d1 = ff_dim_t{1_n};
 
   TensorDimPermutation permutation = TensorDimPermutation{
-    bidict<ff_dim_t, ff_dim_t>{
-      {d0, d1},
-      {d1, d0},
-    },
+      bidict<ff_dim_t, ff_dim_t>{
+          {d0, d1},
+          {d1, d0},
+      },
   };
 
   return permutation;
@@ -280,8 +269,7 @@ static TensorDimPermutation get_2d_transpose_permutation() {
 
 GenericTensorAccessorW
     tensor_accessor_transpose_2d(GenericTensorAccessorR const &input,
-                                 Allocator &output_allocator)
-{
+                                 Allocator &output_allocator) {
   ASSERT(get_num_dims(input.shape.dims) == 2);
 
   TensorDimPermutation permutation = get_2d_transpose_permutation();
@@ -290,8 +278,7 @@ GenericTensorAccessorW
 }
 
 void tensor_accessor_transpose_2d_to(GenericTensorAccessorR const &input,
-                                     GenericTensorAccessorW const &output)
-{
+                                     GenericTensorAccessorW const &output) {
   ASSERT(get_num_dims(input.shape.dims) == 2);
 
   TensorDimPermutation permutation = get_2d_transpose_permutation();
@@ -305,11 +292,11 @@ static TensorDimPermutation get_batch_transpose_permutation() {
   ff_dim_t d2 = ff_dim_t{2_n};
 
   TensorDimPermutation permutation = TensorDimPermutation{
-    bidict<ff_dim_t, ff_dim_t>{
-      {d0, d0},
-      {d1, d2},
-      {d2, d1},
-    },
+      bidict<ff_dim_t, ff_dim_t>{
+          {d0, d0},
+          {d1, d2},
+          {d2, d1},
+      },
   };
 
   return permutation;

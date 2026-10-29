@@ -1,13 +1,13 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GENERATE_MAP2_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GENERATE_MAP2_H
 
+#include "utils/containers/contains_key.h"
 #include "utils/containers/get_element_type.h"
 #include "utils/containers/vector_of.h"
 #include "utils/containers/vector_transform.h"
 #include "utils/type_traits_core.h"
-#include <map>
-#include "utils/containers/contains_key.h"
 #include <libassert/assert.hpp>
+#include <map>
 
 namespace FlexFlow {
 

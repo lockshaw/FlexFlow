@@ -258,30 +258,30 @@ TEST_SUITE(FF_TEST_SUITE) {
 
   TEST_CASE("tensor_dims_remove_trailing_dims") {
     TensorDims input = TensorDims{
-      FFOrdered<positive_int>{
-        5_p,
-        3_p,
-        4_p,
-        4_p,
-      },
+        FFOrdered<positive_int>{
+            5_p,
+            3_p,
+            4_p,
+            4_p,
+        },
     };
 
     SUBCASE("trailing dims are present") {
       TensorDims trailing_dims = TensorDims{
-        FFOrdered<positive_int>{
-          3_p,
-          4_p,
-          4_p,
-        },
+          FFOrdered<positive_int>{
+              3_p,
+              4_p,
+              4_p,
+          },
       };
 
-      TensorDims result = tensor_dims_remove_trailing_dims(
-        input, trailing_dims);
+      TensorDims result =
+          tensor_dims_remove_trailing_dims(input, trailing_dims);
 
       TensorDims correct = TensorDims{
-        FFOrdered<positive_int>{
-          5_p,
-        },
+          FFOrdered<positive_int>{
+              5_p,
+          },
       };
 
       CHECK(result == correct);
@@ -289,15 +289,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("trailing dims are not present") {
       TensorDims trailing_dims = TensorDims{
-        FFOrdered<positive_int>{
-          3_p,
-          5_p,
-          4_p,
-        },
+          FFOrdered<positive_int>{
+              3_p,
+              5_p,
+              4_p,
+          },
       };
 
-      CHECK_THROWS(tensor_dims_remove_trailing_dims(
-        input, trailing_dims));
+      CHECK_THROWS(tensor_dims_remove_trailing_dims(input, trailing_dims));
     }
   }
 }

@@ -1,20 +1,19 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_MULTISET_INTERSECTION_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_MULTISET_INTERSECTION_H
 
-#include <set>
-#include "utils/containers/set_union.h"
-#include "utils/containers/set_of.h"
 #include "utils/containers/range.h"
-#include <optional>
-#include <libassert/assert.hpp>
+#include "utils/containers/set_of.h"
+#include "utils/containers/set_union.h"
 #include "utils/optional.h"
+#include <libassert/assert.hpp>
+#include <optional>
+#include <set>
 
 namespace FlexFlow {
 
 template <typename T>
 std::multiset<T> multiset_intersection(std::multiset<T> const &lhs,
-                                       std::multiset<T> const &rhs)
-{
+                                       std::multiset<T> const &rhs) {
   std::multiset<T> result;
   std::set<T> all_values = set_union(set_of(lhs), set_of(rhs));
   for (T const &t : all_values) {
@@ -42,7 +41,6 @@ T multiset_intersection1(C const &c) {
 
   return assert_unwrap(multiset_intersection(c));
 }
-
 
 } // namespace FlexFlow
 

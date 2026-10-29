@@ -1,13 +1,13 @@
 #include "op-attrs/ops/repartition.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
-#include <libassert/assert.hpp>
 #include "op-attrs/parallel_tensor_dim_degrees.h"
-#include "utils/containers/set_union.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "op-attrs/task_space_coordinate.h"
+#include "utils/containers/set_union.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
@@ -34,38 +34,37 @@ ParallelTensorDimDegrees repartition_get_output_parallel_dim_degrees(
   return output_degrees;
 }
 
-ParallelismOperatorTaskGroup repartition_get_task_group(
-    RepartitionAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees)
-{
+ParallelismOperatorTaskGroup
+    repartition_get_task_group(RepartitionAttrs const &attrs,
+                               ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =
-    repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
+      repartition_get_output_parallel_dim_degrees(attrs, input_degrees);
 
   return ParallelismOperatorTaskGroup{
-    transform(
-      get_parallel_tensor_space_coordinates(output_degrees),
-      [&](ParallelTensorSpaceCoordinate const &output_coord)
-        -> AbstractedOperatorAtomicTaskShardBinding
-      {
-        ParallelTensorSpaceCoordinate input_coord = output_coord;
-        ptensor_coord_component_for_ptensor_dim_idx(
-            input_coord, shard_dim_idx(attrs.repartition_dim)) /= attrs.repartition_degree;
+      transform(get_parallel_tensor_space_coordinates(output_degrees),
+                [&](ParallelTensorSpaceCoordinate const &output_coord)
+                    -> AbstractedOperatorAtomicTaskShardBinding {
+                  ParallelTensorSpaceCoordinate input_coord = output_coord;
+                  ptensor_coord_component_for_ptensor_dim_idx(
+                      input_coord, shard_dim_idx(attrs.repartition_dim)) /=
+                      attrs.repartition_degree;
 
-        return AbstractedOperatorAtomicTaskShardBinding{
-          /*tensor_coords=*/{
-            {
-              TensorSlotName::INPUT,
-              input_coord,
-            },
-            {
-              TensorSlotName::OUTPUT,
-              output_coord,
-            },
-          },
-          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
-                                                                              output_degrees),
-        };
-      }),
+                  return AbstractedOperatorAtomicTaskShardBinding{
+                      /*tensor_coords=*/{
+                          {
+                              TensorSlotName::INPUT,
+                              input_coord,
+                          },
+                          {
+                              TensorSlotName::OUTPUT,
+                              output_coord,
+                          },
+                      },
+                      /*task_coord=*/
+                      task_coord_matching_parallel_tensor_space_coordinate(
+                          output_coord, output_degrees),
+                  };
+                }),
   };
 }
 
@@ -87,9 +86,8 @@ OperatorSpaceToParallelTensorSpaceMapping
       repartition_get_operator_task_space(attrs, input_degrees);
 
   std::set<parallel_tensor_dim_idx_t> input_dim_idxs_for_projection =
-    set_union(
-      get_nontrivial_parallel_tensor_dim_indices(input_degrees),
-      std::set{shard_dim_idx(attrs.repartition_dim)});
+      set_union(get_nontrivial_parallel_tensor_dim_indices(input_degrees),
+                std::set{shard_dim_idx(attrs.repartition_dim)});
 
   DimProjection<operator_task_space_dim_idx_t, parallel_tensor_dim_idx_t>
       dim_projection = get_projection_for_op_to_ptensor_identity_mapping(

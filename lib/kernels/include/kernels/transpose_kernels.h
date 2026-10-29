@@ -8,14 +8,14 @@
 namespace FlexFlow {
 
 void transpose_forward_kernel(device_stream_t const &stream,
-                    TransposeAttrs const &attrs,
-                    GenericTensorAccessorR const &input,
-                    GenericTensorAccessorW const &output);
+                              TransposeAttrs const &attrs,
+                              GenericTensorAccessorR const &input,
+                              GenericTensorAccessorW const &output);
 
 void transpose_backward_kernel(device_stream_t const &stream,
-                     TransposeAttrs const &attrs,
-                     GenericTensorAccessorR const &out_grad,
-                     GenericTensorAccessorW const &in_grad);
+                               TransposeAttrs const &attrs,
+                               GenericTensorAccessorR const &out_grad,
+                               GenericTensorAccessorW const &in_grad);
 
 } // namespace FlexFlow
 

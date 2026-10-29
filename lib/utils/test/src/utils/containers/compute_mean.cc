@@ -1,5 +1,5 @@
-#include <doctest/doctest.h>
 #include "utils/containers/compute_mean.h"
+#include <doctest/doctest.h>
 #include <vector>
 
 using namespace ::FlexFlow;

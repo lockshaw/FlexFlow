@@ -1,13 +1,13 @@
 #include "compiler/series_parallel/pcg/get_pcg_series_parallel_decomposition.h"
+#include "op-attrs/element_binary_op.dtg.h"
 #include "op-attrs/ops/embedding.h"
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/parallel_tensor_shape.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/require_only_key.h"
 #include <doctest/doctest.h>
-#include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/element_binary_op.dtg.h"
 
 using namespace ::FlexFlow;
 
@@ -321,7 +321,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           get_reduced_shape(get_parallel_tensor_shape(pcg, t_op0));
 
       WeightAttrs w1_attrs = WeightAttrs{
-          /*tensor_shape=*/embedding_get_weights_shape(op1_attrs, casted_input_shape),
+          /*tensor_shape=*/embedding_get_weights_shape(op1_attrs,
+                                                       casted_input_shape),
           /*initializer=*/InitializerAttrs{ZeroInitializerAttrs{}},
       };
       ParallelLayerAddedResult w1_added =

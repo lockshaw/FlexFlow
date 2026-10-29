@@ -5,8 +5,7 @@ namespace FlexFlow {
 
 using T = ordered_value_type<0>;
 
-template
-  std::set<T> binary_merge_disjoint_sets(std::set<T> const &,
-                                         std::set<T> const &);
+template std::set<T> binary_merge_disjoint_sets(std::set<T> const &,
+                                                std::set<T> const &);
 
 } // namespace FlexFlow

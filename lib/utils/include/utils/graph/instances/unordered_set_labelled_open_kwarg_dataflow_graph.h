@@ -6,7 +6,9 @@
 #include "utils/containers/extend.h"
 #include "utils/containers/generate_map.h"
 #include "utils/containers/keys.h"
+#include "utils/containers/map_keys.h"
 #include "utils/containers/map_values.h"
+#include "utils/containers/map_values2.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_all_kwarg_dataflow_edges.h"
 #include "utils/graph/kwarg_dataflow_graph/algorithms/get_all_kwarg_dataflow_outputs.h"
 #include "utils/graph/kwarg_dataflow_graph/kwarg_node_added_result.dtg.h"
@@ -18,8 +20,6 @@
 #include "utils/graph/open_kwarg_dataflow_graph/algorithms/get_all_open_kwarg_dataflow_edges.h"
 #include "utils/graph/open_kwarg_dataflow_graph/open_kwarg_dataflow_edge.h"
 #include "utils/overload.h"
-#include "utils/containers/map_keys.h"
-#include "utils/containers/map_values2.h"
 
 namespace FlexFlow {
 
@@ -69,29 +69,30 @@ public:
       this->edges.insert(in_edge);
     }
 
-    auto mk_output = 
+    auto mk_output =
         [&](SlotName const &output_slot) -> KwargDataflowOutput<SlotName> {
-          return KwargDataflowOutput<SlotName>{
-              /*node=*/new_node,
-              /*slot_name=*/output_slot,
-          };
-        };
+      return KwargDataflowOutput<SlotName>{
+          /*node=*/new_node,
+          /*slot_name=*/output_slot,
+      };
+    };
 
-    std::map<KwargDataflowOutput<SlotName>, ValueLabel> mapped_value_labels = 
-      map_keys(output_labels, mk_output);
+    std::map<KwargDataflowOutput<SlotName>, ValueLabel> mapped_value_labels =
+        map_keys(output_labels, mk_output);
 
     this->outputs.insert({
-      new_node, 
-      mapped_value_labels,
+        new_node,
+        mapped_value_labels,
     });
 
     extend(this->all_outputs, keys(mapped_value_labels));
 
-    std::map<SlotName, KwargDataflowOutput<SlotName>> outputs = map_values2(
-        output_labels,
-        [&](SlotName const &output_slot, ValueLabel const &) -> KwargDataflowOutput<SlotName> {
-          return mk_output(output_slot);
-        });
+    std::map<SlotName, KwargDataflowOutput<SlotName>> outputs =
+        map_values2(output_labels,
+                    [&](SlotName const &output_slot,
+                        ValueLabel const &) -> KwargDataflowOutput<SlotName> {
+                      return mk_output(output_slot);
+                    });
 
     return KwargNodeAddedResult<SlotName>{
         /*node=*/new_node,
@@ -137,10 +138,8 @@ public:
       std::set<KwargDataflowOutput<SlotName>> results;
 
       for (Node const &n : allowed_values(q.nodes)) {
-        for (
-          std::pair<KwargDataflowOutput<SlotName>, ValueLabel> const &m
-          : this->outputs.at(n)
-        ) { 
+        for (std::pair<KwargDataflowOutput<SlotName>, ValueLabel> const &m :
+             this->outputs.at(n)) {
           results.emplace_hint(results.cend(), m.first);
         }
       }
@@ -195,10 +194,10 @@ public:
                   });
 
     this->outputs.clear();
-    for (Node const &n : view_nodes) { 
+    for (Node const &n : view_nodes) {
       this->outputs.insert({n, {}});
     }
-    for (KwargDataflowOutput<SlotName> const &o : view_outputs) { 
+    for (KwargDataflowOutput<SlotName> const &o : view_outputs) {
       this->outputs.at(o.node).insert({o, view.at(o)});
     }
 
@@ -228,11 +227,12 @@ public:
     this->edges = view_edges;
 
     this->outputs.clear();
-    for (Node const &n : view_nodes) { 
+    for (Node const &n : view_nodes) {
       this->outputs.insert({n, {}});
     }
-    for (KwargDataflowOutput<SlotName> const &o : view_outputs) { 
-      this->outputs.at(o.node).insert({o, view.at(OpenKwargDataflowValue<GraphInputName, SlotName>{o})});
+    for (KwargDataflowOutput<SlotName> const &o : view_outputs) {
+      this->outputs.at(o.node).insert(
+          {o, view.at(OpenKwargDataflowValue<GraphInputName, SlotName>{o})});
     }
 
     this->all_outputs = view_outputs;
@@ -256,7 +256,8 @@ private:
           &graph_inputs,
       std::map<Node, NodeLabel> const &nodes,
       std::set<OpenKwargDataflowEdge<GraphInputName, SlotName>> const &edges,
-      std::map<Node, std::map<KwargDataflowOutput<SlotName>, ValueLabel>> const &outputs,
+      std::map<Node, std::map<KwargDataflowOutput<SlotName>, ValueLabel>> const
+          &outputs,
       std::set<KwargDataflowOutput<SlotName>> const &all_outputs)
       : node_source(node_source), graph_inputs(graph_inputs), nodes(nodes),
         edges(edges), outputs(outputs) {}

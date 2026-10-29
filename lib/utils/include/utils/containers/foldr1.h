@@ -1,9 +1,9 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_FOLDR1_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_FOLDR1_H
 
-#include <vector>
 #include <fmt/format.h>
 #include <libassert/assert.hpp>
+#include <vector>
 
 namespace FlexFlow {
 

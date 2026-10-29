@@ -1,17 +1,15 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_BINARY_CARTESIAN_PRODUCT_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_BINARY_CARTESIAN_PRODUCT_H
 
-#include <set>
 #include <libassert/assert.hpp>
+#include <set>
 
 namespace FlexFlow {
 
 template <typename T>
-inline constexpr bool is_forward_iterator_v = 
-  std::is_base_of_v<
-    std::forward_iterator_tag,
-    typename std::iterator_traits<T>::iterator_category
-  >;
+inline constexpr bool is_forward_iterator_v =
+    std::is_base_of_v<std::forward_iterator_tag,
+                      typename std::iterator_traits<T>::iterator_category>;
 
 template <typename It1, typename It2>
 struct binary_cartesian_product_container {
@@ -19,14 +17,8 @@ struct binary_cartesian_product_container {
   static_assert(is_forward_iterator_v<It2>);
 
 public:
-  binary_cartesian_product_container(
-    It1 start1, It1 end1,
-    It2 start2, It2 end2)
-  : start1(start1),
-    end1(end1),
-    start2(start2),
-    end2(end2)
-  { }
+  binary_cartesian_product_container(It1 start1, It1 end1, It2 start2, It2 end2)
+      : start1(start1), end1(end1), start2(start2), end2(end2) {}
 
   struct iterator {
   private:
@@ -41,12 +33,10 @@ public:
     using iterator_category = std::input_iterator_tag;
 
   public:
-    explicit iterator(
-        binary_cartesian_product_container<It1, It2> const &c,
-        It1 it1,
-        It2 it2)
-      : c(c), it1(it1), it2(it2), curr(std::nullopt)
-    {}
+    explicit iterator(binary_cartesian_product_container<It1, It2> const &c,
+                      It1 it1,
+                      It2 it2)
+        : c(c), it1(it1), it2(it2), curr(std::nullopt) {}
 
     iterator &operator++() {
       ASSERT(it1 != this->c.end1 || it2 != this->c.end2);
@@ -70,11 +60,13 @@ public:
     }
 
     bool operator==(iterator other) const {
-      return &this->c == &other.c && this->it1 == other.it1 && this->it2 == other.it2;
+      return &this->c == &other.c && this->it1 == other.it1 &&
+             this->it2 == other.it2;
     }
 
     bool operator!=(iterator other) const {
-      return &this->c != &other.c || this->it1 != other.it1 || this->it2 != other.it2;
+      return &this->c != &other.c || this->it1 != other.it1 ||
+             this->it2 != other.it2;
     }
 
     reference operator*() const {
@@ -89,6 +81,7 @@ public:
 
       return *(this->curr);
     }
+
   private:
     It1 it1;
     It2 it2;
@@ -133,14 +126,11 @@ private:
 };
 
 template <typename A, typename B>
-binary_cartesian_product_container<
-  typename std::set<A>::const_iterator,
-  typename std::set<B>::const_iterator
->
-  binary_cartesian_product(std::set<A> const &lhs,
-                           std::set<B> const &rhs)
-{
-  return binary_cartesian_product_container(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
+binary_cartesian_product_container<typename std::set<A>::const_iterator,
+                                   typename std::set<B>::const_iterator>
+    binary_cartesian_product(std::set<A> const &lhs, std::set<B> const &rhs) {
+  return binary_cartesian_product_container(
+      lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
 }
 
 } // namespace FlexFlow

@@ -6,11 +6,12 @@
 
 namespace FlexFlow {
 
-void layer_norm_cpu_forward_kernel(LayerNormAttrs const &attrs,
-                                   GenericTensorAccessorR const &input,
-                                   GenericTensorAccessorW const &output,
-                                   std::optional<GenericTensorAccessorR> const &gamma,
-                                   std::optional<GenericTensorAccessorR> const &beta);
+void layer_norm_cpu_forward_kernel(
+    LayerNormAttrs const &attrs,
+    GenericTensorAccessorR const &input,
+    GenericTensorAccessorW const &output,
+    std::optional<GenericTensorAccessorR> const &gamma,
+    std::optional<GenericTensorAccessorR> const &beta);
 
 void layer_norm_cpu_backward_kernel(LayerNormAttrs const &attrs,
                                     GenericTensorAccessorR const &output_grad,

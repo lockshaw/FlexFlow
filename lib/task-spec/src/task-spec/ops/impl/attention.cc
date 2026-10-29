@@ -44,9 +44,8 @@ static DeviceSpecificPerDeviceOpState
   TensorShape key_tensor_shape = acc.get_tensor_shape(TensorSlotName::KEY);
   TensorShape value_tensor_shape = acc.get_tensor_shape(TensorSlotName::VALUE);
 
-  MultiHeadAttentionInputs parsed =
-      parse_attention_input_shape(
-          query_tensor_shape, key_tensor_shape, value_tensor_shape);
+  MultiHeadAttentionInputs parsed = parse_attention_input_shape(
+      query_tensor_shape, key_tensor_shape, value_tensor_shape);
   TensorShape weight_tensor_shape = attention_get_weights_shape(
       attrs, query_tensor_shape, key_tensor_shape, value_tensor_shape);
 

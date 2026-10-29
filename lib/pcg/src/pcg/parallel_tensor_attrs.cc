@@ -6,16 +6,16 @@ namespace FlexFlow {
 
 TensorAttrs get_piece_attrs(ParallelTensorAttrs const &parallel_attrs) {
   return TensorAttrs{
-    get_piece_shape(parallel_attrs.shape),
-    parallel_attrs.create_grad,
+      get_piece_shape(parallel_attrs.shape),
+      parallel_attrs.create_grad,
   };
 }
 
 ParallelTensorAttrs
     parallel_tensor_attrs_from_tensor_attrs(TensorAttrs const &tensor_attrs) {
   return ParallelTensorAttrs{
-    lift_shape_to_parallel(tensor_attrs.shape),
-    tensor_attrs.create_grad,
+      lift_shape_to_parallel(tensor_attrs.shape),
+      tensor_attrs.create_grad,
   };
 }
 

@@ -350,8 +350,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape projection_weight_shape =
         linear_get_projection_shape(linear_attrs, input_shape);
 
-    TensorShape bias_shape =
-        linear_get_bias_shape(linear_attrs, input_shape);
+    TensorShape bias_shape = linear_get_bias_shape(linear_attrs, input_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();
@@ -568,8 +567,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape projection_weight_shape =
         linear_get_projection_shape(linear_attrs, input_shape);
 
-    TensorShape bias_shape =
-        linear_get_bias_shape(linear_attrs, input_shape);
+    TensorShape bias_shape = linear_get_bias_shape(linear_attrs, input_shape);
 
     SubParallelComputationGraph original_pcg = [&] {
       ParallelComputationGraph pcg = empty_parallel_computation_graph();

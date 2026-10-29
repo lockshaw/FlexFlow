@@ -1,6 +1,6 @@
-#include <doctest/doctest.h>
-#include "test/utils/doctest/fmt/vector.h"
 #include "utils/containers/range_inclusive.h"
+#include "test/utils/doctest/fmt/vector.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 

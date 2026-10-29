@@ -6,9 +6,9 @@
 
 namespace FlexFlow {
 
-GenericTensorAccessorR 
-  tensor_accessor_promote_dims(GenericTensorAccessorR const &,
-                               TensorDims const &);
+GenericTensorAccessorR
+    tensor_accessor_promote_dims(GenericTensorAccessorR const &,
+                                 TensorDims const &);
 
 } // namespace FlexFlow
 

@@ -48,15 +48,14 @@ TEST_SUITE(FF_TEST_SUITE) {
                                        parallel_tensor_dim_idx_t>{
                 /*coord_mapping=*/
                 HemiuniqueBinaryRelation{
-                    bidict<
-                    DimCoord<operator_task_space_dim_idx_t>,
-                    DimCoord<parallel_tensor_dim_idx_t>>{
-                      {make_op_coord(0_n, 0_n), make_pt_coord(0_n, 0_n)},
-                      {make_op_coord(1_n, 0_n), make_pt_coord(1_n, 0_n)},
-                      {make_op_coord(0_n, 1_n), make_pt_coord(0_n, 1_n)},
-                      {make_op_coord(1_n, 1_n), make_pt_coord(1_n, 1_n)},
-                      {make_op_coord(0_n, 2_n), make_pt_coord(0_n, 2_n)},
-                      {make_op_coord(1_n, 2_n), make_pt_coord(1_n, 2_n)},
+                    bidict<DimCoord<operator_task_space_dim_idx_t>,
+                           DimCoord<parallel_tensor_dim_idx_t>>{
+                        {make_op_coord(0_n, 0_n), make_pt_coord(0_n, 0_n)},
+                        {make_op_coord(1_n, 0_n), make_pt_coord(1_n, 0_n)},
+                        {make_op_coord(0_n, 1_n), make_pt_coord(0_n, 1_n)},
+                        {make_op_coord(1_n, 1_n), make_pt_coord(1_n, 1_n)},
+                        {make_op_coord(0_n, 2_n), make_pt_coord(0_n, 2_n)},
+                        {make_op_coord(1_n, 2_n), make_pt_coord(1_n, 2_n)},
                     },
                 },
                 /*l_domain=*/

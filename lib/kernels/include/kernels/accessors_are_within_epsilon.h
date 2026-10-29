@@ -9,7 +9,6 @@ bool accessors_are_within_epsilon(GenericTensorAccessorR const &,
                                   GenericTensorAccessorR const &,
                                   std::optional<float> epsilon = std::nullopt);
 
-
 } // namespace FlexFlow
 
 #endif

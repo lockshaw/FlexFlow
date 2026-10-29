@@ -7,7 +7,6 @@ using In = value_type<0>;
 using Out = value_type<1>;
 using F = std::function<std::optional<Out>(nonnegative_int, In const &)>;
 
-template
-  std::vector<Out> filtrans_with_idx(std::vector<In> const &, F &&);
+template std::vector<Out> filtrans_with_idx(std::vector<In> const &, F &&);
 
 } // namespace FlexFlow

@@ -11,6 +11,6 @@ ManyToOne<T1, T3> compose_many_to_ones(ManyToOne<T1, T2> const &fst,
   return exhaustive_relational_join(fst, snd);
 }
 
-}
+} // namespace FlexFlow
 
 #endif

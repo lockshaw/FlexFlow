@@ -24,14 +24,12 @@ void flat_gpu_forward_kernel(cudaStream_t stream,
                              void const *input_ptr,
                              void *output_ptr,
                              size_t num_elements,
-                             size_t element_size)
-{
-  checkCUDA(cudaMemcpyAsync(
-      output_ptr,
-      input_ptr,
-      num_elements * element_size,
-      cudaMemcpyDeviceToDevice,
-      stream));
+                             size_t element_size) {
+  checkCUDA(cudaMemcpyAsync(output_ptr,
+                            input_ptr,
+                            num_elements * element_size,
+                            cudaMemcpyDeviceToDevice,
+                            stream));
 }
 
 void flat_gpu_backward_kernel(cudaStream_t stream,
@@ -41,13 +39,8 @@ void flat_gpu_backward_kernel(cudaStream_t stream,
 
   float alpha = 1.0f;
   apply_add_with_scale<float>
-      <<<GET_BLOCKS(num_elements),
-         CUDA_NUM_THREADS,
-         0,
-         stream>>>(input_grad_ptr,
-                   output_grad_ptr,
-                   num_elements,
-                   alpha);
+      <<<GET_BLOCKS(num_elements), CUDA_NUM_THREADS, 0, stream>>>(
+          input_grad_ptr, output_grad_ptr, num_elements, alpha);
 }
 
 } // namespace FlexFlow

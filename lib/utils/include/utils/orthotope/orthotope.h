@@ -31,7 +31,8 @@ OrthotopeCoord unflatten_orthotope_coord(nonnegative_int, Orthotope const &);
 
 Orthotope smallest_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
 
-std::optional<Orthotope> strict_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
+std::optional<Orthotope>
+    strict_orthotope_for_coord_set(std::set<OrthotopeCoord> const &);
 
 std::optional<positive_int> orthotope_head(Orthotope const &);
 std::optional<Orthotope> orthotope_tail(Orthotope const &);
@@ -40,8 +41,7 @@ bool is_orthotope_divisor_of(Orthotope const &dividend,
                              Orthotope const &divisor);
 
 Orthotope orthotope_find_lexicographically_first_divisor_of_size(
-    Orthotope const &ground_domain,
-    positive_int dimension_size);
+    Orthotope const &ground_domain, positive_int dimension_size);
 
 } // namespace FlexFlow
 

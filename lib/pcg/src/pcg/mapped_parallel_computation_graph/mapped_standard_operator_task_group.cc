@@ -1,15 +1,15 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_standard_operator_task_group.h"
-#include "utils/containers/vector_of.h"
-#include "utils/containers/keys.h"
-#include "utils/containers/require_all_same.h"
-#include "utils/containers/set_minus.h"
-#include "utils/containers/restrict_keys_strict.h"
-#include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
-#include "utils/containers/transform_pairs.h"
-#include "utils/binary_relation/binary_relation_is_biunique.h"
 #include "op-attrs/operator_atomic_task_shard_binding.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_atomic_task_shard_binding.dtg.h"
+#include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
+#include "utils/binary_relation/binary_relation_is_biunique.h"
+#include "utils/containers/keys.h"
+#include "utils/containers/require_all_same.h"
+#include "utils/containers/restrict_keys_strict.h"
+#include "utils/containers/set_minus.h"
+#include "utils/containers/transform_pairs.h"
+#include "utils/containers/vector_of.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/tuple.h"
 
@@ -28,53 +28,47 @@ MappedStandardOperatorTaskGroup::MappedStandardOperatorTaskGroup(
   std::set<TensorSlotName> slot_names =
       require_all_same(binding_slot_sets).value();
 
-  auto project_out_key = [&](MappedOperatorAtomicTaskShardBinding const &b, TensorSlotName key)
-    -> std::pair<
-        ParallelTensorSpaceCoordinate,
-        MappedOperatorAtomicTaskShardBinding
-       >
-  {
+  auto project_out_key = [&](MappedOperatorAtomicTaskShardBinding const &b,
+                             TensorSlotName key)
+      -> std::pair<ParallelTensorSpaceCoordinate,
+                   MappedOperatorAtomicTaskShardBinding> {
     std::set<TensorSlotName> remaining_keys =
-      set_minus(keys(b.tensor_coords), std::set{key});
+        set_minus(keys(b.tensor_coords), std::set{key});
 
     return std::pair{
-      b.tensor_coords.at(key),
-      MappedOperatorAtomicTaskShardBinding{
-        /*tensor_coords=*/restrict_keys_strict(b.tensor_coords, remaining_keys),
-        /*machine_coord=*/b.machine_coord,
-      },
+        b.tensor_coords.at(key),
+        MappedOperatorAtomicTaskShardBinding{
+            /*tensor_coords=*/restrict_keys_strict(b.tensor_coords,
+                                                   remaining_keys),
+            /*machine_coord=*/b.machine_coord,
+        },
     };
   };
 
   std::set<MappedOperatorAtomicTaskShardBinding> mapped_bindings =
-    transform_pairs(
-      unstructured_relation_from_bidict(shard_bindings),
-      [&](MachineSpaceCoordinate const &mc, OperatorAtomicTaskShardBinding const &b)
-        -> MappedOperatorAtomicTaskShardBinding
-      {
-        return MappedOperatorAtomicTaskShardBinding{
-          /*tensor_coords=*/b.tensor_coords,
-          /*machine_coord=*/mc,
-        };
-      });
+      transform_pairs(unstructured_relation_from_bidict(shard_bindings),
+                      [&](MachineSpaceCoordinate const &mc,
+                          OperatorAtomicTaskShardBinding const &b)
+                          -> MappedOperatorAtomicTaskShardBinding {
+                        return MappedOperatorAtomicTaskShardBinding{
+                            /*tensor_coords=*/b.tensor_coords,
+                            /*machine_coord=*/mc,
+                        };
+                      });
 
-  auto is_1_unique = [&](TensorSlotName slot_name)
-    -> bool
-  {
-    std::set<std::pair<
-      ParallelTensorSpaceCoordinate,
-      MappedOperatorAtomicTaskShardBinding
-    >> s = transform(mapped_bindings,
-                    [&](MappedOperatorAtomicTaskShardBinding const &b)
-                      -> std::pair<ParallelTensorSpaceCoordinate, MappedOperatorAtomicTaskShardBinding>
-                    {
-                      return project_out_key(b, slot_name);
-                    });
+  auto is_1_unique = [&](TensorSlotName slot_name) -> bool {
+    std::set<std::pair<ParallelTensorSpaceCoordinate,
+                       MappedOperatorAtomicTaskShardBinding>>
+        s = transform(mapped_bindings,
+                      [&](MappedOperatorAtomicTaskShardBinding const &b)
+                          -> std::pair<ParallelTensorSpaceCoordinate,
+                                       MappedOperatorAtomicTaskShardBinding> {
+                        return project_out_key(b, slot_name);
+                      });
 
-    BinaryRelation<
-      ParallelTensorSpaceCoordinate,
-      MappedOperatorAtomicTaskShardBinding
-    > r = BinaryRelation{s};
+    BinaryRelation<ParallelTensorSpaceCoordinate,
+                   MappedOperatorAtomicTaskShardBinding>
+        r = BinaryRelation{s};
 
     return binary_relation_is_biunique(r);
   };

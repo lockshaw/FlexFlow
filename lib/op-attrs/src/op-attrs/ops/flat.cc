@@ -1,30 +1,30 @@
 #include "op-attrs/ops/flat.h"
+#include "op-attrs/ff_dim_t.h"
 #include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice.h"
 #include "op-attrs/ff_ordered/ff_ordered_slice_inclusive.h"
-#include "op-attrs/parallel_tensor_shape.h"
-#include "op-attrs/tensor_dims.h"
-#include "utils/containers/all_of.h"
-#include "utils/containers/product.h"
-#include <cassert>
+#include "op-attrs/num_ptensor_shard_dims_t.h"
+#include "op-attrs/num_tensor_dims_t.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/operator_task_space.h"
-#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
-#include "utils/orthotope/eq_projection.h"
-#include "op-attrs/ff_dim_t.h"
-#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
-#include "op-attrs/num_tensor_dims_t.h"
-#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
-#include "op-attrs/task_space_coordinate.h"
-#include "op-attrs/standard_operator_task_group.h"
-#include "utils/orthotope/orthotope_bounded_coord.h"
-#include "utils/optional.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
+#include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/task_space_coordinate.h"
+#include "op-attrs/tensor_dims.h"
+#include "utils/containers/all_of.h"
 #include "utils/containers/merge_disjoint_sets.h"
+#include "utils/containers/product.h"
 #include "utils/containers/set_of.h"
-#include "op-attrs/num_ptensor_shard_dims_t.h"
+#include "utils/optional.h"
+#include "utils/orthotope/eq_projection.h"
+#include "utils/orthotope/orthotope_bounded_coord.h"
+#include <cassert>
 
 namespace FlexFlow {
 
@@ -99,147 +99,133 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar, degrees);
 }
 
-StandardOperatorTaskGroup flat_get_task_group(
-    FlatAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees)
-{
+StandardOperatorTaskGroup
+    flat_get_task_group(FlatAttrs const &attrs,
+                        ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =
-    flat_get_output_parallel_dim_degrees(attrs, input_degrees);
+      flat_get_output_parallel_dim_degrees(attrs, input_degrees);
 
-  auto to_shard_dims = [&](std::set<ff_dim_t> const &ds) 
-    -> std::set<parallel_tensor_dim_idx_t> 
-  {
-    return transform(ds,
-                     [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
-                      return shard_dim_idx(d);
-                     });
+  auto to_shard_dims =
+      [&](std::set<ff_dim_t> const &ds) -> std::set<parallel_tensor_dim_idx_t> {
+    return transform(ds, [](ff_dim_t d) -> parallel_tensor_dim_idx_t {
+      return shard_dim_idx(d);
+    });
   };
 
   return StandardOperatorTaskGroup{
-    transform(
-      get_parallel_tensor_space_coordinates(input_degrees),
-      [&](ParallelTensorSpaceCoordinate const &input_coord)
-        -> AbstractedOperatorAtomicTaskShardBinding
-      {
+      transform(
+          get_parallel_tensor_space_coordinates(input_degrees),
+          [&](ParallelTensorSpaceCoordinate const &input_coord)
+              -> AbstractedOperatorAtomicTaskShardBinding {
+            std::set<parallel_tensor_dim_idx_t> leading_dims =
+                to_shard_dims(set_of(
+                    ff_dim_range2_exclusive(ff_dim_t{0_n}, attrs.start_dim)));
 
-        std::set<parallel_tensor_dim_idx_t> leading_dims =  
-          to_shard_dims(set_of(ff_dim_range2_exclusive(ff_dim_t{0_n}, attrs.start_dim)));
+            std::set<parallel_tensor_dim_idx_t> flattened_dims =
+                to_shard_dims(set_of(
+                    ff_dim_range2_inclusive(attrs.start_dim, attrs.end_dim)));
 
-        std::set<parallel_tensor_dim_idx_t> flattened_dims =  
-          to_shard_dims(set_of(ff_dim_range2_inclusive(attrs.start_dim, attrs.end_dim)));
-
-        std::set<parallel_tensor_dim_idx_t> trailing_dims =  
-          to_shard_dims(
-            set_of(ff_dim_range2_exclusive(
-                    add_to_ff_dim(attrs.end_dim, 1), 
+            std::set<parallel_tensor_dim_idx_t> trailing_dims =
+                to_shard_dims(set_of(ff_dim_range2_exclusive(
+                    add_to_ff_dim(attrs.end_dim, 1),
                     ff_dim_t{num_elements(input_degrees.shard_degrees)})));
 
-        std::set<parallel_tensor_dim_idx_t> reduction_dims = {
-          sum_dim_idx(),
-          discard_copy_dim_idx(),
-        };
+            std::set<parallel_tensor_dim_idx_t> reduction_dims = {
+                sum_dim_idx(),
+                discard_copy_dim_idx(),
+            };
 
-        ASSERT(
-          merge_disjoint_sets(std::vector{reduction_dims, leading_dims, flattened_dims, trailing_dims})
-          == 
-          get_parallel_tensor_dim_indices(input_degrees)
-        );
+            ASSERT(merge_disjoint_sets(std::vector{reduction_dims,
+                                                   leading_dims,
+                                                   flattened_dims,
+                                                   trailing_dims}) ==
+                   get_parallel_tensor_dim_indices(input_degrees));
 
-        BoundedComponent sum_component = 
-          bounded_component_for_ptensor_dim(
-            input_degrees,
-            input_coord,
-            sum_dim_idx());
+            BoundedComponent sum_component = bounded_component_for_ptensor_dim(
+                input_degrees, input_coord, sum_dim_idx());
 
-        BoundedComponent discard_copy_component = 
-          bounded_component_for_ptensor_dim(
-            input_degrees,
-            input_coord,
-            sum_dim_idx());
+            BoundedComponent discard_copy_component =
+                bounded_component_for_ptensor_dim(
+                    input_degrees, input_coord, sum_dim_idx());
 
-        OrthotopeBoundedCoord leading = 
-          orthotope_bounded_coord_for_ptensor_dims(    
-            input_degrees,
-            input_coord,
-            leading_dims);
+            OrthotopeBoundedCoord leading =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, leading_dims);
 
-        OrthotopeBoundedCoord flattened = 
-          orthotope_bounded_coord_for_ptensor_dims(    
-            input_degrees,
-            input_coord,
-            flattened_dims);
+            OrthotopeBoundedCoord flattened =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, flattened_dims);
 
-        OrthotopeBoundedCoord trailing = 
-          orthotope_bounded_coord_for_ptensor_dims(    
-            input_degrees,
-            input_coord,
-            trailing_dims);
+            OrthotopeBoundedCoord trailing =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, trailing_dims);
 
-        ParallelTensorSpaceCoordinate output_coord = 
-          parallel_tensor_space_coordinate_from_bounded_orthotope_components(
-            /*sum_component=*/sum_component,
-            /*discard_copy_component=*/discard_copy_component,
-            /*shard_components=*/orthotope_bounded_coord_product(
-              leading,
-              lift_bounded_component(assert_unwrap(flatten_orthotope_bounded_coord(flattened))),
-              trailing));
+            ParallelTensorSpaceCoordinate output_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_component=*/sum_component,
+                    /*discard_copy_component=*/discard_copy_component,
+                    /*shard_components=*/
+                    orthotope_bounded_coord_product(
+                        leading,
+                        lift_bounded_component(assert_unwrap(
+                            flatten_orthotope_bounded_coord(flattened))),
+                        trailing));
 
-        ASSERT(parallel_tensor_space_contains_coord(output_degrees, output_coord));
+            ASSERT(parallel_tensor_space_contains_coord(output_degrees,
+                                                        output_coord));
 
-        return AbstractedOperatorAtomicTaskShardBinding{
-          /*tensor_corods=*/{
-            {
-              TensorSlotName::INPUT,
-              input_coord,
-            },
-            {
-              TensorSlotName::OUTPUT,
-              output_coord
-            },
-          },
-          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord, output_degrees),
-        };
-      }),
+            return AbstractedOperatorAtomicTaskShardBinding{
+                /*tensor_corods=*/{
+                    {
+                        TensorSlotName::INPUT,
+                        input_coord,
+                    },
+                    {TensorSlotName::OUTPUT, output_coord},
+                },
+                /*task_coord=*/
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
+            };
+          }),
   };
 }
 
-ShardSignatureInstance
-    flat_get_shard_signature_instance(
-          FlatAttrs const &attrs,
-          ParallelTensorDimDegrees const &input_degrees)
-{
+ShardSignatureInstance flat_get_shard_signature_instance(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
   StandardOperatorTaskGroup op_task_group =
-    flat_get_task_group(attrs, input_degrees);
+      flat_get_task_group(attrs, input_degrees);
 
-  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
 }
 
-OperatorTaskSpace
-    flat_get_operator_task_space(FlatAttrs const &attrs,
-                            ParallelTensorDimDegrees const &input_degrees) {
+OperatorTaskSpace flat_get_operator_task_space(
+    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
 
   StandardOperatorTaskGroup op_task_group =
-    flat_get_task_group(attrs, input_degrees);
+      flat_get_task_group(attrs, input_degrees);
 
   return task_space_for_standard_operator_task_group(op_task_group);
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_input_mapping(
-    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
-{
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    flat_get_operator_to_input_mapping(
+        FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
   StandardOperatorTaskGroup op_task_group =
-    flat_get_task_group(attrs, input_degrees);
+      flat_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping flat_get_operator_to_output_mapping(
-    FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees)
-{
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    flat_get_operator_to_output_mapping(
+        FlatAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
   StandardOperatorTaskGroup op_task_group =
-    flat_get_task_group(attrs, input_degrees);
+      flat_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow

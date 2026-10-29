@@ -4,8 +4,8 @@
 #include "utils/full_binary_tree/full_binary_tree_implementation.dtg.h"
 #include "utils/graph/series_parallel/binary_sp_decomposition_tree/generic_binary_sp_decomposition_tree/generic_binary_sp_decomposition_tree_implementation.dtg.h"
 #include "utils/overload.h"
-#include <variant>
 #include <libassert/assert.hpp>
+#include <variant>
 
 namespace FlexFlow {
 
@@ -60,8 +60,8 @@ FullBinaryTreeImplementation<Tree, std::variant<Series, Parallel>, Leaf>
           case SPDecompositionTreeNodeType::PARALLEL:
             return Parent{impl.require_parallel(tree)};
           default:
-            PANIC(fmt::format(
-                "Unexpected SPDecompositionTreeNodeType: {}", node_type));
+            PANIC(fmt::format("Unexpected SPDecompositionTreeNodeType: {}",
+                              node_type));
         }
       }};
 

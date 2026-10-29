@@ -8,8 +8,10 @@
 namespace FlexFlow {
 
 template <typename K, typename V>
-std::tuple<V, V, V>
-    require_three_keys(std::map<K, V> const &m, K const &k1, K const &k2, K const &k3) {
+std::tuple<V, V, V> require_three_keys(std::map<K, V> const &m,
+                                       K const &k1,
+                                       K const &k2,
+                                       K const &k3) {
   ASSERT(k1 != k2);
   ASSERT(k1 != k3);
   ASSERT(k2 != k3);

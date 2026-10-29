@@ -1,12 +1,12 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_RESTRICT_KEYS_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_RESTRICT_KEYS_H
 
+#include "utils/binary_relation/binary_relation_is_biunique.h"
 #include "utils/containers/contains.h"
 #include <map>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
-#include "utils/binary_relation/binary_relation_is_biunique.h"
 
 namespace FlexFlow {
 

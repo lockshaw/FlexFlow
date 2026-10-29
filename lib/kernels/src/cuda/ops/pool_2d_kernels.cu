@@ -18,23 +18,24 @@
 
 namespace FlexFlow {
 
-Pool2DPerDeviceState pool2d_gpu_init_kernel(PerDeviceFFHandle handle,
-                                     std::optional<Activation> activation,
-                                     int input_w,
-                                     int input_h,
-                                     int input_c,
-                                     int input_n,
-                                     int output_w,
-                                     int output_h,
-                                     int output_c,
-                                     int output_n,
-                                     int pad_h,
-                                     int pad_w,
-                                     int kernel_h,
-                                     int kernel_w,
-                                     int stride_h,
-                                     int stride_w,
-                                     PoolOp pool_type) {
+Pool2DPerDeviceState
+    pool2d_gpu_init_kernel(PerDeviceFFHandle handle,
+                           std::optional<Activation> activation,
+                           int input_w,
+                           int input_h,
+                           int input_c,
+                           int input_n,
+                           int output_w,
+                           int output_h,
+                           int output_c,
+                           int output_n,
+                           int pad_h,
+                           int pad_w,
+                           int kernel_h,
+                           int kernel_w,
+                           int stride_h,
+                           int stride_w,
+                           PoolOp pool_type) {
   ffTensorDescriptor_t inputTensor;
   ffTensorDescriptor_t outputTensor;
   ffActivationDescriptor_t actiDesc;
@@ -96,9 +97,9 @@ Pool2DPerDeviceState pool2d_gpu_init_kernel(PerDeviceFFHandle handle,
 }
 
 void pool2d_gpu_forward_kernel(cudaStream_t stream,
-                        Pool2DPerDeviceState const &m,
-                        void const *input_ptr,
-                        void *output_ptr) {
+                               Pool2DPerDeviceState const &m,
+                               void const *input_ptr,
+                               void *output_ptr) {
 
   checkCUDNN(cudnnSetStream(m.handle.dnn, stream));
 
@@ -114,11 +115,11 @@ void pool2d_gpu_forward_kernel(cudaStream_t stream,
 }
 
 void pool2d_gpu_backward_kernel(cudaStream_t stream,
-                         Pool2DPerDeviceState const &m,
-                         void const *output_ptr,
-                         void const *output_grad_ptr,
-                         void const *input_ptr,
-                         void *input_grad_ptr) {
+                                Pool2DPerDeviceState const &m,
+                                void const *output_ptr,
+                                void const *output_grad_ptr,
+                                void const *input_ptr,
+                                void *input_grad_ptr) {
 
   checkCUDNN(cudnnSetStream(m.handle.dnn, stream));
 

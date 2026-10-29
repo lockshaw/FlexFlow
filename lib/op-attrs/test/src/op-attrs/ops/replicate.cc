@@ -26,7 +26,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    ParallelTensorShape result = replicate_get_output_parallel_shape(attrs, input);
+    ParallelTensorShape result =
+        replicate_get_output_parallel_shape(attrs, input);
 
     ParallelTensorShape correct_output = input;
     correct_output.dims.replica_dims.discard_copy_degree =

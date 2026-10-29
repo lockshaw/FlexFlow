@@ -10,8 +10,8 @@
 #include "utils/graph/digraph/algorithms/is_acyclic.h"
 #include "utils/graph/instances/adjacency_digraph.h"
 #include "utils/graph/series_parallel/digraph_generation.h"
-#include <libassert/assert.hpp>
 #include "utils/not_implemented.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

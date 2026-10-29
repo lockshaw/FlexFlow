@@ -18,12 +18,12 @@
 #include "utils/json/check_is_json_deserializable.h"
 #include "utils/json/check_is_json_serializable.h"
 #include "utils/nonempty_set/nonempty_set.h"
+#include "utils/not_implemented.h"
 #include <fmt/format.h>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <rapidcheck.h>
 #include <set>
-#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 
@@ -45,7 +45,6 @@ public:
   OneToMany(std::initializer_list<std::pair<L, std::initializer_list<R>>> const
                 &l_to_r)
       : OneToMany(l_to_r.begin(), l_to_r.end()) {}
-
 
   bool operator==(OneToMany const &other) const {
     return this->tie() == other.tie();

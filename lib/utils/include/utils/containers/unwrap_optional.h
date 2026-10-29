@@ -1,8 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_UNWRAP_OPTIONAL_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_UNWRAP_OPTIONAL_H
 
-#include <optional>
 #include "utils/type_traits_core.h"
+#include <optional>
 
 namespace FlexFlow {
 

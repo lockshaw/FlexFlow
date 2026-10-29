@@ -4,6 +4,7 @@
 #include "kernels/copy_tensor_accessor.h"
 #include "kernels/format_accessor_contents.h"
 #include "kernels/tensor_accessor_reductions.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/ops/element_unary.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_shape.dtg.h"
@@ -23,7 +24,6 @@
 #include "test/utils/doctest/check_kv.h"
 #include "utils/containers/require_only_key.h"
 #include <doctest/doctest.h>
-#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 
 namespace test {
 

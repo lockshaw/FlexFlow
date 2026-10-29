@@ -16,7 +16,7 @@ positive_int get_degree_of_replica_type(ReplicaParallelDimSet const &s,
       return s.discard_copy_degree.value;
     default:
       PANIC(fmt::format("Unexpected ReplicaType value: {}",
-                                         static_cast<int>(replica_type)));
+                        static_cast<int>(replica_type)));
   }
 }
 

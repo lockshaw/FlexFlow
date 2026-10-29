@@ -10,7 +10,6 @@ using C = std::vector<In>;
 using Out = ordered_value_type<1>;
 using F = std::function<std::optional<Out>(In const &)>;
 
-template
-  std::set<Out> set_filtrans(C const &, F &&);
+template std::set<Out> set_filtrans(C const &, F &&);
 
 } // namespace FlexFlow

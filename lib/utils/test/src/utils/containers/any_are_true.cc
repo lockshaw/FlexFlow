@@ -1,5 +1,5 @@
-#include <doctest/doctest.h>
 #include "utils/containers/any_are_true.h"
+#include <doctest/doctest.h>
 #include <vector>
 
 using namespace ::FlexFlow;

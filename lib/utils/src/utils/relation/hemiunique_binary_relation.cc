@@ -1,6 +1,6 @@
 #include "utils/relation/hemiunique_binary_relation.h"
-#include "utils/archetypes/ordered_value_type.h"
 #include "utils/archetypes/jsonable_ordered_value_type.h"
+#include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {
 
@@ -23,7 +23,7 @@ using R = ::FlexFlow::jsonable_ordered_value_type<1>;
 
 template struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>>;
 
-}
+} // namespace nlohmann
 
 namespace std {
 
@@ -32,4 +32,4 @@ using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::HemiuniqueBinaryRelation<L, R>>;
 
-}
+} // namespace std

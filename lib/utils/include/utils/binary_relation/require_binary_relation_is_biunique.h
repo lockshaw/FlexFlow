@@ -6,8 +6,8 @@
 namespace FlexFlow {
 
 template <typename L, typename R>
-bidict<L, R> require_binary_relation_is_biunique(BinaryRelation<L, R> const &rel)
-{
+bidict<L, R>
+    require_binary_relation_is_biunique(BinaryRelation<L, R> const &rel) {
   bidict<L, R> result;
   for (auto const &[l, r] : rel.unwrap_as_set()) {
     result.equate(l, r);

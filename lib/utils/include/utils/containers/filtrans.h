@@ -1,12 +1,12 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_FILTRANS_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_FILTRANS_H
 
+#include "utils/containers/unwrap_optional.h"
 #include "utils/type_traits_core.h"
 #include <optional>
 #include <set>
 #include <unordered_set>
 #include <vector>
-#include "utils/containers/unwrap_optional.h"
 
 namespace FlexFlow {
 

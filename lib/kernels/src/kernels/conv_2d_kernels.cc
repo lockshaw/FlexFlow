@@ -6,19 +6,19 @@ namespace FlexFlow {
 
 std::optional<Conv2DPerDeviceState>
     conv2d_init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                std::optional<Activation> activation,
-                int kernel_h,
-                int kernel_w,
-                int groups,
-                int padding_h,
-                int padding_w,
-                int stride_h,
-                int stride_w,
-                GenericTensorAccessorW const &input,
-                GenericTensorAccessorW const &output,
-                float const *filter_ptr,
-                float *filter_grad_ptr) {
+                       device_handle_t const &handle,
+                       std::optional<Activation> activation,
+                       int kernel_h,
+                       int kernel_w,
+                       int groups,
+                       int padding_h,
+                       int padding_w,
+                       int stride_h,
+                       int stride_w,
+                       GenericTensorAccessorW const &input,
+                       GenericTensorAccessorW const &output,
+                       float const *filter_ptr,
+                       float *filter_grad_ptr) {
   if (device_type == DeviceType::GPU) {
     return conv2d_gpu_init_kernel(
         /*handle=*/handle.require_for_gpu(),
@@ -41,13 +41,14 @@ std::optional<Conv2DPerDeviceState>
   }
 }
 
-void conv2d_forward_kernel(device_stream_t const &stream,
-                    std::optional<Conv2DPerDeviceState> const &per_device_state,
-                    Conv2DAttrs const &attrs,
-                    GenericTensorAccessorR const &input,
-                    GenericTensorAccessorW const &output,
-                    GenericTensorAccessorR const &filter,
-                    std::optional<GenericTensorAccessorR> const &bias) {
+void conv2d_forward_kernel(
+    device_stream_t const &stream,
+    std::optional<Conv2DPerDeviceState> const &per_device_state,
+    Conv2DAttrs const &attrs,
+    GenericTensorAccessorR const &input,
+    GenericTensorAccessorW const &output,
+    GenericTensorAccessorR const &filter,
+    std::optional<GenericTensorAccessorR> const &bias) {
   if (stream.is_gpu()) {
     conv2d_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),
@@ -56,11 +57,10 @@ void conv2d_forward_kernel(device_stream_t const &stream,
         /*output_ptr=*/output.get_float_ptr(),
         /*filter_ptr=*/filter.get_float_ptr(),
         /*bias=*/
-          transform(
-            bias,
-            [&](GenericTensorAccessorR const &t) -> float const * {
-              return t.get_float_ptr();
-            })
+        transform(bias,
+                  [&](GenericTensorAccessorR const &t) -> float const * {
+                    return t.get_float_ptr();
+                  })
             .value_or(nullptr),
         /*activation=*/attrs.activation);
   } else {
@@ -97,11 +97,10 @@ void conv2d_backward_kernel(
         /*filter_ptr=*/filter.get_float_ptr(),
         /*filter_grad_ptr=*/filter_grad.get_float_ptr(),
         /*bias_grad_ptr=*/
-          transform(
-            bias_grad,
-            [&](GenericTensorAccessorW const &t) -> float * {
-              return t.get_float_ptr();
-            })
+        transform(bias_grad,
+                  [&](GenericTensorAccessorW const &t) -> float * {
+                    return t.get_float_ptr();
+                  })
             .value_or(nullptr),
         /*activation=*/attrs.activation);
   } else {
@@ -119,8 +118,9 @@ void conv2d_backward_kernel(
   }
 }
 
-void conv2d_cleanup_kernel(DeviceType device_type,
-                    std::optional<Conv2DPerDeviceState> &per_device_state) {
+void conv2d_cleanup_kernel(
+    DeviceType device_type,
+    std::optional<Conv2DPerDeviceState> &per_device_state) {
   if (device_type == DeviceType::GPU) {
     conv2d_gpu_cleanup_kernel(per_device_state.value());
   } else {

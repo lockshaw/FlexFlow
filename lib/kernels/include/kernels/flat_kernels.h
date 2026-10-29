@@ -11,8 +11,8 @@ void flat_forward_kernel(device_stream_t const &stream,
                          GenericTensorAccessorW const &output);
 
 void flat_backward_kernel(device_stream_t const &stream,
-                     GenericTensorAccessorR const &output_grad,
-                     GenericTensorAccessorW const &input_grad);
+                          GenericTensorAccessorR const &output_grad,
+                          GenericTensorAccessorW const &input_grad);
 
 } // namespace FlexFlow
 

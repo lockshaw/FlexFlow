@@ -1,11 +1,11 @@
+#include "kernels/create_constant_filled_accessor_r.h"
+#include "kernels/create_random_filled_accessor.h"
 #include "kernels/layer_norm_kernels_gpu.h"
+#include "kernels/local_cuda_allocator.h"
+#include "kernels/managed_ff_stream.h"
+#include "kernels/managed_per_device_ff_handle.h"
 #include "op-attrs/datatype_value.h"
 #include <doctest/doctest.h>
-#include "kernels/managed_per_device_ff_handle.h"
-#include "kernels/managed_ff_stream.h"
-#include "kernels/create_random_filled_accessor.h"
-#include "kernels/local_cuda_allocator.h"
-#include "kernels/create_constant_filled_accessor_r.h"
 
 using namespace ::FlexFlow;
 
@@ -33,13 +33,13 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
 
     Allocator allocator = create_local_cuda_memory_allocator();
 
-    LayerNormPerDeviceState state = layer_norm_gpu_init_kernel(
-        managed_handle.raw_handle(),
-        allocator,
-        elementwise_affine,
-        batch_size.int_from_positive_int(),
-        feature_size.int_from_positive_int(),
-        epsilon);
+    LayerNormPerDeviceState state =
+        layer_norm_gpu_init_kernel(managed_handle.raw_handle(),
+                                   allocator,
+                                   elementwise_affine,
+                                   batch_size.int_from_positive_int(),
+                                   feature_size.int_from_positive_int(),
+                                   epsilon);
 
     GenericTensorAccessorR input_accessor =
         create_random_filled_accessor_r(input_shape, allocator);
@@ -53,11 +53,11 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           feature_shape, allocator, make_float_data_type_value(0));
 
       layer_norm_gpu_forward_kernel(managed_stream.raw_stream(),
-                                             state,
-                                             input_accessor,
-                                             output_accessor,
-                                             gamma_accessor,
-                                             beta_accessor);
+                                    state,
+                                    input_accessor,
+                                    output_accessor,
+                                    gamma_accessor,
+                                    beta_accessor);
     }
 
     SUBCASE("gpu_backward_kernel") {

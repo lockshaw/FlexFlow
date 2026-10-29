@@ -15,10 +15,10 @@
 
 #include "task-spec/ops/impl/split.h"
 #include "kernels/split_kernels.h"
+#include "op-attrs/ops/split.h"
 #include "task-spec/profiling.h"
 #include "utils/hash-utils.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
-#include "op-attrs/ops/split.h"
 
 namespace FlexFlow {
 
@@ -28,13 +28,14 @@ static std::optional<milliseconds_t>
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   SplitAttrs attrs = acc.get_op_attrs().require_split();
 
-  GenericTensorAccessorR input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
 
-  std::vector<GenericTensorAccessorW> outputs = transform(
-    split_get_output_slot_names(attrs),
-    [&](TensorSlotName slot_name) -> GenericTensorAccessorW {
-      return acc.get_tensor<Permissions::WO>(slot_name);
-    });
+  std::vector<GenericTensorAccessorW> outputs =
+      transform(split_get_output_slot_names(attrs),
+                [&](TensorSlotName slot_name) -> GenericTensorAccessorW {
+                  return acc.get_tensor<Permissions::WO>(slot_name);
+                });
 
   return profile(split_forward_kernel,
                  profiling,
@@ -51,13 +52,14 @@ static std::optional<milliseconds_t>
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   SplitAttrs attrs = acc.get_op_attrs().require_split();
 
-  GenericTensorAccessorW input_grad = acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
+  GenericTensorAccessorW input_grad =
+      acc.get_tensor_grad<Permissions::RW>(TensorSlotName::INPUT);
 
-  std::vector<GenericTensorAccessorR> output_grads = transform(
-    split_get_output_slot_names(attrs),
-    [&](TensorSlotName slot_name) -> GenericTensorAccessorR {
-      return acc.get_tensor_grad<Permissions::RO>(slot_name);
-    });
+  std::vector<GenericTensorAccessorR> output_grads =
+      transform(split_get_output_slot_names(attrs),
+                [&](TensorSlotName slot_name) -> GenericTensorAccessorR {
+                  return acc.get_tensor_grad<Permissions::RO>(slot_name);
+                });
 
   return profile(split_backward_kernel,
                  profiling,

@@ -38,8 +38,8 @@ ReturnType
       return result;
     }
     default:
-      PANIC(fmt::format(
-          "Unknown SPDecompositionTreeNodeType value: {}", node_type));
+      PANIC(fmt::format("Unknown SPDecompositionTreeNodeType value: {}",
+                        node_type));
   }
 }
 

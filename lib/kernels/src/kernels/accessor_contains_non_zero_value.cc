@@ -1,7 +1,7 @@
 #include "kernels/accessor_contains_non_zero_value.h"
-#include "kernels/local_cpu_allocator.h"
-#include "kernels/datatype_dispatch.h"
 #include "kernels/copy_tensor_accessor.h"
+#include "kernels/datatype_dispatch.h"
+#include "kernels/local_cpu_allocator.h"
 
 namespace FlexFlow {
 

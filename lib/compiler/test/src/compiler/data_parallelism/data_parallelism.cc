@@ -1,18 +1,18 @@
 #include "compiler/data_parallelism/data_parallelism.h"
 #include "compiler/search_result.h"
+#include "models/bert/bert.h"
+#include "models/candle_uno/candle_uno.h"
+#include "models/dlrm/dlrm.h"
+#include "models/inception_v3/inception_v3.h"
+#include "models/split_test/split_test.h"
+#include "models/transformer/transformer.h"
+#include "models/yolov10/yolov10.h"
 #include "op-attrs/initializer_attrs.h"
 #include "pcg/computation_graph_builder.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/explicit_parallel_computation_graph_builder.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph_builder.h"
 #include <doctest/doctest.h>
-#include "models/split_test/split_test.h"
-#include "models/transformer/transformer.h"
-#include "models/inception_v3/inception_v3.h"
-#include "models/candle_uno/candle_uno.h"
-#include "models/bert/bert.h"
-#include "models/dlrm/dlrm.h"
-#include "models/yolov10/yolov10.h"
 
 using namespace ::FlexFlow;
 
@@ -193,8 +193,8 @@ TEST_SUITE(FF_TEST_SUITE) {
           },
       };
 
-      std::map<parallel_layer_guid_t, MappedOperatorTaskGroup>
-          correct_mapping = {
+      std::map<parallel_layer_guid_t, MappedOperatorTaskGroup> correct_mapping =
+          {
               {
                   l_input1,
                   input_mapping,
@@ -337,13 +337,14 @@ TEST_SUITE(FF_TEST_SUITE) {
           /*num_cpus_per_node=*/1_p,
           /*num_gpus_per_node=*/2_p,
       };
-      
+
       SUBCASE("split test") {
         ComputationGraph cg =
             get_split_test_computation_graph(/*batch_size=*/8_p);
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }
@@ -352,9 +353,10 @@ TEST_SUITE(FF_TEST_SUITE) {
         ComputationGraph cg =
             get_transformer_computation_graph(get_default_transformer_config());
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
-        
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
+
         // currently just check that it doesn't crash
       }
 
@@ -362,8 +364,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         ComputationGraph cg = get_inception_v3_computation_graph(
             get_default_inception_v3_training_config());
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }
@@ -372,8 +375,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         ComputationGraph cg =
             get_candle_uno_computation_graph(get_default_candle_uno_config());
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }
@@ -382,8 +386,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         ComputationGraph cg =
             get_bert_computation_graph(get_default_bert_config());
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }
@@ -392,8 +397,9 @@ TEST_SUITE(FF_TEST_SUITE) {
         ComputationGraph cg =
             get_dlrm_computation_graph(get_default_dlrm_config());
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }
@@ -403,8 +409,9 @@ TEST_SUITE(FF_TEST_SUITE) {
             /*batch_size=*/8_p,
             /*end2end=*/false));
 
-        MappedParallelComputationGraph result = get_mapped_pcg_from_search_result(
-            apply_data_parallelism(cg, degree), machine_spec);
+        MappedParallelComputationGraph result =
+            get_mapped_pcg_from_search_result(
+                apply_data_parallelism(cg, degree), machine_spec);
 
         // currently just check that it doesn't crash
       }

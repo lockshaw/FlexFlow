@@ -4,9 +4,7 @@
 namespace FlexFlow {
 
 template <typename T, typename F>
-void transform_ref(T &r,
-                   F &&f)
-{
+void transform_ref(T &r, F &&f) {
   r = f(r);
 }
 

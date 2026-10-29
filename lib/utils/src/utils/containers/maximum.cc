@@ -1,6 +1,6 @@
 #include "utils/containers/maximum.h"
-#include "utils/fmt/vector.h"
 #include "utils/fmt/set.h"
+#include "utils/fmt/vector.h"
 
 namespace FlexFlow {
 

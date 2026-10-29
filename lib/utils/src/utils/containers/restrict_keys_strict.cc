@@ -7,7 +7,7 @@ namespace FlexFlow {
 using K = ordered_value_type<0>;
 using V = value_type<0>;
 
-template
-  std::map<K, V> restrict_keys_strict(std::map<K, V> const &, std::set<K> const &);
+template std::map<K, V> restrict_keys_strict(std::map<K, V> const &,
+                                             std::set<K> const &);
 
 } // namespace FlexFlow

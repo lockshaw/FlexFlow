@@ -10,8 +10,8 @@
 #include "op-attrs/parallel_tensor_shape.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/computation_graph_builder.h"
-#include <doctest/doctest.h>
 #include "utils/exception.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -152,19 +152,19 @@ TEST_SUITE(FF_CUDA_TEST_SUITE) {
           DataType::FLOAT,
       });
 
-      ParallelTensorShape weights_shape =
-          attention_get_weights_parallel_shape(attrs, inputs_shape, inputs_shape, inputs_shape);
+      ParallelTensorShape weights_shape = attention_get_weights_parallel_shape(
+          attrs, inputs_shape, inputs_shape, inputs_shape);
 
-      ParallelTensorShape output_shape =
-          attention_get_output_parallel_shape(attrs, inputs_shape, inputs_shape, inputs_shape);
+      ParallelTensorShape output_shape = attention_get_output_parallel_shape(
+          attrs, inputs_shape, inputs_shape, inputs_shape);
 
       OpCostEstimateKey op_cost_estimate_key = OpCostEstimateKey{
           /*op_attrs=*/PCGOperatorAttrs{attrs},
           /*input_shapes=*/
           {
-            {TensorSlotName::QUERY, inputs_shape},
-            {TensorSlotName::KEY, inputs_shape},
-            {TensorSlotName::VALUE, inputs_shape},
+              {TensorSlotName::QUERY, inputs_shape},
+              {TensorSlotName::KEY, inputs_shape},
+              {TensorSlotName::VALUE, inputs_shape},
           },
           /*weight_shapes=*/{{TensorSlotName::WEIGHT, weights_shape}},
           /*output_shapes=*/{{TensorSlotName::OUTPUT, output_shape}},

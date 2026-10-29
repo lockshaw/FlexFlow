@@ -7,21 +7,23 @@
 
 namespace FlexFlow {
 
-ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(ParallelOpAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape) {
+ParallelTensorShape parallel_op_attrs_get_output_parallel_shape(
+    ParallelOpAttrs const &attrs, ParallelTensorShape const &input_shape) {
   return attrs.visit<ParallelTensorShape>(overload{
       [&](CombineAttrs const &combine_attrs) {
         return combine_get_output_parallel_shape(combine_attrs, input_shape);
       },
       [&](ReductionAttrs const &reduction_attrs) {
-        return reduction_get_output_parallel_shape(reduction_attrs, input_shape);
+        return reduction_get_output_parallel_shape(reduction_attrs,
+                                                   input_shape);
       },
       [&](RepartitionAttrs const &repartition_attrs) {
         return repartition_get_output_parallel_shape(repartition_attrs,
                                                      input_shape);
       },
       [&](ReplicateAttrs const &replicate_attrs) {
-        return replicate_get_output_parallel_shape(replicate_attrs, input_shape);
+        return replicate_get_output_parallel_shape(replicate_attrs,
+                                                   input_shape);
       },
   });
 }
@@ -33,8 +35,7 @@ PCGOperatorAttrs
 }
 
 std::optional<ParallelOpAttrs>
-    parallel_op_attrs_from_pcg_op_attrs(PCGOperatorAttrs const &op)
-{
+    parallel_op_attrs_from_pcg_op_attrs(PCGOperatorAttrs const &op) {
   return op.visit<std::optional<ParallelOpAttrs>>(overload{
       [&](CombineAttrs const &attrs) { return ParallelOpAttrs{attrs}; },
       [&](ReductionAttrs const &attrs) { return ParallelOpAttrs{attrs}; },

@@ -1,6 +1,6 @@
 #include "utils/positive_int/positive_int.h"
-#include <libassert/assert.hpp>
 #include "utils/integer_conversions.h"
+#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 

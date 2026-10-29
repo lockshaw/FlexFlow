@@ -1,8 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GET_ELEMENT_TYPE_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GET_ELEMENT_TYPE_H
 
-#include <optional>
 #include "utils/remove_cvref.h"
+#include <optional>
 
 namespace FlexFlow {
 

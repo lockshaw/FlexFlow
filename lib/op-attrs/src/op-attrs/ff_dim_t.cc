@@ -22,21 +22,15 @@ std::vector<ff_dim_t> ff_dim_range(nonnegative_int num_elements) {
 std::vector<ff_dim_t> ff_dim_range2_inclusive(ff_dim_t start, ff_dim_t stop) {
   ASSERT(start.value <= stop.value);
 
-  return transform(
-    nonnegative_range_inclusive(start.value, stop.value),
-    [&](nonnegative_int i) -> ff_dim_t {
-      return ff_dim_t{i};
-    });
+  return transform(nonnegative_range_inclusive(start.value, stop.value),
+                   [&](nonnegative_int i) -> ff_dim_t { return ff_dim_t{i}; });
 }
 
 std::vector<ff_dim_t> ff_dim_range2_exclusive(ff_dim_t start, ff_dim_t stop) {
   ASSERT(start.value <= stop.value);
 
-  return transform(
-    nonnegative_range(start.value, stop.value),
-    [&](nonnegative_int i) -> ff_dim_t {
-      return ff_dim_t{i};
-    });
+  return transform(nonnegative_range(start.value, stop.value),
+                   [&](nonnegative_int i) -> ff_dim_t { return ff_dim_t{i}; });
 }
 
 } // namespace FlexFlow

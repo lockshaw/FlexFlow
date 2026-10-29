@@ -21,8 +21,8 @@ typename C::value_type maximum(C const &c) {
 template <typename T>
 T maximum(std::set<T> const &ts) {
   if (ts.empty()) {
-    PANIC(
-        fmt::format("maximum expected non-empty container but received {}", ts));
+    PANIC(fmt::format("maximum expected non-empty container but received {}",
+                      ts));
   }
 
   auto it = ts.cend();

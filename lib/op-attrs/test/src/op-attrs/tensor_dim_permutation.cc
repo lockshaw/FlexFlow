@@ -6,8 +6,8 @@ using namespace ::FlexFlow;
 
 static std::pair<ff_dim_t, ff_dim_t> map_dim(int src, int dst) {
   return std::pair{
-    ff_dim_t{nonnegative_int{src}},
-    ff_dim_t{nonnegative_int{dst}},
+      ff_dim_t{nonnegative_int{src}},
+      ff_dim_t{nonnegative_int{dst}},
   };
 }
 
@@ -88,11 +88,7 @@ TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("permute_tensor_dims") {
     TensorDimPermutation p = TensorDimPermutation{
         bidict<ff_dim_t, ff_dim_t>{
-          map_dim(0, 3),
-          map_dim(1, 1),
-          map_dim(2, 0),
-          map_dim(3, 2)
-        },
+            map_dim(0, 3), map_dim(1, 1), map_dim(2, 0), map_dim(3, 2)},
     };
 
     TensorDims input_dims = TensorDims{

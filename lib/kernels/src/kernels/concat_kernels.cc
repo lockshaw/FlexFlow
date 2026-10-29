@@ -17,16 +17,17 @@ void concat_forward_kernel(device_stream_t const &stream,
   } else {
     ASSERT(stream.is_cpu());
     concat_cpu_forward_kernel(
-      /*output=*/output,
-      /*inputs=*/inputs,
-      /*axis=*/axis);
+        /*output=*/output,
+        /*inputs=*/inputs,
+        /*axis=*/axis);
   }
 }
 
-void concat_backward_kernel(device_stream_t const &stream,
-                            GenericTensorAccessorR const &output_grad,
-                            std::vector<GenericTensorAccessorW> const &input_grads,
-                            ff_dim_t axis) {
+void concat_backward_kernel(
+    device_stream_t const &stream,
+    GenericTensorAccessorR const &output_grad,
+    std::vector<GenericTensorAccessorW> const &input_grads,
+    ff_dim_t axis) {
   if (stream.is_gpu()) {
     concat_gpu_backward_kernel(
         /*stream=*/stream.require_gpu(),

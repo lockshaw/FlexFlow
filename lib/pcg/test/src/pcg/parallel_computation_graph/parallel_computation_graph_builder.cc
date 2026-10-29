@@ -233,8 +233,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         conv2d_get_output_parallel_shape(correct_attrs, par_input_shape);
     ParallelTensorShape correct_kernel_shape =
         conv2d_get_kernel_parallel_shape(correct_attrs, par_input_shape);
-    ParallelTensorShape correct_bias_shape =
-        assert_unwrap(conv2d_get_bias_parallel_shape(correct_attrs, par_input_shape));
+    ParallelTensorShape correct_bias_shape = assert_unwrap(
+        conv2d_get_bias_parallel_shape(correct_attrs, par_input_shape));
 
     std::map<TensorSlotName, parallel_tensor_guid_t> conv_incoming =
         get_incoming_tensors(b.pcg, conv_guid);

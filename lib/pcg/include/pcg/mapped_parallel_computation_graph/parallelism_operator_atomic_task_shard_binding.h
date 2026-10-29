@@ -7,8 +7,8 @@
 namespace FlexFlow {
 
 OperatorAtomicTaskShardBinding
-  operator_atomic_task_shard_binding_from_parallelism_op_binding(
-    ParallelismOperatorAtomicTaskShardBinding const &);
+    operator_atomic_task_shard_binding_from_parallelism_op_binding(
+        ParallelismOperatorAtomicTaskShardBinding const &);
 
 } // namespace FlexFlow
 

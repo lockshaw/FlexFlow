@@ -13,27 +13,28 @@ namespace FlexFlow {
 
 std::optional<Conv2DPerDeviceState>
     conv2d_init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                std::optional<Activation> activation,
-                int kernel_h,
-                int kernel_w,
-                int groups,
-                int padding_h,
-                int padding_w,
-                int stride_h,
-                int stride_w,
-                GenericTensorAccessorW const &input,
-                GenericTensorAccessorW const &output,
-                float const *filter_ptr,
-                float *filter_grad_ptr);
+                       device_handle_t const &handle,
+                       std::optional<Activation> activation,
+                       int kernel_h,
+                       int kernel_w,
+                       int groups,
+                       int padding_h,
+                       int padding_w,
+                       int stride_h,
+                       int stride_w,
+                       GenericTensorAccessorW const &input,
+                       GenericTensorAccessorW const &output,
+                       float const *filter_ptr,
+                       float *filter_grad_ptr);
 
-void conv2d_forward_kernel(device_stream_t const &stream,
-                    std::optional<Conv2DPerDeviceState> const &per_device_state,
-                    Conv2DAttrs const &attrs,
-                    GenericTensorAccessorR const &input,
-                    GenericTensorAccessorW const &output,
-                    GenericTensorAccessorR const &filter,
-                    std::optional<GenericTensorAccessorR> const &bias);
+void conv2d_forward_kernel(
+    device_stream_t const &stream,
+    std::optional<Conv2DPerDeviceState> const &per_device_state,
+    Conv2DAttrs const &attrs,
+    GenericTensorAccessorR const &input,
+    GenericTensorAccessorW const &output,
+    GenericTensorAccessorR const &filter,
+    std::optional<GenericTensorAccessorR> const &bias);
 
 void conv2d_backward_kernel(
     device_stream_t const &stream,
@@ -48,8 +49,9 @@ void conv2d_backward_kernel(
     std::optional<GenericTensorAccessorR> const &bias,
     std::optional<GenericTensorAccessorW> const &bias_grad);
 
-void conv2d_cleanup_kernel(DeviceType device_type,
-                           std::optional<Conv2DPerDeviceState> &per_device_state);
+void conv2d_cleanup_kernel(
+    DeviceType device_type,
+    std::optional<Conv2DPerDeviceState> &per_device_state);
 
 } // namespace FlexFlow
 

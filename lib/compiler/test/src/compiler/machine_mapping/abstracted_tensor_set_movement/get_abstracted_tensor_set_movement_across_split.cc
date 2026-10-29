@@ -60,7 +60,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     parallel_tensor_guid_t t_layer_1 =
         require_only_key(layer_1.outputs, TensorSlotName::OUTPUT);
 
-    SUBCASE("communications are biunique (i.e., no parallel operators are involved)") {
+    SUBCASE("communications are biunique (i.e., no parallel operators are "
+            "involved)") {
       ParallelLayerAddedResult layer_2 = add_parallel_layer(
           pcg, relu_attrs, {{TensorSlotName::INPUT, t_layer_1}}, {});
 
@@ -80,9 +81,9 @@ TEST_SUITE(FF_TEST_SUITE) {
       num_bytes_t shard_size =
           get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_1));
 
-      auto mk_single_tensor_communication =
-          [&](nonnegative_int src_coord,
-              nonnegative_int dst_coord) -> AbstractedSingleTensorCommunication {
+      auto mk_single_tensor_communication = [&](nonnegative_int src_coord,
+                                                nonnegative_int dst_coord)
+          -> AbstractedSingleTensorCommunication {
         return AbstractedSingleTensorCommunication{
             /*edge=*/AbstractedSingleTensorCommunicationEdge{
                 /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
@@ -110,13 +111,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("communications are left-unique") {
       ParallelLayerAttrs repartition_attrs_2 = ParallelLayerAttrs{
-        /*op_attrs=*/PCGOperatorAttrs{
-            RepartitionAttrs{
-                /*repartition_dim=*/ff_dim_t{1_n},
-                /*repartition_degree=*/3_ge2,
-            },
-        },
-        /*name=*/std::nullopt,
+          /*op_attrs=*/PCGOperatorAttrs{
+              RepartitionAttrs{
+                  /*repartition_dim=*/ff_dim_t{1_n},
+                  /*repartition_degree=*/3_ge2,
+              },
+          },
+          /*name=*/std::nullopt,
       };
 
       ParallelLayerAddedResult layer_2 = add_parallel_layer(
@@ -138,10 +139,10 @@ TEST_SUITE(FF_TEST_SUITE) {
       num_bytes_t shard_size =
           get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_1));
 
-      auto mk_single_tensor_communication =
-          [&](nonnegative_int src_coord,
-              nonnegative_int dst_coord1,
-              nonnegative_int dst_coord2) -> AbstractedSingleTensorCommunication {
+      auto mk_single_tensor_communication = [&](nonnegative_int src_coord,
+                                                nonnegative_int dst_coord1,
+                                                nonnegative_int dst_coord2)
+          -> AbstractedSingleTensorCommunication {
         return AbstractedSingleTensorCommunication{
             /*edge=*/AbstractedSingleTensorCommunicationEdge{
                 /*src_coord=*/TaskSpaceCoordinate{OrthotopeCoord{{src_coord}}},
@@ -150,9 +151,9 @@ TEST_SUITE(FF_TEST_SUITE) {
                     /*operator_tree_path=*/dst_path,
                     /*task_space_coordinate=*/
                     TaskSpaceCoordinate{
-                      OrthotopeCoord{
-                        {dst_coord1, dst_coord2},
-                      },
+                        OrthotopeCoord{
+                            {dst_coord1, dst_coord2},
+                        },
                     },
                 },
             },
@@ -177,13 +178,13 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     SUBCASE("communications are right-unique") {
       ParallelLayerAttrs combine_attrs = ParallelLayerAttrs{
-        /*op_attrs=*/PCGOperatorAttrs{
-            CombineAttrs{
-                /*combine_dim=*/ff_dim_t{0_n},
-                /*combine_degree=*/2_ge2,
-            },
-        },
-        /*name=*/std::nullopt,
+          /*op_attrs=*/PCGOperatorAttrs{
+              CombineAttrs{
+                  /*combine_dim=*/ff_dim_t{0_n},
+                  /*combine_degree=*/2_ge2,
+              },
+          },
+          /*name=*/std::nullopt,
       };
 
       ParallelLayerAddedResult layer_2 = add_parallel_layer(
@@ -215,26 +216,24 @@ TEST_SUITE(FF_TEST_SUITE) {
       num_bytes_t shard_size =
           get_piece_size_in_bytes(get_parallel_tensor_shape(pcg, t_layer_3));
 
-      auto mk_single_tensor_communication =
-          [&](nonnegative_int src_coord,
-              nonnegative_int dst_coord) 
-          -> AbstractedSingleTensorCommunication 
-      {
+      auto mk_single_tensor_communication = [&](nonnegative_int src_coord,
+                                                nonnegative_int dst_coord)
+          -> AbstractedSingleTensorCommunication {
         return AbstractedSingleTensorCommunication{
             /*edge=*/AbstractedSingleTensorCommunicationEdge{
                 /*src_coord=*/TaskSpaceCoordinate{
-                  OrthotopeCoord{
-                    {src_coord},
-                  },
+                    OrthotopeCoord{
+                        {src_coord},
+                    },
                 },
                 /*dst=*/
                 AbstractedDevice{
                     /*operator_tree_path=*/dst_path,
                     /*task_space_coordinate=*/
                     TaskSpaceCoordinate{
-                      OrthotopeCoord{
-                        {dst_coord},
-                      },
+                        OrthotopeCoord{
+                            {dst_coord},
+                        },
                     },
                 },
             },

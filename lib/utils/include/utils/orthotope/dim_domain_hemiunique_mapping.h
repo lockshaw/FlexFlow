@@ -13,16 +13,16 @@
 #include "utils/orthotope/dim_coord.dtg.h"
 #include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/dim_domain.dtg.h"
+#include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/dim_domain_biunique_mapping.h"
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
 #include "utils/relation/hemiunique_binary_relation.h"
-#include "utils/relation/uniqueness.dtg.h"
-#include "utils/orthotope/dim_domain.h"
-#include "utils/relation/hemiunique_binrel_transform_r.h"
 #include "utils/relation/hemiunique_binrel_transform_l.h"
+#include "utils/relation/hemiunique_binrel_transform_r.h"
+#include "utils/relation/uniqueness.dtg.h"
 
 namespace FlexFlow {
 
@@ -148,36 +148,32 @@ DimDomainHemiuniqueMapping<L, R> hemiunique_from_biunique_dim_domain_mapping(
 }
 
 template <typename L, typename R>
-DimDomainHemiuniqueMapping<L, R>
-  dim_domain_hemiunique_mapping_lift_left_domain(
-    DimDomainHemiuniqueMapping<L, R> const &m,
-    std::set<L> const &target_dims)
-{
+DimDomainHemiuniqueMapping<L, R> dim_domain_hemiunique_mapping_lift_left_domain(
+    DimDomainHemiuniqueMapping<L, R> const &m, std::set<L> const &target_dims) {
   return DimDomainHemiuniqueMapping<L, R>{
-    /*coord_mapping=*/hemiunique_binrel_transform_l(
-      m.coord_mapping,
-      [&](DimCoord<L> const &coord) -> DimCoord<L> {
-        return lift_dim_coord(coord, target_dims);
-      }),
-    /*l_domain=*/lift_domain_to_dims(m.l_domain, target_dims),
-    /*r_domain=*/m.r_domain,
+      /*coord_mapping=*/hemiunique_binrel_transform_l(
+          m.coord_mapping,
+          [&](DimCoord<L> const &coord) -> DimCoord<L> {
+            return lift_dim_coord(coord, target_dims);
+          }),
+      /*l_domain=*/lift_domain_to_dims(m.l_domain, target_dims),
+      /*r_domain=*/m.r_domain,
   };
 }
 
 template <typename L, typename R>
 DimDomainHemiuniqueMapping<L, R>
-  dim_domain_hemiunique_mapping_lift_right_domain(
-    DimDomainHemiuniqueMapping<L, R> const &m,
-    std::set<R> const &target_dims)
-{
+    dim_domain_hemiunique_mapping_lift_right_domain(
+        DimDomainHemiuniqueMapping<L, R> const &m,
+        std::set<R> const &target_dims) {
   return DimDomainHemiuniqueMapping<L, R>{
-    /*coord_mapping=*/hemiunique_binrel_transform_r(
-      m.coord_mapping,
-      [&](DimCoord<R> const &coord) -> DimCoord<R> {
-        return lift_dim_coord(coord, target_dims);
-      }),
-    /*l_domain=*/m.l_domain,
-    /*r_domain=*/lift_domain_to_dims(m.r_domain, target_dims),
+      /*coord_mapping=*/hemiunique_binrel_transform_r(
+          m.coord_mapping,
+          [&](DimCoord<R> const &coord) -> DimCoord<R> {
+            return lift_dim_coord(coord, target_dims);
+          }),
+      /*l_domain=*/m.l_domain,
+      /*r_domain=*/lift_domain_to_dims(m.r_domain, target_dims),
   };
 }
 
@@ -306,13 +302,11 @@ DimDomainHemiuniqueMapping<L, R>
                   }));
   }();
 
-  std::set<L> nondiffering_l_dims =
-      set_minus(input_dims_of_eq_projection(eq_proj),
-                std::set{differing_l_dim});
+  std::set<L> nondiffering_l_dims = set_minus(
+      input_dims_of_eq_projection(eq_proj), std::set{differing_l_dim});
 
-  std::set<R> nondiffering_r_dims =
-      set_minus(output_dims_of_eq_projection(eq_proj),
-                std::set{differing_r_dim});
+  std::set<R> nondiffering_r_dims = set_minus(
+      output_dims_of_eq_projection(eq_proj), std::set{differing_r_dim});
 
   DimDomainBiuniqueMapping<L, R> mapping_without_differing =
       dim_domain_biunique_mapping_from_projection(
@@ -411,15 +405,12 @@ struct adl_serializer<::FlexFlow::DimDomainHemiuniqueMapping<L, R>> {
 
   static ::FlexFlow::DimDomainHemiuniqueMapping<L, R> from_json(json const &j) {
     return ::FlexFlow::DimDomainHemiuniqueMapping<L, R>{
-      /*coord_mapping=*/j.at("coord_mapping")
-        .template get<
-          ::FlexFlow::HemiuniqueBinaryRelation<
-            ::FlexFlow::DimCoord<L>,
-            ::FlexFlow::DimCoord<R>
-          >
-        >(),
-      /*l_domain=*/j.at("l_domain").template get<::FlexFlow::DimDomain<L>>(),
-      /*r_domain=*/j.at("r_domain").template get<::FlexFlow::DimDomain<R>>(),
+        /*coord_mapping=*/j.at("coord_mapping")
+            .template get<::FlexFlow::HemiuniqueBinaryRelation<
+                ::FlexFlow::DimCoord<L>,
+                ::FlexFlow::DimCoord<R>>>(),
+        /*l_domain=*/j.at("l_domain").template get<::FlexFlow::DimDomain<L>>(),
+        /*r_domain=*/j.at("r_domain").template get<::FlexFlow::DimDomain<R>>(),
     };
   }
 };

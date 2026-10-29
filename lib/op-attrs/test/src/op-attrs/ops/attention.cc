@@ -6,51 +6,45 @@
 
 using namespace ::FlexFlow;
 
-static ParallelTensorDimDegrees
-  mk_1d_dim_degrees(int sum_degree,
-                    int discard_copy_degree,
-                    int inner_degree)
-{
+static ParallelTensorDimDegrees mk_1d_dim_degrees(int sum_degree,
+                                                  int discard_copy_degree,
+                                                  int inner_degree) {
   return ParallelTensorDimDegrees{
-    SumDegree{positive_int{sum_degree}},
-    DiscardCopyDegree{positive_int{discard_copy_degree}},
-    FFOrdered<positive_int>{
-      positive_int{inner_degree},
-    },
+      SumDegree{positive_int{sum_degree}},
+      DiscardCopyDegree{positive_int{discard_copy_degree}},
+      FFOrdered<positive_int>{
+          positive_int{inner_degree},
+      },
   };
 }
 
-static ParallelTensorDimDegrees
-       mk_2d_dim_degrees(int sum_degree,
-                         int discard_copy_degree,
-                         int embedding_dim_degree,
-                         int head_dim_degree)
-{
+static ParallelTensorDimDegrees mk_2d_dim_degrees(int sum_degree,
+                                                  int discard_copy_degree,
+                                                  int embedding_dim_degree,
+                                                  int head_dim_degree) {
   return ParallelTensorDimDegrees{
-    SumDegree{positive_int{sum_degree}},
-    DiscardCopyDegree{positive_int{discard_copy_degree}},
-    FFOrdered<positive_int>{
-      positive_int{embedding_dim_degree},
-      positive_int{head_dim_degree},
-    },
+      SumDegree{positive_int{sum_degree}},
+      DiscardCopyDegree{positive_int{discard_copy_degree}},
+      FFOrdered<positive_int>{
+          positive_int{embedding_dim_degree},
+          positive_int{head_dim_degree},
+      },
   };
 }
 
-static ParallelTensorDimDegrees
-       mk_3d_dim_degrees(int sum_degree,
-                         int discard_copy_degree,
-                         int batch_degree,
-                         int sequence_degree,
-                         int inner_degree)
-{
+static ParallelTensorDimDegrees mk_3d_dim_degrees(int sum_degree,
+                                                  int discard_copy_degree,
+                                                  int batch_degree,
+                                                  int sequence_degree,
+                                                  int inner_degree) {
   return ParallelTensorDimDegrees{
-    SumDegree{positive_int{sum_degree}},
-    DiscardCopyDegree{positive_int{discard_copy_degree}},
-    FFOrdered<positive_int>{
-      positive_int{batch_degree},
-      positive_int{sequence_degree},
-      positive_int{inner_degree},
-    },
+      SumDegree{positive_int{sum_degree}},
+      DiscardCopyDegree{positive_int{discard_copy_degree}},
+      FFOrdered<positive_int>{
+          positive_int{batch_degree},
+          positive_int{sequence_degree},
+          positive_int{inner_degree},
+      },
   };
 }
 
@@ -134,7 +128,6 @@ TEST_SUITE(FF_TEST_SUITE) {
     }
   }
 
-
   TEST_CASE("attention_get_weights_shape") {
     MultiHeadAttentionAttrs attrs = MultiHeadAttentionAttrs{
         /*embed_dim=*/32_p,
@@ -164,8 +157,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape result =
         attention_get_weights_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct =
-      TensorShape{
+    TensorShape correct = TensorShape{
         TensorDims{
             FFOrdered{
                 (32_p * 36_p) * 3_p + (32_p * 32_p),
@@ -173,7 +165,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
         },
         DataType::FLOAT,
-      };
+    };
 
     CHECK(result == correct);
   }
@@ -207,8 +199,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape result =
         attention_get_input_bias_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct =
-      TensorShape{
+    TensorShape correct = TensorShape{
         TensorDims{
             FFOrdered{
                 32_p * 3_p,
@@ -249,8 +240,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     TensorShape result =
         attention_get_output_bias_shape(attrs, input_q, input_k, input_v);
 
-    TensorShape correct =
-      TensorShape{
+    TensorShape correct = TensorShape{
         TensorDims{
             FFOrdered{
                 32_p,
@@ -396,7 +386,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelTensorDimDegrees result =
           attention_get_input_bias_parallel_dim_degrees(attrs, q, k, v);
-      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2 * 4, 1);
 
       CHECK(result == correct);
     }
@@ -445,7 +435,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelTensorDimDegrees result =
           attention_get_output_bias_parallel_dim_degrees(attrs, q, k, v);
-      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2*4, 1);
+      ParallelTensorDimDegrees correct = mk_1d_dim_degrees(1, 2 * 4, 1);
 
       CHECK(result == correct);
     }

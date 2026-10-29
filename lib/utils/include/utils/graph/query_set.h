@@ -10,6 +10,7 @@
 #include "utils/containers/set_of.h"
 #include "utils/containers/set_union.h"
 #include "utils/containers/transform.h"
+#include "utils/fmt.h"
 #include "utils/fmt/set.h"
 #include "utils/hash-utils.h"
 #include "utils/hash/set.h"
@@ -17,7 +18,6 @@
 #include "utils/optional.h"
 #include <optional>
 #include <set>
-#include "utils/fmt.h"
 
 namespace FlexFlow {
 

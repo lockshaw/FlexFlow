@@ -1,9 +1,9 @@
 #include "op-attrs/ops/repartition.h"
 #include "op-attrs/operator_task_space.h"
+#include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include <doctest/doctest.h>
-#include "op-attrs/parallel_tensor_dim_idx_t.h"
-#include "op-attrs/parallel_tensor_dim_degrees.h"
 
 using namespace ::FlexFlow;
 
@@ -104,7 +104,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
 
-    SUBCASE("input tensor is not already parallel in the repartition dimension") {
+    SUBCASE(
+        "input tensor is not already parallel in the repartition dimension") {
       ParallelTensorDimDegrees input_degrees = ParallelTensorDimDegrees{
           SumDegree{2_p},
           DiscardCopyDegree{1_p},
@@ -138,10 +139,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto op_task_coord = [&](nonnegative_int sum_coord,
                              nonnegative_int shard_dim1_coord) {
       return DimCoord<operator_task_space_dim_idx_t>{
-        std::map<operator_task_space_dim_idx_t, nonnegative_int>{
-          { operator_task_space_dim_idx_t{0_n}, sum_coord },
-          { operator_task_space_dim_idx_t{1_n}, shard_dim1_coord },
-        },
+          std::map<operator_task_space_dim_idx_t, nonnegative_int>{
+              {operator_task_space_dim_idx_t{0_n}, sum_coord},
+              {operator_task_space_dim_idx_t{1_n}, shard_dim1_coord},
+          },
       };
     };
 
@@ -157,15 +158,14 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       auto input_coord = [&](nonnegative_int sum_coord,
                              nonnegative_int shard_dim1_coord)
-        -> DimCoord<parallel_tensor_dim_idx_t>
-      {
+          -> DimCoord<parallel_tensor_dim_idx_t> {
         return DimCoord<parallel_tensor_dim_idx_t>{
-          std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
-            { sum_dim_idx(), sum_coord },
-            { discard_copy_dim_idx(), 0_n },
-            { shard_dim_idx(ff_dim_t{0_n}), 0_n },
-            { shard_dim_idx(ff_dim_t{1_n}), shard_dim1_coord },
-          },
+            std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
+                {sum_dim_idx(), sum_coord},
+                {discard_copy_dim_idx(), 0_n},
+                {shard_dim_idx(ff_dim_t{0_n}), 0_n},
+                {shard_dim_idx(ff_dim_t{1_n}), shard_dim1_coord},
+            },
         };
       };
 
@@ -173,45 +173,48 @@ TEST_SUITE(FF_TEST_SUITE) {
           repartition_get_operator_to_input_mapping(attrs, input_degrees);
 
       OperatorSpaceToParallelTensorSpaceMapping correct =
-        OperatorSpaceToParallelTensorSpaceMapping{
-          DimDomainHemiuniqueMapping<
-            operator_task_space_dim_idx_t,
-            parallel_tensor_dim_idx_t
-          >{
-            /*coord_mapping=*/HemiuniqueBinaryRelation<
-              DimCoord<operator_task_space_dim_idx_t>,
-              DimCoord<parallel_tensor_dim_idx_t>
-            >{
-              ManyToOne<
-                DimCoord<operator_task_space_dim_idx_t>,
-                DimCoord<parallel_tensor_dim_idx_t>
-              >{
-                {
-                  {op_task_coord(0_n, 0_n), op_task_coord(0_n, 1_n), op_task_coord(0_n, 2_n)},
-                  input_coord(0_n, 0_n),
-                },
-                {
-                  {op_task_coord(0_n, 3_n), op_task_coord(0_n, 4_n), op_task_coord(0_n, 5_n)},
-                  input_coord(0_n, 1_n),
-                },
-                {
-                  {op_task_coord(1_n, 0_n), op_task_coord(1_n, 1_n), op_task_coord(1_n, 2_n)},
-                  input_coord(1_n, 0_n),
-                },
-                {
-                  {op_task_coord(1_n, 3_n), op_task_coord(1_n, 4_n), op_task_coord(1_n, 5_n)},
-                  input_coord(1_n, 1_n),
-                }
+          OperatorSpaceToParallelTensorSpaceMapping{
+              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                                         parallel_tensor_dim_idx_t>{
+                  /*coord_mapping=*/HemiuniqueBinaryRelation<
+                      DimCoord<operator_task_space_dim_idx_t>,
+                      DimCoord<parallel_tensor_dim_idx_t>>{
+                      ManyToOne<DimCoord<operator_task_space_dim_idx_t>,
+                                DimCoord<parallel_tensor_dim_idx_t>>{
+                          {
+                              {op_task_coord(0_n, 0_n),
+                               op_task_coord(0_n, 1_n),
+                               op_task_coord(0_n, 2_n)},
+                              input_coord(0_n, 0_n),
+                          },
+                          {
+                              {op_task_coord(0_n, 3_n),
+                               op_task_coord(0_n, 4_n),
+                               op_task_coord(0_n, 5_n)},
+                              input_coord(0_n, 1_n),
+                          },
+                          {
+                              {op_task_coord(1_n, 0_n),
+                               op_task_coord(1_n, 1_n),
+                               op_task_coord(1_n, 2_n)},
+                              input_coord(1_n, 0_n),
+                          },
+                          {
+                              {op_task_coord(1_n, 3_n),
+                               op_task_coord(1_n, 4_n),
+                               op_task_coord(1_n, 5_n)},
+                              input_coord(1_n, 1_n),
+                          }},
+                  },
+                  /*l_domain=*/
+                  lift_minimal_dim_domain(
+                      minimal_dim_domain_from_operator_task_space(
+                          repartition_get_operator_task_space(attrs,
+                                                              input_degrees))),
+                  /*r_domain=*/
+                  dim_domain_from_parallel_tensor_dim_degrees(input_degrees),
               },
-            },
-            /*l_domain=*/
-              lift_minimal_dim_domain(
-                minimal_dim_domain_from_operator_task_space(
-                  repartition_get_operator_task_space(attrs, input_degrees))),
-            /*r_domain=*/
-              dim_domain_from_parallel_tensor_dim_degrees(input_degrees),
-          },
-        };
+          };
 
       CHECK(result == correct);
     }
@@ -227,15 +230,14 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       auto input_coord = [&](nonnegative_int sum_coord)
-        -> DimCoord<parallel_tensor_dim_idx_t>
-      {
+          -> DimCoord<parallel_tensor_dim_idx_t> {
         return DimCoord<parallel_tensor_dim_idx_t>{
-          std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
-            { sum_dim_idx(), sum_coord },
-            { discard_copy_dim_idx(), 0_n },
-            { shard_dim_idx(ff_dim_t{0_n}), 0_n },
-            { shard_dim_idx(ff_dim_t{1_n}), 0_n },
-          },
+            std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
+                {sum_dim_idx(), sum_coord},
+                {discard_copy_dim_idx(), 0_n},
+                {shard_dim_idx(ff_dim_t{0_n}), 0_n},
+                {shard_dim_idx(ff_dim_t{1_n}), 0_n},
+            },
         };
       };
 
@@ -243,37 +245,37 @@ TEST_SUITE(FF_TEST_SUITE) {
           repartition_get_operator_to_input_mapping(attrs, input_degrees);
 
       OperatorSpaceToParallelTensorSpaceMapping correct =
-        OperatorSpaceToParallelTensorSpaceMapping{
-          DimDomainHemiuniqueMapping<
-            operator_task_space_dim_idx_t,
-            parallel_tensor_dim_idx_t
-          >{
-            /*coord_mapping=*/HemiuniqueBinaryRelation<
-              DimCoord<operator_task_space_dim_idx_t>,
-              DimCoord<parallel_tensor_dim_idx_t>
-            >{
-              ManyToOne<
-                DimCoord<operator_task_space_dim_idx_t>,
-                DimCoord<parallel_tensor_dim_idx_t>
-              >{
-                {
-                  {op_task_coord(0_n, 0_n), op_task_coord(0_n, 1_n), op_task_coord(0_n, 2_n)},
-                  input_coord(0_n),
-                },
-                {
-                  {op_task_coord(1_n, 0_n), op_task_coord(1_n, 1_n), op_task_coord(1_n, 2_n)},
-                  input_coord(1_n),
-                },
+          OperatorSpaceToParallelTensorSpaceMapping{
+              DimDomainHemiuniqueMapping<operator_task_space_dim_idx_t,
+                                         parallel_tensor_dim_idx_t>{
+                  /*coord_mapping=*/HemiuniqueBinaryRelation<
+                      DimCoord<operator_task_space_dim_idx_t>,
+                      DimCoord<parallel_tensor_dim_idx_t>>{
+                      ManyToOne<DimCoord<operator_task_space_dim_idx_t>,
+                                DimCoord<parallel_tensor_dim_idx_t>>{
+                          {
+                              {op_task_coord(0_n, 0_n),
+                               op_task_coord(0_n, 1_n),
+                               op_task_coord(0_n, 2_n)},
+                              input_coord(0_n),
+                          },
+                          {
+                              {op_task_coord(1_n, 0_n),
+                               op_task_coord(1_n, 1_n),
+                               op_task_coord(1_n, 2_n)},
+                              input_coord(1_n),
+                          },
+                      },
+                  },
+                  /*l_domain=*/
+                  lift_minimal_dim_domain(
+                      minimal_dim_domain_from_operator_task_space(
+                          repartition_get_operator_task_space(attrs,
+                                                              input_degrees))),
+                  /*r_domain=*/
+                  dim_domain_from_parallel_tensor_dim_degrees(input_degrees),
               },
-            },
-            /*l_domain=*/
-              lift_minimal_dim_domain(
-                minimal_dim_domain_from_operator_task_space(
-                  repartition_get_operator_task_space(attrs, input_degrees))),
-            /*r_domain=*/
-              dim_domain_from_parallel_tensor_dim_degrees(input_degrees),
-          },
-        };
+          };
 
       CHECK(result == correct);
     }
@@ -288,10 +290,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto op_task_coord = [&](nonnegative_int sum_coord,
                              nonnegative_int shard_dim1_coord) {
       return DimCoord<operator_task_space_dim_idx_t>{
-        std::map<operator_task_space_dim_idx_t, nonnegative_int>{
-          { operator_task_space_dim_idx_t{0_n}, sum_coord },
-          { operator_task_space_dim_idx_t{1_n}, shard_dim1_coord },
-        },
+          std::map<operator_task_space_dim_idx_t, nonnegative_int>{
+              {operator_task_space_dim_idx_t{0_n}, sum_coord},
+              {operator_task_space_dim_idx_t{1_n}, shard_dim1_coord},
+          },
       };
     };
 
@@ -314,16 +316,15 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     auto output_coord = [&](nonnegative_int sum_coord,
-                           nonnegative_int shard_dim1_coord)
-      -> DimCoord<parallel_tensor_dim_idx_t>
-    {
+                            nonnegative_int shard_dim1_coord)
+        -> DimCoord<parallel_tensor_dim_idx_t> {
       return DimCoord<parallel_tensor_dim_idx_t>{
-        std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
-          { sum_dim_idx(), sum_coord },
-          { discard_copy_dim_idx(), 0_n },
-          { shard_dim_idx(ff_dim_t{0_n}), 0_n },
-          { shard_dim_idx(ff_dim_t{1_n}), shard_dim1_coord },
-        },
+          std::map<parallel_tensor_dim_idx_t, nonnegative_int>{
+              {sum_dim_idx(), sum_coord},
+              {discard_copy_dim_idx(), 0_n},
+              {shard_dim_idx(ff_dim_t{0_n}), 0_n},
+              {shard_dim_idx(ff_dim_t{1_n}), shard_dim1_coord},
+          },
       };
     };
 
@@ -331,56 +332,54 @@ TEST_SUITE(FF_TEST_SUITE) {
         repartition_get_operator_to_output_mapping(attrs, input_degrees);
 
     OperatorSpaceToParallelTensorSpaceBiuniqueMapping correct =
-      OperatorSpaceToParallelTensorSpaceBiuniqueMapping{
-        DimDomainBiuniqueMapping<
-          operator_task_space_dim_idx_t,
-          parallel_tensor_dim_idx_t
-        >{
-          /*coord_mapping=*/bidict<
-            DimCoord<operator_task_space_dim_idx_t>,
-            DimCoord<parallel_tensor_dim_idx_t>
-          >{
-            {
-              op_task_coord(0_n, 0_n),
-              output_coord(0_n, 0_n),
+        OperatorSpaceToParallelTensorSpaceBiuniqueMapping{
+            DimDomainBiuniqueMapping<operator_task_space_dim_idx_t,
+                                     parallel_tensor_dim_idx_t>{
+                /*coord_mapping=*/bidict<
+                    DimCoord<operator_task_space_dim_idx_t>,
+                    DimCoord<parallel_tensor_dim_idx_t>>{
+                    {
+                        op_task_coord(0_n, 0_n),
+                        output_coord(0_n, 0_n),
+                    },
+                    {
+                        op_task_coord(0_n, 1_n),
+                        output_coord(0_n, 1_n),
+                    },
+                    {
+                        op_task_coord(0_n, 2_n),
+                        output_coord(0_n, 2_n),
+                    },
+                    {
+                        op_task_coord(0_n, 3_n),
+                        output_coord(0_n, 3_n),
+                    },
+                    {
+                        op_task_coord(1_n, 0_n),
+                        output_coord(1_n, 0_n),
+                    },
+                    {
+                        op_task_coord(1_n, 1_n),
+                        output_coord(1_n, 1_n),
+                    },
+                    {
+                        op_task_coord(1_n, 2_n),
+                        output_coord(1_n, 2_n),
+                    },
+                    {
+                        op_task_coord(1_n, 3_n),
+                        output_coord(1_n, 3_n),
+                    },
+                },
+                /*l_domain=*/
+                lift_minimal_dim_domain(
+                    minimal_dim_domain_from_operator_task_space(
+                        repartition_get_operator_task_space(attrs,
+                                                            input_degrees))),
+                /*r_domain=*/
+                dim_domain_from_parallel_tensor_dim_degrees(output_degrees),
             },
-            {
-              op_task_coord(0_n, 1_n),
-              output_coord(0_n, 1_n),
-            },
-            {
-              op_task_coord(0_n, 2_n),
-              output_coord(0_n, 2_n),
-            },
-            {
-              op_task_coord(0_n, 3_n),
-              output_coord(0_n, 3_n),
-            },
-            {
-              op_task_coord(1_n, 0_n),
-              output_coord(1_n, 0_n),
-            },
-            {
-              op_task_coord(1_n, 1_n),
-              output_coord(1_n, 1_n),
-            },
-            {
-              op_task_coord(1_n, 2_n),
-              output_coord(1_n, 2_n),
-            },
-            {
-              op_task_coord(1_n, 3_n),
-              output_coord(1_n, 3_n),
-            },
-          },
-          /*l_domain=*/
-            lift_minimal_dim_domain(
-              minimal_dim_domain_from_operator_task_space(
-                repartition_get_operator_task_space(attrs, input_degrees))),
-          /*r_domain=*/
-            dim_domain_from_parallel_tensor_dim_degrees(output_degrees),
-        },
-      };
+        };
 
     CHECK(result == correct);
   }

@@ -1,17 +1,17 @@
 #include "op-attrs/ops/batch_matmul.h"
-#include <doctest/doctest.h>
-#include "kernels/local_cpu_allocator.h"
-#include "kernels/emulated_parallel_tensor.h"
-#include "kernels/parallel_tensor_reduction.h"
-#include "op-attrs/parallel_tensor_shape.h"
-#include "kernels/batch_matmul_kernels_cpu.h"
-#include "utils/containers/require_only_key.h"
-#include "kernels/create_zero_filled_accessor.h"
-#include "kernels/format_accessor_contents.h"
-#include "test/utils/doctest/check_kv.h"
 #include "kernels/accessors_are_equal.h"
+#include "kernels/batch_matmul_kernels_cpu.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/emulated_parallel_tensor.h"
+#include "kernels/format_accessor_contents.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/parallel_tensor_reduction.h"
 #include "kernels/shard_signature_instance_is_valid.h"
+#include "op-attrs/parallel_tensor_shape.h"
+#include "test/utils/doctest/check_kv.h"
+#include "utils/containers/require_only_key.h"
 #include "utils/containers/set_filtrans.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -343,7 +343,8 @@ TEST_SUITE(FF_TEST_SUITE) {
                          int col_degree) -> ParallelTensorDimDegrees {
       return ParallelTensorDimDegrees{
           /*sum_degree=*/SumDegree{positive_int{sum_degree}},
-          /*discard_copy_degree=*/DiscardCopyDegree{positive_int{discard_copy_degree}},
+          /*discard_copy_degree=*/
+          DiscardCopyDegree{positive_int{discard_copy_degree}},
           /*shard_degrees=*/
           FFOrdered<positive_int>{
               positive_int{batch_dim_degree},
@@ -354,76 +355,78 @@ TEST_SUITE(FF_TEST_SUITE) {
     };
 
     TensorShape lhs_shard_shape = TensorShape{
-      /*dims=*/TensorDims{
-        FFOrdered<positive_int>{
-          4_p,
-          2_p,
-          3_p,
+        /*dims=*/TensorDims{
+            FFOrdered<positive_int>{
+                4_p,
+                2_p,
+                3_p,
+            },
         },
-      },
-      /*data_type=*/DataType::FLOAT,
+        /*data_type=*/DataType::FLOAT,
     };
 
     TensorShape rhs_shard_shape = TensorShape{
-      /*dims=*/TensorDims{
-        FFOrdered<positive_int>{
-          4_p,
-          3_p,
-          1_p,
+        /*dims=*/TensorDims{
+            FFOrdered<positive_int>{
+                4_p,
+                3_p,
+                1_p,
+            },
         },
-      },
-      /*data_type=*/DataType::FLOAT,
+        /*data_type=*/DataType::FLOAT,
     };
 
     BatchMatmulAttrs attrs = BatchMatmulAttrs{};
 
-    auto run_bmm = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &input_shards)
-      -> std::map<TensorSlotName, GenericTensorAccessorR>
-    {
-      GenericTensorAccessorR lhs_input_shard = input_shards.at(TensorSlotName::LHS_INPUT);
-      GenericTensorAccessorR rhs_input_shard = input_shards.at(TensorSlotName::RHS_INPUT);
-      TensorShape output_shard_shape =
-        batch_matmul_get_output_shape(attrs,
-                                      lhs_input_shard.shape,
-                                      rhs_input_shard.shape);
-      GenericTensorAccessorW output_shard = create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
+    auto run_bmm = [&](std::map<TensorSlotName, GenericTensorAccessorR> const
+                           &input_shards)
+        -> std::map<TensorSlotName, GenericTensorAccessorR> {
+      GenericTensorAccessorR lhs_input_shard =
+          input_shards.at(TensorSlotName::LHS_INPUT);
+      GenericTensorAccessorR rhs_input_shard =
+          input_shards.at(TensorSlotName::RHS_INPUT);
+      TensorShape output_shard_shape = batch_matmul_get_output_shape(
+          attrs, lhs_input_shard.shape, rhs_input_shard.shape);
+      GenericTensorAccessorW output_shard =
+          create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
 
       batch_matmul_cpu_forward_kernel(
-        /*input_lhs=*/lhs_input_shard,
-        /*input_rhs=*/rhs_input_shard,
-        /*output=*/output_shard);
+          /*input_lhs=*/lhs_input_shard,
+          /*input_rhs=*/rhs_input_shard,
+          /*output=*/output_shard);
 
       return std::map<TensorSlotName, GenericTensorAccessorR>{
-        {
-          TensorSlotName::OUTPUT,
-          read_only_accessor_from_write_accessor(output_shard),
-        },
+          {
+              TensorSlotName::OUTPUT,
+              read_only_accessor_from_write_accessor(output_shard),
+          },
       };
     };
 
-    auto bmm_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &lhs_degrees,
-                                                     ParallelTensorDimDegrees const &rhs_degrees)
-      -> bool
-    {
-      ParallelTensorShape lhs_shape = lift_shape_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
-      ParallelTensorShape rhs_shape = lift_shape_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
+    auto bmm_shard_signature_instance_is_valid =
+        [&](ParallelTensorDimDegrees const &lhs_degrees,
+            ParallelTensorDimDegrees const &rhs_degrees) -> bool {
+      ParallelTensorShape lhs_shape =
+          lift_shape_to_parallel_with_degrees(lhs_shard_shape, lhs_degrees);
+      ParallelTensorShape rhs_shape =
+          lift_shape_to_parallel_with_degrees(rhs_shard_shape, rhs_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
-        {
-          TensorSlotName::LHS_INPUT,
-          lhs_shape,
-        },
-        {
-          TensorSlotName::RHS_INPUT,
-          rhs_shape,
-        },
+          {
+              TensorSlotName::LHS_INPUT,
+              lhs_shape,
+          },
+          {
+              TensorSlotName::RHS_INPUT,
+              rhs_shape,
+          },
       };
 
       return shard_signature_instance_is_valid(
-        /*attrs=*/ComputationGraphOpAttrs{BatchMatmulAttrs{}},
-        /*input_shapes=*/input_shapes,
-        /*run_op=*/run_bmm,
-        /*seed=*/0);
+          /*attrs=*/ComputationGraphOpAttrs{BatchMatmulAttrs{}},
+          /*input_shapes=*/input_shapes,
+          /*run_op=*/run_bmm,
+          /*seed=*/0);
     };
 
     SUBCASE("data parallelism") {

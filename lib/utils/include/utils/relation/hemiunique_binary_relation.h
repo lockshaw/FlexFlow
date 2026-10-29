@@ -5,13 +5,13 @@
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/fmt/variant.h"
 #include "utils/many_to_one/invert_many_to_one.h"
+#include "utils/many_to_one/many_to_one_from_bidict.h"
 #include "utils/many_to_one/many_to_one_is_biunique.h"
 #include "utils/one_to_many/invert_one_to_many.h"
+#include "utils/one_to_many/one_to_many_from_bidict.h"
 #include "utils/one_to_many/one_to_many_is_biunique.h"
 #include "utils/overload.h"
 #include "utils/relation/uniqueness.dtg.h"
-#include "utils/one_to_many/one_to_many_from_bidict.h"
-#include "utils/many_to_one/many_to_one_from_bidict.h"
 
 namespace FlexFlow {
 
@@ -151,16 +151,14 @@ struct HemiuniqueBinaryRelation {
   }
 
   OneToMany<L, R> require_weakly_left_unique() const {
-    return this->visit<OneToMany<L, R>>(overload {
-      [&](bidict<L, R> const &b) -> OneToMany<L, R> {
-        return one_to_many_from_bidict(b);
-      },
-      [&](OneToMany<L, R> const &otm) -> OneToMany<L, R> {
-        return otm;
-      },
-      [&](ManyToOne<L, R> const &mto) -> OneToMany<L, R> {
-        PANIC("Relation is not weakly left-unique");
-      },
+    return this->visit<OneToMany<L, R>>(overload{
+        [&](bidict<L, R> const &b) -> OneToMany<L, R> {
+          return one_to_many_from_bidict(b);
+        },
+        [&](OneToMany<L, R> const &otm) -> OneToMany<L, R> { return otm; },
+        [&](ManyToOne<L, R> const &mto) -> OneToMany<L, R> {
+          PANIC("Relation is not weakly left-unique");
+        },
     });
   }
 
@@ -171,16 +169,14 @@ struct HemiuniqueBinaryRelation {
   }
 
   ManyToOne<L, R> require_weakly_right_unique() const {
-    return this->visit<ManyToOne<L, R>>(overload {
-      [&](bidict<L, R> const &b) -> ManyToOne<L, R> {
-        return many_to_one_from_bidict(b);
-      },
-      [&](OneToMany<L, R> const &otm) -> ManyToOne<L, R> {
-        PANIC("Relation is not weakly right-unique");
-      },
-      [&](ManyToOne<L, R> const &mto) -> ManyToOne<L, R> {
-        return mto;
-      },
+    return this->visit<ManyToOne<L, R>>(overload{
+        [&](bidict<L, R> const &b) -> ManyToOne<L, R> {
+          return many_to_one_from_bidict(b);
+        },
+        [&](OneToMany<L, R> const &otm) -> ManyToOne<L, R> {
+          PANIC("Relation is not weakly right-unique");
+        },
+        [&](ManyToOne<L, R> const &mto) -> ManyToOne<L, R> { return mto; },
     });
   }
 
@@ -222,20 +218,17 @@ struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>> {
     j["__type"] = "HemiuniqueBinaryRelation";
     ::FlexFlow::Uniqueness uniqueness = r.get_uniqueness();
     switch (uniqueness) {
-      case ::FlexFlow::Uniqueness::LEFT_UNIQUE:
-      {
+      case ::FlexFlow::Uniqueness::LEFT_UNIQUE: {
         j["type"] = "left-unique";
         j["value"] = r.require_strictly_left_unique();
         break;
       }
-      case ::FlexFlow::Uniqueness::BIUNIQUE:
-      {
+      case ::FlexFlow::Uniqueness::BIUNIQUE: {
         j["type"] = "bi-unique";
         j["value"] = r.require_biunique();
         break;
       }
-      case ::FlexFlow::Uniqueness::RIGHT_UNIQUE:
-      {
+      case ::FlexFlow::Uniqueness::RIGHT_UNIQUE: {
         j["type"] = "right-unique";
         j["value"] = r.require_strictly_right_unique();
         break;
@@ -250,15 +243,15 @@ struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>> {
 
     if (uniqueness_str == "left-unique") {
       return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
-        j.at("value").template get<::FlexFlow::OneToMany<L, R>>(),
+          j.at("value").template get<::FlexFlow::OneToMany<L, R>>(),
       };
     } else if (uniqueness_str == "bi-unique") {
       return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
-        j.at("value").template get<::FlexFlow::bidict<L, R>>(),
+          j.at("value").template get<::FlexFlow::bidict<L, R>>(),
       };
     } else if (uniqueness_str == "right-unique") {
       return ::FlexFlow::HemiuniqueBinaryRelation<L, R>{
-        j.at("value").template get<::FlexFlow::ManyToOne<L, R>>(),
+          j.at("value").template get<::FlexFlow::ManyToOne<L, R>>(),
       };
     } else {
       PANIC("Unexpected uniquness string", uniqueness_str);
@@ -266,7 +259,7 @@ struct adl_serializer<::FlexFlow::HemiuniqueBinaryRelation<L, R>> {
   }
 };
 
-}
+} // namespace nlohmann
 
 namespace std {
 

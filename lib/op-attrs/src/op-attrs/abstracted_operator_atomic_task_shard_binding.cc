@@ -4,13 +4,13 @@
 namespace FlexFlow {
 
 AbstractedOperatorAtomicTaskShardBinding
-  restrict_abstracted_operator_atomic_task_shard_binding_to_slots(
-    AbstractedOperatorAtomicTaskShardBinding const &binding,
-    std::set<TensorSlotName> const &desired_slots)
-{
+    restrict_abstracted_operator_atomic_task_shard_binding_to_slots(
+        AbstractedOperatorAtomicTaskShardBinding const &binding,
+        std::set<TensorSlotName> const &desired_slots) {
   return AbstractedOperatorAtomicTaskShardBinding{
-    /*tensor_coords=*/restrict_keys_strict(binding.tensor_coords, desired_slots),
-    /*task_coord=*/binding.task_coord,
+      /*tensor_coords=*/restrict_keys_strict(binding.tensor_coords,
+                                             desired_slots),
+      /*task_coord=*/binding.task_coord,
   };
 }
 

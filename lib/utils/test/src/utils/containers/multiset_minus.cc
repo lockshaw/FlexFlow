@@ -1,6 +1,6 @@
-#include <doctest/doctest.h>
 #include "utils/containers/multiset_minus.h"
 #include "test/utils/doctest/fmt/multiset.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 

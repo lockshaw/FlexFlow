@@ -151,10 +151,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     UnmappedRuntimeOnlyOpCostEstimateKey k1 =
         UnmappedRuntimeOnlyOpCostEstimateKey{
             /*op_attrs=*/PCGOperatorAttrs{
-              ElementUnaryAttrs{
-                /*type=*/ElementUnaryOp::GELU,
-                /*scalar=*/std::nullopt,
-              },
+                ElementUnaryAttrs{
+                    /*type=*/ElementUnaryOp::GELU,
+                    /*scalar=*/std::nullopt,
+                },
             },
             /*input_shapes=*/
             {
@@ -176,10 +176,10 @@ TEST_SUITE(FF_TEST_SUITE) {
     UnmappedRuntimeOnlyOpCostEstimateKey k2 =
         UnmappedRuntimeOnlyOpCostEstimateKey{
             /*op_attrs=*/PCGOperatorAttrs{
-              ElementUnaryAttrs{
-                /*type=*/ElementUnaryOp::RELU,
-                /*scalar=*/std::nullopt,
-              },
+                ElementUnaryAttrs{
+                    /*type=*/ElementUnaryOp::RELU,
+                    /*scalar=*/std::nullopt,
+                },
             },
             /*input_shapes=*/
             {

@@ -6,15 +6,11 @@
 
 namespace FlexFlow {
 
-template <typename F,
-          typename In,
-          typename Out = std::invoke_result_t<F, In>>
-nonempty_set<Out> transform_nonempty_set(
-  nonempty_set<In> const &s,
-  F const &f)
-{
+template <typename F, typename In, typename Out = std::invoke_result_t<F, In>>
+nonempty_set<Out> transform_nonempty_set(nonempty_set<In> const &s,
+                                         F const &f) {
   return nonempty_set<Out>{
-    transform(s.unwrap_as_set(), f),
+      transform(s.unwrap_as_set(), f),
   };
 }
 

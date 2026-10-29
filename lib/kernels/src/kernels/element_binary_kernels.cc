@@ -7,13 +7,13 @@ namespace FlexFlow {
 
 std::optional<ElementBinaryPerDeviceState>
     element_binary_init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                ElementBinaryOp op_type,
-                bool should_broadcast_lhs,
-                bool should_broadcast_rhs,
-                TensorShape const &lhs_shape,
-                TensorShape const &rhs_shape,
-                TensorShape const &output_shape) {
+                               device_handle_t const &handle,
+                               ElementBinaryOp op_type,
+                               bool should_broadcast_lhs,
+                               bool should_broadcast_rhs,
+                               TensorShape const &lhs_shape,
+                               TensorShape const &rhs_shape,
+                               TensorShape const &output_shape) {
   if (device_type == DeviceType::GPU) {
     return element_binary_gpu_init_kernel(
         /*handle=*/handle.require_for_gpu(),
@@ -37,8 +37,7 @@ void element_binary_forward_kernel(
     ElementBinaryAttrs const &attrs,
     GenericTensorAccessorR const &lhs,
     GenericTensorAccessorR const &rhs,
-    GenericTensorAccessorW const &output)
-{
+    GenericTensorAccessorW const &output) {
   if (stream.is_gpu()) {
     element_binary_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),
@@ -72,8 +71,7 @@ void element_binary_backward_kernel(
     GenericTensorAccessorR const &rhs,
     GenericTensorAccessorW const &rhs_grad,
     GenericTensorAccessorR const &output,
-    GenericTensorAccessorR const &output_grad)
-{
+    GenericTensorAccessorR const &output_grad) {
   if (stream.is_gpu()) {
     element_binary_gpu_backward_kernel(
         /*stream=*/stream.require_gpu(),

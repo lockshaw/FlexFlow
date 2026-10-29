@@ -1,10 +1,10 @@
 #ifndef _FLEXFLOW_PCG_INCLUDE_PCG_COMPUTATION_GRAPH_BUILDER_H
 #define _FLEXFLOW_PCG_INCLUDE_PCG_COMPUTATION_GRAPH_BUILDER_H
 
+#include "op-attrs/element_unary_op.dtg.h"
 #include "op-attrs/upsample_mode.dtg.h"
 #include "pcg/computation_graph.dtg.h"
 #include "pcg/tensor_guid_t.dtg.h"
-#include "op-attrs/element_unary_op.dtg.h"
 
 namespace FlexFlow {
 

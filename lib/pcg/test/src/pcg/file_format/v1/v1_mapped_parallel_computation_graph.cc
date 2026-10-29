@@ -1,4 +1,5 @@
 #include "pcg/file_format/v1/v1_mapped_parallel_computation_graph.h"
+#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/tensor_slot_name.dtg.h"
 #include "pcg/device_type.dtg.h"
@@ -7,7 +8,6 @@
 #include "pcg/mapped_parallel_computation_graph/mapped_operator_task_group.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.dtg.h"
 #include "pcg/mapped_parallel_computation_graph/mapped_parallel_computation_graph.h"
-#include "op-attrs/operator_atomic_task_shard_binding.dtg.h"
 #include "pcg/parallel_computation_graph/parallel_computation_graph.h"
 #include "pcg/parallel_computation_graph/parallel_layer_added_result.dtg.h"
 #include "utils/bidict/bidict.h"

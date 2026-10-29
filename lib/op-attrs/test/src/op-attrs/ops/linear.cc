@@ -1,10 +1,10 @@
 #include "op-attrs/ops/linear.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/parallel_tensor_shape.h"
 #include "test/utils/doctest/fmt/expected.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 
 using namespace ::FlexFlow;
 
@@ -120,24 +120,21 @@ TEST_SUITE(FF_TEST_SUITE) {
 
     // linear_get_output_shape
     {
-      TensorShape output_result =
-          linear_get_output_shape(attrs, input);
+      TensorShape output_result = linear_get_output_shape(attrs, input);
       TensorShape output_correct = output;
       CHECK(output_result == output_correct);
     }
 
     // linear_get_weight_shape
     {
-      TensorShape projection_result =
-          linear_get_projection_shape(attrs, input);
+      TensorShape projection_result = linear_get_projection_shape(attrs, input);
       TensorShape projection_correct = projection;
       CHECK(projection_result == projection_correct);
     }
 
     // linear_get_bias_shape
     {
-      TensorShape bias_result =
-          linear_get_bias_shape(attrs, input);
+      TensorShape bias_result = linear_get_bias_shape(attrs, input);
       TensorShape bias_correct = bias;
       CHECK(bias_result == bias_correct);
     }
@@ -146,9 +143,7 @@ TEST_SUITE(FF_TEST_SUITE) {
                           DiscardCopyDegree o_eq,
                           positive_int o_batch,
                           positive_int o_extra_dim,
-                          positive_int o_channel)
-      -> ParallelTensorShape
-    {
+                          positive_int o_channel) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_batch, o_extra_dim, o_channel});
     };
@@ -157,28 +152,23 @@ TEST_SUITE(FF_TEST_SUITE) {
                            DiscardCopyDegree o_eq,
                            positive_int o_batch,
                            positive_int o_extra_dim,
-                           positive_int o_channel)
-      -> ParallelTensorShape
-    {
+                           positive_int o_channel) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o_batch, o_extra_dim, o_channel});
     };
 
-    auto make_projection = [&](SumDegree o_sum,
-                               DiscardCopyDegree o_eq,
-                               positive_int o_outchannel,
-                               positive_int o_inchannel)
-      -> ParallelTensorShape
-    {
+    auto make_projection =
+        [&](SumDegree o_sum,
+            DiscardCopyDegree o_eq,
+            positive_int o_outchannel,
+            positive_int o_inchannel) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           projection, o_sum, o_eq, FFOrdered{o_outchannel, o_inchannel});
     };
 
     auto make_bias = [&](SumDegree o_sum,
                          DiscardCopyDegree o_eq,
-                         positive_int o_outchannel)
-      -> ParallelTensorShape
-    {
+                         positive_int o_outchannel) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           bias, o_sum, o_eq, FFOrdered{o_outchannel});
     };
@@ -197,24 +187,22 @@ TEST_SUITE(FF_TEST_SUITE) {
       {
         ParallelTensorShape result =
             linear_get_output_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_output(SumDegree{input_sum_degree},
-                        DiscardCopyDegree{1_p},
-                        degree,
-                        extra_dim_degree,
-                        1_p);
+        ParallelTensorShape correct = make_output(SumDegree{input_sum_degree},
+                                                  DiscardCopyDegree{1_p},
+                                                  degree,
+                                                  extra_dim_degree,
+                                                  1_p);
         CHECK(result == correct);
       }
 
       {
         ParallelTensorShape result =
             linear_get_projection_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_projection(
-                SumDegree{1_p},
-                DiscardCopyDegree{input_sum_degree * degree * extra_dim_degree},
-                1_p,
-                1_p);
+        ParallelTensorShape correct = make_projection(
+            SumDegree{1_p},
+            DiscardCopyDegree{input_sum_degree * degree * extra_dim_degree},
+            1_p,
+            1_p);
         CHECK(result == correct);
       }
 
@@ -254,11 +242,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       {
         ParallelTensorShape result =
             linear_get_projection_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_projection(SumDegree{1_p},
-                            DiscardCopyDegree{input_sum_degree},
-                            1_p,
-                            degree);
+        ParallelTensorShape correct = make_projection(
+            SumDegree{1_p}, DiscardCopyDegree{input_sum_degree}, 1_p, degree);
         CHECK(result == correct);
       }
 
@@ -284,23 +269,19 @@ TEST_SUITE(FF_TEST_SUITE) {
       {
         ParallelTensorShape result =
             linear_get_output_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_output(SumDegree{input_sum_degree},
-                        DiscardCopyDegree{1_p},
-                        1_p,
-                        1_p,
-                        degree);
+        ParallelTensorShape correct = make_output(SumDegree{input_sum_degree},
+                                                  DiscardCopyDegree{1_p},
+                                                  1_p,
+                                                  1_p,
+                                                  degree);
         CHECK(result == correct);
       }
 
       {
         ParallelTensorShape result =
             linear_get_projection_parallel_shape(attrs, par_input);
-        ParallelTensorShape correct =
-            make_projection(SumDegree{1_p},
-                            DiscardCopyDegree{input_sum_degree},
-                            degree,
-                            1_p);
+        ParallelTensorShape correct = make_projection(
+            SumDegree{1_p}, DiscardCopyDegree{input_sum_degree}, degree, 1_p);
         CHECK(result == correct);
       }
 
@@ -337,7 +318,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     OperatorSpaceToParallelTensorSpaceBiuniqueMapping result =
         linear_get_operator_to_input_mapping(attrs, input_dims);
 
-    ASSERT(get_parallel_tensor_space_for_biunique_mapping(result) == input_dims);
+    ASSERT(get_parallel_tensor_space_for_biunique_mapping(result) ==
+           input_dims);
     ASSERT(dim_domain_get_volume(result.raw_mapping.r_domain) ==
            dim_domain_get_volume(result.raw_mapping.l_domain));
   }

@@ -4,22 +4,22 @@
 namespace FlexFlow {
 
 TensorShape gather_get_output_shape(GatherAttrs const &,
-                             TensorShape const &input,
-                             TensorShape const &index) {
+                                    TensorShape const &input,
+                                    TensorShape const &index) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
 ParallelTensorDimDegrees gather_get_output_parallel_dim_degrees(
-  GatherAttrs const &,
-  ParallelTensorDimDegrees const &input,
-  ParallelTensorDimDegrees const &index)
-{
+    GatherAttrs const &,
+    ParallelTensorDimDegrees const &input,
+    ParallelTensorDimDegrees const &index) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
-ParallelTensorShape gather_get_output_parallel_shape(GatherAttrs const &,
+ParallelTensorShape
+    gather_get_output_parallel_shape(GatherAttrs const &,
                                      ParallelTensorShape const &input,
                                      ParallelTensorShape const &index) {
   // TODO(@lockshaw)(#pr):
@@ -29,39 +29,37 @@ ParallelTensorShape gather_get_output_parallel_shape(GatherAttrs const &,
 OperatorTaskSpace gather_get_operator_task_space(
     GatherAttrs const &attrs,
     ParallelTensorDimDegrees const &input_degrees,
-    ParallelTensorDimDegrees const &index_degrees)
-{
+    ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_input_mapping(
-    GatherAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees,
-    ParallelTensorDimDegrees const &index_degrees)
-{
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_input_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_index_mapping(
-    GatherAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees,
-    ParallelTensorDimDegrees const &index_degrees)
-{
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_index_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping gather_get_operator_to_output_mapping(
-    GatherAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees,
-    ParallelTensorDimDegrees const &index_degrees)
-{
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    gather_get_operator_to_output_mapping(
+        GatherAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees,
+        ParallelTensorDimDegrees const &index_degrees) {
   // TODO(@lockshaw)(#pr):
   NOT_IMPLEMENTED();
 }
-
 
 /* bool GatherAttrs::is_valid(ParallelTensorShape const &lhs,
  * ParallelTensorShape const &rhs) const { */

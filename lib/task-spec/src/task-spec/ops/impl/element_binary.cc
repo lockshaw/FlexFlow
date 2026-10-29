@@ -17,13 +17,13 @@ static DeviceSpecificPerDeviceOpState
 
   std::optional<ElementBinaryPerDeviceState> per_device_state =
       element_binary_init_kernel(kernel_device_type,
-                  handle,
-                  attrs.op,
-                  attrs.should_broadcast_lhs,
-                  attrs.should_broadcast_rhs,
-                  input_lhs.shape,
-                  input_rhs.shape,
-                  output.shape);
+                                 handle,
+                                 attrs.op,
+                                 attrs.should_broadcast_lhs,
+                                 attrs.should_broadcast_rhs,
+                                 input_lhs.shape,
+                                 input_rhs.shape,
+                                 output.shape);
 
   return DeviceSpecificPerDeviceOpState{
       acc.make_device_specific(per_device_state),
@@ -39,9 +39,12 @@ static std::optional<milliseconds_t>
   ElementBinaryAttrs attrs = acc.get_op_attrs().require_element_binary();
   device_handle_t handle = acc.get_ff_handle();
 
-  GenericTensorAccessorR input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
-  GenericTensorAccessorR input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
-  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input_lhs =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
+  GenericTensorAccessorR input_rhs =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   return profile(element_binary_forward_kernel,
                  profiling,
@@ -64,9 +67,12 @@ static std::optional<milliseconds_t>
   ElementBinaryAttrs attrs = acc.get_op_attrs().require_element_binary();
   device_handle_t handle = acc.get_ff_handle();
 
-  GenericTensorAccessorR input_lhs = acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
-  GenericTensorAccessorR input_rhs = acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
-  GenericTensorAccessorR output = acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input_lhs =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::LHS_INPUT);
+  GenericTensorAccessorR input_rhs =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::RHS_INPUT);
+  GenericTensorAccessorR output =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::OUTPUT);
 
   GenericTensorAccessorR output_grad =
       acc.get_tensor_grad<Permissions::RO>(TensorSlotName::OUTPUT);

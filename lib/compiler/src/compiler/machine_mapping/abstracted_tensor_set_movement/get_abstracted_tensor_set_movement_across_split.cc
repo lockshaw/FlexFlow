@@ -13,6 +13,7 @@
 #include "utils/bidict/algorithms/unstructured_relation_from_bidict.h"
 #include "utils/containers/binary_cartesian_product.h"
 #include "utils/containers/flatmap.h"
+#include "utils/containers/generate_map2.h"
 #include "utils/containers/get_only.h"
 #include "utils/containers/group_by.h"
 #include "utils/containers/map_from_pairs.h"
@@ -21,7 +22,6 @@
 #include "utils/containers/transform.h"
 #include "utils/containers/values.h"
 #include "utils/containers/vector_of.h"
-#include "utils/containers/generate_map2.h"
 
 namespace FlexFlow {
 
@@ -42,27 +42,23 @@ AbstractedSingleTensorMovement get_abstracted_single_tensor_movement_along_edge(
   OperatorTaskSpaceToOperatorTaskSpaceMapping mapping =
       pcg_get_mapping_along_edge(pcg, edge);
 
-  HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate> coord_mapping =
-      op_to_op_get_coord_mapping(mapping);
+  HemiuniqueBinaryRelation<TaskSpaceCoordinate, TaskSpaceCoordinate>
+      coord_mapping = op_to_op_get_coord_mapping(mapping);
 
   std::map<AbstractedSingleTensorCommunicationEdge, num_bytes_t> single_comms =
-    generate_map2(
-      coord_mapping.as_unstructured_relation(),
-      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &src_dst)
-        -> AbstractedSingleTensorCommunicationEdge
-      {
-        auto [src_task_coord, dst_task_coord] = src_dst;
+      generate_map2(
+          coord_mapping.as_unstructured_relation(),
+          [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const
+                  &src_dst) -> AbstractedSingleTensorCommunicationEdge {
+            auto [src_task_coord, dst_task_coord] = src_dst;
 
-        return AbstractedSingleTensorCommunicationEdge{
-            /*src_coord=*/src_task_coord,
-            /*dst=*/AbstractedDevice{dst_path, dst_task_coord},
-        };
-      },
-      [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &)
-        -> num_bytes_t
-      {
-        return tensor_piece_size;
-      });
+            return AbstractedSingleTensorCommunicationEdge{
+                /*src_coord=*/src_task_coord,
+                /*dst=*/AbstractedDevice{dst_path, dst_task_coord},
+            };
+          },
+          [&](std::pair<TaskSpaceCoordinate, TaskSpaceCoordinate> const &)
+              -> num_bytes_t { return tensor_piece_size; });
 
   return AbstractedSingleTensorMovement{
       /*src_op_tree_path=*/src_path,

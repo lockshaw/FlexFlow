@@ -1,17 +1,17 @@
 #include "utils/containers/binary_cartesian_product.h"
 #include "test/utils/doctest/fmt/pair.h"
 #include "test/utils/doctest/fmt/set.h"
+#include "utils/containers/set_of.h"
 #include "utils/hash/pair.h"
 #include <doctest/doctest.h>
 #include <string>
-#include "utils/containers/set_of.h"
 
 using namespace ::FlexFlow;
 
 TEST_SUITE(FF_TEST_SUITE) {
   TEST_CASE("binary_cartesian_product") {
     auto mkp = [&](int l, std::string const &r) -> std::pair<int, std::string> {
-      return std::pair<int, std::string>{l, r}; 
+      return std::pair<int, std::string>{l, r};
     };
 
     SUBCASE("both lhs and rhs are nonempty") {

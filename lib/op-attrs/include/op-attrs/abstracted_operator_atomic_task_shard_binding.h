@@ -7,9 +7,9 @@
 namespace FlexFlow {
 
 AbstractedOperatorAtomicTaskShardBinding
-  restrict_abstracted_operator_atomic_task_shard_binding_to_slots(
-    AbstractedOperatorAtomicTaskShardBinding const &,
-    std::set<TensorSlotName> const &);
+    restrict_abstracted_operator_atomic_task_shard_binding_to_slots(
+        AbstractedOperatorAtomicTaskShardBinding const &,
+        std::set<TensorSlotName> const &);
 
 } // namespace FlexFlow
 

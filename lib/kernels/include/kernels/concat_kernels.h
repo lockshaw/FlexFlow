@@ -11,11 +11,12 @@ void concat_forward_kernel(device_stream_t const &stream,
                            std::vector<GenericTensorAccessorR> const &inputs,
                            ff_dim_t axis);
 
-void concat_backward_kernel(device_stream_t const &stream,
-                            GenericTensorAccessorR const &output_grad,
-                            std::vector<GenericTensorAccessorW> const &input_grads,
-                            ff_dim_t axis);
+void concat_backward_kernel(
+    device_stream_t const &stream,
+    GenericTensorAccessorR const &output_grad,
+    std::vector<GenericTensorAccessorW> const &input_grads,
+    ff_dim_t axis);
 
-} // namespace FlexFlow::Kernels::Concat
+} // namespace FlexFlow
 
 #endif

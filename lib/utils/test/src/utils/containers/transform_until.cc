@@ -45,10 +45,8 @@ TEST_SUITE(FF_TEST_SUITE) {
     SUBCASE("input container is empty") {
       std::vector<int> input = {};
 
-      std::vector<int> result =
-          transform_until(input, [](int x) -> std::optional<int> {
-            PANIC("err");
-          });
+      std::vector<int> result = transform_until(
+          input, [](int x) -> std::optional<int> { PANIC("err"); });
       std::vector<int> correct = {};
 
       CHECK(result == correct);

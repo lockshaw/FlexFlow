@@ -7,12 +7,12 @@ namespace FlexFlow {
 
 std::optional<LayerNormPerDeviceState>
     layer_norm_init_kernel(DeviceType device_type,
-                device_handle_t const &handle,
-                Allocator &allocator,
-                bool elementwise_affine,
-                int64_t effective_batch_size,
-                int64_t effective_num_elements,
-                float eps) {
+                           device_handle_t const &handle,
+                           Allocator &allocator,
+                           bool elementwise_affine,
+                           int64_t effective_batch_size,
+                           int64_t effective_num_elements,
+                           float eps) {
   if (device_type == DeviceType::GPU) {
     return layer_norm_gpu_init_kernel(
         /*handle=*/handle.require_for_gpu(),
@@ -35,8 +35,7 @@ void layer_norm_forward_kernel(
     GenericTensorAccessorR const &input,
     GenericTensorAccessorW const &output,
     std::optional<GenericTensorAccessorR> const &gamma,
-    std::optional<GenericTensorAccessorR> const &beta) 
-{
+    std::optional<GenericTensorAccessorR> const &beta) {
   if (stream.is_gpu()) {
     layer_norm_gpu_forward_kernel(
         /*stream=*/stream.require_gpu(),

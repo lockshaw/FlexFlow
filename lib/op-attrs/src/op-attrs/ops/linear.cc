@@ -4,13 +4,18 @@
 #include "op-attrs/initializers/kaiming_initializer_mode.h"
 #include "op-attrs/num_ptensor_shard_dims_t.h"
 #include "op-attrs/num_tensor_dims_t.h"
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/operator_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/operator_task_space.h"
 #include "op-attrs/parallel_tensor_dim_degrees.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
 #include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_mapping.h"
 #include "op-attrs/relative_ff_dim_t.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "op-attrs/tensor_dims.h"
 #include "op-attrs/tensor_shape.h"
 #include "utils/containers/product.h"
@@ -18,19 +23,14 @@
 #include "utils/expected.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
+#include "utils/optional.h"
+#include "utils/orthotope/bounded_component.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/down_projection.h"
 #include "utils/orthotope/eq_projection.h"
 #include "utils/orthotope/minimal_dim_domain_mapping.h"
-#include "utils/orthotope/up_projection.h"
-#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
-#include "op-attrs/parallel_tensor_space_to_parallel_tensor_space_biunique_mapping.h"
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.h"
-#include "op-attrs/parallel_tensor_space_coordinate.h"
-#include "utils/orthotope/bounded_component.h"
 #include "utils/orthotope/orthotope_bounded_coord.h"
-#include "utils/optional.h"
-#include "op-attrs/task_space_coordinate.h"
+#include "utils/orthotope/up_projection.h"
 
 namespace FlexFlow {
 
@@ -50,9 +50,9 @@ std::map<TensorSlotName, IncomingTensorRole>
 
 std::set<TensorSlotName> linear_get_slots(LinearAttrs const &attrs) {
   std::set<TensorSlotName> result = {
-    TensorSlotName::INPUT,
-    TensorSlotName::WEIGHT,
-    TensorSlotName::OUTPUT,
+      TensorSlotName::INPUT,
+      TensorSlotName::WEIGHT,
+      TensorSlotName::OUTPUT,
   };
 
   if (attrs.use_bias) {
@@ -62,9 +62,8 @@ std::set<TensorSlotName> linear_get_slots(LinearAttrs const &attrs) {
   return result;
 }
 
-TensorShape
-    linear_get_projection_shape(LinearAttrs const &attrs,
-                         TensorShape const &input_shape) {
+TensorShape linear_get_projection_shape(LinearAttrs const &attrs,
+                                        TensorShape const &input_shape) {
   positive_int in_channels =
       dim_at_idx(input_shape.dims, relative_ff_dim_t{-1});
 
@@ -76,8 +75,8 @@ TensorShape
   };
 }
 
-TensorShape
-    linear_get_bias_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
+TensorShape linear_get_bias_shape(LinearAttrs const &attrs,
+                                  TensorShape const &input_shape) {
   return TensorShape{
       TensorDims{
           FFOrdered<positive_int>{attrs.out_channels},
@@ -86,8 +85,8 @@ TensorShape
   };
 }
 
-TensorShape
-    linear_get_output_shape(LinearAttrs const &attrs, TensorShape const &input_shape) {
+TensorShape linear_get_output_shape(LinearAttrs const &attrs,
+                                    TensorShape const &input_shape) {
   TensorShape output_shape = input_shape;
   output_shape.dims.ff_ordered.at(relative_ff_dim_t{-1}) = attrs.out_channels;
 
@@ -96,7 +95,7 @@ TensorShape
 
 std::map<TensorSlotName, TensorShape>
     linear_get_weight_shapes(LinearAttrs const &attrs,
-                      TensorShape const &input_shape) {
+                             TensorShape const &input_shape) {
 
   std::map<TensorSlotName, TensorShape> weight_shapes = {
       {
@@ -119,13 +118,12 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
     linear_get_weight_parallel_dim_degrees(
         LinearAttrs const &attrs,
         ParallelTensorDimDegrees const &input_degrees) {
-  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees =
+  std::map<TensorSlotName, ParallelTensorDimDegrees> weight_degrees = {
       {
-          {
-              TensorSlotName::WEIGHT,
-              linear_get_projection_parallel_dim_degrees(attrs, input_degrees),
-          },
-      };
+          TensorSlotName::WEIGHT,
+          linear_get_projection_parallel_dim_degrees(attrs, input_degrees),
+      },
+  };
 
   if (attrs.use_bias) {
     weight_degrees.insert({
@@ -140,18 +138,21 @@ std::map<TensorSlotName, ParallelTensorDimDegrees>
 //! [parallel shape inference composition example]
 ParallelTensorShape
     linear_get_projection_parallel_shape(LinearAttrs const &attrs,
-                         ParallelTensorShape const &input) {
-  TensorShape unpar = linear_get_projection_shape(attrs, get_reduced_shape(input));
+                                         ParallelTensorShape const &input) {
+  TensorShape unpar =
+      linear_get_projection_shape(attrs, get_reduced_shape(input));
 
   ParallelTensorDimDegrees projection_degrees =
-      linear_get_projection_parallel_dim_degrees(attrs, get_parallel_degrees(input));
+      linear_get_projection_parallel_dim_degrees(attrs,
+                                                 get_parallel_degrees(input));
 
   return lift_shape_to_parallel_with_degrees(unpar, projection_degrees);
 }
 //! [parallel shape inference composition example]
 
 ParallelTensorShape
-    linear_get_bias_parallel_shape(LinearAttrs const &attrs, ParallelTensorShape const &input) {
+    linear_get_bias_parallel_shape(LinearAttrs const &attrs,
+                                   ParallelTensorShape const &input) {
 
   TensorShape unpar = linear_get_bias_shape(attrs, get_reduced_shape(input));
 
@@ -163,7 +164,7 @@ ParallelTensorShape
 
 ParallelTensorShape
     linear_get_output_parallel_shape(LinearAttrs const &attrs,
-                     ParallelTensorShape const &input) {
+                                     ParallelTensorShape const &input) {
   TensorShape unpar = linear_get_output_shape(attrs, get_reduced_shape(input));
 
   ParallelTensorDimDegrees output_degrees =
@@ -173,9 +174,8 @@ ParallelTensorShape
   return lift_shape_to_parallel_with_degrees(unpar, output_degrees);
 }
 
-ParallelTensorDimDegrees
-    linear_get_projection_parallel_dim_degrees(LinearAttrs const &attrs,
-                                        ParallelTensorDimDegrees const &input) {
+ParallelTensorDimDegrees linear_get_projection_parallel_dim_degrees(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input) {
   SumDegree sum_degree = SumDegree{1_p};
   DiscardCopyDegree discard_copy_degree = DiscardCopyDegree{
       input.sum_degree.value *
@@ -193,9 +193,8 @@ ParallelTensorDimDegrees
   };
 }
 
-ParallelTensorDimDegrees
-    linear_get_bias_parallel_dim_degrees(LinearAttrs const &attrs,
-                                  ParallelTensorDimDegrees const &input) {
+ParallelTensorDimDegrees linear_get_bias_parallel_dim_degrees(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input) {
 
   SumDegree sum_degree = SumDegree{
       input.sum_degree.value * input.shard_degrees.at(relative_ff_dim_t{-1}),
@@ -232,7 +231,7 @@ ParallelTensorDimDegrees linear_get_output_parallel_dim_degrees(
 
 std::map<TensorSlotName, ParallelTensorShape>
     linear_get_weight_parallel_shapes(LinearAttrs const &attrs,
-                      ParallelTensorShape const &input_shape) {
+                                      ParallelTensorShape const &input_shape) {
 
   std::map<TensorSlotName, ParallelTensorShape> weight_shapes = {
       {
@@ -243,8 +242,8 @@ std::map<TensorSlotName, ParallelTensorShape>
 
   if (attrs.use_bias) {
     weight_shapes.insert({
-      TensorSlotName::BIAS,
-      linear_get_bias_parallel_shape(attrs, input_shape),
+        TensorSlotName::BIAS,
+        linear_get_bias_parallel_shape(attrs, input_shape),
     });
   }
 
@@ -257,21 +256,19 @@ std::map<TensorSlotName, ParallelTensorShape>
  * see
  * https://github.com/pytorch/pytorch/blob/1eba9b3aa3c43f86f4a2c807ac8e12c4a7767340/torch/nn/modules/linear.py#L114-L122
  */
-std::map<TensorSlotName, InitializerAttrs>
-    linear_get_initializers(
-        LinearAttrs const &attrs,
-        TensorShape const &input_shape,
-        std::optional<InitializerAttrs> const &maybe_projection_initializer,
-        std::optional<InitializerAttrs> const &maybe_bias_initializer) {
+std::map<TensorSlotName, InitializerAttrs> linear_get_initializers(
+    LinearAttrs const &attrs,
+    TensorShape const &input_shape,
+    std::optional<InitializerAttrs> const &maybe_projection_initializer,
+    std::optional<InitializerAttrs> const &maybe_bias_initializer) {
 
-  ASSERT(
-    attrs.use_bias || !maybe_bias_initializer.has_value(),
-    fmt::format("Expected bias_initializer=std::nullopt since "
-                "use_bias=false, but received bias_initializer: {}",
-                maybe_bias_initializer.value())
-  );
+  ASSERT(attrs.use_bias || !maybe_bias_initializer.has_value(),
+         fmt::format("Expected bias_initializer=std::nullopt since "
+                     "use_bias=false, but received bias_initializer: {}",
+                     maybe_bias_initializer.value()));
 
-  TensorShape projection_shape = linear_get_projection_shape(attrs, input_shape);
+  TensorShape projection_shape =
+      linear_get_projection_shape(attrs, input_shape);
 
   InitializerAttrs projection_default_initializer =
       InitializerAttrs{KaimingNormalAttrs{
@@ -311,166 +308,181 @@ std::map<TensorSlotName, InitializerAttrs>
   }
 }
 
-StandardOperatorTaskGroup linear_get_task_group(
-    LinearAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees)
-{
+StandardOperatorTaskGroup
+    linear_get_task_group(LinearAttrs const &attrs,
+                          ParallelTensorDimDegrees const &input_degrees) {
   ParallelTensorDimDegrees output_degrees =
-    linear_get_output_parallel_dim_degrees(attrs, input_degrees);
+      linear_get_output_parallel_dim_degrees(attrs, input_degrees);
 
   StandardOperatorTaskGroup task_group = StandardOperatorTaskGroup{
-    transform(
-      get_parallel_tensor_space_coordinates(input_degrees),
-      [&](ParallelTensorSpaceCoordinate const &input_coord)
-        -> AbstractedOperatorAtomicTaskShardBinding
-      {
-        num_ptensor_shard_dims_t input_num_shard_dims =
-          get_ptensor_dim_degrees_num_shard_dims(input_degrees);
+      transform(
+          get_parallel_tensor_space_coordinates(input_degrees),
+          [&](ParallelTensorSpaceCoordinate const &input_coord)
+              -> AbstractedOperatorAtomicTaskShardBinding {
+            num_ptensor_shard_dims_t input_num_shard_dims =
+                get_ptensor_dim_degrees_num_shard_dims(input_degrees);
 
-        parallel_tensor_dim_idx_t input_sum_dim = sum_dim_idx();
-        parallel_tensor_dim_idx_t input_discard_copy_dim = discard_copy_dim_idx();
+            parallel_tensor_dim_idx_t input_sum_dim = sum_dim_idx();
+            parallel_tensor_dim_idx_t input_discard_copy_dim =
+                discard_copy_dim_idx();
 
-        std::set<parallel_tensor_dim_idx_t> input_leading_dims =
-          shard_dim_idxs_for_exclusive_interval(0, -1, input_num_shard_dims);
+            std::set<parallel_tensor_dim_idx_t> input_leading_dims =
+                shard_dim_idxs_for_exclusive_interval(
+                    0, -1, input_num_shard_dims);
 
-        parallel_tensor_dim_idx_t input_channel_dim =
-          shard_dim_idx_for_relative(-1, input_num_shard_dims);
+            parallel_tensor_dim_idx_t input_channel_dim =
+                shard_dim_idx_for_relative(-1, input_num_shard_dims);
 
-        OrthotopeBoundedCoord data_parallelism_component =
-            orthotope_bounded_coord_for_ptensor_dims(
-              input_degrees,
-              input_coord,
-              input_leading_dims);
+            OrthotopeBoundedCoord data_parallelism_component =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees, input_coord, input_leading_dims);
 
-        BoundedComponent output_channel_parallelism_component =
-            bounded_component_for_ptensor_dim(
-              input_degrees,
-              input_coord,
-              input_discard_copy_dim);
+            BoundedComponent output_channel_parallelism_component =
+                bounded_component_for_ptensor_dim(
+                    input_degrees, input_coord, input_discard_copy_dim);
 
-        OrthotopeBoundedCoord reduction_parallelism_component =
-            orthotope_bounded_coord_for_ptensor_dims(
-              input_degrees,
-              input_coord,
-              std::set{input_sum_dim, input_channel_dim});
+            OrthotopeBoundedCoord reduction_parallelism_component =
+                orthotope_bounded_coord_for_ptensor_dims(
+                    input_degrees,
+                    input_coord,
+                    std::set{input_sum_dim, input_channel_dim});
 
-        BoundedComponent output_sum_component =
-            assert_unwrap(flatten_orthotope_bounded_coord(reduction_parallelism_component));
+            BoundedComponent output_sum_component =
+                assert_unwrap(flatten_orthotope_bounded_coord(
+                    reduction_parallelism_component));
 
-        BoundedComponent output_discard_copy_component =
-            trivial_bounded_component();
+            BoundedComponent output_discard_copy_component =
+                trivial_bounded_component();
 
-        OrthotopeBoundedCoord output_shard_components =
-          orthotope_bounded_coord_product(
-                            data_parallelism_component,
-                            lift_bounded_component(output_channel_parallelism_component));
+            OrthotopeBoundedCoord output_shard_components =
+                orthotope_bounded_coord_product(
+                    data_parallelism_component,
+                    lift_bounded_component(
+                        output_channel_parallelism_component));
 
-        OrthotopeBoundedCoord raw_output_coord =
-              orthotope_bounded_coord_product(
-                lift_bounded_component(output_sum_component),
-                lift_bounded_component(output_discard_copy_component),
-                output_shard_components);
+            OrthotopeBoundedCoord raw_output_coord =
+                orthotope_bounded_coord_product(
+                    lift_bounded_component(output_sum_component),
+                    lift_bounded_component(output_discard_copy_component),
+                    output_shard_components);
 
-        ParallelTensorSpaceCoordinate output_coord =
-            parallel_tensor_space_coordinate_from_bounded_orthotope_components(
-              /*sum_degree=*/output_sum_component,
-              /*discard_copy_degree=*/output_discard_copy_component,
-              /*shard_coords=*/output_shard_components);
+            ParallelTensorSpaceCoordinate output_coord =
+                parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                    /*sum_degree=*/output_sum_component,
+                    /*discard_copy_degree=*/output_discard_copy_component,
+                    /*shard_coords=*/output_shard_components);
 
-        return AbstractedOperatorAtomicTaskShardBinding{
-          /*tensor_corods=*/{
-            {
-              TensorSlotName::INPUT,
-              input_coord,
-            },
-            {
-              TensorSlotName::WEIGHT,
-              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
-                /*sum_coord=*/trivial_bounded_component(),
-                /*discard_copy_coord=*/assert_unwrap(flatten_orthotope_bounded_coord(data_parallelism_component)),
-                /*shard_coords=*/orthotope_bounded_coord_product(
-                  lift_bounded_component(output_channel_parallelism_component),
-                  reduction_parallelism_component)),
-            },
-            {
-              TensorSlotName::BIAS,
-              parallel_tensor_space_coordinate_from_bounded_orthotope_components(
-                /*sum_coord=*/assert_unwrap(flatten_orthotope_bounded_coord(reduction_parallelism_component)),
-                /*discard_copy_coord=*/assert_unwrap(flatten_orthotope_bounded_coord(data_parallelism_component)),
-                /*shard_coords=*/lift_bounded_component(output_channel_parallelism_component)),
-            },
-            {
-              TensorSlotName::OUTPUT,
-              output_coord,
-            },
-          },
-          /*task_coord=*/task_coord_matching_parallel_tensor_space_coordinate(output_coord,
-                                                                              output_degrees),
-        };
-      }),
+            return AbstractedOperatorAtomicTaskShardBinding{
+                /*tensor_corods=*/{
+                    {
+                        TensorSlotName::INPUT,
+                        input_coord,
+                    },
+                    {
+                        TensorSlotName::WEIGHT,
+                        parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                            /*sum_coord=*/trivial_bounded_component(),
+                            /*discard_copy_coord=*/
+                            assert_unwrap(flatten_orthotope_bounded_coord(
+                                data_parallelism_component)),
+                            /*shard_coords=*/
+                            orthotope_bounded_coord_product(
+                                lift_bounded_component(
+                                    output_channel_parallelism_component),
+                                reduction_parallelism_component)),
+                    },
+                    {
+                        TensorSlotName::BIAS,
+                        parallel_tensor_space_coordinate_from_bounded_orthotope_components(
+                            /*sum_coord=*/assert_unwrap(
+                                flatten_orthotope_bounded_coord(
+                                    reduction_parallelism_component)),
+                            /*discard_copy_coord=*/
+                            assert_unwrap(flatten_orthotope_bounded_coord(
+                                data_parallelism_component)),
+                            /*shard_coords=*/
+                            lift_bounded_component(
+                                output_channel_parallelism_component)),
+                    },
+                    {
+                        TensorSlotName::OUTPUT,
+                        output_coord,
+                    },
+                },
+                /*task_coord=*/
+                task_coord_matching_parallel_tensor_space_coordinate(
+                    output_coord, output_degrees),
+            };
+          }),
   };
 
   return restrict_standard_operator_task_group_to_slots(
-    task_group,
-    linear_get_slots(attrs));
+      task_group, linear_get_slots(attrs));
 }
 
 OperatorTaskSpace linear_get_operator_task_space(
     LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
 
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
   return task_space_for_standard_operator_task_group(op_task_group);
 }
 
-ShardSignatureInstance
-    linear_get_shard_signature_instance(LinearAttrs const &attrs,
-                                        ParallelTensorDimDegrees const &input_degrees) {
+ShardSignatureInstance linear_get_shard_signature_instance(
+    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
 
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
-  return shard_signature_instance_from_standard_operator_task_group(op_task_group);
+  return shard_signature_instance_from_standard_operator_task_group(
+      op_task_group);
 }
 
 OperatorSpaceToParallelTensorSpaceBiuniqueMapping
     linear_get_operator_to_projection_mapping(
         LinearAttrs const &attrs,
-        ParallelTensorDimDegrees const &input_degrees)
-{
+        ParallelTensorDimDegrees const &input_degrees) {
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::WEIGHT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::WEIGHT);
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_input_mapping(
-    LinearAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees
-) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_input_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::INPUT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::INPUT);
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_bias_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_bias_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
 
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::BIAS);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::BIAS);
 }
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping linear_get_operator_to_output_mapping(
-    LinearAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees) {
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    linear_get_operator_to_output_mapping(
+        LinearAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees) {
 
   StandardOperatorTaskGroup op_task_group =
-    linear_get_task_group(attrs, input_degrees);
+      linear_get_task_group(attrs, input_degrees);
 
-  return standard_operator_task_group_get_operator_to_ptensor_mapping(op_task_group, TensorSlotName::OUTPUT);
+  return standard_operator_task_group_get_operator_to_ptensor_mapping(
+      op_task_group, TensorSlotName::OUTPUT);
 }
 
 } // namespace FlexFlow

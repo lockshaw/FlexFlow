@@ -2,10 +2,10 @@
 #define _FLEXFLOW_UTILS_VARIANT_H
 
 #include "utils/type_traits.h"
+#include <functional>
 #include <optional>
 #include <utility>
 #include <variant>
-#include <functional>
 
 namespace FlexFlow {
 

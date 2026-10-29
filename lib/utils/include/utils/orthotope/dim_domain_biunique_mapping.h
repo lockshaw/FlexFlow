@@ -1,6 +1,8 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_BIUNIQUE_MAPPING_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_ORTHOTOPE_DIM_DOMAIN_BIUNIQUE_MAPPING_H
 
+#include "utils/bidict/algorithms/bidict_transform_keys.h"
+#include "utils/bidict/algorithms/bidict_transform_values.h"
 #include "utils/bidict/algorithms/exhaustive_relational_join.h"
 #include "utils/bidict/algorithms/left_entries.h"
 #include "utils/bidict/algorithms/right_entries.h"
@@ -13,8 +15,6 @@
 #include "utils/orthotope/dim_ordering.dtg.h"
 #include "utils/orthotope/dim_projection.h"
 #include "utils/orthotope/minimal_dim_domain.dtg.h"
-#include "utils/bidict/algorithms/bidict_transform_keys.h"
-#include "utils/bidict/algorithms/bidict_transform_values.h"
 
 namespace FlexFlow {
 
@@ -108,36 +108,30 @@ DimDomainBiuniqueMapping<L, R> empty_dim_domain_biunique_mapping() {
 }
 
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R>
-  dim_domain_biunique_mapping_lift_left_domain(
-    DimDomainBiuniqueMapping<L, R> const &m,
-    std::set<L> const &target_dims)
-{
+DimDomainBiuniqueMapping<L, R> dim_domain_biunique_mapping_lift_left_domain(
+    DimDomainBiuniqueMapping<L, R> const &m, std::set<L> const &target_dims) {
   return DimDomainBiuniqueMapping<L, R>{
-    /*coord_mapping=*/bidict_transform_keys(
-      m.coord_mapping,
-      [&](DimCoord<L> const &coord) -> DimCoord<L> {
-        return lift_dim_coord(coord, target_dims);
-      }),
-    /*l_domain=*/lift_domain_to_dims(m.l_domain, target_dims),
-    /*r_domain=*/m.r_domain,
+      /*coord_mapping=*/bidict_transform_keys(
+          m.coord_mapping,
+          [&](DimCoord<L> const &coord) -> DimCoord<L> {
+            return lift_dim_coord(coord, target_dims);
+          }),
+      /*l_domain=*/lift_domain_to_dims(m.l_domain, target_dims),
+      /*r_domain=*/m.r_domain,
   };
 }
 
 template <typename L, typename R>
-DimDomainBiuniqueMapping<L, R>
-  dim_domain_biunique_mapping_lift_right_domain(
-    DimDomainBiuniqueMapping<L, R> const &m,
-    std::set<R> const &target_dims)
-{
+DimDomainBiuniqueMapping<L, R> dim_domain_biunique_mapping_lift_right_domain(
+    DimDomainBiuniqueMapping<L, R> const &m, std::set<R> const &target_dims) {
   return DimDomainBiuniqueMapping<L, R>{
-    /*coord_mapping=*/bidict_transform_values(
-      m.coord_mapping,
-      [&](DimCoord<R> const &coord) -> DimCoord<R> {
-        return lift_dim_coord(coord, target_dims);
-      }),
-    /*l_domain=*/m.l_domain,
-    /*r_domain=*/lift_domain_to_dims(m.r_domain, target_dims),
+      /*coord_mapping=*/bidict_transform_values(
+          m.coord_mapping,
+          [&](DimCoord<R> const &coord) -> DimCoord<R> {
+            return lift_dim_coord(coord, target_dims);
+          }),
+      /*l_domain=*/m.l_domain,
+      /*r_domain=*/lift_domain_to_dims(m.r_domain, target_dims),
   };
 }
 
@@ -250,15 +244,11 @@ struct adl_serializer<::FlexFlow::DimDomainBiuniqueMapping<L, R>> {
 
   static ::FlexFlow::DimDomainBiuniqueMapping<L, R> from_json(json const &j) {
     return ::FlexFlow::DimDomainBiuniqueMapping<L, R>{
-      /*coord_mapping=*/j.at("coord_mapping")
-        .template get<
-          ::FlexFlow::bidict<
-            ::FlexFlow::DimCoord<L>,
-            ::FlexFlow::DimCoord<R>
-          >
-        >(),
-      /*l_domain=*/j.at("l_domain").template get<::FlexFlow::DimDomain<L>>(),
-      /*r_domain=*/j.at("r_domain").template get<::FlexFlow::DimDomain<R>>(),
+        /*coord_mapping=*/j.at("coord_mapping")
+            .template get<::FlexFlow::bidict<::FlexFlow::DimCoord<L>,
+                                             ::FlexFlow::DimCoord<R>>>(),
+        /*l_domain=*/j.at("l_domain").template get<::FlexFlow::DimDomain<L>>(),
+        /*r_domain=*/j.at("r_domain").template get<::FlexFlow::DimDomain<R>>(),
     };
   }
 };

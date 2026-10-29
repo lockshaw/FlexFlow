@@ -68,4 +68,4 @@ using R = ::FlexFlow::ordered_value_type<1>;
 
 template struct hash<::FlexFlow::MinimalDimDomainHemiuniqueMapping<L, R>>;
 
-}
+} // namespace std

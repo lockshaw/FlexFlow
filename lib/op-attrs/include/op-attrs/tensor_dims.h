@@ -6,8 +6,8 @@
 #include "op-attrs/tensor_dims.dtg.h"
 #include "op-attrs/tensor_dims_coord.dtg.h"
 #include "utils/bidict/bidict.h"
-#include "utils/containers/map_from_keys_and_values.h"
 #include "utils/containers/keys.h"
+#include "utils/containers/map_from_keys_and_values.h"
 
 namespace FlexFlow {
 
@@ -41,13 +41,11 @@ TensorDimsCoord get_broadcast_src_coord(TensorDims const &input_dims,
 
 TensorDims get_shared_leading_dims(std::set<TensorDims> const &);
 
-TensorDims
-  tensor_dims_remove_leading_dims(TensorDims const &,
-                                  TensorDims const &leading_dims);
+TensorDims tensor_dims_remove_leading_dims(TensorDims const &,
+                                           TensorDims const &leading_dims);
 
-TensorDims
-  tensor_dims_remove_trailing_dims(TensorDims const &,
-                                   TensorDims const &trailing_dims);
+TensorDims tensor_dims_remove_trailing_dims(TensorDims const &,
+                                            TensorDims const &trailing_dims);
 
 std::set<TensorDimsCoord>
     get_tensor_dims_coord_set(TensorDims const &tensor_dims);
@@ -61,8 +59,7 @@ TensorDims
     tensor_dims_drop_dims(TensorDims const &dims,
                           std::function<bool(ff_dim_t)> const &should_drop_dim);
 
-TensorDims concat_tensor_dims(TensorDims const &,
-                              TensorDims const &);
+TensorDims concat_tensor_dims(TensorDims const &, TensorDims const &);
 
 TensorDims slice_tensor_dims(TensorDims const &,
                              ff_dim_t const &start,
@@ -73,13 +70,12 @@ TensorDims slice_tensor_dims(TensorDims const &,
                              std::optional<relative_ff_dim_t> const &stop);
 
 TensorDims tensor_dims_transform_with_idx(
-  TensorDims const &,
-  std::function<positive_int(ff_dim_t, positive_int)> const &);
+    TensorDims const &,
+    std::function<positive_int(ff_dim_t, positive_int)> const &);
 
 TensorDims tensor_dims_filtrans_with_idx(
-  TensorDims const &,
-  std::function<std::optional<positive_int>(ff_dim_t, positive_int)> const &);
-
+    TensorDims const &,
+    std::function<std::optional<positive_int>(ff_dim_t, positive_int)> const &);
 
 } // namespace FlexFlow
 

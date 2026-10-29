@@ -27,11 +27,11 @@ std::optional<ShardParallelDim>
 ParallelTensorDimDegrees get_parallel_degrees(ParallelTensorShape const &);
 
 ParallelTensorShape lift_shape_to_parallel(TensorShape const &);
-ParallelTensorShape
-    lift_shape_to_parallel_with_degrees(TensorShape const &,
-                                        SumDegree const &,
-                                        DiscardCopyDegree const &,
-                                        FFOrdered<positive_int> const &shard_degrees);
+ParallelTensorShape lift_shape_to_parallel_with_degrees(
+    TensorShape const &,
+    SumDegree const &,
+    DiscardCopyDegree const &,
+    FFOrdered<positive_int> const &shard_degrees);
 ParallelTensorShape
     lift_shape_to_parallel_with_degrees(TensorShape const &,
                                         ParallelTensorDimDegrees const &);

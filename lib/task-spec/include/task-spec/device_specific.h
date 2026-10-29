@@ -3,9 +3,9 @@
 
 #include "task-spec/global_device_id_t.dtg.h"
 #include "utils/hash/tuple.h"
+#include "utils/not_implemented.h"
 #include <libassert/assert.hpp>
 #include <nlohmann/json.hpp>
-#include "utils/not_implemented.h"
 
 namespace FlexFlow {
 

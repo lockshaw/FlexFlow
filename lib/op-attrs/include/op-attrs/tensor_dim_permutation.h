@@ -6,11 +6,11 @@
 #include "op-attrs/num_tensor_dims_t.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
+#include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
 #include "op-attrs/tensor_dims.dtg.h"
+#include "op-attrs/tensor_dims_coord.dtg.h"
 #include "op-attrs/tensor_shape.dtg.h"
 #include "utils/bidict/bidict.h"
-#include "op-attrs/parallel_tensor_space_coordinate.dtg.h"
-#include "op-attrs/tensor_dims_coord.dtg.h"
 
 namespace FlexFlow {
 
@@ -72,9 +72,8 @@ ParallelTensorDims permute_parallel_tensor_dims(TensorDimPermutation const &,
 ParallelTensorShape permute_parallel_tensor_shape(TensorDimPermutation const &,
                                                   ParallelTensorShape const &);
 
-ParallelTensorSpaceCoordinate
-    permute_parallel_tensor_space_coordinate(TensorDimPermutation const &,
-                                             ParallelTensorSpaceCoordinate const &);
+ParallelTensorSpaceCoordinate permute_parallel_tensor_space_coordinate(
+    TensorDimPermutation const &, ParallelTensorSpaceCoordinate const &);
 
 } // namespace FlexFlow
 

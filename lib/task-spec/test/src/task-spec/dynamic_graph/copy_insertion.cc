@@ -10,12 +10,12 @@
 #include "task-spec/dynamic_graph/pass_expansion.h"
 #include "task-spec/dynamic_graph/serializable_dynamic_node_invocation.h"
 #include "task-spec/dynamic_graph/serializable_dynamic_open_dataflow_graph.h"
+#include "task-spec/dynamic_graph/shard_expansion.h"
 #include "test/utils/doctest/check_kv.h"
 #include "test/utils/doctest/fmt/set.h"
 #include "utils/containers/require_only_key.h"
-#include <doctest/doctest.h>
-#include "task-spec/dynamic_graph/shard_expansion.h"
 #include "utils/nonempty_set/transform_nonempty_set.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 
@@ -168,11 +168,12 @@ static SingleInputGraph
   DynamicOpenDataflowGraph g =
       dynamic_open_dataflow_graph_from_invocation_set({input_invocation});
 
-  dynamic_invocation_id_t input_id = dynamic_graph_get_id_for_invocation(g, input_invocation);
+  dynamic_invocation_id_t input_id =
+      dynamic_graph_get_id_for_invocation(g, input_invocation);
 
   return SingleInputGraph{
-    /*g=*/g,
-    /*input_op_id=*/input_id,
+      /*g=*/g,
+      /*input_op_id=*/input_id,
   };
 }
 
@@ -308,13 +309,15 @@ static InputReluGraph mk_single_input_into_relu_graph(
   DynamicOpenDataflowGraph g = dynamic_open_dataflow_graph_from_invocation_set(
       {input_invocation, relu1_invocation});
 
-  dynamic_invocation_id_t input_id = dynamic_graph_get_id_for_invocation(g, input_invocation);
-  dynamic_invocation_id_t relu1_id = dynamic_graph_get_id_for_invocation(g, relu1_invocation);
+  dynamic_invocation_id_t input_id =
+      dynamic_graph_get_id_for_invocation(g, input_invocation);
+  dynamic_invocation_id_t relu1_id =
+      dynamic_graph_get_id_for_invocation(g, relu1_invocation);
 
   return InputReluGraph{
-    /*g=*/g,
-    /*input_invocation_id=*/input_id,
-    /*relu_invocation_id=*/relu1_id,
+      /*g=*/g,
+      /*input_invocation_id=*/input_id,
+      /*relu_invocation_id=*/relu1_id,
   };
 }
 
@@ -326,13 +329,12 @@ struct InputPartitionReluReluGraph {
   dynamic_invocation_id_t relu2_op_id;
 };
 
-static InputPartitionReluReluGraph mk_input_partition_relu_relu(
-    MachineSpaceCoordinate const &input_device,
-    MachineSpaceCoordinate const &relu1_device1,
-    MachineSpaceCoordinate const &relu1_device2,
-    MachineSpaceCoordinate const &relu2_device1,
-    MachineSpaceCoordinate const &relu2_device2)
-{
+static InputPartitionReluReluGraph
+    mk_input_partition_relu_relu(MachineSpaceCoordinate const &input_device,
+                                 MachineSpaceCoordinate const &relu1_device1,
+                                 MachineSpaceCoordinate const &relu1_device2,
+                                 MachineSpaceCoordinate const &relu2_device1,
+                                 MachineSpaceCoordinate const &relu2_device2) {
   int pcg_input_id = 123;
   int pcg_repartition_id = 124;
   int pcg_relu1_id = 125;
@@ -378,8 +380,8 @@ static InputPartitionReluReluGraph mk_input_partition_relu_relu(
     };
   };
 
-  DynamicValueAttrs input_op_output =
-      mk_value_attrs(pcg_input_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
+  DynamicValueAttrs input_op_output = mk_value_attrs(
+      pcg_input_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
 
   MappedOperatorTaskGroup input_node_mapping = MappedOperatorTaskGroup{
       bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
@@ -413,8 +415,8 @@ static InputPartitionReluReluGraph mk_input_partition_relu_relu(
       },
   };
 
-  DynamicValueAttrs repartition_op_output =
-      mk_value_attrs(pcg_repartition_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
+  DynamicValueAttrs repartition_op_output = mk_value_attrs(
+      pcg_repartition_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
 
   MappedOperatorTaskGroup repartition_node_mapping = MappedOperatorTaskGroup{
       bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
@@ -477,8 +479,8 @@ static InputPartitionReluReluGraph mk_input_partition_relu_relu(
       },
   };
 
-  DynamicValueAttrs relu1_op_output =
-      mk_value_attrs(pcg_relu1_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
+  DynamicValueAttrs relu1_op_output = mk_value_attrs(
+      pcg_relu1_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
 
   MappedOperatorTaskGroup relu1_node_mapping = MappedOperatorTaskGroup{
       bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
@@ -536,8 +538,8 @@ static InputPartitionReluReluGraph mk_input_partition_relu_relu(
       },
   };
 
-  DynamicValueAttrs relu2_op_output =
-      mk_value_attrs(pcg_relu2_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
+  DynamicValueAttrs relu2_op_output = mk_value_attrs(
+      pcg_relu2_id, TensorSlotName::OUTPUT, /*mapping=*/std::nullopt);
 
   MappedOperatorTaskGroup relu2_node_mapping = MappedOperatorTaskGroup{
       bidict<MachineSpaceCoordinate, OperatorAtomicTaskShardBinding>{
@@ -595,20 +597,27 @@ static InputPartitionReluReluGraph mk_input_partition_relu_relu(
       },
   };
 
-  DynamicOpenDataflowGraph g = dynamic_open_dataflow_graph_from_invocation_set(
-      {input_invocation, relu1_invocation, repartition_invocation, relu2_invocation});
+  DynamicOpenDataflowGraph g =
+      dynamic_open_dataflow_graph_from_invocation_set({input_invocation,
+                                                       relu1_invocation,
+                                                       repartition_invocation,
+                                                       relu2_invocation});
 
-  dynamic_invocation_id_t input_id = dynamic_graph_get_id_for_invocation(g, input_invocation);
-  dynamic_invocation_id_t repartition_id = dynamic_graph_get_id_for_invocation(g, repartition_invocation);
-  dynamic_invocation_id_t relu1_id = dynamic_graph_get_id_for_invocation(g, relu1_invocation);
-  dynamic_invocation_id_t relu2_id = dynamic_graph_get_id_for_invocation(g, relu2_invocation);
+  dynamic_invocation_id_t input_id =
+      dynamic_graph_get_id_for_invocation(g, input_invocation);
+  dynamic_invocation_id_t repartition_id =
+      dynamic_graph_get_id_for_invocation(g, repartition_invocation);
+  dynamic_invocation_id_t relu1_id =
+      dynamic_graph_get_id_for_invocation(g, relu1_invocation);
+  dynamic_invocation_id_t relu2_id =
+      dynamic_graph_get_id_for_invocation(g, relu2_invocation);
 
   return InputPartitionReluReluGraph{
-    /*g=*/g,
-    /*input_op_id=*/input_id,
-    /*repartition_op_id=*/repartition_id,
-    /*relu1_op_id=*/relu1_id,
-    /*relu2_op_id=*/relu2_id,
+      /*g=*/g,
+      /*input_op_id=*/input_id,
+      /*repartition_op_id=*/repartition_id,
+      /*relu1_op_id=*/relu1_id,
+      /*relu2_op_id=*/relu2_id,
   };
 }
 
@@ -620,13 +629,13 @@ struct InputReluReplicateReluGraph {
   dynamic_invocation_id_t relu2_op_id;
 };
 
-static InputReluReplicateReluGraph
-    mk_input_relu_replicate_relu_graph(MachineSpaceCoordinate const &input_device,
-                               MachineSpaceCoordinate const &relu1_device,
-                               MachineSpaceCoordinate const &replicate_device1,
-                               MachineSpaceCoordinate const &replicate_device2,
-                               MachineSpaceCoordinate const &relu2_device1,
-                               MachineSpaceCoordinate const &relu2_device2) {
+static InputReluReplicateReluGraph mk_input_relu_replicate_relu_graph(
+    MachineSpaceCoordinate const &input_device,
+    MachineSpaceCoordinate const &relu1_device,
+    MachineSpaceCoordinate const &replicate_device1,
+    MachineSpaceCoordinate const &replicate_device2,
+    MachineSpaceCoordinate const &relu2_device1,
+    MachineSpaceCoordinate const &relu2_device2) {
   TensorShape input_shape = TensorShape{
       TensorDims{
           FFOrdered<positive_int>{
@@ -879,7 +888,8 @@ static InputReluReplicateReluGraph
       /*g=*/g,
       /*input_op_id=*/dynamic_graph_get_id_for_invocation(g, input_invocation),
       /*relu1_op_id=*/dynamic_graph_get_id_for_invocation(g, relu1_invocation),
-      /*replicate_op_id=*/dynamic_graph_get_id_for_invocation(g, replicate_invocation),
+      /*replicate_op_id=*/
+      dynamic_graph_get_id_for_invocation(g, replicate_invocation),
       /*relu2_op_id=*/dynamic_graph_get_id_for_invocation(g, relu2_invocation),
   };
 };
@@ -2258,18 +2268,19 @@ TEST_SUITE(FF_TEST_SUITE) {
                     check_kv("correct\n", correct_json.dump()));
     }
 
-    SUBCASE("combination of copy insertion and shard expansion correctly handle partial copies") {
+    SUBCASE("combination of copy insertion and shard expansion correctly "
+            "handle partial copies") {
 
       MachineSpaceCoordinate mc1 = mk_machine_coord(0_n);
       MachineSpaceCoordinate mc2 = mk_machine_coord(1_n);
       MachineSpaceCoordinate mc3 = mk_machine_coord(2_n);
 
       InputPartitionReluReluGraph tc = mk_input_partition_relu_relu(
-        /*input_device=*/mc1,
-        /*relu1_device1=*/mc1,
-        /*relu1_device2=*/mc2,
-        /*relu2_device1=*/mc1,
-        /*relu2_device2=*/mc3);
+          /*input_device=*/mc1,
+          /*relu1_device1=*/mc1,
+          /*relu1_device2=*/mc2,
+          /*relu2_device1=*/mc1,
+          /*relu2_device2=*/mc3);
 
       DynamicOpenDataflowGraph result =
           perform_shard_expansion(perform_copy_insertion(tc.g));
@@ -2308,23 +2319,26 @@ TEST_SUITE(FF_TEST_SUITE) {
 
         auto map_dynamic_node =
             [](DynamicNodeInvocation const &invocation,
-               nonempty_set<MachineSpaceCoordinate> const &machine_coords) -> DynamicNodeInvocation {
+               nonempty_set<MachineSpaceCoordinate> const &machine_coords)
+            -> DynamicNodeInvocation {
           DynamicNodeInvocation result = invocation;
-          result.node_attrs.device_ids = transform_nonempty_set(machine_coords, mk_device_id);
+          result.node_attrs.device_ids =
+              transform_nonempty_set(machine_coords, mk_device_id);
           return result;
         };
 
         auto map_input_and_output_values =
             [&](DynamicNodeInvocation const &invocation,
                 ParallelTensorMapping const &input_mapping,
-                nonempty_set<MachineSpaceCoordinate> const &invocation_machine_coords,
+                nonempty_set<MachineSpaceCoordinate> const
+                    &invocation_machine_coords,
                 ParallelTensorMapping const &output_mapping)
             -> DynamicNodeInvocation {
           return map_input_value(
-            map_output_value(
-              map_dynamic_node(invocation, invocation_machine_coords),
-              output_mapping),
-            input_mapping);
+              map_output_value(
+                  map_dynamic_node(invocation, invocation_machine_coords),
+                  output_mapping),
+              input_mapping);
         };
 
         auto mk_single_shard_mapping =
@@ -2366,8 +2380,7 @@ TEST_SUITE(FF_TEST_SUITE) {
             dynamic_graph_get_invocation_for_id(tc.g, tc.relu2_op_id);
 
         DynamicNodeInvocation value_mapped_input_invocation =
-            map_output_value(input_invocation, 
-                             mk_single_shard_mapping(mc1));
+            map_output_value(input_invocation, mk_single_shard_mapping(mc1));
 
         DynamicNodeInvocation value_mapped_repartition_invocation =
             map_input_and_output_values(repartition_invocation,
@@ -2399,33 +2412,36 @@ TEST_SUITE(FF_TEST_SUITE) {
                                         nonempty_set{mc3},
                                         mk_single_shard_mapping(mc3));
 
-        DynamicNodeInvocation relu1_mc2_to_relu2_mc3_copy = DynamicNodeInvocation{
-            /*inputs=*/{
-                {
-                    mk_slot(TensorSlotName::INPUT),
-                    require_only_key(value_mapped_relu1_mc2_invocation.outputs,
-                                     mk_slot(TensorSlotName::OUTPUT)),
+        DynamicNodeInvocation relu1_mc2_to_relu2_mc3_copy =
+            DynamicNodeInvocation{
+                /*inputs=*/{
+                    {
+                        mk_slot(TensorSlotName::INPUT),
+                        require_only_key(
+                            value_mapped_relu1_mc2_invocation.outputs,
+                            mk_slot(TensorSlotName::OUTPUT)),
+                    },
                 },
-            },
-            /*node_attrs=*/
-            DynamicNodeAttrs{
-                /*task_type=*/std::nullopt,
-                /*device_ids=*/std::nullopt,
-                /*mapping=*/std::nullopt,
-                /*op_attrs=*/TrainingOperationAttrs{CopyAttrs{}},
-                /*layer_guid=*/
-                dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
-                /*per_device_op_state=*/std::nullopt,
-            },
-            /*outputs=*/
-            {
-                {
-                    mk_slot(TensorSlotName::OUTPUT),
-                    require_only_key(value_mapped_relu2_mc3_invocation.inputs,
-                                     mk_slot(TensorSlotName::INPUT)),
+                /*node_attrs=*/
+                DynamicNodeAttrs{
+                    /*task_type=*/std::nullopt,
+                    /*device_ids=*/std::nullopt,
+                    /*mapping=*/std::nullopt,
+                    /*op_attrs=*/TrainingOperationAttrs{CopyAttrs{}},
+                    /*layer_guid=*/
+                    dynamic_layer_guid_t{dynamic_copy_layer_guid_t{}},
+                    /*per_device_op_state=*/std::nullopt,
                 },
-            },
-        };
+                /*outputs=*/
+                {
+                    {
+                        mk_slot(TensorSlotName::OUTPUT),
+                        require_only_key(
+                            value_mapped_relu2_mc3_invocation.inputs,
+                            mk_slot(TensorSlotName::INPUT)),
+                    },
+                },
+            };
 
         return dynamic_open_dataflow_graph_from_invocation_set({
             value_mapped_input_invocation,
@@ -2476,8 +2492,7 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       SUBCASE("graph is single input node followed by relu") {
         SUBCASE("operations are mapped to the same device") {
-          InputReluGraph tc =
-              mk_single_input_into_relu_graph(mc1, mc1);
+          InputReluGraph tc = mk_single_input_into_relu_graph(mc1, mc1);
 
           DynamicOpenDataflowGraph pass_expansion_before_copy_insertion =
               perform_copy_insertion(perform_pass_expansion(tc.g));
@@ -2507,8 +2522,7 @@ TEST_SUITE(FF_TEST_SUITE) {
         }
 
         SUBCASE("operations are mapped to different devices") {
-          InputReluGraph tc =
-              mk_single_input_into_relu_graph(mc1, mc2);
+          InputReluGraph tc = mk_single_input_into_relu_graph(mc1, mc2);
 
           DynamicOpenDataflowGraph pass_expansion_before_copy_insertion =
               perform_copy_insertion(perform_pass_expansion(tc.g));

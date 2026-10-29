@@ -1,6 +1,6 @@
 #include "utils/orthotope/dim_domain_hemiunique_mapping.h"
-#include "utils/archetypes/ordered_value_type.h"
 #include "utils/archetypes/jsonable_ordered_value_type.h"
+#include "utils/archetypes/ordered_value_type.h"
 
 namespace FlexFlow {
 
@@ -20,17 +20,13 @@ template DimDomainHemiuniqueMapping<L, R>
     hemiunique_from_biunique_dim_domain_mapping(
         DimDomainBiuniqueMapping<L, R> const &);
 
-template
-  DimDomainHemiuniqueMapping<L, R>
+template DimDomainHemiuniqueMapping<L, R>
     dim_domain_hemiunique_mapping_lift_left_domain(
-      DimDomainHemiuniqueMapping<L, R> const &,
-      std::set<L> const &);
+        DimDomainHemiuniqueMapping<L, R> const &, std::set<L> const &);
 
-template
-  DimDomainHemiuniqueMapping<L, R>
+template DimDomainHemiuniqueMapping<L, R>
     dim_domain_hemiunique_mapping_lift_right_domain(
-      DimDomainHemiuniqueMapping<L, R> const &,
-      std::set<R> const &);
+        DimDomainHemiuniqueMapping<L, R> const &, std::set<R> const &);
 
 template DimDomainHemiuniqueMapping<L, R>
     dim_domain_hemiunique_mapping_identity_map(DimDomain<L> const &,

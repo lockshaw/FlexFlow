@@ -1,45 +1,47 @@
 #ifndef _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPS_UPSAMPLE_H
 #define _FLEXFLOW_LIB_OP_ATTRS_INCLUDE_OP_ATTRS_OPS_UPSAMPLE_H
 
+#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
+#include "op-attrs/operator_task_space.dtg.h"
 #include "op-attrs/ops/upsample_attrs.dtg.h"
 #include "op-attrs/parallel_tensor_dim_degrees.dtg.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
-#include "op-attrs/tensor_shape.dtg.h"
-#include "op-attrs/operator_task_space.dtg.h"
-#include "op-attrs/operator_space_to_parallel_tensor_space_biunique_mapping.dtg.h"
-#include "op-attrs/standard_operator_task_group.h"
 #include "op-attrs/shard_signature_instance.h"
+#include "op-attrs/standard_operator_task_group.h"
+#include "op-attrs/tensor_shape.dtg.h"
 
 namespace FlexFlow {
 
 TensorShape upsample_get_output_shape(UpsampleAttrs const &attrs,
-                             TensorShape const &input_shape);
+                                      TensorShape const &input_shape);
 
 ParallelTensorDimDegrees upsample_get_output_parallel_dim_degrees(
     UpsampleAttrs const &attrs,
     ParallelTensorDimDegrees const &input_dim_degrees);
 
-ParallelTensorShape upsample_get_output_parallel_shape(UpsampleAttrs const &attrs,
-                                     ParallelTensorShape const &input_shape);
+ParallelTensorShape
+    upsample_get_output_parallel_shape(UpsampleAttrs const &attrs,
+                                       ParallelTensorShape const &input_shape);
 
-StandardOperatorTaskGroup upsample_get_task_group(
-    UpsampleAttrs const &attrs,
-    ParallelTensorDimDegrees const &input_degrees);
+StandardOperatorTaskGroup
+    upsample_get_task_group(UpsampleAttrs const &attrs,
+                            ParallelTensorDimDegrees const &input_degrees);
 
-ShardSignatureInstance
-    upsample_get_shard_signature_instance(
-          UpsampleAttrs const &attrs,
-          ParallelTensorDimDegrees const &input_degrees);
+ShardSignatureInstance upsample_get_shard_signature_instance(
+    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
 OperatorTaskSpace upsample_get_operator_task_space(
     UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping upsample_get_operator_to_input_mapping(
-    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    upsample_get_operator_to_input_mapping(
+        UpsampleAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
 
-OperatorSpaceToParallelTensorSpaceBiuniqueMapping upsample_get_operator_to_output_mapping(
-    UpsampleAttrs const &attrs, ParallelTensorDimDegrees const &input_degrees);
-
+OperatorSpaceToParallelTensorSpaceBiuniqueMapping
+    upsample_get_operator_to_output_mapping(
+        UpsampleAttrs const &attrs,
+        ParallelTensorDimDegrees const &input_degrees);
 
 } // namespace FlexFlow
 

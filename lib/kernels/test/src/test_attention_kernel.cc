@@ -1,10 +1,10 @@
+#include "kernels/accessor_contains_non_zero_value.h"
 #include "kernels/attention_kernels_gpu.h"
-#include <doctest/doctest.h>
+#include "kernels/create_random_filled_accessor.h"
+#include "kernels/local_cuda_allocator.h"
 #include "kernels/managed_ff_stream.h"
 #include "kernels/managed_per_device_ff_handle.h"
-#include "kernels/local_cuda_allocator.h"
-#include "kernels/create_random_filled_accessor.h"
-#include "kernels/accessor_contains_non_zero_value.h"
+#include <doctest/doctest.h>
 
 using namespace ::FlexFlow;
 

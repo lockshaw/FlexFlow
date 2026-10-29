@@ -6,10 +6,11 @@
 namespace FlexFlow {
 
 template <typename L, typename R>
-bool binary_relation_is_biunique(BinaryRelation<L, R> const &rel)
-{
-  bool ls_are_unique = rel.left_value_occurences().size() == rel.left_values().size();
-  bool rs_are_unique = rel.right_value_occurences().size() == rel.right_values().size();
+bool binary_relation_is_biunique(BinaryRelation<L, R> const &rel) {
+  bool ls_are_unique =
+      rel.left_value_occurences().size() == rel.left_values().size();
+  bool rs_are_unique =
+      rel.right_value_occurences().size() == rel.right_values().size();
 
   return ls_are_unique && rs_are_unique;
 }

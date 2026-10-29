@@ -1,9 +1,9 @@
 #ifndef _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_SET_OF_H
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_SET_OF_H
 
+#include "utils/containers/get_element_type.h"
 #include <map>
 #include <set>
-#include "utils/containers/get_element_type.h"
 
 namespace FlexFlow {
 

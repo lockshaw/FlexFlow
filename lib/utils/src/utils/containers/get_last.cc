@@ -5,7 +5,6 @@ namespace FlexFlow {
 
 using T = value_type<0>;
 
-template
-  T const &get_last(std::vector<T> const &);
+template T const &get_last(std::vector<T> const &);
 
 } // namespace FlexFlow

@@ -6,10 +6,10 @@
 
 namespace FlexFlow {
 
-MultiHeadAttentionParallelInputs
-    parse_attention_parallel_input_shape(ParallelTensorDimDegrees const &input_q,
-                                         ParallelTensorDimDegrees const &input_k,
-                                         ParallelTensorDimDegrees const &input_v);
+MultiHeadAttentionParallelInputs parse_attention_parallel_input_shape(
+    ParallelTensorDimDegrees const &input_q,
+    ParallelTensorDimDegrees const &input_k,
+    ParallelTensorDimDegrees const &input_v);
 
 } // namespace FlexFlow
 

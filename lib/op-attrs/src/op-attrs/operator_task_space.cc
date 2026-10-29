@@ -5,6 +5,7 @@
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_shape.dtg.h"
 #include "op-attrs/parallel_tensor_shape.h"
+#include "op-attrs/task_space_coordinate.h"
 #include "utils/containers/cartesian_product.h"
 #include "utils/containers/extend.h"
 #include "utils/containers/maximum.h"
@@ -16,14 +17,13 @@
 #include "utils/fmt/set.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
+#include "utils/orthotope/dim_coord.h"
 #include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/dim_ordering.h"
 #include "utils/orthotope/minimal_dim_domain.h"
 #include "utils/orthotope/minimal_orthotope.h"
 #include "utils/orthotope/orthotope.dtg.h"
 #include "utils/orthotope/orthotope.h"
-#include "op-attrs/task_space_coordinate.h"
-#include "utils/orthotope/dim_coord.h"
 
 namespace FlexFlow {
 
@@ -57,8 +57,8 @@ std::set<TaskSpaceCoordinate>
 bool operator_task_space_contains_coord(OperatorTaskSpace const &task_space,
                                         TaskSpaceCoordinate const &coord) {
   return orthotope_contains_coord(
-    orthotope_from_minimal_orthotope(task_space.degrees), 
-    coord.orthotope_coord);
+      orthotope_from_minimal_orthotope(task_space.degrees),
+      coord.orthotope_coord);
 }
 
 TaskSpaceCoordinate
@@ -119,43 +119,37 @@ OperatorTaskSpace get_operator_task_space_matching_parallel_tensor_dim_degrees(
   };
 }
 
-OperatorTaskSpace
-  smallest_operator_task_space_for_coord_set(
-     std::set<TaskSpaceCoordinate> const &coord_set)
-{
-  std::set<DimCoord<operator_task_space_dim_idx_t>>
-    dim_coord_set = transform(coord_set,
-                              [&](TaskSpaceCoordinate const &c)
-                                -> DimCoord<operator_task_space_dim_idx_t>
-                              {
-                                return dim_coord_from_task_space_coordinate(c);
-                              });
+OperatorTaskSpace smallest_operator_task_space_for_coord_set(
+    std::set<TaskSpaceCoordinate> const &coord_set) {
+  std::set<DimCoord<operator_task_space_dim_idx_t>> dim_coord_set =
+      transform(coord_set,
+                [&](TaskSpaceCoordinate const &c)
+                    -> DimCoord<operator_task_space_dim_idx_t> {
+                  return dim_coord_from_task_space_coordinate(c);
+                });
 
-  DimDomain<operator_task_space_dim_idx_t>
-    dim_domain = smallest_dim_domain_for_coord_set(dim_coord_set);
+  DimDomain<operator_task_space_dim_idx_t> dim_domain =
+      smallest_dim_domain_for_coord_set(dim_coord_set);
 
   return operator_task_space_from_minimal_dim_domain(
-    require_dim_domain_is_minimal(dim_domain));
+      require_dim_domain_is_minimal(dim_domain));
 }
 
-std::optional<OperatorTaskSpace>
-  strict_operator_task_space_for_coord_set(
-     std::set<TaskSpaceCoordinate> const &coord_set)
-{
-  std::set<DimCoord<operator_task_space_dim_idx_t>>
-    dim_coord_set = transform(coord_set,
-                              [&](TaskSpaceCoordinate const &c)
-                                -> DimCoord<operator_task_space_dim_idx_t>
-                              {
-                                return dim_coord_from_task_space_coordinate(c);
-                              });
+std::optional<OperatorTaskSpace> strict_operator_task_space_for_coord_set(
+    std::set<TaskSpaceCoordinate> const &coord_set) {
+  std::set<DimCoord<operator_task_space_dim_idx_t>> dim_coord_set =
+      transform(coord_set,
+                [&](TaskSpaceCoordinate const &c)
+                    -> DimCoord<operator_task_space_dim_idx_t> {
+                  return dim_coord_from_task_space_coordinate(c);
+                });
 
-  std::optional<DimDomain<operator_task_space_dim_idx_t>>
-    dim_domain = strict_dim_domain_for_coord_set(dim_coord_set);
+  std::optional<DimDomain<operator_task_space_dim_idx_t>> dim_domain =
+      strict_dim_domain_for_coord_set(dim_coord_set);
 
   if (dim_domain.has_value()) {
     return operator_task_space_from_minimal_dim_domain(
-      require_dim_domain_is_minimal(dim_domain.value()));
+        require_dim_domain_is_minimal(dim_domain.value()));
   } else {
     return std::nullopt;
   }

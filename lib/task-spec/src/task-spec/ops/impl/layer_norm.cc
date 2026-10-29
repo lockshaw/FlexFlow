@@ -27,16 +27,17 @@
 namespace FlexFlow {
 
 static std::optional<milliseconds_t>
-    forward_task_impl(TaskArgumentAccessor const &acc)
-{
+    forward_task_impl(TaskArgumentAccessor const &acc) {
   LayerNormAttrs attrs = acc.get_op_attrs().require_layer_norm();
   ProfilingSettings profiling = acc.get_profiling_settings();
   DeviceType kernel_device_type = acc.get_kernel_device_type();
   LayerNormPerDeviceState state =
       acc.get_per_device_op_state().require_layer_norm().value();
 
-  GenericTensorAccessorR input = acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
-  GenericTensorAccessorW output = acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
+  GenericTensorAccessorR input =
+      acc.get_tensor<Permissions::RO>(TensorSlotName::INPUT);
+  GenericTensorAccessorW output =
+      acc.get_tensor<Permissions::WO>(TensorSlotName::OUTPUT);
 
   std::optional<GenericTensorAccessorR> gamma = std::nullopt;
   std::optional<GenericTensorAccessorR> beta = std::nullopt;
@@ -108,12 +109,12 @@ static DeviceSpecificPerDeviceOpState
 
   std::optional<LayerNormPerDeviceState> per_device_state =
       layer_norm_init_kernel(kernel_device_type,
-                  handle,
-                  allocator,
-                  attrs.elementwise_affine,
-                  effective_batch_size.int_from_positive_int(),
-                  effective_num_elements.int_from_positive_int(),
-                  attrs.eps);
+                             handle,
+                             allocator,
+                             attrs.elementwise_affine,
+                             effective_batch_size.int_from_positive_int(),
+                             effective_num_elements.int_from_positive_int(),
+                             attrs.eps);
 
   return DeviceSpecificPerDeviceOpState{
       acc.make_device_specific(per_device_state),

@@ -4,9 +4,9 @@
 #include "utils/fmt/multiset.h"
 #include "utils/fmt/unordered_multiset.h"
 #include <fmt/format.h>
+#include <libassert/assert.hpp>
 #include <set>
 #include <unordered_set>
-#include <libassert/assert.hpp>
 
 namespace FlexFlow {
 
@@ -16,10 +16,8 @@ std::unordered_set<T>
   std::unordered_set<T> result{s.cbegin(), s.cend()};
 
   ASSERT(
-    result.size() == s.size(),
-    fmt::format(
-        "require_no_duplicates encountered duplicate in set {}", s)
-  );
+      result.size() == s.size(),
+      fmt::format("require_no_duplicates encountered duplicate in set {}", s));
 
   return result;
 }
@@ -29,10 +27,8 @@ std::set<T> require_no_duplicates(std::multiset<T> const &s) {
   std::set<T> result{s.cbegin(), s.cend()};
 
   ASSERT(
-    result.size() == s.size(),
-    fmt::format(
-        "require_no_duplicates encountered duplicate in set {}", s)
-  );
+      result.size() == s.size(),
+      fmt::format("require_no_duplicates encountered duplicate in set {}", s));
 
   return result;
 }

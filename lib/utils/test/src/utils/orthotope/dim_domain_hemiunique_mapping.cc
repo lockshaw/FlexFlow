@@ -92,8 +92,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DimDomainHemiuniqueMapping<int, std::string>{
               /*coord_mapping=*/HemiuniqueBinaryRelation<DimCoord<int>,
                                                          DimCoord<std::string>>{
-                  many_to_one_from_unstructured_relation(std::set<
-                                                         std::pair<
+                  many_to_one_from_unstructured_relation(std::set<std::pair<
                                                              DimCoord<int>,
                                                              DimCoord<
                                                                  std::string>>>{

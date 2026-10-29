@@ -1,11 +1,20 @@
 #include "op-attrs/parallel_tensor_dim_degrees.h"
+#include "op-attrs/ff_ordered/ff_ordered_concat.h"
 #include "op-attrs/ff_ordered/ff_ordered_from_map.h"
 #include "op-attrs/ff_ordered/ff_ordered_get_idxs.h"
+#include "op-attrs/ff_ordered/ff_ordered_remove_suffix.h"
+#include "op-attrs/ff_ordered/ff_ordered_restrict_dims.h"
+#include "op-attrs/ff_ordered/ff_ordered_slice.h"
+#include "op-attrs/ff_ordered/ff_ordered_without_dims.h"
+#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
 #include "op-attrs/num_tensor_dims_t.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.dtg.h"
 #include "op-attrs/parallel_tensor_dim_idx_t.h"
 #include "op-attrs/parallel_tensor_space_coordinate.h"
+#include "op-attrs/relative_ff_dim_t.h"
+#include "op-attrs/tensor_dims.h"
 #include "utils/containers/binary_merge_disjoint_maps.h"
+#include "utils/containers/filter_keys.h"
 #include "utils/containers/filtermap_keys.h"
 #include "utils/containers/filtrans.h"
 #include "utils/containers/generate_map.h"
@@ -14,24 +23,15 @@
 #include "utils/containers/map_values.h"
 #include "utils/containers/product.h"
 #include "utils/containers/range.h"
+#include "utils/containers/repeat_element.h"
 #include "utils/containers/set_of.h"
 #include "utils/containers/set_union.h"
 #include "utils/containers/transform.h"
 #include "utils/nonnegative_int/nonnegative_range.h"
 #include "utils/nonnegative_int/num_elements.h"
-#include "utils/orthotope/minimal_dim_domain.h"
-#include "op-attrs/tensor_dims.h"
-#include "utils/containers/repeat_element.h"
-#include "op-attrs/ff_ordered/ff_ordered_slice.h"
-#include "op-attrs/relative_ff_dim_t.h"
-#include "op-attrs/ff_ordered/map_from_ff_ordered.h"
-#include "utils/containers/filter_keys.h"
-#include "op-attrs/ff_ordered/ff_ordered_restrict_dims.h"
-#include "op-attrs/ff_ordered/ff_ordered_without_dims.h"
-#include "op-attrs/ff_ordered/ff_ordered_remove_suffix.h"
-#include "op-attrs/ff_ordered/ff_ordered_concat.h"
-#include "utils/orthotope/dim_domain.h"
 #include "utils/orthotope/dim_coord.h"
+#include "utils/orthotope/dim_domain.h"
+#include "utils/orthotope/minimal_dim_domain.h"
 
 namespace FlexFlow {
 
@@ -105,21 +105,17 @@ positive_int get_degree_for_parallel_tensor_dim_idx(
 
 positive_int
     get_degree_for_relative_ff_dim_t(ParallelTensorDimDegrees const &degrees,
-                                     relative_ff_dim_t const &dim)
-{
+                                     relative_ff_dim_t const &dim) {
   num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
 
-  return
-    get_degree_for_parallel_tensor_dim_idx(
-      degrees,
-      shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(dim, num_dims)));
+  return get_degree_for_parallel_tensor_dim_idx(
+      degrees, shard_dim_idx(ff_dim_t_from_relative_ff_dim_t(dim, num_dims)));
 }
 
-std::vector<positive_int>
-    get_degrees_for_relative_ff_dim_interval(ParallelTensorDimDegrees const &degrees,
-                                            relative_ff_dim_t const &start,
-                                            relative_ff_dim_t const &end)
-{
+std::vector<positive_int> get_degrees_for_relative_ff_dim_interval(
+    ParallelTensorDimDegrees const &degrees,
+    relative_ff_dim_t const &start,
+    relative_ff_dim_t const &end) {
   num_tensor_dims_t num_dims = get_ptensor_dim_degrees_num_tensor_dims(degrees);
 
   ff_dim_t absolute_start = ff_dim_t_from_relative_ff_dim_t(start, num_dims);
@@ -127,7 +123,8 @@ std::vector<positive_int>
 
   ASSERT(absolute_end.value > absolute_start.value);
 
-  return vector_of(ff_ordered_slice(degrees.shard_degrees, absolute_start, absolute_end));
+  return vector_of(
+      ff_ordered_slice(degrees.shard_degrees, absolute_start, absolute_end));
 }
 
 std::map<parallel_tensor_dim_idx_t, positive_int>
@@ -150,19 +147,13 @@ std::map<parallel_tensor_dim_idx_t, positive_int>
       }));
 }
 
-ParallelTensorDimDegrees
-    parallel_dim_degrees_drop_shard_dims(
-      ParallelTensorDimDegrees const &d,
-      std::function<bool(ff_dim_t)> const &f)
-{
+ParallelTensorDimDegrees parallel_dim_degrees_drop_shard_dims(
+    ParallelTensorDimDegrees const &d, std::function<bool(ff_dim_t)> const &f) {
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/d.sum_degree,
-    /*discard_copy_degree=*/d.discard_copy_degree,
-    /*shard_degrees=*/
-      ff_ordered_from_map(
-        filter_keys(
-          map_from_ff_ordered(d.shard_degrees),
-          f)),
+      /*sum_degree=*/d.sum_degree,
+      /*discard_copy_degree=*/d.discard_copy_degree,
+      /*shard_degrees=*/
+      ff_ordered_from_map(filter_keys(map_from_ff_ordered(d.shard_degrees), f)),
 
   };
 }
@@ -185,25 +176,24 @@ std::set<ParallelTensorSpaceCoordinate> get_parallel_tensor_space_coordinates(
       });
 }
 
-bool
-  parallel_tensor_space_contains_coord(
+bool parallel_tensor_space_contains_coord(
     ParallelTensorDimDegrees const &dim_degrees,
-    ParallelTensorSpaceCoordinate const &coord)
-{
+    ParallelTensorSpaceCoordinate const &coord) {
   return dim_domain_contains_coord(
-    dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
-    dim_coord_from_parallel_tensor_space_coord(coord));
+      dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
+      dim_coord_from_parallel_tensor_space_coord(coord));
 }
 
-ParallelTensorDimDegrees trivial_degrees_for_tensor_dims(TensorDims const &dims) {
+ParallelTensorDimDegrees
+    trivial_degrees_for_tensor_dims(TensorDims const &dims) {
   std::vector<positive_int> shard_degrees = repeat_element(
       /*num_times=*/get_num_dims(dims).nonnegative_int_from_num_tensor_dims(),
       /*element=*/1_p);
 
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/SumDegree{1_p},
-    /*discard_copy_degree=*/DiscardCopyDegree{1_p},
-    /*shard_degrees=*/ff_ordered_of(shard_degrees),
+      /*sum_degree=*/SumDegree{1_p},
+      /*discard_copy_degree=*/DiscardCopyDegree{1_p},
+      /*shard_degrees=*/ff_ordered_of(shard_degrees),
   };
 }
 
@@ -220,14 +210,11 @@ DimDomain<parallel_tensor_dim_idx_t>
   };
 }
 
-DimDomain<parallel_tensor_dim_idx_t>
-    dim_domain_for_ptensor_dims(
-        ParallelTensorDimDegrees const &dim_degrees,
-        std::set<parallel_tensor_dim_idx_t> const &dim_idxs)
-{
+DimDomain<parallel_tensor_dim_idx_t> dim_domain_for_ptensor_dims(
+    ParallelTensorDimDegrees const &dim_degrees,
+    std::set<parallel_tensor_dim_idx_t> const &dim_idxs) {
   return restrict_domain_to_dims(
-    dim_domain_from_parallel_tensor_dim_degrees(dim_degrees),
-    dim_idxs);
+      dim_domain_from_parallel_tensor_dim_degrees(dim_degrees), dim_idxs);
 }
 
 ParallelTensorDimDegrees parallel_tensor_dim_degrees_from_dim_domain(
@@ -258,47 +245,45 @@ MinimalDimDomain<parallel_tensor_dim_idx_t>
       dim_domain_from_parallel_tensor_dim_degrees(dim_degrees));
 }
 
-ParallelTensorDimDegrees
-    parallel_tensor_dim_degrees_remove_trailing_dims(ParallelTensorDimDegrees const &input,
-                                                     FFOrdered<positive_int> const &trailing_dims)
-{
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_remove_trailing_dims(
+    ParallelTensorDimDegrees const &input,
+    FFOrdered<positive_int> const &trailing_dims) {
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/input.sum_degree,
-    /*discard_copy_degree=*/input.discard_copy_degree,
-    /*shard_degrees=*/ff_ordered_remove_suffix(input.shard_degrees, trailing_dims),
+      /*sum_degree=*/input.sum_degree,
+      /*discard_copy_degree=*/input.discard_copy_degree,
+      /*shard_degrees=*/
+      ff_ordered_remove_suffix(input.shard_degrees, trailing_dims),
   };
 }
 
-ParallelTensorDimDegrees
-    parallel_tensor_dim_degrees_append_trailing_dims(ParallelTensorDimDegrees const &input,
-                                                     FFOrdered<positive_int> const &trailing_dims)
-{
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_append_trailing_dims(
+    ParallelTensorDimDegrees const &input,
+    FFOrdered<positive_int> const &trailing_dims) {
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/input.sum_degree,
-    /*discard_copy_degree=*/input.discard_copy_degree,
-    /*shard_degrees=*/ff_ordered_concat(input.shard_degrees, trailing_dims),
+      /*sum_degree=*/input.sum_degree,
+      /*discard_copy_degree=*/input.discard_copy_degree,
+      /*shard_degrees=*/ff_ordered_concat(input.shard_degrees, trailing_dims),
   };
 }
 
-ParallelTensorDimDegrees
-    parallel_tensor_dim_degrees_restrict_dims(ParallelTensorDimDegrees const &degrees,
-                                                 std::set<ff_dim_t> const &dim_set)
-{
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_restrict_dims(
+    ParallelTensorDimDegrees const &degrees,
+    std::set<ff_dim_t> const &dim_set) {
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/degrees.sum_degree,
-    /*discard_copy_degree=*/degrees.discard_copy_degree,
-    /*shard_degrees=*/ff_ordered_restrict_dims(degrees.shard_degrees, dim_set),
+      /*sum_degree=*/degrees.sum_degree,
+      /*discard_copy_degree=*/degrees.discard_copy_degree,
+      /*shard_degrees=*/
+      ff_ordered_restrict_dims(degrees.shard_degrees, dim_set),
   };
 }
 
-ParallelTensorDimDegrees
-    parallel_tensor_dim_degrees_without_dims(ParallelTensorDimDegrees const &degrees,
-                                             std::set<ff_dim_t> const &dim_set)
-{
+ParallelTensorDimDegrees parallel_tensor_dim_degrees_without_dims(
+    ParallelTensorDimDegrees const &degrees,
+    std::set<ff_dim_t> const &dim_set) {
   return ParallelTensorDimDegrees{
-    /*sum_degree=*/degrees.sum_degree,
-    /*discard_copy_degree=*/degrees.discard_copy_degree,
-    /*shard_degrees=*/ff_ordered_without_dims(degrees.shard_degrees, dim_set),
+      /*sum_degree=*/degrees.sum_degree,
+      /*discard_copy_degree=*/degrees.discard_copy_degree,
+      /*shard_degrees=*/ff_ordered_without_dims(degrees.shard_degrees, dim_set),
   };
 }
 

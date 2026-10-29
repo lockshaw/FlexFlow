@@ -14,14 +14,12 @@ TEST_SUITE(FF_TEST_SUITE) {
         DataType::FLOAT,
     };
 
-    TensorShape result =
-        cast_get_output_shape(attrs, input);
+    TensorShape result = cast_get_output_shape(attrs, input);
 
     TensorShape correct = TensorShape{
         TensorDims{FFOrdered{12_p, 16_p}},
         DataType::DOUBLE,
     };
-
 
     CHECK(result == correct);
   }
@@ -42,9 +40,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_input = [&](SumDegree o_sum,
                           DiscardCopyDegree o_eq,
                           positive_int o_batch,
-                          positive_int o_features)
-      -> ParallelTensorShape
-    {
+                          positive_int o_features) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           input, o_sum, o_eq, FFOrdered{o_batch, o_features});
     };
@@ -52,9 +48,7 @@ TEST_SUITE(FF_TEST_SUITE) {
     auto make_output = [&](SumDegree o_sum,
                            DiscardCopyDegree o_eq,
                            positive_int o_batch,
-                           positive_int o_outchannels)
-      -> ParallelTensorShape
-    {
+                           positive_int o_outchannels) -> ParallelTensorShape {
       return lift_shape_to_parallel_with_degrees(
           output, o_sum, o_eq, FFOrdered{o_batch, o_outchannels});
     };

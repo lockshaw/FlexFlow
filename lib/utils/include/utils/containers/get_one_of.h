@@ -2,8 +2,8 @@
 #define _FLEXFLOW_LIB_UTILS_INCLUDE_UTILS_CONTAINERS_GET_ONE_OF_H
 
 #include "utils/fmt/set.h"
-#include <set>
 #include <libassert/assert.hpp>
+#include <set>
 
 namespace FlexFlow {
 

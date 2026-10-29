@@ -88,9 +88,8 @@ ParallelTensorShape lift_shape_to_parallel_with_degrees(
   };
 }
 
-ParallelTensorShape
-    lift_shape_to_parallel_with_degrees(TensorShape const &unpar,
-                                        ParallelTensorDimDegrees const &degrees) {
+ParallelTensorShape lift_shape_to_parallel_with_degrees(
+    TensorShape const &unpar, ParallelTensorDimDegrees const &degrees) {
   return ParallelTensorShape{
       lift_dims_to_parallel_with_degrees(unpar.dims, degrees),
       unpar.data_type,

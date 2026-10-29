@@ -5,15 +5,13 @@ namespace FlexFlow {
 
 using T = ordered_value_type<0>;
 
-template
-  std::multiset<T> multiset_intersection(std::multiset<T> const &,
-                                         std::multiset<T> const &);
+template std::multiset<T> multiset_intersection(std::multiset<T> const &,
+                                                std::multiset<T> const &);
 
-template
-  std::optional<std::multiset<T>> 
+template std::optional<std::multiset<T>>
     multiset_intersection(std::vector<std::multiset<T>> const &);
 
-template
-  std::multiset<T> multiset_intersection1(std::vector<std::multiset<T>> const &);
+template std::multiset<T>
+    multiset_intersection1(std::vector<std::multiset<T>> const &);
 
 } // namespace FlexFlow

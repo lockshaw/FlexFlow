@@ -6,7 +6,6 @@ namespace FlexFlow {
 using Elem = value_type<0>;
 using F = std::function<bool(Elem const &)>;
 
-template
-  FFOrdered<Elem> ff_ordered_filter(FFOrdered<Elem> const &, F &&);
+template FFOrdered<Elem> ff_ordered_filter(FFOrdered<Elem> const &, F &&);
 
 } // namespace FlexFlow

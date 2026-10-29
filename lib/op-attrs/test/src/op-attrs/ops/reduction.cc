@@ -93,7 +93,8 @@ TEST_SUITE(FF_TEST_SUITE) {
         },
     };
 
-    OperatorTaskSpace result = reduction_get_operator_task_space(attrs, input_degrees);
+    OperatorTaskSpace result =
+        reduction_get_operator_task_space(attrs, input_degrees);
     OperatorTaskSpace correct = operator_task_space_from_minimal_dim_domain(
         MinimalDimDomain<operator_task_space_dim_idx_t>{
             std::map<operator_task_space_dim_idx_t, int_ge_two>{

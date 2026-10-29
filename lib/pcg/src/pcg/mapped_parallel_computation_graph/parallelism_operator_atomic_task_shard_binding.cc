@@ -3,14 +3,13 @@
 namespace FlexFlow {
 
 OperatorAtomicTaskShardBinding
-  operator_atomic_task_shard_binding_from_parallelism_op_binding(
-    ParallelismOperatorAtomicTaskShardBinding const &b)
-{
+    operator_atomic_task_shard_binding_from_parallelism_op_binding(
+        ParallelismOperatorAtomicTaskShardBinding const &b) {
   return OperatorAtomicTaskShardBinding{
-    /*tensor_coords=*/std::map<TensorSlotName, ParallelTensorSpaceCoordinate>{
-      {TensorSlotName::INPUT, b.input_coord},
-      {TensorSlotName::OUTPUT, b.output_coord},
-    },
+      /*tensor_coords=*/std::map<TensorSlotName, ParallelTensorSpaceCoordinate>{
+          {TensorSlotName::INPUT, b.input_coord},
+          {TensorSlotName::OUTPUT, b.output_coord},
+      },
   };
 }
 

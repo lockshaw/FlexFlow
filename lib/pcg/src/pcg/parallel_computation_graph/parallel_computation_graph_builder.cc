@@ -81,10 +81,9 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::add(
 
   DataType datatype = [&] {
     if (lhs_shape.data_type != rhs_shape.data_type) {
-      PANIC(
-          fmt::format("Datatypes do not match: {} (lhs) != {} (rhs)",
-                      lhs_shape.data_type,
-                      rhs_shape.data_type));
+      PANIC(fmt::format("Datatypes do not match: {} (lhs) != {} (rhs)",
+                        lhs_shape.data_type,
+                        rhs_shape.data_type));
     } else {
       return lhs_shape.data_type;
     }
@@ -221,10 +220,10 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::dense(
   ParallelTensorShape input_shape = this->get_shape(input);
 
   std::map<TensorSlotName, InitializerAttrs> initializers =
-    linear_get_initializers(attrs,
-                            get_reduced_shape(input_shape),
-                            maybe_projection_initializer,
-                            maybe_bias_initializer);
+      linear_get_initializers(attrs,
+                              get_reduced_shape(input_shape),
+                              maybe_projection_initializer,
+                              maybe_bias_initializer);
 
   return require_only_key(this->add_layer(layer,
                                           {
@@ -310,12 +309,12 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::multihead_attention(
 
   std::map<TensorSlotName, InitializerAttrs> initializers =
       attention_get_initializers(attrs,
-                       get_reduced_shape(this->get_shape(query)),
-                       get_reduced_shape(this->get_shape(key)),
-                       get_reduced_shape(this->get_shape(value)),
-                       maybe_weights_initializer,
-                       maybe_input_bias_initializer,
-                       maybe_output_bias_initializer);
+                                 get_reduced_shape(this->get_shape(query)),
+                                 get_reduced_shape(this->get_shape(key)),
+                                 get_reduced_shape(this->get_shape(value)),
+                                 maybe_weights_initializer,
+                                 maybe_input_bias_initializer,
+                                 maybe_output_bias_initializer);
 
   return require_only_key(this->add_layer(layer,
                                           {
@@ -587,11 +586,10 @@ parallel_tensor_guid_t ParallelComputationGraphBuilder::as_type(
                                                    goal_datatype)) {
     return this->cast(input, goal_datatype, name);
   } else {
-    PANIC(
-        fmt::format("Could not convert provided tensor data type {} to "
-                    "desired data type {}",
-                    input_datatype,
-                    goal_datatype));
+    PANIC(fmt::format("Could not convert provided tensor data type {} to "
+                      "desired data type {}",
+                      input_datatype,
+                      goal_datatype));
   }
 }
 

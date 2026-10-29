@@ -1,16 +1,16 @@
 #include "op-attrs/ops/pool_2d.h"
+#include "kernels/accessor.h"
+#include "kernels/create_zero_filled_accessor.h"
+#include "kernels/local_cpu_allocator.h"
+#include "kernels/pool_2d_kernels_cpu.h"
+#include "kernels/shard_signature_instance_is_valid.h"
+#include "op-attrs/parallel_tensor_dims.h"
+#include "op-attrs/parallel_tensor_shape.h"
 #include "utils/expected.h"
 #include "utils/fmt/expected.h"
 #include "utils/fmt/optional.h"
 #include "utils/integer_conversions.h"
 #include <doctest/doctest.h>
-#include "op-attrs/parallel_tensor_dims.h"
-#include "kernels/local_cpu_allocator.h"
-#include "kernels/accessor.h"
-#include "kernels/create_zero_filled_accessor.h"
-#include "kernels/shard_signature_instance_is_valid.h"
-#include "kernels/pool_2d_kernels_cpu.h"
-#include "op-attrs/parallel_tensor_shape.h"
 
 using namespace ::FlexFlow;
 
@@ -42,9 +42,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       SUBCASE("returns correct attrs") {
-        Pool2DAttrs result =
-            make_adaptive_pool2d_attrs(
-                input_dims, output_h, output_w, op, activation);
+        Pool2DAttrs result = make_adaptive_pool2d_attrs(
+            input_dims, output_h, output_w, op, activation);
         Pool2DAttrs correct = correct_attrs;
 
         CHECK(result == correct);
@@ -102,9 +101,8 @@ TEST_SUITE(FF_TEST_SUITE) {
       };
 
       SUBCASE("returns correct attrs") {
-        Pool2DAttrs result =
-            make_adaptive_pool2d_attrs(
-                input_dims, output_h, output_w, op, activation);
+        Pool2DAttrs result = make_adaptive_pool2d_attrs(
+            input_dims, output_h, output_w, op, activation);
         Pool2DAttrs correct = correct_attrs;
 
         CHECK(result == correct);
@@ -155,8 +153,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      TensorShape result =
-          pool2d_get_output_shape(attrs, input);
+      TensorShape result = pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{6_p, 8_p}},
           DataType::FLOAT,
@@ -175,8 +172,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      TensorShape result =
-          pool2d_get_output_shape(attrs, input);
+      TensorShape result = pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{10_p, 6_p, 8_p}},
           DataType::FLOAT,
@@ -191,8 +187,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      TensorShape result =
-          pool2d_get_output_shape(attrs, input);
+      TensorShape result = pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{11_p, 13_p, 6_p, 4_p}},
           DataType::FLOAT,
@@ -207,8 +202,7 @@ TEST_SUITE(FF_TEST_SUITE) {
           DataType::FLOAT,
       };
 
-      TensorShape result =
-          pool2d_get_output_shape(attrs, input);
+      TensorShape result = pool2d_get_output_shape(attrs, input);
       TensorShape correct = TensorShape{
           TensorDims{FFOrdered{11_p, 13_p, 16_p, 6_p, 8_p}},
           DataType::FLOAT,
@@ -393,22 +387,21 @@ TEST_SUITE(FF_TEST_SUITE) {
 
       ParallelTensorShape result =
           pool2d_get_output_parallel_shape(attrs, input);
-      ParallelTensorShape correct =
-          ParallelTensorShape{
-              ParallelTensorDims{
-                  FFOrdered<ShardParallelDim>{
-                      ShardParallelDim{14_p, 7_p},
-                      ShardParallelDim{16_p, 8_p},
-                      ShardParallelDim{6_p, 3_p},
-                      ShardParallelDim{4_p, 2_p},
-                  },
-                  ReplicaParallelDimSet{
-                      SumDegree{1_p},
-                      DiscardCopyDegree{2_p},
-                  },
+      ParallelTensorShape correct = ParallelTensorShape{
+          ParallelTensorDims{
+              FFOrdered<ShardParallelDim>{
+                  ShardParallelDim{14_p, 7_p},
+                  ShardParallelDim{16_p, 8_p},
+                  ShardParallelDim{6_p, 3_p},
+                  ShardParallelDim{4_p, 2_p},
               },
-              DataType::FLOAT,
-          };
+              ReplicaParallelDimSet{
+                  SumDegree{1_p},
+                  DiscardCopyDegree{2_p},
+              },
+          },
+          DataType::FLOAT,
+      };
     }
 
     SUBCASE("invalid parallelism") {
@@ -436,90 +429,94 @@ TEST_SUITE(FF_TEST_SUITE) {
     Allocator cpu_allocator = create_local_cpu_memory_allocator();
 
     Pool2DAttrs attrs = Pool2DAttrs{
-      /*kernel_h=*/3_p,
-      /*kernel_w=*/3_p,
-      /*stride_h=*/1_p,
-      /*stride_w=*/1_p,
-      /*padding_h=*/0_n,
-      /*padding_w=*/0_n,
-      /*pool_type=*/PoolOp::MAX,
-      /*activation=*/std::nullopt,
+        /*kernel_h=*/3_p,
+        /*kernel_w=*/3_p,
+        /*stride_h=*/1_p,
+        /*stride_w=*/1_p,
+        /*padding_h=*/0_n,
+        /*padding_w=*/0_n,
+        /*pool_type=*/PoolOp::MAX,
+        /*activation=*/std::nullopt,
     };
 
     TensorShape input_shape = TensorShape{
-      TensorDims{
-        FFOrdered{
-          6_p,
-          4_p,
-          5_p,
-          3_p,
+        TensorDims{
+            FFOrdered{
+                6_p,
+                4_p,
+                5_p,
+                3_p,
+            },
         },
-      },
-      DataType::FLOAT,
+        DataType::FLOAT,
     };
 
-    auto mk_dim_degrees = [&](int sum_degree,
-                              int discard_copy_degree,
-                              int batch_shard_degree,
-                              int channel_shard_degree,
-                              int height_shard_degree,
-                              int width_shard_degree)
-      -> ParallelTensorDimDegrees
-    {
+    auto mk_dim_degrees =
+        [&](int sum_degree,
+            int discard_copy_degree,
+            int batch_shard_degree,
+            int channel_shard_degree,
+            int height_shard_degree,
+            int width_shard_degree) -> ParallelTensorDimDegrees {
       return ParallelTensorDimDegrees{
-        /*sum_degree=*/SumDegree{positive_int{sum_degree}},
-        /*discard_copy_degree=*/DiscardCopyDegree{positive_int{discard_copy_degree}},
-        /*shard_degrees=*/FFOrdered{
-          positive_int{batch_shard_degree},
-          positive_int{channel_shard_degree},
-          positive_int{height_shard_degree},
-          positive_int{width_shard_degree},
-        },
+          /*sum_degree=*/SumDegree{positive_int{sum_degree}},
+          /*discard_copy_degree=*/
+          DiscardCopyDegree{positive_int{discard_copy_degree}},
+          /*shard_degrees=*/
+          FFOrdered{
+              positive_int{batch_shard_degree},
+              positive_int{channel_shard_degree},
+              positive_int{height_shard_degree},
+              positive_int{width_shard_degree},
+          },
       };
     };
 
-    auto run_pool2d = [&](std::map<TensorSlotName, GenericTensorAccessorR> const &incoming_shards)
-      -> std::map<TensorSlotName, GenericTensorAccessorR>
-    {
-      GenericTensorAccessorR input_shard = incoming_shards.at(TensorSlotName::INPUT);
-      TensorShape output_shard_shape =
-        pool2d_get_output_shape(attrs, get_tensor_shape_for_accessor_r(input_shard));
-      GenericTensorAccessorW output_shard = create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
+    auto run_pool2d = [&](std::map<TensorSlotName, GenericTensorAccessorR> const
+                              &incoming_shards)
+        -> std::map<TensorSlotName, GenericTensorAccessorR> {
+      GenericTensorAccessorR input_shard =
+          incoming_shards.at(TensorSlotName::INPUT);
+      TensorShape output_shard_shape = pool2d_get_output_shape(
+          attrs, get_tensor_shape_for_accessor_r(input_shard));
+      GenericTensorAccessorW output_shard =
+          create_zero_filled_accessor_w(output_shard_shape, cpu_allocator);
 
       pool2d_cpu_forward_kernel(
-        /*attrs=*/attrs,
-        /*input=*/input_shard,
-        /*output=*/output_shard);
+          /*attrs=*/attrs,
+          /*input=*/input_shard,
+          /*output=*/output_shard);
 
       return std::map<TensorSlotName, GenericTensorAccessorR>{
-        {
-          TensorSlotName::OUTPUT,
-          read_only_accessor_from_write_accessor(output_shard),
-        },
+          {
+              TensorSlotName::OUTPUT,
+              read_only_accessor_from_write_accessor(output_shard),
+          },
       };
     };
 
-    auto pool2d_shard_signature_instance_is_valid = [&](ParallelTensorDimDegrees const &input_degrees)
-      -> bool
-    {
-      ParallelTensorShape input_parallel_shape = lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
+    auto pool2d_shard_signature_instance_is_valid =
+        [&](ParallelTensorDimDegrees const &input_degrees) -> bool {
+      ParallelTensorShape input_parallel_shape =
+          lift_shape_to_parallel_with_degrees(input_shape, input_degrees);
 
       std::map<TensorSlotName, ParallelTensorShape> input_shapes = {
-        {
-          TensorSlotName::INPUT,
-          input_parallel_shape,
-        },
+          {
+              TensorSlotName::INPUT,
+              input_parallel_shape,
+          },
       };
 
       return shard_signature_instance_is_valid(
-        /*attrs=*/ComputationGraphOpAttrs{attrs},
-        /*input_shapes=*/input_shapes,
-        /*run_op=*/run_pool2d,
-        /*seed=*/0);
+          /*attrs=*/ComputationGraphOpAttrs{attrs},
+          /*input_shapes=*/input_shapes,
+          /*run_op=*/run_pool2d,
+          /*seed=*/0);
     };
 
     SUBCASE("data parallelism") {
-      ParallelTensorDimDegrees input_dim_degrees = mk_dim_degrees(1, 1, 2, 1, 1, 1);
+      ParallelTensorDimDegrees input_dim_degrees =
+          mk_dim_degrees(1, 1, 2, 1, 1, 1);
 
       CHECK(pool2d_shard_signature_instance_is_valid(input_dim_degrees));
     }

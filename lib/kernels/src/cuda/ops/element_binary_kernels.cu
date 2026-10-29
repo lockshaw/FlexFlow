@@ -78,13 +78,14 @@ __global__ void elewise_binary_backward_kernel(size_t volume,
   }
 }
 
-ElementBinaryPerDeviceState element_binary_gpu_init_kernel(PerDeviceFFHandle handle,
-                                            ElementBinaryOp op_type,
-                                            bool should_broadcast_lhs,
-                                            bool should_broadcast_rhs,
-                                            TensorShape const &lhs_shape,
-                                            TensorShape const &rhs_shape,
-                                            TensorShape const &output_shape) {
+ElementBinaryPerDeviceState
+    element_binary_gpu_init_kernel(PerDeviceFFHandle handle,
+                                   ElementBinaryOp op_type,
+                                   bool should_broadcast_lhs,
+                                   bool should_broadcast_rhs,
+                                   TensorShape const &lhs_shape,
+                                   TensorShape const &rhs_shape,
+                                   TensorShape const &output_shape) {
   ffTensorDescriptor_t inputLHSTensor;
   ffTensorDescriptor_t inputRHSTensor;
   ffTensorDescriptor_t outputTensor;
@@ -142,14 +143,14 @@ ElementBinaryPerDeviceState element_binary_gpu_init_kernel(PerDeviceFFHandle han
 }
 
 void element_binary_gpu_forward_kernel(cudaStream_t stream,
-                        ElementBinaryPerDeviceState const &m,
-                        float const *lhs_ptr,
-                        float const *rhs_ptr,
-                        float *out_ptr,
-                        ElementBinaryOp op_type,
-                        bool broadcast_inputLHS,
-                        bool broadcast_inputRHS,
-                        PerDeviceFFHandle handle) {
+                                       ElementBinaryPerDeviceState const &m,
+                                       float const *lhs_ptr,
+                                       float const *rhs_ptr,
+                                       float *out_ptr,
+                                       ElementBinaryOp op_type,
+                                       bool broadcast_inputLHS,
+                                       bool broadcast_inputRHS,
+                                       PerDeviceFFHandle handle) {
   checkCUBLAS(cublasSetStream(handle.blas, stream));
   checkCUDNN(cudnnSetStream(handle.dnn, stream));
   float alpha1 = 1.0f, alpha2 = 1.0f, beta = 0.0f;
@@ -171,20 +172,18 @@ void element_binary_gpu_forward_kernel(cudaStream_t stream,
    * cudnnOpTensor
    */
 
-  ASSERT(
-    !broadcast_inputRHS,
-    (
-      "Broadcasting the RHS input to an ElementBinary operation is currently unsupported. "
-      "If you need this functionality, please contact the FF developers."
-    )
-  );
-
+  ASSERT(!broadcast_inputRHS,
+         ("Broadcasting the RHS input to an ElementBinary operation is "
+          "currently unsupported. "
+          "If you need this functionality, please contact the FF developers."));
 
   if (broadcast_inputLHS) {
     // currently only handle add and sub
-    assert(op_type == ElementBinaryOp::SUBTRACT || op_type == ElementBinaryOp::ADD ||
+    assert(op_type == ElementBinaryOp::SUBTRACT ||
+           op_type == ElementBinaryOp::ADD ||
            op_type == ElementBinaryOp::MULTIPLY);
-    if (op_type == ElementBinaryOp::SUBTRACT || op_type == ElementBinaryOp::ADD) {
+    if (op_type == ElementBinaryOp::SUBTRACT ||
+        op_type == ElementBinaryOp::ADD) {
       // output = (beta*output + alpha1*input1) + beta*output = input1
       checkCUDNN(cudnnOpTensor(handle.dnn,
                                m.opDesc,
@@ -260,16 +259,16 @@ void element_binary_gpu_forward_kernel(cudaStream_t stream,
 }
 
 void element_binary_gpu_backward_kernel(cudaStream_t stream,
-                         ElementBinaryPerDeviceState const &m,
-                         float const *out_grad_ptr,
-                         float const *lhs_ptr,
-                         float const *rhs_ptr,
-                         float *lhs_grad_ptr,
-                         float *rhs_grad_ptr,
-                         ElementBinaryOp op_type,
-                         bool broadcast_inputLHS,
-                         bool broadcast_inputRHS,
-                         PerDeviceFFHandle handle) {
+                                        ElementBinaryPerDeviceState const &m,
+                                        float const *out_grad_ptr,
+                                        float const *lhs_ptr,
+                                        float const *rhs_ptr,
+                                        float *lhs_grad_ptr,
+                                        float *rhs_grad_ptr,
+                                        ElementBinaryOp op_type,
+                                        bool broadcast_inputLHS,
+                                        bool broadcast_inputRHS,
+                                        PerDeviceFFHandle handle) {
   checkCUBLAS(cublasSetStream(handle.blas, stream));
   checkCUDNN(cudnnSetStream(handle.dnn, stream));
 
@@ -438,7 +437,8 @@ void element_binary_gpu_backward_kernel(cudaStream_t stream,
   }
 }
 
-void element_binary_gpu_cleanup_kernel(ElementBinaryPerDeviceState const &per_device_state) {
+void element_binary_gpu_cleanup_kernel(
+    ElementBinaryPerDeviceState const &per_device_state) {
   NOT_IMPLEMENTED();
 }
 

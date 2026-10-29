@@ -1,6 +1,6 @@
 #include "utils/containers/maximum.h"
-#include "test/utils/doctest/fmt/vector.h"
 #include "test/utils/doctest/fmt/set.h"
+#include "test/utils/doctest/fmt/vector.h"
 #include <doctest/doctest.h>
 #include <vector>
 

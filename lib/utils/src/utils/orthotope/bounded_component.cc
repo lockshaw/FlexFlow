@@ -4,8 +4,8 @@ namespace FlexFlow {
 
 BoundedComponent trivial_bounded_component() {
   return BoundedComponent{
-    /*component=*/0_n,
-    /*bound=*/1_p,
+      /*component=*/0_n,
+      /*bound=*/1_p,
   };
 }
 

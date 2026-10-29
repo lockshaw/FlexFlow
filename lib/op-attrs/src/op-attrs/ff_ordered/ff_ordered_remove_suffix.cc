@@ -5,9 +5,7 @@ namespace FlexFlow {
 
 using T = value_type<0>;
 
-template
-  FFOrdered<T>
-    ff_ordered_remove_suffix(FFOrdered<T> const &,
-                             FFOrdered<T> const &);
+template FFOrdered<T> ff_ordered_remove_suffix(FFOrdered<T> const &,
+                                               FFOrdered<T> const &);
 
 } // namespace FlexFlow

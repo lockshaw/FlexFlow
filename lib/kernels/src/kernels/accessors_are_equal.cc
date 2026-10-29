@@ -1,7 +1,7 @@
 #include "kernels/accessors_are_equal.h"
-#include "kernels/local_cpu_allocator.h"
 #include "kernels/copy_tensor_accessor.h"
 #include "kernels/datatype_dispatch.h"
+#include "kernels/local_cpu_allocator.h"
 #include "op-attrs/tensor_dims.h"
 
 namespace FlexFlow {
