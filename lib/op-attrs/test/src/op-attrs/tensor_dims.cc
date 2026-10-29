@@ -276,4 +276,285 @@ TEST_SUITE(FF_TEST_SUITE) {
       CHECK(result == correct);
     }
   }
+
+  TEST_CASE("tensor_dims_get_shared_leading_dims") {
+    SUBCASE("input has size 0") {
+      std::set<TensorDims> inputs = {};
+
+      CHECK_THROWS(tensor_dims_get_shared_leading_dims(inputs));
+    }
+
+    SUBCASE("input has size 1") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{8_p, 1_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("input has size > 2") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 2_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 3_p, 2_p, 8_p, 1_p, 3_p, 4_p},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{8_p, 1_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("tensors have shared leading dims") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{8_p, 1_p, 3_p, 2_p, 6_p, 1_p, 3_p, 4_p},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{8_p, 1_p, 3_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("tensors have shared leading when restricted to nontrivial dims, "
+            "but not in general") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{1_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{3_p, 2_p, 6_p, 1_p, 3_p, 4_p},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("tensor leading dims are completely different") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{5_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{3_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("one tensor dims is empty") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{5_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("all tensor dims are empty") {
+      std::set<TensorDims> inputs = {
+          TensorDims{
+              FFOrdered<positive_int>{},
+          },
+          TensorDims{
+              FFOrdered<positive_int>{},
+          },
+      };
+
+      TensorDims result = tensor_dims_get_shared_leading_dims(inputs);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("tensor_dims_remove_leading_dims") {
+    TensorDims tensor_dims = TensorDims{
+        FFOrdered<positive_int>{8_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p},
+    };
+
+    SUBCASE("leading dims match") {
+      TensorDims leading_dims = TensorDims{
+          FFOrdered<positive_int>{8_p, 3_p},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_leading_dims(tensor_dims, leading_dims);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{3_p, 8_p, 1_p, 3_p, 4_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("leading dims do not match") {
+      TensorDims leading_dims = TensorDims{
+          FFOrdered<positive_int>{8_p, 1_p},
+      };
+
+      CHECK_THROWS(tensor_dims_remove_leading_dims(tensor_dims, leading_dims));
+    }
+
+    SUBCASE("leading dims are empty") {
+      TensorDims leading_dims = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_leading_dims(tensor_dims, leading_dims);
+      TensorDims correct = tensor_dims;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("same number input dims as leading dims") {
+      TensorDims leading_dims = tensor_dims;
+
+      TensorDims result =
+          tensor_dims_remove_leading_dims(tensor_dims, leading_dims);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("fewer input dims than leading dims") {
+      TensorDims leading_dims = TensorDims{
+          FFOrdered<positive_int>{8_p, 3_p, 3_p, 8_p, 1_p, 3_p, 4_p, 1_p},
+      };
+
+      CHECK_THROWS(tensor_dims_remove_leading_dims(tensor_dims, leading_dims));
+    }
+
+    SUBCASE("input dims are empty") {
+      TensorDims empty_dims = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_leading_dims(empty_dims, empty_dims);
+      TensorDims correct = empty_dims;
+
+      CHECK(result == correct);
+    }
+  }
+
+  TEST_CASE("tensor_dims_remove_trailing_dims") {
+    TensorDims tensor_dims = TensorDims{
+        FFOrdered<positive_int>{4_p, 3_p, 1_p, 8_p, 3_p, 3_p, 8_p},
+    };
+
+    SUBCASE("trailing dims match") {
+      TensorDims trailing_dims = TensorDims{
+          FFOrdered<positive_int>{3_p, 8_p},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_trailing_dims(tensor_dims, trailing_dims);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{4_p, 3_p, 1_p, 8_p, 3_p},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("trailing dims do not match") {
+      TensorDims trailing_dims = TensorDims{
+          FFOrdered<positive_int>{1_p, 8_p},
+      };
+
+      CHECK_THROWS(
+          tensor_dims_remove_trailing_dims(tensor_dims, trailing_dims));
+    }
+
+    SUBCASE("trailing dims are empty") {
+      TensorDims trailing_dims = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_trailing_dims(tensor_dims, trailing_dims);
+      TensorDims correct = tensor_dims;
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("same number input dims as trailing dims") {
+      TensorDims trailing_dims = tensor_dims;
+
+      TensorDims result =
+          tensor_dims_remove_trailing_dims(tensor_dims, trailing_dims);
+      TensorDims correct = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      CHECK(result == correct);
+    }
+
+    SUBCASE("fewer input dims than trailing dims") {
+      TensorDims trailing_dims = TensorDims{
+          FFOrdered<positive_int>{1_p, 4_p, 3_p, 1_p, 8_p, 3_p, 3_p, 8_p},
+      };
+
+      CHECK_THROWS(
+          tensor_dims_remove_trailing_dims(tensor_dims, trailing_dims));
+    }
+
+    SUBCASE("input dims are empty") {
+      TensorDims empty_dims = TensorDims{
+          FFOrdered<positive_int>{},
+      };
+
+      TensorDims result =
+          tensor_dims_remove_trailing_dims(empty_dims, empty_dims);
+      TensorDims correct = empty_dims;
+
+      CHECK(result == correct);
+    }
+  }
 }
