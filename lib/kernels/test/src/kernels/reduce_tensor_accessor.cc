@@ -27,28 +27,55 @@ TEST_SUITE(FF_TEST_SUITE) {
             },
             cpu_allocator);
 
-    GenericTensorAccessorW result = reduce_tensor_accessor_in_dims(
-        accessor,
-        {ff_dim_t{0_n}, ff_dim_t{2_n}},
-        cpu_allocator,
-        overload{
-            [](std::vector<int> const &input_values) {
-              return sum(input_values);
-            },
-            [](auto const &x) -> get_element_type_t<decltype(x)> { PANIC(); },
-        });
+    SUBCASE("reduce in one dimension") {
+      GenericTensorAccessorW result = reduce_tensor_accessor_in_dims(
+          accessor,
+          {ff_dim_t{0_n}},
+          cpu_allocator,
+          overload{
+              [](std::vector<int> const &input_values) {
+                return sum(input_values);
+              },
+              [](auto const &x) -> get_element_type_t<decltype(x)> { PANIC(); },
+          });
 
-    GenericTensorAccessorW correct =
-        create_1d_accessor_w_with_contents<int32_t>(
-            {
-                1 + 3 + 2 + 4 + 2 + 1,
-                2 + 1 + 5 + 8 + 3 + 6,
-            },
-            cpu_allocator);
+      GenericTensorAccessorW correct =
+          create_2d_accessor_w_with_contents<int32_t>(
+              {
+                  {1 + 4, 3 + 2, 2 + 1},
+                  {2 + 8, 1 + 3, 5 + 6},
+              },
+              cpu_allocator);
 
-    CHECK_MESSAGE(accessors_are_equal(result, correct),
-                  check_kv("result =", format_accessor_w_contents(result)),
-                  check_kv("correct=", format_accessor_w_contents(correct)));
+      CHECK_MESSAGE(accessors_are_equal(result, correct),
+                    check_kv("result =", format_accessor_w_contents(result)),
+                    check_kv("correct=", format_accessor_w_contents(correct)));
+    }
+
+    SUBCASE("reduce in multiple dimensions") {
+      GenericTensorAccessorW result = reduce_tensor_accessor_in_dims(
+          accessor,
+          {ff_dim_t{0_n}, ff_dim_t{2_n}},
+          cpu_allocator,
+          overload{
+              [](std::vector<int> const &input_values) {
+                return sum(input_values);
+              },
+              [](auto const &x) -> get_element_type_t<decltype(x)> { PANIC(); },
+          });
+
+      GenericTensorAccessorW correct =
+          create_1d_accessor_w_with_contents<int32_t>(
+              {
+                  1 + 3 + 2 + 4 + 2 + 1,
+                  2 + 1 + 5 + 8 + 3 + 6,
+              },
+              cpu_allocator);
+
+      CHECK_MESSAGE(accessors_are_equal(result, correct),
+                    check_kv("result =", format_accessor_w_contents(result)),
+                    check_kv("correct=", format_accessor_w_contents(correct)));
+    }
   }
 
   TEST_CASE("reduce_tensor_accessor_in_all_dims") {
